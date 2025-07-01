@@ -11,11 +11,7 @@
     "install-all": "npm run install-server && npm run install-client",
     "build": "cd client && npm run build",
     "start:prod": "cd backend && NODE_ENV=production npm start",
-    "deploy": "npm run install-all && npm run build",
-    "docker:build": "docker build -t atict-lms .",
-    "docker:run": "docker run -p 3000:80 -p 5000:5000 atict-lms",
-    "docker:compose": "docker-compose up -d",
-    "docker:down": "docker-compose down"
+    "deploy": "npm run install-all && npm run build"
   },
   "dependencies": {
     "node-fetch": "^2.7.0",
