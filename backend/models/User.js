@@ -846,6 +846,9 @@ userSchema.methods.resetLoginAttempts = function() {
  * @returns {Object} Role-specific information
  */
 userSchema.methods.getRoleData = function() {
+  if (!this.role) {
+    return {};
+  }
   switch(this.role) {
     case 'student':
       return this.studentInfo || {};
@@ -864,6 +867,9 @@ userSchema.methods.getRoleData = function() {
  * @returns {Promise} Save operation result
  */
 userSchema.methods.updateRoleData = function(data) {
+  if (!this.role) {
+    throw new Error('User role is not defined');
+  }
   switch(this.role) {
     case 'student':
       this.studentInfo = { ...this.studentInfo, ...data };
@@ -874,6 +880,8 @@ userSchema.methods.updateRoleData = function(data) {
     case 'parent':
       this.parentInfo = { ...this.parentInfo, ...data };
       break;
+    default:
+      throw new Error(`Invalid role: ${this.role}`);
   }
   return this.save();
 };
@@ -955,7 +963,9 @@ userSchema.statics.getUserStats = async function() {
  * @returns {String} Combined first and last name
  */
 userSchema.virtual('fullName').get(function() {
-  return `${this.firstName} ${this.lastName}`.trim();
+  const firstName = this.firstName || '';
+  const lastName = this.lastName || '';
+  return `${firstName} ${lastName}`.trim() || 'Unknown User';
 });
 
 /**
@@ -963,6 +973,9 @@ userSchema.virtual('fullName').get(function() {
  * @returns {String} Dashboard URL based on user role
  */
 userSchema.virtual('dashboardUrl').get(function() {
+  if (!this.role) {
+    return '/';
+  }
   switch(this.role) {
     case 'student': 
       return '/student-dashboard';
@@ -988,6 +1001,9 @@ userSchema.virtual('isAccountLocked').get(function() {
  * @returns {String} Full name with role in parentheses
  */
 userSchema.virtual('displayName').get(function() {
+  if (!this.role) {
+    return this.fullName || 'Unknown User';
+  }
   const roleName = this.role.charAt(0).toUpperCase() + this.role.slice(1);
   return `${this.fullName} (${roleName})`;
 });

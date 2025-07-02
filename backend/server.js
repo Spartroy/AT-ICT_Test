@@ -54,6 +54,9 @@ const quizRoutes = require('./routes/quizRoutes');
  */
 const app = express();
 
+// Trust proxy for Railway deployment
+app.set('trust proxy', 1);
+
 /**
  * HTTP server instance for Socket.IO integration
  */
