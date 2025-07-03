@@ -21,7 +21,7 @@ const Hero = () => {
   return (
     <div className="relative flex items-center justify-center h-screen bg-gradient-to-br from-[#1a1a1a] via-[#2a1a1a] to-[#3a1a1a] text-white overflow-hidden">
       {/* Grid background with falling animation */}
-      <div className="absolute inset-0 grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2 sm:gap-3 md:gap-4 opacity-50">
+      <div className="absolute inset-0 grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2 sm:gap-3 md:gap-4 opacity-50 mt-[100px]">
         {[
           "Nuria", "Jana", "Abdo.Bassem", "Andrew", "Hussain",
           "Razan", "Mohamed", "Haitham", "Kenzy", "Ahmad Qayem",
@@ -29,7 +29,8 @@ const Hero = () => {
           "Mohannad", "Hatem", "Fahmy", "Jana", "Dina",
           "Malak", "Joud", "Karam", "Omar Tarek", "Omar Badawy",
           "Shahd", "Abdelrahman", "Ali", "Basel", "Joury", "Yassin",
-          "Muntaha", "Jad", "Ahmad", "Nuria", "Jana", "Abdo.Bassem", "Andrew", "Hussain", "Zaynab"
+          "Muntaha", "Jad", "Ahmad", "Nuria", "Jana", "Abdo.Bassem", 
+          "Andrew", "Hussain","Tala","Nataly","Shady"
         ].map((name, i) => (
           <motion.div
             key={i}
@@ -63,7 +64,7 @@ const Hero = () => {
       >
         {/* Heading */}
         <motion.h1
-          className="text-[28pt] sm:text-[36pt] md:text-[50pt] font-bold"
+          className="text-[28pt] sm:text-[36pt] md:text-[40pt] font-bold"
           variants={itemVariants}
         >
           Welcome to <span className="text-[#CA133E]">AT-ICT</span> 

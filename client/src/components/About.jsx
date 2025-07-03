@@ -22,7 +22,7 @@ const About = () => {
 
   const successStats = [
     { number: "100+", label: "Students Taught", icon: Users },
-    { number: "90%", label: "(A* - A) Achievement Rate", icon: Trophy },
+    { number: "90%", label: "(A* - A) Achievement", icon: Trophy },
     { number: "5+", label: "Years Experience", icon: Award },
     { number: "10+", label: "Countries Reached", icon: Target }
   ];
@@ -92,12 +92,12 @@ const About = () => {
               variants={fadeInUp}
               className="text-center max-w-4xl mx-auto mt-10"
             >
-              <span className="text-white font-bold text-[20pt] tracking-wide uppercase">Meet Your ICT Success Partner</span>
-              <h1 className="text-4xl md:text-6xl font-bold mt-4 mb-6">
+              <span className="text-white font-bold text-[25pt] tracking-wide uppercase">Meet Your ICT Success Partner</span>
+              <h1 className="text-4xl md:text-[20pt] font-bold mt-4 mb-6">
                 From a <span className="text-[#CA133E]">Struggler</span> to
                 <span className="text-[#CA133E]"> A* Champion !</span>
               </h1>
-              <p className="text-xl md:text-2xl text-gray-300 mb-8 leading-relaxed">
+              <p className="text-xl md:text-[15pt] text-gray-300 mb-8 leading-relaxed">
                 ICT explained using our <span className="text-[#CA133E] font-semibold">proven method</span> <br />
                 That transforms confusion into confidence!
               </p>
@@ -115,8 +115,8 @@ const About = () => {
                     <div className="w-16 h-16 bg-[#CA133E] rounded-full flex items-center justify-center mx-auto mb-3">
                       <stat.icon className="text-white" size={28} />
                     </div>
-                    <div className="text-3xl font-bold text-[#CA133E] mb-1">{stat.number}</div>
-                    <div className="text-gray-400 text-sm">{stat.label}</div>
+                    <div className="text-[15pt] font-bold text-[#CA133E] mb-1">{stat.number}</div>
+                    <div className="text-gray-400 text-[15pt]">{stat.label}</div>
                   </motion.div>
                 ))}
               </div>
@@ -133,7 +133,7 @@ const About = () => {
               variants={fadeInUp}
               className="max-w-6xl mx-auto"
             >
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
                 {/* Teacher Image & Credentials */}
                 <div className="text-center lg:text-left">
                   <div className="relative inline-block">
@@ -147,74 +147,76 @@ const About = () => {
                   </div>
 
                   {/* Quick Credentials */}
-                  <div className="mt-8 space-y-3">
+                  <div className="mt-8 space-y-4">
                     <div className="flex items-center justify-center lg:justify-start">
-                      <CheckCircle className="text-green-500 mr-2" size={20} />
-                      <span className="text-gray-700">Software Engineer & IGCSE Expert</span>
+                      <CheckCircle className="text-green-500 mr-3" size={24} />
+                      <span className="text-gray-700 text-[15pt]">Software Engineer & IGCSE Expert</span>
                     </div>
                     <div className="flex items-center justify-center lg:justify-start">
-                      <CheckCircle className="text-green-500 mr-2" size={20} />
-                      <span className="text-gray-700">5+ Years Teaching Experience</span>
+                      <CheckCircle className="text-green-500 mr-3" size={24} />
+                      <span className="text-gray-700 text-[15pt]">5+ Years Teaching Experience</span>
                     </div>
                     <div className="flex items-center justify-center lg:justify-start">
-                      <CheckCircle className="text-green-500 mr-2" size={20} />
-                      <span className="text-gray-700">Former IGCSE Student (I've Been There!)</span>
+                      <CheckCircle className="text-green-500 mr-3" size={24} />
+                      <span className="text-gray-700 text-[15pt]">Former IGCSE Student (I've Been There!)</span>
                     </div>
                   </div>
                 </div>
 
                 {/* The Story */}
                 <div>
-                  <span className="text-[#CA133E] font-bold text-lg">My Journey</span>
-                  <h2 className="text-4xl font-bold text-gray-800 mt-2 mb-6">
+                  <span className="text-[#CA133E] font-bold text-2xl">My Journey</span>
+                  <h2 className="text-6xl font-bold text-gray-800 mt-2 mb-6">
                     Why I <span className="text-[#CA133E]">Developed</span> AT-ICT ?
                   </h2>
 
                   <div className="space-y-6 text-gray-700 leading-relaxed">
-                    <p className="text-lg">
+                    <p className="text-[14pt]">
                       <strong>I remember my own IGCSE struggles...</strong> <br />
                       Sitting in class, completely lost with <span className='text-[#CA133E] font-bold'>Notes and classfied</span>. <br />
                       That frustration? I've felt it too. That's exactly why I created AT-ICT.
                     </p>
-
                     <div className="bg-gray-50 p-6 rounded-xl border-l-4 border-[#CA133E]">
-                      <p className="font-semibold text-[#CA133E] mb-2">💡 The Breakthrough Moment:</p>
-                      <p>
+                      <p className="font-semibold text-[#CA133E] mb-2 text-[14pt]">💡 The Breakthrough Moment:</p>
+                      <p className="text-[14pt]">
                         "When I finally understood ICT through <em>real examples and hands-on practice</em>,
                         I knew I had to share this approach with others. That was 5 years ago..."
                       </p>
                     </div>
 
-                    <p className='text-center'>
+                    <p className='text-center text-[13pt]'>
                       Since then, I've dedicated my career to make Learning
                       <div className="my-8">
                         <ul className="flex flex-row gap-10 justify-center pl-0 list-none">
                           <li>
-                            <strong className="text-[#CA133E] bg-[#FDE8EC] rounded-xl px-4 py-2">Simple</strong>
+                            <strong className="text-[#CA133E] bg-[#FDE8EC] rounded-xl px-4 py-2 text-[15pt]">Simple</strong>
                           </li>
                           <li>
-                            <strong className="text-[#CA133E] bg-[#FDE8EC] rounded-xl px-4 py-2">Engaging</strong>
+                            <strong className="text-[#CA133E] bg-[#FDE8EC] rounded-xl px-4 py-2 text-[15pt]">Engaging</strong>
                           </li>
                           <li>
-                            <strong className="text-[#CA133E] bg-[#FDE8EC] rounded-xl px-4 py-2">Actually fun!</strong>
+                            <strong className="text-[#CA133E] bg-[#FDE8EC] rounded-xl px-4 py-2 text-[15pt]">Actually fun!</strong>
                           </li>
                         </ul>
                       </div>
                     </p>
+                  </div>
+                </div>
+              </div>
 
-                    <div className="bg-gray-200 p-6 rounded-xl">
-                      <p className="font-bold text-[#CA133E] text-lg">My Promise to You:</p>
-                      <p className="mt-2">
-                        "I won't just teach you ICT concepts – I'll show you how to <em>think like a tech expert</em>,
-                        solve problems confidently, and ace your exams with strategies that actually work in the real world."
-                      </p>
-                      <div className="mt-4 flex items-center">
-                        <img src={PP} alt="Ahmad" className="w-12 h-12 rounded-full mr-3" />
-                        <div>
-                          <div className="font-bold text-gray-800">Eng. Ahmad Tamer Ali</div>
-                          <div className="text-sm text-gray-600">Your ICT Success Partner</div>
-                        </div>
-                      </div>
+              {/* Promise Section - Centered Below */}
+              <div className="mt-16 flex justify-center">
+                <div className="bg-gray-200 p-6 rounded-xl max-w-4xl w-full">
+                  <p className="font-bold text-[#CA133E] text-[15pt] text-center">My Promise to You:</p>
+                  <p className="mt-2 text-[15pt] text-center">
+                    "I won't just teach you ICT concepts – I'll show you how to <em>think like a tech expert</em>,
+                    solve problems confidently, and ace your exams with strategies that actually work in the real world."
+                  </p>
+                  <div className="mt-4 flex items-center justify-center">
+                    <img src={PP} alt="Ahmad" className="w-12 h-12 rounded-full mr-3" />
+                    <div>
+                      <div className="font-bold text-gray-800 text-[15pt]">Eng. Ahmad Tamer Ali</div>
+                      <div className="text-[15pt] text-gray-600">Your ICT Success Partner</div>
                     </div>
                   </div>
                 </div>
@@ -264,11 +266,11 @@ const About = () => {
               className="max-w-6xl mx-auto"
             >
               <div className="text-center mb-16">
-                <span className="text-[#CA133E] font-bold text-lg">Student Success Stories</span>
-                <h2 className="text-4xl font-bold text-gray-800 mt-2 mb-4">
+                <span className="text-[#CA133E] font-bold text-[25pt]">Student Stories</span>
+                <h2 className="text-[15pt] font-bold text-gray-800 mt-2 mb-4">
                   Real Students, <span className="text-[#CA133E]">Real Results</span>
                 </h2>
-                <p className="text-xl text-gray-600">
+                <p className="text-[13pt] text-gray-600">
                   Don't just take our word for it - hear from students.
                 </p>
               </div>
@@ -334,10 +336,10 @@ const About = () => {
               className="max-w-6xl mx-auto"
             >
               <div className="text-center mb-16">
-                <h2 className="text-4xl font-bold text-gray-800 mb-4">
+                <h2 className="text-[25pt] font-bold text-gray-800 mb-4">
                   The <span className="text-[#CA133E]">AT-ICT Advantage</span>
                 </h2>
-                <p className="text-xl text-gray-600">
+                <p className="text-[15pt] text-gray-600">
                   What makes our students consistently outperform others?
                 </p>
               </div>

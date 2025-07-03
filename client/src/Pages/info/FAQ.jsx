@@ -110,7 +110,8 @@ const FAQ = () => {
       
       <div className="pt-24 pb-12">
         {/* Hero Section */}
-        <section className="bg-gradient-to-r from-[#CA133E] to-[#A01030] text-white py-16">
+        {/* bg-gradient-to-r from-[#CA133E] to-[#A01030] */}
+        <section className="bg-gradient-to-br from-[#1a1a1a] via-[#2a1a1a] to-[#3a1a1a] text-white py-16 mt-[-18px]">
           <div className="container mx-auto px-4">
             <motion.div
               initial={{ opacity: 0, y: 50 }}
@@ -118,13 +119,14 @@ const FAQ = () => {
               transition={{ duration: 0.8 }}
               className="max-w-4xl mx-auto text-center"
             >
-              <HelpCircle className="mx-auto mb-6 text-yellow-300" size={64} />
-              <h1 className="text-4xl md:text-6xl font-bold mb-6">
-                Frequently Asked <span className="text-yellow-300">Questions</span>
+              <HelpCircle className="mx-auto mb-6 text-white" size={64} />
+              <h1 className="text-[25pt] md:text-[25pt] font-bold mb-6">
+                Frequently Asked <span className="text-[#CA133E]">Questions</span>
               </h1>
-              <p className="text-xl md:text-2xl mb-8 opacity-90">
-                Everything you need to know about AT-ICT. Can't find your answer? 
-                We're always here to help personally!
+              <p className="text-[15pt] md:text-[15pt] mb-4 opacity-90">
+                Everything you need to know about AT-ICT. <br /> <br />
+                <span className="text-[#CA133E] font-bold">Can't find your answer?</span> 
+                <br />We're always here to help you !
               </p>
             </motion.div>
           </div>
@@ -142,7 +144,7 @@ const FAQ = () => {
                   transition={{ duration: 0.6, delay: categoryIndex * 0.1 }}
                   className="mb-12"
                 >
-                  <h2 className="text-3xl font-bold text-gray-800 mb-8 text-center">
+                  <h2 className="text-[20pt] font-bold text-gray-800 mb-6 mt-8 text-center">
                     <span className="text-[#CA133E]">{category.title}</span>
                   </h2>
                   
@@ -206,10 +208,10 @@ const FAQ = () => {
               transition={{ duration: 0.8 }}
               className="max-w-4xl mx-auto text-center"
             >
-              <h2 className="text-4xl font-bold text-gray-800 mb-6">
+              <h2 className="text-[25pt] font-bold text-gray-800 mb-6">
                 Still Have <span className="text-[#CA133E]">Questions?</span>
               </h2>
-              <p className="text-xl text-gray-600 mb-12">
+              <p className="text-[15pt] text-gray-600 mb-12">
                 Don't worry! We're here to help. Reach out through any of these channels 
                 and we'll get back to you within hours.
               </p>
@@ -264,20 +266,20 @@ const FAQ = () => {
               transition={{ duration: 0.8 }}
               className="max-w-3xl mx-auto text-center text-white"
             >
-              <h2 className="text-4xl font-bold mb-6">
-                Ready to Get <span className="text-yellow-300">Started?</span>
+              <h2 className="text-[25pt] font-bold mb-6">
+                Ready to Get <span className="text-[#CA133E]">Started?</span>
               </h2>
-              <p className="text-xl mb-8 opacity-90">
+              <p className="text-[15pt] mb-8 opacity-90">
                 Don't let questions hold you back from achieving your A* dream. 
                 Start with our free samples or jump right into the full course!
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <a href="/samples" className="bg-white text-[#CA133E] px-8 py-4 rounded-xl font-bold text-lg hover:bg-gray-100 transition-all">
-                  Try Free Samples 📚
+                  Try Free Samples 
                 </a>
                 <a href="/register" className="bg-transparent border-2 border-white text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-white hover:text-[#CA133E] transition-all">
-                  Enroll Now 🚀
+                  Enroll Now
                 </a>
               </div>
             </motion.div>

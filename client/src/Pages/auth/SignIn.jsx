@@ -142,16 +142,16 @@ const SignIn = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="text-3xl font-bold text-transparent bg-clip-text mb-2"
+              className="text-[25pt] font-bold text-transparent bg-clip-text mb-2"
               style={{ backgroundImage: 'linear-gradient(135deg, #D91743, #ff6b9d)' }}
             >
-              Welcome Back! 👋
+              Welcome Back
             </motion.h2>
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="text-gray-300"
+              className="text-[15pt] text-gray-300"
             >
               Sign in to access your AT-ICT dashboard
             </motion.p>
@@ -273,26 +273,7 @@ const SignIn = () => {
                 {errors.password && <p className="text-sm mt-2" style={{ color: '#D91743' }}>{errors.password}</p>}
               </div>
 
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <input
-                    id="remember-me"
-                    name="remember-me"
-                    type="checkbox"
-                    className="h-4 w-4 rounded"
-                    style={{ accentColor: '#D91743', background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(2px)' }}
-                  />
-                  <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-300">
-                    Remember me
-                  </label>
-                </div>
-
-                <div className="text-sm">
-                  <a href="/forgot-password" className="hover:underline transition-colors" style={{ color: '#D91743' }}>
-                    Forgot your password?
-                  </a>
-                </div>
-              </div>
+    
 
               <div>
                 <motion.button

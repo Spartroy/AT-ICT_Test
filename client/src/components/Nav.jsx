@@ -27,7 +27,6 @@ const Nav = () => {
           <Link to="/samples" className="text-white hover:text-gray-300 font-bold text-sm sm:text-base md:text-lg mt-4 ">Free Samples</Link>
             {/* <Link to="/curriculum" className="text-white hover:text-gray-300 font-bold text-sm sm:text-base md:text-lg mt-4 ">Curriculum</Link> */}
             <Link to="/contact" className="text-white hover:text-gray-300 font-bold text-sm sm:text-base md:text-lg mt-4 ">Contact us</Link>
-          <Link to="/fees" className="text-white hover:text-gray-300 font-bold text-sm sm:text-base md:text-lg mt-4 ">Pricing Plans</Link>
           <Link to="/faq" className="text-white hover:text-gray-300 font-bold text-sm sm:text-base md:text-lg mt-4 ">FAQ</Link>
         
         {/* <Dropdown/> */}
@@ -79,7 +78,6 @@ const Nav = () => {
             <Link to="/" onClick={toggleNav} className="text-white text-lg sm:text-xl font-bold">Home</Link>
             <Link to="/about" onClick={toggleNav} className="text-white text-lg sm:text-xl font-bold">About</Link>
             <Link to="/samples" onClick={toggleNav} className="text-white text-lg sm:text-xl font-bold">Free Samples</Link>
-            <Link to="/curriculum" onClick={toggleNav} className="text-white text-lg sm:text-xl font-bold">Curriculum</Link>
             <Link to="/contact" onClick={toggleNav} className="text-white text-lg sm:text-xl font-bold">Contact Us</Link>
 
             <button 

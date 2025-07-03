@@ -327,12 +327,10 @@ const Registration = () => {
                 transition={{ duration: 0.5 }}
                 className="flex items-center justify-center mb-6"
               >
-                <div className="w-20 h-20 rounded-full flex items-center justify-center mr-4" style={{ background: 'linear-gradient(135deg, #D91743, #ff6b9d)', boxShadow: '0 0 25px rgba(217, 23, 67, 0.4)' }}>
+                <div className="w-[100px] h-[50px] rounded-full flex items-center justify-center mr-4" style={{ background: 'linear-gradient(135deg, #D91743, #ff6b9d)', boxShadow: '0 0 25px rgba(217, 23, 67, 0.4)' }}>
                   <User className="text-white" size={40} />
                 </div>
-                <div className="w-16 h-16 rounded-full flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #ff6b9d, #D91743)', boxShadow: '0 0 20px rgba(217, 23, 67, 0.3)' }}>
-                  <Flame className="text-white" size={28} />
-                </div>
+          
               </motion.div>
               <h2 className="text-4xl font-bold text-transparent bg-clip-text mb-4" style={{ backgroundImage: 'linear-gradient(135deg, #D91743, #ff6b9d)' }}>
                 I need a name... a Full name !

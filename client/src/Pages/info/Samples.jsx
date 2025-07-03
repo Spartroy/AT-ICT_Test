@@ -85,7 +85,7 @@ const Samples = () => {
       
       <div className="pt-24 pb-12">
         {/* Hero Section */}
-        <section className="bg-gradient-to-r from-[#CA133E] to-[#A01030] text-white py-16">
+        <section className="bg-gradient-to-br from-[#1a1a1a] via-[#2a1a1a] to-[#3a1a1a] text-white py-16 mt-[-18px]">
           <div className="container mx-auto px-4">
             <motion.div
               initial={{ opacity: 0, y: 50 }}
@@ -94,9 +94,9 @@ const Samples = () => {
               className="max-w-4xl mx-auto text-center"
             >
      
-              <h1 className="text-4xl md:text-6xl font-bold mb-6">
-                Experience <span className="text-yellow-300">AT-ICT Quality</span>
-                <br />Before You Enroll!
+              <h1 className="text-[25pt] md:text-[25pt] font-bold mb-6">
+                Experience AT-ICT Quality 
+                <br />Before You Enroll
               </h1>
      
               
@@ -111,15 +111,14 @@ const Samples = () => {
             </motion.div>
           </div>
         </section>
-
         {/* Sample Materials */}
         <section id="samples" className="py-16 bg-white">
           <div className="container mx-auto px-4">
             <div className="max-w-6xl mx-auto">
-              <h2 className="text-3xl font-bold text-center text-gray-800 mb-4">
+              <h2 className="text-[25pt] font-bold text-center text-gray-800 mt-[40px]">
                 <span className="text-[#CA133E]">Free</span> Sample Materials
               </h2>
-              <p className="text-lg text-gray-600 text-center mb-12">
+              <p className="text-[15pt] text-gray-600 text-center mb-12">
                 Experience our teaching quality with these free samples
               </p>
               
@@ -183,7 +182,7 @@ const Samples = () => {
                         
                         <div className="flex gap-2">
                           <button className="flex-1 bg-[#CA133E] text-white py-2 px-3 rounded-[15px] font-medium hover:bg-[#A01030] transition-colors text-sm">
-                            Access Now 🚀
+                            Access Now 
                           </button>
                    
                         </div>
@@ -215,9 +214,7 @@ const Samples = () => {
                 <a href="/register" className="bg-white text-[#CA133E] px-6 py-3 rounded-xl font-bold hover:bg-gray-100 transition-colors">
                   Enroll Now 
                 </a>
-                <a href="/fees" className="bg-transparent border-2 border-white text-white px-6 py-3 rounded-xl font-bold hover:bg-white hover:text-[#CA133E] transition-all">
-                  View Pricing
-                </a>
+            
               </div>
             </motion.div>
           </div>
