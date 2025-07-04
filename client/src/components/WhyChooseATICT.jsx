@@ -15,8 +15,9 @@ const WhyChooseATICT = () => {
     visible: { opacity: 1, y: 0, transition: { duration: 0.8 } },
   };
 
+  // bg-gradient-to-br from-[#3a1a1a] via-[#2a1a1a] to-[#1a1a1a]
   return (
-    <section className="py-16 bg-gray-50 bg-gradient-to-br from-[#3a1a1a] via-[#2a1a1a] to-[#1a1a1a]">
+    <section className="py-16 bg-[#1a1a1a]">
       <div className="container mx-auto px-4">
         {/* Section Heading */}
         <motion.h2
@@ -26,7 +27,7 @@ const WhyChooseATICT = () => {
           whileInView="visible"
           viewport={{ once: true }}
         >
-          Why Choose <span className="text-[#CA133E]">AT-ICT </span>?
+          <span className="text-[#CA133E]">AT-ICT </span>Why Choose Us?
         </motion.h2>
 
         {/* Cards Grid */}

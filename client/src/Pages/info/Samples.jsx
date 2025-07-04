@@ -85,7 +85,7 @@ const Samples = () => {
       
       <div className="pt-24 pb-12">
         {/* Hero Section */}
-        <section className="bg-gradient-to-br from-[#1a1a1a] via-[#2a1a1a] to-[#3a1a1a] text-white py-16 mt-[-18px]">
+        <section className="bg-gradient-to-br from-[#1a1a1a] via-[#2a1a1a] to-[#3a1a1a] text-white py-[150px] mt-[-100px]">
           <div className="container mx-auto px-4">
             <motion.div
               initial={{ opacity: 0, y: 50 }}

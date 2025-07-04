@@ -11,6 +11,7 @@ import Curriculum from "./Pages/info/Curriculum";
 import FAQ from "./Pages/info/FAQ";
 import Fees from "./Pages/info/Fees";
 import Samples from "./Pages/info/Samples";
+import HallOfFame from "./Pages/info/HallOfFame";
 
 // Auth pages
 import SignIn from "./Pages/auth/SignIn";
@@ -29,6 +30,7 @@ function App() {
           {/* Info Routes */}
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
+          <Route path="/hall-of-fame" element={<HallOfFame />} />
           <Route path="/contact" element={<ContactUs />} />
           <Route path="/curriculum" element={<Curriculum />} />
           <Route path="/faq" element={<FAQ />} />
