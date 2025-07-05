@@ -2,13 +2,9 @@ backend/
 node_modules/
 .git/
 *.log
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-client/src/assets/Logo3.png
-client/src/assets/video-thumbnail.png
+.env*
 README.md
 DEPLOYMENT_CHECKLIST.md
-RAILWAY_DEPLOYMENT.md 
+RAILWAY_DEPLOYMENT.md
+package.json
+package-lock.json 
