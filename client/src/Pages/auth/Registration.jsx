@@ -196,59 +196,15 @@ const Registration = () => {
         const errorData = await response.json();
         console.error('Backend error response:', JSON.stringify(errorData, null, 2));
         
-        // Enhanced logging for mobile debugging
-        console.error('Error data type:', typeof errorData);
-        console.error('Has errors array:', Array.isArray(errorData.errors));
-        if (errorData.errors) {
-          console.error('Errors array length:', errorData.errors.length);
-          errorData.errors.forEach((error, index) => {
-            console.error(`Error ${index}:`, {
-              type: typeof error,
-              msg: error.msg,
-              message: error.message,
-              param: error.param,
-              path: error.path,
-              location: error.location,
-              fullError: error
-            });
-          });
-        }
-        
         // Handle validation errors
         if (errorData.errors && Array.isArray(errorData.errors)) {
-          const errorMessage = errorData.errors.map(error => {
-            // Handle different error object structures
-            if (typeof error === 'string') {
-              return `• ${error}`;
-            }
-            
-            // Try different possible message properties
-            const message = error.msg || error.message || error.field || 
-                           (error.param && `Invalid ${error.param}`) ||
-                           'Validation error occurred';
-            
-            return `• ${message}`;
-          }).join('\n');
+          const errorMessage = errorData.errors.map(error => `• ${error.msg || error}`).join('\n');
           setErrors({ 
             general: `Validation Error:\n${errorMessage}` 
           });
         } else if (errorData.message && errorData.message.includes('already exists')) {
           setErrors({ 
             general: `📧 This email address is already registered!\n\n✅ Good news: Your account exists in our system.\n\n🔑 Please try:\n• Sign in with your existing credentials\n• Use a different email address if you want a new account\n• Contact support if you've forgotten your password`
-          });
-        } else if (errorData.message && errorData.message.includes('Database validation errors')) {
-          // Handle mongoose validation errors
-          const dbErrors = errorData.errors || [];
-          const errorMessage = dbErrors.map(error => {
-            if (typeof error === 'string') {
-              return `• ${error}`;
-            }
-            const message = error.message || error.field || 'Database validation error';
-            return `• ${message}`;
-          }).join('\n');
-          
-          setErrors({ 
-            general: `Database Validation Errors:\n${errorMessage || '• Please check your information and try again.'}` 
           });
         } else {
           setErrors({ 
