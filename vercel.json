@@ -1,6 +1,9 @@
 {
   "version": 2,
   "name": "atict-frontend",
+  "github": {
+    "enabled": true
+  },
   "builds": [
     {
       "src": "client/package.json",
@@ -24,6 +27,11 @@
   "installCommand": "cd client && npm ci",
   "devCommand": "cd client && npm start",
   "framework": "create-react-app",
+  "functions": {
+    "client/src/**/*.js": {
+      "maxDuration": 30
+    }
+  },
   "rewrites": [
     {
       "source": "/((?!api/.*).*)",
