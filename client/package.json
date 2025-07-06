@@ -22,8 +22,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "NODE_OPTIONS='--max-old-space-size=4096' GENERATE_SOURCEMAP=false react-scripts build",
-    "build:prod": "NODE_ENV=production NODE_OPTIONS='--max-old-space-size=4096' GENERATE_SOURCEMAP=false react-scripts build",
+    "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
@@ -31,11 +30,7 @@
     "extends": [
       "react-app",
       "react-app/jest"
-    ],
-    "rules": {
-      "no-console": "off",
-      "no-unused-vars": "warn"
-    }
+    ]
   },
   "browserslist": {
     "production": [

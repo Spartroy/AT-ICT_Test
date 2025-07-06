@@ -1,17 +1,29 @@
 {
   "version": 2,
   "name": "atict-frontend",
-  "buildCommand": "npm ci && npm run build",
-  "outputDirectory": "build",
-  "installCommand": "npm ci",
+  "builds": [
+    {
+      "src": "client/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "build"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ],
+  "buildCommand": "cd client && npm ci && npm run build",
+  "outputDirectory": "client/build",
+  "installCommand": "cd client && npm ci",
+  "devCommand": "cd client && npm start",
   "framework": "create-react-app",
-  "rootDirectory": "client",
-  "env": {
-    "GENERATE_SOURCEMAP": "false",
-    "CI": "false",
-    "NODE_ENV": "production",
-    "REACT_APP_API_URL": "https://at-ict-test-production-6f8b.up.railway.app"
-  },
   "rewrites": [
     {
       "source": "/((?!api/.*).*)",
@@ -19,6 +31,15 @@
     }
   ],
   "headers": [
+    {
+      "source": "/service-worker.js",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache"
+        }
+      ]
+    },
     {
       "source": "/(.*)",
       "headers": [
