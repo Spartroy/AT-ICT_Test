@@ -6,7 +6,7 @@ const { validationResult } = require('express-validator');
 // @access  Private (Teacher)
 const getSchedule = async (req, res) => {
   try {
-    let schedule = await Schedule.getMainSchedule();
+    let schedule = await Schedule.findOne({ isActive: true });
     
     // If no schedule exists, create a default one
     if (!schedule) {
@@ -14,10 +14,35 @@ const getSchedule = async (req, res) => {
         title: 'Class Schedule',
         schedule: Schedule.initializeWeekSchedule(),
         createdBy: req.user.id,
+        lastUpdatedBy: req.user.id,
         isActive: true
       });
       
       await schedule.populate('createdBy', 'firstName lastName');
+      await schedule.populate('lastUpdatedBy', 'firstName lastName');
+    } else {
+      // Fix createdBy if it's null or points to non-existent user
+      if (!schedule.createdBy) {
+        schedule.createdBy = req.user.id;
+        await schedule.save();
+      }
+
+      // Safely populate fields with error handling
+      try {
+        await schedule.populate('createdBy', 'firstName lastName');
+      } catch (populateError) {
+        console.warn('Failed to populate createdBy, fixing reference:', populateError.message);
+        schedule.createdBy = req.user.id;
+        await schedule.save();
+        await schedule.populate('createdBy', 'firstName lastName');
+      }
+      
+      try {
+        await schedule.populate('lastUpdatedBy', 'firstName lastName');
+      } catch (populateError) {
+        console.warn('Failed to populate lastUpdatedBy:', populateError.message);
+        // Continue without lastUpdatedBy population if it fails
+      }
     }
 
     res.status(200).json({
@@ -65,9 +90,29 @@ const createOrUpdateSchedule = async (req, res) => {
       existingSchedule.notes = notes || existingSchedule.notes;
       existingSchedule.lastUpdatedBy = req.user.id;
 
+      // Fix createdBy if it's null or points to non-existent user
+      if (!existingSchedule.createdBy) {
+        existingSchedule.createdBy = req.user.id;
+      }
+
       await existingSchedule.save();
-      await existingSchedule.populate('createdBy', 'firstName lastName');
-      await existingSchedule.populate('lastUpdatedBy', 'firstName lastName');
+      
+      // Safely populate fields with error handling
+      try {
+        await existingSchedule.populate('createdBy', 'firstName lastName');
+      } catch (populateError) {
+        console.warn('Failed to populate createdBy, fixing reference:', populateError.message);
+        existingSchedule.createdBy = req.user.id;
+        await existingSchedule.save();
+        await existingSchedule.populate('createdBy', 'firstName lastName');
+      }
+      
+      try {
+        await existingSchedule.populate('lastUpdatedBy', 'firstName lastName');
+      } catch (populateError) {
+        console.warn('Failed to populate lastUpdatedBy:', populateError.message);
+        // lastUpdatedBy should be valid since it's the current user
+      }
 
       res.status(200).json({
         status: 'success',
