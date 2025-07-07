@@ -1,10 +1,28 @@
 {
   "version": 2,
   "name": "atict-frontend",
-  "buildCommand": "npm ci && npm run build",
-  "outputDirectory": "build",
-  "installCommand": "npm ci",
-  "devCommand": "npm start",
+  "builds": [
+    {
+      "src": "client/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "build"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ],
+  "buildCommand": "cd client && npm ci && npm run build",
+  "outputDirectory": "client/build",
+  "installCommand": "cd client && npm ci",
+  "devCommand": "cd client && npm start",
   "framework": "create-react-app",
   "rewrites": [
     {
