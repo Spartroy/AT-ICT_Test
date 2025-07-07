@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { API_ENDPOINTS } from '../../config/api';
+import { getValidToken, clearAuth, redirectToLogin, setAuthHeaders } from '../../utils/auth';
 import {
   CalendarDaysIcon,
   PlusIcon,
@@ -51,23 +52,22 @@ const ScheduleBuilder = () => {
   const fetchSchedule = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('token');
+      const token = getValidToken();
       
       if (!token) {
-        console.error('Authentication token is missing');
+        console.error('Authentication token is missing or invalid');
         setLoading(false);
-        // Redirect to login page after a short delay
+        clearAuth();
         setTimeout(() => {
-          window.location.href = '/login';
+          redirectToLogin('invalid_token');
         }, 100);
         return;
       }
       
       const response = await fetch(API_ENDPOINTS.TEACHER.SCHEDULE, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
+        headers: setAuthHeaders({
           'Content-Type': 'application/json'
-        }
+        })
       });
 
       if (response.ok) {
@@ -91,21 +91,20 @@ const ScheduleBuilder = () => {
   const handleSaveSchedule = async () => {
     try {
       setSaving(true);
-      const token = localStorage.getItem('token');
+      const token = getValidToken();
       
       if (!token) {
-        alert('⚠️ Authentication token is missing. Please log in again.');
-        // Redirect to login page
-        window.location.href = '/login';
+        alert('⚠️ Authentication token is missing or invalid. Please log in again.');
+        clearAuth();
+        redirectToLogin('invalid_token');
         return;
       }
       
       const response = await fetch(API_ENDPOINTS.TEACHER.SCHEDULE, {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
+        headers: setAuthHeaders({
           'Content-Type': 'application/json'
-        },
+        }),
         body: JSON.stringify(formData)
       });
 
@@ -131,13 +130,18 @@ const ScheduleBuilder = () => {
 
     try {
       setSaving(true);
-      const token = localStorage.getItem('token');
+      const token = getValidToken();
+      
+      if (!token) {
+        alert('⚠️ Authentication token is missing or invalid. Please log in again.');
+        clearAuth();
+        redirectToLogin('invalid_token');
+        return;
+      }
       
       const response = await fetch(API_ENDPOINTS.TEACHER.SCHEDULE, {
         method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+        headers: setAuthHeaders()
       });
 
       if (response.ok) {

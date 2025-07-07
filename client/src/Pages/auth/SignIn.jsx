@@ -19,8 +19,17 @@ const SignIn = () => {
   useEffect(() => {
     // Check for messages in URL params
     const messageParam = searchParams.get('message');
+    const errorParam = searchParams.get('error');
+    
     if (messageParam === 'registration-pending') {
       showOperationToast.registrationSuccess();
+    }
+
+    // Handle error parameters
+    if (errorParam === 'invalid_token') {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      showOperationToast.loginError('Your session has expired or is invalid. Please log in again.');
     }
 
     // Check if user is already logged in
@@ -30,8 +39,17 @@ const SignIn = () => {
     if (token && user) {
       try {
         const userData = JSON.parse(user);
-        // Redirect to appropriate dashboard
-        navigate(userData.dashboardUrl || '/');
+        
+        // Basic JWT format validation
+        if (token.match(/^[A-Za-z0-9-_=]+\.[A-Za-z0-9-_=]+\.[A-Za-z0-9-_.+/=]*$/)) {
+          // Redirect to appropriate dashboard
+          navigate(userData.dashboardUrl || '/');
+        } else {
+          // Clear invalid token
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          showOperationToast.loginError('Invalid session detected. Please log in again.');
+        }
       } catch (error) {
         // Clear invalid data
         localStorage.removeItem('token');
@@ -273,8 +291,6 @@ const SignIn = () => {
                 {errors.password && <p className="text-sm mt-2" style={{ color: '#D91743' }}>{errors.password}</p>}
               </div>
 
-    
-
               <div>
                 <motion.button
                   type="submit"
@@ -329,10 +345,6 @@ const SignIn = () => {
               </div>
             </form>
           </motion.div>
-
-          
-
-       
         </motion.div>
       </div>
     </div>
