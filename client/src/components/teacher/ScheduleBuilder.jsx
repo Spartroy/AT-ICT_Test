@@ -100,26 +100,76 @@ const ScheduleBuilder = () => {
         return;
       }
       
-      const response = await fetch(API_ENDPOINTS.TEACHER.SCHEDULE, {
-        method: 'POST',
-        headers: setAuthHeaders({
-          'Content-Type': 'application/json'
-        }),
-        body: JSON.stringify(formData)
-      });
-
-      if (response.ok) {
+      // Debug the data being sent
+      console.log('Sending schedule data:', formData);
+      
+      // Validate each day's sessions have the required fields and fix any missing/invalid data
+      const validatedFormData = {
+        title: formData.title || "Class Schedule",
+        notes: formData.notes || "",
+        schedule: formData.schedule.map(day => {
+          // Ensure day is one of the valid days
+          if (!['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].includes(day.day)) {
+            console.error(`Invalid day found: ${day.day}, defaulting to Monday`);
+            day.day = 'Monday';
+          }
+          
+          return {
+            day: day.day,
+            sessions: Array.isArray(day.sessions) ? day.sessions.map(session => {
+              // Ensure all required fields are present
+              if (!session.topic || session.topic.trim() === '') {
+                console.warn('Empty topic found, setting to "Untitled Session"');
+              }
+              
+              return {
+                startTime: session.startTime || "09:00", 
+                endTime: session.endTime || "10:30",
+                type: ['theory', 'practical', 'revision', 'quiz'].includes(session.type) 
+                  ? session.type 
+                  : "theory",
+                topic: session.topic?.trim() || "Untitled Session",
+                isActive: session.isActive !== false // default to true if not explicitly false
+              };
+            }) : [] // If sessions is not an array, use empty array
+          };
+        })
+      };
+      
+      // Log the final data being sent to the server
+      console.log('Sending validated schedule data:', JSON.stringify(validatedFormData));
+      
+      try {
+        const response = await fetch(API_ENDPOINTS.TEACHER.SCHEDULE, {
+          method: 'POST',
+          headers: setAuthHeaders({
+            'Content-Type': 'application/json'
+          }),
+          body: JSON.stringify(validatedFormData)
+        });
+        
+        if (response.ok) {
         const data = await response.json();
+        console.log('Schedule saved successfully:', data);
         alert('✅ Schedule saved successfully!');
         setSchedule(data.data.schedule);
         setShowEditModal(false);
       } else {
-        const errorData = await response.json();
-        alert(`❌ Error: ${errorData.message}`);
+        // Try to get error details
+        let errorMessage = 'Unknown error occurred';
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.message || 'Server error';
+          console.error('Server returned error:', errorData);
+        } catch (e) {
+          console.error('Could not parse error response:', e);
+        }
+        
+        alert(`❌ Error: ${errorMessage} (Status: ${response.status})`);
       }
     } catch (error) {
       console.error('Error saving schedule:', error);
-      alert('❌ Error saving schedule');
+      alert(`❌ Error saving schedule: ${error.message}`);
     } finally {
       setSaving(false);
     }
