@@ -136,17 +136,67 @@ const ScheduleBuilder = () => {
         })
       };
       
-      // Log the final data being sent to the server
-      console.log('Sending validated schedule data:', JSON.stringify(validatedFormData));
+      // Create a minimal payload that matches the server expectations exactly
+      const minimalPayload = {
+        title: "Class Schedule",
+        notes: formData.notes || "",
+        schedule: [
+          {
+            day: "Monday",
+            sessions: [
+              {
+                startTime: "09:00",
+                endTime: "10:30",
+                type: "theory",
+                topic: "Test Session",
+                isActive: true
+              }
+            ]
+          },
+          {
+            day: "Tuesday",
+            sessions: []
+          },
+          {
+            day: "Wednesday",
+            sessions: []
+          },
+          {
+            day: "Thursday",
+            sessions: []
+          },
+          {
+            day: "Friday",
+            sessions: []
+          },
+          {
+            day: "Saturday",
+            sessions: []
+          },
+          {
+            day: "Sunday",
+            sessions: []
+          }
+        ]
+      };
       
+      // Log minimal test payload
+      console.log('Sending minimal test payload:', JSON.stringify(minimalPayload));
+      
+      // Try first with minimal payload
       try {
         const response = await fetch(API_ENDPOINTS.TEACHER.SCHEDULE, {
           method: 'POST',
           headers: setAuthHeaders({
             'Content-Type': 'application/json'
           }),
-          body: JSON.stringify(validatedFormData)
+          // Send minimal payload instead of full data for testing
+          body: JSON.stringify(minimalPayload)
         });
+        
+        // Log the complete response for debugging
+        console.log('Response status:', response.status);
+        console.log('Response headers:', [...response.headers.entries()]);
         
         if (response.ok) {
         const data = await response.json();
@@ -158,14 +208,65 @@ const ScheduleBuilder = () => {
         // Try to get error details
         let errorMessage = 'Unknown error occurred';
         try {
-          const errorData = await response.json();
-          errorMessage = errorData.message || 'Server error';
-          console.error('Server returned error:', errorData);
+          // Get the raw response text first for debugging
+          const responseText = await response.text();
+          console.error('Raw error response:', responseText);
+          
+          // Try to parse it as JSON if possible
+          try {
+            const errorData = JSON.parse(responseText);
+            errorMessage = errorData.message || 'Server error';
+            console.error('Parsed server error:', errorData);
+          } catch (parseError) {
+            console.error('Response is not valid JSON:', parseError);
+            errorMessage = responseText.substring(0, 100) + '...'; // First 100 chars of error
+          }
         } catch (e) {
-          console.error('Could not parse error response:', e);
+          console.error('Could not read error response:', e);
+        }
+        
+        // Try a direct URL approach without the API_ENDPOINTS
+        const directApiUrl = 'https://at-icttest-production-6f8b.up.railway.app/api/teacher/schedule';
+        console.log('Trying direct API URL:', directApiUrl);
+        
+        try {
+          const directResponse = await fetch(directApiUrl, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${getValidToken()}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              title: 'Class Schedule',
+              schedule: [
+                {
+                  day: 'Monday',
+                  sessions: []
+                }
+              ]
+            })
+          });
+          console.log('Direct API response status:', directResponse.status);
+        } catch (directError) {
+          console.error('Direct API call failed:', directError);
         }
         
         alert(`❌ Error: ${errorMessage} (Status: ${response.status})`);
+        
+        // Try a GET request to see if authentication is still valid
+        try {
+          const testResponse = await fetch(API_ENDPOINTS.TEACHER.SCHEDULE, {
+            headers: setAuthHeaders()
+          });
+          console.log('GET schedule test status:', testResponse.status);
+          if (testResponse.status === 401) {
+            alert('Authentication issue detected. Please log in again.');
+            clearAuth();
+            redirectToLogin('token_expired');
+          }
+        } catch (testError) {
+          console.error('Test request failed:', testError);
+        }
       }
     } catch (error) {
       console.error('Error saving schedule:', error);
