@@ -54,6 +54,17 @@ const MaterialsCenter = () => {
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
+      
+      if (!token) {
+        console.error('Authentication token is missing');
+        setLoading(false);
+        // Redirect to login page after a short delay
+        setTimeout(() => {
+          window.location.href = '/login';
+        }, 100);
+        return;
+      }
+      
       const response = await fetch(API_ENDPOINTS.TEACHER.MATERIALS, {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -118,6 +129,13 @@ const MaterialsCenter = () => {
       setUploading(true);
       const token = localStorage.getItem('token');
       
+      if (!token) {
+        alert('⚠️ Authentication token is missing. Please log in again.');
+        // Redirect to login page
+        window.location.href = '/login';
+        return;
+      }
+      
       const uploadData = new FormData();
       uploadData.append('title', formData.title);
       uploadData.append('type', formData.type);
@@ -140,6 +158,8 @@ const MaterialsCenter = () => {
         method,
         headers: {
           'Authorization': `Bearer ${token}`
+          // Note: Don't set Content-Type header when sending FormData
+          // The browser will automatically set the correct Content-Type with boundary
         },
         body: uploadData
       });
