@@ -5,5 +5,9 @@
       "use": "@vercel/static-build",
       "config": { "distDir": "client/build" }
     }
+  ],
+  "routes": [
+    { "handle": "filesystem" },
+    { "src": "/.*", "dest": "/index.html" }
   ]
 }
