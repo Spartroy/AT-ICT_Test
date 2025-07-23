@@ -199,74 +199,78 @@ const ScheduleBuilder = () => {
         console.log('Response headers:', [...response.headers.entries()]);
         
         if (response.ok) {
-        const data = await response.json();
-        console.log('Schedule saved successfully:', data);
-        alert('✅ Schedule saved successfully!');
-        setSchedule(data.data.schedule);
-        setShowEditModal(false);
-      } else {
-        // Try to get error details
-        let errorMessage = 'Unknown error occurred';
-        try {
-          // Get the raw response text first for debugging
-          const responseText = await response.text();
-          console.error('Raw error response:', responseText);
-          
-          // Try to parse it as JSON if possible
+          const data = await response.json();
+          console.log('Schedule saved successfully:', data);
+          alert('✅ Schedule saved successfully!');
+          setSchedule(data.data.schedule);
+          setShowEditModal(false);
+        } else {
+          // Try to get error details
+          let errorMessage = 'Unknown error occurred';
           try {
-            const errorData = JSON.parse(responseText);
-            errorMessage = errorData.message || 'Server error';
-            console.error('Parsed server error:', errorData);
-          } catch (parseError) {
-            console.error('Response is not valid JSON:', parseError);
-            errorMessage = responseText.substring(0, 100) + '...'; // First 100 chars of error
+            // Get the raw response text first for debugging
+            const responseText = await response.text();
+            console.error('Raw error response:', responseText);
+            
+            // Try to parse it as JSON if possible
+            try {
+              const errorData = JSON.parse(responseText);
+              errorMessage = errorData.message || 'Server error';
+              console.error('Parsed server error:', errorData);
+            } catch (parseError) {
+              console.error('Response is not valid JSON:', parseError);
+              errorMessage = responseText.substring(0, 100) + '...'; // First 100 chars of error
+            }
+          } catch (e) {
+            console.error('Could not read error response:', e);
           }
-        } catch (e) {
-          console.error('Could not read error response:', e);
-        }
-        
-        // Try a direct URL approach without the API_ENDPOINTS
-        const directApiUrl = 'https://at-icttest-production-6f8b.up.railway.app/api/teacher/schedule';
-        console.log('Trying direct API URL:', directApiUrl);
-        
-        try {
-          const directResponse = await fetch(directApiUrl, {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${getValidToken()}`,
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              title: 'Class Schedule',
-              schedule: [
-                {
-                  day: 'Monday',
-                  sessions: []
-                }
-              ]
-            })
-          });
-          console.log('Direct API response status:', directResponse.status);
-        } catch (directError) {
-          console.error('Direct API call failed:', directError);
-        }
-        
-        alert(`❌ Error: ${errorMessage} (Status: ${response.status})`);
-        
-        // Try a GET request to see if authentication is still valid
-        try {
-          const testResponse = await fetch(API_ENDPOINTS.TEACHER.SCHEDULE, {
-            headers: setAuthHeaders()
-          });
-          console.log('GET schedule test status:', testResponse.status);
-          if (testResponse.status === 401) {
-            alert('Authentication issue detected. Please log in again.');
-            clearAuth();
-            redirectToLogin('token_expired');
+          
+          // Try a direct URL approach without the API_ENDPOINTS
+          const directApiUrl = 'https://at-icttest-production-6f8b.up.railway.app/api/teacher/schedule';
+          console.log('Trying direct API URL:', directApiUrl);
+          
+          try {
+            const directResponse = await fetch(directApiUrl, {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${getValidToken()}`,
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                title: 'Class Schedule',
+                schedule: [
+                  {
+                    day: 'Monday',
+                    sessions: []
+                  }
+                ]
+              })
+            });
+            console.log('Direct API response status:', directResponse.status);
+          } catch (directError) {
+            console.error('Direct API call failed:', directError);
           }
-        } catch (testError) {
-          console.error('Test request failed:', testError);
+          
+          alert(`❌ Error: ${errorMessage} (Status: ${response.status})`);
+          
+          // Try a GET request to see if authentication is still valid
+          try {
+            const testResponse = await fetch(API_ENDPOINTS.TEACHER.SCHEDULE, {
+              headers: setAuthHeaders()
+            });
+            console.log('GET schedule test status:', testResponse.status);
+            if (testResponse.status === 401) {
+              alert('Authentication issue detected. Please log in again.');
+              clearAuth();
+              redirectToLogin('token_expired');
+            }
+          } catch (testError) {
+            console.error('Test request failed:', testError);
+          }
         }
+      } catch (fetchError) {
+        console.error('Fetch error:', fetchError);
+        alert(`❌ Network error: ${fetchError.message}`);
       }
     } catch (error) {
       console.error('Error saving schedule:', error);

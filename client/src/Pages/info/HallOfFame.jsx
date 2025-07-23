@@ -37,8 +37,9 @@ const HallOfFame = () => {
     { name: "Jad", grade: "A*", subject: "IGCSE ICT", year: "2024" },
     { name: "Ahmad", grade: "A", subject: "IGCSE ICT", year: "2023" },
     { name: "Tala", grade: "A*", subject: "IGCSE ICT", year: "2024" },
-    { name: "Nataly", grade: "A", subject: "IGCSE ICT", year: "2024" },
-    { name: "Shady", grade: "A*", subject: "IGCSE ICT", year: "2024" }
+    { name: "Natalie", grade: "A", subject: "IGCSE ICT", year: "2024" },
+    { name: "Shady", grade: "A*", subject: "IGCSE ICT", year: "2024" },
+    { name: "Ahmad Farag", grade: "A*", subject: "IGCSE ICT", year: "2024" },
   ];
 
   const containerVariants = {
