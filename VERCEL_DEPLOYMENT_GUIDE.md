@@ -93,6 +93,10 @@ client/
    - Check if all dependencies are in `package.json`
    - Ensure `react-scripts` is installed
    - Verify Node.js version compatibility
+   - **Fix for "react-scripts: command not found"**:
+     - Updated `vercel.json` with `CI=false npm run build`
+     - Added `.nvmrc` file for Node.js version
+     - Downgraded React to v18.2.0 for better compatibility
 
 2. **API Calls Fail**
    - Verify `REACT_APP_API_URL` is set correctly
