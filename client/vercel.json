@@ -16,8 +16,6 @@
       ]
     }
   ],
-  "buildCommand": "CI=false npm run build",
-  "outputDirectory": "build",
-  "installCommand": "npm ci",
-  "framework": "create-react-app"
+  "buildCommand": "npm run build",
+  "outputDirectory": "build"
 } 
