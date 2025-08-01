@@ -181,8 +181,9 @@ const Samples = () => {
                         </div>
                         
                         <div className="flex gap-2">
+                          
                           <button className="flex-1 bg-[#CA133E] text-white py-2 px-3 rounded-[15px] font-medium hover:bg-[#A01030] transition-colors text-sm">
-                            Access Now 
+                            <a href="/register">Access Now</a>
                           </button>
                    
                         </div>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import API_ENDPOINTS from '../../config/api';
+import { showSuccess, showError, showWarning } from '../../utils/toast';
 import {
   XMarkIcon,
   QuestionMarkCircleIcon,
@@ -84,7 +85,7 @@ const CreateQuizModal = ({ isOpen, onClose, onSuccess }) => {
     
     // Validation
     if (!formData.assignToAll && formData.selectedStudents.length === 0) {
-      alert('⚠️ Please select at least one student or choose "Assign to all students"');
+              showWarning('Please select at least one student or choose "Assign to all students"');
       return;
     }
 
@@ -106,16 +107,16 @@ const CreateQuizModal = ({ isOpen, onClose, onSuccess }) => {
 
       if (response.ok) {
         const data = await response.json();
-        alert('✅ Quiz created successfully!');
+        showSuccess('Quiz created successfully!');
         onSuccess && onSuccess(data.data.quiz);
         handleClose();
       } else {
         const errorData = await response.json();
-        alert(`❌ Error: ${errorData.message}`);
+        showError(errorData.message);
       }
     } catch (error) {
       console.error('Error creating quiz:', error);
-      alert('❌ Error creating quiz');
+      showError('Error creating quiz');
     } finally {
       setLoading(false);
     }

@@ -1,5 +1,6 @@
 const User = require('../models/User');
 const { validationResult } = require('express-validator');
+const { createActivityFromEvent } = require('./activityController');
 
 // @desc    Submit new registration
 // @route   POST /api/registration/submit
@@ -68,6 +69,22 @@ const submitRegistration = async (req, res) => {
         otherSubjects
       },
       registrationStatus: 'pending'
+    });
+
+    // Create activity for new registration
+    await createActivityFromEvent({
+      type: 'registration',
+      title: 'New Student Registration',
+      description: `${user.firstName} ${user.lastName} submitted a new registration`,
+      studentId: user._id,
+      relatedItemId: user._id,
+      relatedItemModel: 'Registration',
+      metadata: {
+        year: year,
+        session: session,
+        school: school
+      },
+      priority: 'high'
     });
 
     res.status(201).json({

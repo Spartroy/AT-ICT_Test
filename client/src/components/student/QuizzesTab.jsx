@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { API_ENDPOINTS } from '../../config/api';
+import { showSuccess, showError, showWarning } from '../../utils/toast';
 import {
   AcademicCapIcon,
   CalendarIcon,
@@ -177,7 +178,7 @@ const QuizzesTab = () => {
       });
 
       if (response.ok) {
-        alert('✅ Quiz started successfully!');
+        showSuccess('Quiz started successfully!');
         fetchQuizzes(); // Refresh quizzes
       } else {
         const errorData = await response.json();
@@ -185,7 +186,7 @@ const QuizzesTab = () => {
       }
     } catch (error) {
       console.error('Error starting quiz:', error);
-      alert('❌ Error starting quiz');
+      showError('Error starting quiz');
     } finally {
       setStarting(false);
     }
@@ -195,7 +196,7 @@ const QuizzesTab = () => {
     const files = selectedFiles[quizId] || [];
     
     if (files.length === 0) {
-      alert('Please select files to submit');
+      showWarning('Please select files to submit');
       return;
     }
 
@@ -217,7 +218,7 @@ const QuizzesTab = () => {
       });
 
       if (response.ok) {
-        alert('✅ Quiz submitted successfully!');
+        showSuccess('Quiz submitted successfully!');
         setSelectedFiles(prev => ({ ...prev, [quizId]: [] }));
         fetchQuizzes(); // Refresh quizzes
       } else {
@@ -226,7 +227,7 @@ const QuizzesTab = () => {
       }
     } catch (error) {
       console.error('Error submitting quiz:', error);
-      alert('❌ Error submitting quiz');
+      showError('Error submitting quiz');
     } finally {
       setSubmitting(false);
     }

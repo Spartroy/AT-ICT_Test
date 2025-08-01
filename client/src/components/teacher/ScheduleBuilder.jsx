@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { API_ENDPOINTS } from '../../config/api';
 import { getValidToken, clearAuth, redirectToLogin, setAuthHeaders } from '../../utils/auth';
+import { showSuccess, showError, showWarning } from '../../utils/toast';
 import {
   CalendarDaysIcon,
   PlusIcon,
@@ -72,12 +73,27 @@ const ScheduleBuilder = () => {
 
       if (response.ok) {
         const data = await response.json();
-        setSchedule(data.data.schedule);
-        setFormData({
-          title: data.data.schedule?.title || 'Class Schedule',
-          notes: data.data.schedule?.notes || '',
-          schedule: data.data.schedule?.schedule || initializeWeekSchedule()
-        });
+        console.log('Schedule API response:', data);
+        const scheduleData = data.data.schedule;
+        console.log('Schedule data:', scheduleData);
+        setSchedule(scheduleData);
+        
+        // Ensure the schedule data is properly structured
+        if (scheduleData) {
+          console.log('Schedule days:', scheduleData.schedule?.length);
+          setFormData({
+            title: scheduleData.title || 'Class Schedule',
+            notes: scheduleData.notes || '',
+            schedule: scheduleData.schedule || initializeWeekSchedule()
+          });
+        } else {
+          // If no schedule exists, initialize with empty schedule
+          setFormData({
+            title: 'Class Schedule',
+            notes: '',
+            schedule: initializeWeekSchedule()
+          });
+        }
       } else {
         console.error('Failed to fetch schedule');
       }
@@ -94,7 +110,7 @@ const ScheduleBuilder = () => {
       const token = getValidToken();
       
       if (!token) {
-        alert('⚠️ Authentication token is missing or invalid. Please log in again.');
+        showWarning('Authentication token is missing or invalid. Please log in again.');
         clearAuth();
         redirectToLogin('invalid_token');
         return;
@@ -136,62 +152,19 @@ const ScheduleBuilder = () => {
         })
       };
       
-      // Create a minimal payload that matches the server expectations exactly
-      const minimalPayload = {
-        title: "Class Schedule",
-        notes: formData.notes || "",
-        schedule: [
-          {
-            day: "Monday",
-            sessions: [
-              {
-                startTime: "09:00",
-                endTime: "10:30",
-                type: "theory",
-                topic: "Test Session",
-                isActive: true
-              }
-            ]
-          },
-          {
-            day: "Tuesday",
-            sessions: []
-          },
-          {
-            day: "Wednesday",
-            sessions: []
-          },
-          {
-            day: "Thursday",
-            sessions: []
-          },
-          {
-            day: "Friday",
-            sessions: []
-          },
-          {
-            day: "Saturday",
-            sessions: []
-          },
-          {
-            day: "Sunday",
-            sessions: []
-          }
-        ]
-      };
+
       
-      // Log minimal test payload
-      console.log('Sending minimal test payload:', JSON.stringify(minimalPayload));
+      // Log the validated form data
+      console.log('Sending validated form data:', JSON.stringify(validatedFormData));
       
-      // Try first with minimal payload
+      // Send the actual validated form data
       try {
         const response = await fetch(API_ENDPOINTS.TEACHER.SCHEDULE, {
           method: 'POST',
           headers: setAuthHeaders({
             'Content-Type': 'application/json'
           }),
-          // Send minimal payload instead of full data for testing
-          body: JSON.stringify(minimalPayload)
+          body: JSON.stringify(validatedFormData)
         });
         
         // Log the complete response for debugging
@@ -201,80 +174,22 @@ const ScheduleBuilder = () => {
         if (response.ok) {
           const data = await response.json();
           console.log('Schedule saved successfully:', data);
-          alert('✅ Schedule saved successfully!');
+          showSuccess('Schedule saved successfully!');
           setSchedule(data.data.schedule);
           setShowEditModal(false);
+          await fetchSchedule(); // Refresh the schedule data
         } else {
-          // Try to get error details
-          let errorMessage = 'Unknown error occurred';
-          try {
-            // Get the raw response text first for debugging
-            const responseText = await response.text();
-            console.error('Raw error response:', responseText);
-            
-            // Try to parse it as JSON if possible
-            try {
-              const errorData = JSON.parse(responseText);
-              errorMessage = errorData.message || 'Server error';
-              console.error('Parsed server error:', errorData);
-            } catch (parseError) {
-              console.error('Response is not valid JSON:', parseError);
-              errorMessage = responseText.substring(0, 100) + '...'; // First 100 chars of error
-            }
-          } catch (e) {
-            console.error('Could not read error response:', e);
-          }
-          
-          // Try a direct URL approach without the API_ENDPOINTS
-          const directApiUrl = 'https://at-icttest-production-6f8b.up.railway.app/api/teacher/schedule';
-          console.log('Trying direct API URL:', directApiUrl);
-          
-          try {
-            const directResponse = await fetch(directApiUrl, {
-              method: 'POST',
-              headers: {
-                'Authorization': `Bearer ${getValidToken()}`,
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify({
-                title: 'Class Schedule',
-                schedule: [
-                  {
-                    day: 'Monday',
-                    sessions: []
-                  }
-                ]
-              })
-            });
-            console.log('Direct API response status:', directResponse.status);
-          } catch (directError) {
-            console.error('Direct API call failed:', directError);
-          }
-          
-          alert(`❌ Error: ${errorMessage} (Status: ${response.status})`);
-          
-          // Try a GET request to see if authentication is still valid
-          try {
-            const testResponse = await fetch(API_ENDPOINTS.TEACHER.SCHEDULE, {
-              headers: setAuthHeaders()
-            });
-            console.log('GET schedule test status:', testResponse.status);
-            if (testResponse.status === 401) {
-              alert('Authentication issue detected. Please log in again.');
-              clearAuth();
-              redirectToLogin('token_expired');
-            }
-          } catch (testError) {
-            console.error('Test request failed:', testError);
-          }
+          const errorData = await response.json();
+          console.error('Server error response:', errorData);
+          showError(errorData.message || 'Failed to save schedule');
         }
       } catch (fetchError) {
         console.error('Fetch error:', fetchError);
-        alert(`❌ Network error: ${fetchError.message}`);
+        showError(`Network error: ${fetchError.message}`);
       }
     } catch (error) {
       console.error('Error saving schedule:', error);
-      alert(`❌ Error saving schedule: ${error.message}`);
+      showError(`Error saving schedule: ${error.message}`);
     } finally {
       setSaving(false);
     }
@@ -288,7 +203,7 @@ const ScheduleBuilder = () => {
       const token = getValidToken();
       
       if (!token) {
-        alert('⚠️ Authentication token is missing or invalid. Please log in again.');
+        showWarning('Authentication token is missing or invalid. Please log in again.');
         clearAuth();
         redirectToLogin('invalid_token');
         return;
@@ -300,15 +215,15 @@ const ScheduleBuilder = () => {
       });
 
       if (response.ok) {
-        alert('✅ Schedule reset successfully!');
+        showSuccess('Schedule reset successfully!');
         await fetchSchedule();
       } else {
         const errorData = await response.json();
-        alert(`❌ Error: ${errorData.message}`);
+        showError(`Error: ${errorData.message}`);
       }
     } catch (error) {
       console.error('Error resetting schedule:', error);
-      alert('❌ Error resetting schedule');
+      showError('Error resetting schedule');
     } finally {
       setSaving(false);
     }
@@ -316,9 +231,27 @@ const ScheduleBuilder = () => {
 
   const addSession = (dayIndex) => {
     const newSchedule = [...formData.schedule];
+    
+    // Find the last session of the day to suggest a better start time
+    const daySessions = newSchedule[dayIndex].sessions;
+    let suggestedStartTime = '09:00';
+    let suggestedEndTime = '10:30';
+    
+    if (daySessions.length > 0) {
+      // Get the end time of the last session and add 30 minutes
+      const lastSession = daySessions[daySessions.length - 1];
+      const lastEndTime = new Date(`2000-01-01T${lastSession.endTime}`);
+      const suggestedStart = new Date(lastEndTime.getTime() + 30 * 60000); // Add 30 minutes
+      suggestedStartTime = suggestedStart.toTimeString().slice(0, 5);
+      
+      // Set end time to 1.5 hours after start time
+      const suggestedEnd = new Date(suggestedStart.getTime() + 90 * 60000); // Add 1.5 hours
+      suggestedEndTime = suggestedEnd.toTimeString().slice(0, 5);
+    }
+    
     newSchedule[dayIndex].sessions.push({
-      startTime: '09:00',
-      endTime: '10:30',
+      startTime: suggestedStartTime,
+      endTime: suggestedEndTime,
       type: 'theory',
       topic: '',
       isActive: true
@@ -334,12 +267,60 @@ const ScheduleBuilder = () => {
 
   const updateSession = (dayIndex, sessionIndex, field, value) => {
     const newSchedule = [...formData.schedule];
-    newSchedule[dayIndex].sessions[sessionIndex][field] = value;
+    const session = newSchedule[dayIndex].sessions[sessionIndex];
+    
+    // Update the field
+    session[field] = value;
+    
+    // If updating start time, ensure end time is after start time
+    if (field === 'startTime' && session.endTime) {
+      const startTime = new Date(`2000-01-01T${value}`);
+      const endTime = new Date(`2000-01-01T${session.endTime}`);
+      
+      if (endTime <= startTime) {
+        // Set end time to 1.5 hours after start time
+        const newEndTime = new Date(startTime.getTime() + 90 * 60000);
+        session.endTime = newEndTime.toTimeString().slice(0, 5);
+      }
+    }
+    
+    // If updating end time, ensure it's after start time
+    if (field === 'endTime' && session.startTime) {
+      const startTime = new Date(`2000-01-01T${session.startTime}`);
+      const endTime = new Date(`2000-01-01T${value}`);
+      
+      if (endTime <= startTime) {
+        // Set end time to 1.5 hours after start time
+        const newEndTime = new Date(startTime.getTime() + 90 * 60000);
+        session.endTime = newEndTime.toTimeString().slice(0, 5);
+        return; // Don't update with invalid time
+      }
+    }
+    
     setFormData({ ...formData, schedule: newSchedule });
   };
 
   const getSessionTypeConfig = (type) => {
     return sessionTypes.find(t => t.value === type) || sessionTypes[0];
+  };
+
+  const openEditModal = () => {
+    // Ensure formData is synchronized with current schedule
+    if (schedule) {
+      setFormData({
+        title: schedule.title || 'Class Schedule',
+        notes: schedule.notes || '',
+        schedule: schedule.schedule || initializeWeekSchedule()
+      });
+    } else {
+      // If no schedule exists, initialize with empty schedule
+      setFormData({
+        title: 'Class Schedule',
+        notes: '',
+        schedule: initializeWeekSchedule()
+      });
+    }
+    setShowEditModal(true);
   };
 
   if (loading) {
@@ -373,7 +354,7 @@ const ScheduleBuilder = () => {
 
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 lg:gap-6">
           <button
-            onClick={() => setShowEditModal(true)}
+            onClick={openEditModal}
             className="flex items-center justify-center space-x-2 lg:space-x-3 bg-white text-black px-4 lg:px-6 py-2 lg:py-3 rounded-xl hover:bg-[#4A3D3D] transition-colors font-bold text-sm lg:text-lg shadow-lg"
           >
             <PencilIcon className="h-5 w-5 lg:h-6 lg:w-6" />
@@ -461,7 +442,7 @@ const ScheduleBuilder = () => {
           <h3 className="text-xl lg:text-2xl font-bold text-white mb-3 lg:mb-4">No Schedule Created</h3>
           <p className="text-sm lg:text-lg text-gray-300 mb-4 lg:mb-6">Create your first class schedule to get started.</p>
           <button
-            onClick={() => setShowEditModal(true)}
+            onClick={openEditModal}
             className="bg-[#CA133E] text-white px-4 lg:px-6 py-2 lg:py-3 rounded-xl hover:bg-[#A01030] font-bold text-sm lg:text-lg shadow-lg"
           >
             Create Schedule

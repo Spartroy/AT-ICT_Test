@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { API_ENDPOINTS } from '../../config/api';
+import { showSuccess, showError } from '../../utils/toast';
 import {
   CheckCircleIcon,
   XCircleIcon,
@@ -67,7 +68,7 @@ const PendingRegistrations = ({ onRegistrationUpdate }) => {
       
       if (response.ok) {
         const result = await response.json();
-        alert(`✅ ${result.message || 'Registration approved successfully!'}`);
+        showSuccess(result.message || 'Registration approved successfully!');
         fetchPendingRegistrations();
         // Update parent dashboard count
         if (onRegistrationUpdate) {
@@ -77,11 +78,11 @@ const PendingRegistrations = ({ onRegistrationUpdate }) => {
         setSelectedRegistration(null);
       } else {
         const errorData = await response.json();
-        alert(`❌ Error: ${errorData.message || 'Failed to approve registration'}`);
+        showError(errorData.message || 'Failed to approve registration');
       }
     } catch (error) {
       console.error('Error approving registration:', error);
-      alert(`❌ Network Error: ${error.message || 'Failed to connect to server'}`);
+      showError(`Network Error: ${error.message || 'Failed to connect to server'}`);
     } finally {
       setActionLoading(false);
     }

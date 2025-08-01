@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { API_ENDPOINTS } from '../../config/api';
+import { showSuccess, showError, showWarning } from '../../utils/toast';
 import {
   XMarkIcon,
   DocumentArrowUpIcon,
@@ -27,6 +28,7 @@ const CreateAssignmentModal = ({ isOpen, onClose, onSuccess }) => {
   
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [students, setStudents] = useState([]);
   const [loadingStudents, setLoadingStudents] = useState(false);
   const [showStudentDropdown, setShowStudentDropdown] = useState(false);
@@ -113,17 +115,18 @@ const CreateAssignmentModal = ({ isOpen, onClose, onSuccess }) => {
     
     // Validate maxScore is a positive number
     if (!formData.maxScore || parseInt(formData.maxScore) < 1) {
-      alert('Max score must be a positive number');
+      showError('Max score must be a positive number');
       return;
     }
     
     // Validate student selection
     if (!formData.assignToAll && formData.selectedStudents.length === 0) {
-      alert('Please select at least one student or choose "All Students"');
+      showWarning('Please select at least one student or choose "All Students"');
       return;
     }
     
     setLoading(true);
+    setUploadProgress(0);
 
     try {
       const token = localStorage.getItem('token');
@@ -152,28 +155,63 @@ const CreateAssignmentModal = ({ isOpen, onClose, onSuccess }) => {
         formDataToSend.append('attachments', file);
       });
 
-      const response = await fetch(API_ENDPOINTS.ASSIGNMENTS, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
-        body: formDataToSend
+      // Use XMLHttpRequest for progress tracking
+      return new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        
+        xhr.upload.addEventListener('progress', (event) => {
+          if (event.lengthComputable) {
+            const progress = Math.round((event.loaded / event.total) * 100);
+            setUploadProgress(progress);
+          }
+        });
+
+        xhr.addEventListener('load', () => {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            try {
+              const data = JSON.parse(xhr.responseText);
+              showSuccess('Assignment created successfully!');
+              onSuccess && onSuccess(data.data.assignment);
+              handleClose();
+              setUploadProgress(0);
+              resolve(data);
+            } catch (error) {
+              console.error('Error parsing response:', error);
+              showError('Error processing response');
+              reject(error);
+            }
+          } else {
+            try {
+              const errorData = JSON.parse(xhr.responseText);
+              showError(errorData.message || 'Upload failed');
+            } catch (error) {
+              showError('Upload failed');
+            }
+            reject(new Error('Upload failed'));
+          }
+        });
+
+        xhr.addEventListener('error', () => {
+          showError('Network error during upload');
+          reject(new Error('Network error'));
+        });
+
+        xhr.addEventListener('abort', () => {
+          showError('Upload was cancelled');
+          reject(new Error('Upload cancelled'));
+        });
+
+        xhr.open('POST', API_ENDPOINTS.ASSIGNMENTS);
+        xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+        xhr.send(formDataToSend);
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        alert('✅ Assignment created successfully!');
-        onSuccess && onSuccess(data.data.assignment);
-        handleClose();
-      } else {
-        const errorData = await response.json();
-        alert(`❌ Error: ${errorData.message}`);
-      }
     } catch (error) {
       console.error('Error creating assignment:', error);
-      alert('❌ Error creating assignment');
+      showError('Error creating assignment');
     } finally {
       setLoading(false);
+      setUploadProgress(0);
     }
   };
 
@@ -534,6 +572,22 @@ const CreateAssignmentModal = ({ isOpen, onClose, onSuccess }) => {
             )}
           </div>
 
+          {/* Upload Progress Bar */}
+          {loading && (
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm text-gray-400">
+                <span>Uploading Assignment...</span>
+                <span>{uploadProgress}%</span>
+              </div>
+              <div className="w-full bg-gray-700 rounded-full h-2">
+                <div 
+                  className="bg-blue-500 h-2 rounded-full transition-all duration-300 ease-out"
+                  style={{ width: `${uploadProgress}%` }}
+                />
+              </div>
+            </div>
+          )}
+
           <div className="flex justify-end space-x-3 pt-4">
             <button
               type="button"
@@ -550,7 +604,7 @@ const CreateAssignmentModal = ({ isOpen, onClose, onSuccess }) => {
               {loading ? (
                 <>
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                  Creating...
+                  {uploadProgress > 0 ? `Uploading (${uploadProgress}%)` : 'Creating...'}
                 </>
               ) : (
                 'Create Assignment'

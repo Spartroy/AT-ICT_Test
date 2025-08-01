@@ -44,6 +44,7 @@ const chatRoutes = require('./routes/chatRoutes');
 const registrationRoutes = require('./routes/registrationRoutes');
 const assignmentRoutes = require('./routes/assignmentRoutes');
 const quizRoutes = require('./routes/quizRoutes');
+const activityRoutes = require('./routes/activityRoutes');
 
 // ===================================================================
 // SERVER INITIALIZATION
@@ -318,6 +319,12 @@ app.use('/api/assignments', assignmentRoutes);
  * Quiz creation, taking, and scoring
  */
 app.use('/api/quizzes', quizRoutes);
+
+/**
+ * Activity Routes
+ * Teacher notification and activity tracking
+ */
+app.use('/api/teacher/activities', activityRoutes);
 
 // ===================================================================
 // ERROR HANDLING

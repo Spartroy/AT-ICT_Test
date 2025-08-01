@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { API_ENDPOINTS } from '../../config/api';
 import { getValidToken, clearAuth, redirectToLogin, setAuthHeaders } from '../../utils/auth';
+import { showSuccess, showError, showWarning } from '../../utils/toast';
 import {
   DocumentTextIcon,
   FolderIcon,
@@ -26,6 +27,7 @@ const MaterialsCenter = () => {
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [editingMaterial, setEditingMaterial] = useState(null);
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [filter, setFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -88,9 +90,9 @@ const MaterialsCenter = () => {
   const handleFileSelect = (event) => {
     const file = event.target.files[0];
     if (file) {
-      // Check file size (limit to 10MB)
-      if (file.size > 10 * 1024 * 1024) {
-        alert('File size must be less than 10MB');
+      // Check file size (limit to 100MB)
+      if (file.size > 100 * 1024 * 1024) {
+        showError('File size must be less than 100MB');
         return;
       }
       
@@ -103,13 +105,13 @@ const MaterialsCenter = () => {
     if (file) {
       // Check file size (limit to 2MB for thumbnails)
       if (file.size > 2 * 1024 * 1024) {
-        alert('Thumbnail size must be less than 2MB');
+        showError('Thumbnail size must be less than 2MB');
         return;
       }
       
       // Check if it's an image
       if (!file.type.startsWith('image/')) {
-        alert('Thumbnail must be an image file');
+        showError('Thumbnail must be an image file');
         return;
       }
       
@@ -121,16 +123,17 @@ const MaterialsCenter = () => {
     e.preventDefault();
     
     if (!formData.file && !editingMaterial) {
-      alert('Please select a file to upload');
+      showError('Please select a file to upload');
       return;
     }
 
     try {
       setUploading(true);
+      setUploadProgress(0);
       const token = getValidToken();
       
       if (!token) {
-        alert('⚠️ Authentication token is missing or invalid. Please log in again.');
+        showWarning('Authentication token is missing or invalid. Please log in again.');
         clearAuth();
         redirectToLogin('invalid_token');
         return;
@@ -154,51 +157,85 @@ const MaterialsCenter = () => {
       
       const method = editingMaterial ? 'PUT' : 'POST';
 
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Authorization': `Bearer ${token}`
-          // Note: Don't set Content-Type header when sending FormData
-          // The browser will automatically set the correct Content-Type with boundary
-        },
-        body: uploadData
+      // Use XMLHttpRequest for progress tracking
+      return new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        
+        xhr.upload.addEventListener('progress', (event) => {
+          if (event.lengthComputable) {
+            const progress = Math.round((event.loaded / event.total) * 100);
+            setUploadProgress(progress);
+          }
+        });
+
+        xhr.addEventListener('load', () => {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            try {
+              const data = JSON.parse(xhr.responseText);
+              showSuccess(`Material ${editingMaterial ? 'updated' : 'uploaded'} successfully!`);
+              
+              if (editingMaterial) {
+                setMaterials(materials.map(m => m._id === editingMaterial._id ? data.data.material : m));
+              } else {
+                setMaterials([data.data.material, ...materials]);
+              }
+              
+              setShowUploadModal(false);
+              setEditingMaterial(null);
+              setFormData({
+                title: '',
+                type: 'theory',
+                file: null,
+                thumbnail: null
+              });
+              
+              // Reset file inputs
+              if (fileInputRef.current) {
+                fileInputRef.current.value = '';
+              }
+              if (thumbnailInputRef.current) {
+                thumbnailInputRef.current.value = '';
+              }
+              
+              setUploadProgress(0);
+              resolve(data);
+            } catch (error) {
+              console.error('Error parsing response:', error);
+              showError('Error processing response');
+              reject(error);
+            }
+          } else {
+            try {
+              const errorData = JSON.parse(xhr.responseText);
+              showError(errorData.message || 'Upload failed');
+            } catch (error) {
+              showError('Upload failed');
+            }
+            reject(new Error('Upload failed'));
+          }
+        });
+
+        xhr.addEventListener('error', () => {
+          showError('Network error during upload');
+          reject(new Error('Network error'));
+        });
+
+        xhr.addEventListener('abort', () => {
+          showError('Upload was cancelled');
+          reject(new Error('Upload cancelled'));
+        });
+
+        xhr.open(method, url);
+        xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+        xhr.send(uploadData);
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        alert(`✅ Material ${editingMaterial ? 'updated' : 'uploaded'} successfully!`);
-        
-        if (editingMaterial) {
-          setMaterials(materials.map(m => m._id === editingMaterial._id ? data.data.material : m));
-        } else {
-          setMaterials([data.data.material, ...materials]);
-        }
-        
-        setShowUploadModal(false);
-        setEditingMaterial(null);
-        setFormData({
-          title: '',
-          type: 'theory',
-          file: null,
-          thumbnail: null
-        });
-        
-        // Reset file inputs
-        if (fileInputRef.current) {
-          fileInputRef.current.value = '';
-        }
-        if (thumbnailInputRef.current) {
-          thumbnailInputRef.current.value = '';
-        }
-      } else {
-        const errorData = await response.json();
-        alert(`❌ Error: ${errorData.message}`);
-      }
     } catch (error) {
       console.error('Error uploading material:', error);
-      alert('❌ Error uploading material');
+      showError('Error uploading material');
     } finally {
       setUploading(false);
+      setUploadProgress(0);
     }
   };
 
@@ -215,15 +252,15 @@ const MaterialsCenter = () => {
       });
 
       if (response.ok) {
-        alert('✅ Material deleted successfully!');
+        showSuccess('Material deleted successfully!');
         setMaterials(materials.filter(m => m._id !== materialId));
       } else {
         const errorData = await response.json();
-        alert(`❌ Error: ${errorData.message}`);
+        showError(errorData.message);
       }
     } catch (error) {
       console.error('Error deleting material:', error);
-      alert('❌ Error deleting material');
+      showError('Error deleting material');
     }
   };
 
@@ -258,11 +295,11 @@ const MaterialsCenter = () => {
         document.body.removeChild(link);
         window.URL.revokeObjectURL(url);
       } else {
-        alert('❌ Failed to download file');
+        showError('Failed to download file');
       }
     } catch (error) {
       console.error('Error downloading material:', error);
-      alert('❌ Error downloading material');
+      showError('Error downloading material');
     }
   };
 
@@ -337,13 +374,40 @@ const MaterialsCenter = () => {
 
           <button
             onClick={() => setShowUploadModal(true)}
-            className="flex items-center justify-center space-x-2 bg-blue-600 font-bold text-white px-4 py-2 rounded-xl hover:bg-blue-700 transition-colors whitespace-nowrap"
+            disabled={uploading}
+            className="flex items-center justify-center space-x-2 bg-blue-600 font-bold text-white px-4 py-2 rounded-xl hover:bg-blue-700 disabled:bg-blue-800/50 disabled:cursor-not-allowed transition-colors whitespace-nowrap"
           >
-            <PlusIcon className="h-5 w-5" />
-            <span>Upload Material</span>
+            {uploading ? (
+              <>
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                <span>Uploading...</span>
+              </>
+            ) : (
+              <>
+                <PlusIcon className="h-5 w-5" />
+                <span>Upload Material</span>
+              </>
+            )}
           </button>
         </div>
       </div>
+
+      {/* Upload Progress Bar for Main View */}
+      {uploading && (
+        <div className="bg-gray-900/70 rounded-xl p-4 border border-gray-600/50">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-medium text-white">Uploading Material...</span>
+            <span className="text-sm text-blue-400 font-medium">{uploadProgress}%</span>
+          </div>
+          <div className="w-full bg-gray-700 rounded-full h-3">
+            <div 
+              className="bg-blue-500 h-3 rounded-full transition-all duration-300 ease-out"
+              style={{ width: `${uploadProgress}%` }}
+            />
+          </div>
+          <p className="text-xs text-gray-400 mt-1">Please wait while your file is being uploaded...</p>
+        </div>
+      )}
 
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
@@ -564,7 +628,7 @@ const MaterialsCenter = () => {
                           <CloudArrowUpIcon className="h-12 w-12 text-gray-500" />
                           <span className="text-sm text-gray-400">Click to select file</span>
                           <span className="text-xs text-gray-500">
-                            PDF, Word, PowerPoint, Excel, Text, ZIP (Max: 10MB)
+                            PDF, Word, PowerPoint, Excel, Text, ZIP (Max: 100MB)
                           </span>
                         </>
                       )}
@@ -660,6 +724,22 @@ const MaterialsCenter = () => {
                   </select>
                 </div>
 
+                {/* Upload Progress Bar */}
+                {uploading && (
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm text-gray-400">
+                      <span>Uploading...</span>
+                      <span>{uploadProgress}%</span>
+                    </div>
+                    <div className="w-full bg-gray-700 rounded-full h-2">
+                      <div 
+                        className="bg-blue-500 h-2 rounded-full transition-all duration-300 ease-out"
+                        style={{ width: `${uploadProgress}%` }}
+                      />
+                    </div>
+                  </div>
+                )}
+
                 <div className="flex justify-end space-x-3 pt-4">
                   <button
                     type="button"
@@ -679,7 +759,8 @@ const MaterialsCenter = () => {
                         thumbnailInputRef.current.value = '';
                       }
                     }}
-                    className="px-4 py-2 text-gray-300 bg-gray-700/80 rounded-xl hover:bg-gray-700 transition-colors"
+                    disabled={uploading}
+                    className="px-4 py-2 text-gray-300 bg-gray-700/80 rounded-xl hover:bg-gray-700 disabled:bg-gray-800/50 disabled:cursor-not-allowed transition-colors"
                   >
                     Cancel
                   </button>

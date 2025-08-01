@@ -7,6 +7,7 @@ const Material = require('../models/Material');
 const Video = require('../models/Video');
 const Message = require('../models/Message');
 const Announcement = require('../models/Announcement');
+const { createActivityFromEvent } = require('./activityController');
 
 // @desc    Get student dashboard stats
 // @route   GET /api/student/dashboard
@@ -324,21 +325,45 @@ const getVideos = async (req, res) => {
       });
     }
 
-    // For now, return empty videos as this feature is not implemented yet
+    // Get accessible videos for the student
+    const videos = await Video.getAccessibleVideos(student._id, student.year || 10);
+    const progress = await Video.getStudentProgress(student._id);
+
+    // Organize videos by type and category
+    const organizedVideos = {
+      theory: { phase1: [], phase2: [], phase3: [] },
+      practical: {
+        word: { guides: [], tasks: [] },
+        powerpoint: { guides: [], tasks: [] },
+        access: { guides: [], tasks: [] },
+        excel: { guides: [], tasks: [] },
+        sharepoint: { guides: [], tasks: [] }
+      },
+      other: []
+    };
+
+    videos.forEach(video => {
+      if (video.type === 'theory') {
+        const phaseKey = `phase${video.phase}`;
+        if (organizedVideos.theory[phaseKey]) {
+          organizedVideos.theory[phaseKey].push(video);
+        }
+      } else if (video.type === 'practical') {
+        const programKey = video.program;
+        const contentKey = video.contentType === 'guide' ? 'guides' : 'tasks';
+        if (organizedVideos.practical[programKey] && organizedVideos.practical[programKey][contentKey]) {
+          organizedVideos.practical[programKey][contentKey].push(video);
+        }
+      } else if (video.type === 'other') {
+        organizedVideos.other.push(video);
+      }
+    });
+
     res.status(200).json({
       status: 'success',
       data: {
-        videos: {
-          theory: { phase1: [], phase2: [], phase3: [] },
-          practical: {
-            word: { guides: [], tasks: [] },
-            powerpoint: { guides: [], tasks: [] },
-            access: { guides: [], tasks: [] },
-            excel: { guides: [], tasks: [] },
-            sharepoint: { guides: [], tasks: [] }
-          }
-        },
-        progress: {}
+        videos: organizedVideos,
+        progress
       }
     });
   } catch (error) {
@@ -416,6 +441,23 @@ const submitAssignment = async (req, res) => {
     };
 
     await assignment.save();
+
+    // Create activity for assignment submission
+    await createActivityFromEvent({
+      type: 'assignment_submission',
+      title: 'Assignment Submitted',
+      description: `${student.firstName} ${student.lastName} submitted assignment: ${assignment.title}`,
+      studentId: student._id,
+      relatedItemId: assignment._id,
+      relatedItemModel: 'Assignment',
+      metadata: {
+        assignmentTitle: assignment.title,
+        isLate: isLate,
+        submissionDate: submissionDate,
+        attachmentsCount: attachments.length
+      },
+      priority: isLate ? 'high' : 'medium'
+    });
 
     res.status(200).json({
       status: 'success',
@@ -531,6 +573,24 @@ const submitQuiz = async (req, res) => {
     };
 
     await quiz.save();
+
+    // Create activity for quiz submission
+    await createActivityFromEvent({
+      type: 'quiz_submission',
+      title: 'Quiz Submitted',
+      description: `${student.firstName} ${student.lastName} submitted quiz: ${quiz.title}`,
+      studentId: student._id,
+      relatedItemId: quiz._id,
+      relatedItemModel: 'Quiz',
+      metadata: {
+        quizTitle: quiz.title,
+        isLate: isLate,
+        submissionDate: submissionDate,
+        timeSpent: timeSpent,
+        attachmentsCount: attachments.length
+      },
+      priority: isLate ? 'high' : 'medium'
+    });
 
     res.status(200).json({
       status: 'success',

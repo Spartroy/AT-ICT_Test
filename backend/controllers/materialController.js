@@ -64,6 +64,17 @@ const uploadMaterial = async (req, res) => {
     const materialFile = req.files.material[0];
     const thumbnailFile = req.files.thumbnail ? req.files.thumbnail[0] : null;
 
+    // Ensure upload directories exist
+    const materialsDir = path.join(__dirname, '..', 'uploads', 'materials');
+    const thumbnailsDir = path.join(__dirname, '..', 'uploads', 'materials', 'thumbnails');
+    
+    if (!fs.existsSync(materialsDir)) {
+      fs.mkdirSync(materialsDir, { recursive: true });
+    }
+    if (!fs.existsSync(thumbnailsDir)) {
+      fs.mkdirSync(thumbnailsDir, { recursive: true });
+    }
+
     // Prepare material data
     const materialData = {
       title,
@@ -96,6 +107,9 @@ const uploadMaterial = async (req, res) => {
     });
   } catch (error) {
     console.error('Upload material error:', error);
+    console.error('Error stack:', error.stack);
+    console.error('Request body:', req.body);
+    console.error('Request files:', req.files);
     
     // Delete uploaded files if database save failed
     if (req.files) {
@@ -117,7 +131,8 @@ const uploadMaterial = async (req, res) => {
     
     res.status(500).json({
       status: 'error',
-      message: 'Server error uploading material'
+      message: 'Server error uploading material',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 };

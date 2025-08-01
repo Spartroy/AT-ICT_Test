@@ -3,6 +3,7 @@ const User = require('../models/User');
 const Student = require('../models/Student');
 const path = require('path');
 const fs = require('fs');
+const { createActivityFromEvent } = require('./activityController');
 
 // @desc    Get student's assigned teacher (for single chat)
 // @route   GET /api/chat/student/teacher
@@ -414,6 +415,24 @@ const sendMessage = async (req, res) => {
       { path: 'recipient', select: 'firstName lastName profileImage role' },
       { path: 'replyTo' }
     ]);
+
+    // Create activity for new message (only if student is sending to teacher)
+    if (req.user.role === 'student' && recipient.role === 'teacher') {
+      await createActivityFromEvent({
+        type: 'message',
+        title: 'New Message from Student',
+        description: `${req.user.firstName} ${req.user.lastName} sent a new message`,
+        studentId: req.user.id,
+        relatedItemId: message._id,
+        relatedItemModel: 'Message',
+        metadata: {
+          messageType: messageType,
+          hasAttachments: attachments.length > 0,
+          recipientName: `${recipient.firstName} ${recipient.lastName}`
+        },
+        priority: 'medium'
+      });
+    }
 
     res.status(201).json({
       status: 'success',

@@ -20,7 +20,8 @@ import {
   CalendarDaysIcon,
   FolderIcon,
   ChevronLeftIcon,
-  ChevronRightIcon
+  ChevronRightIcon,
+  PlayIcon
 } from '@heroicons/react/24/outline';
 
 // Import tab components
@@ -32,6 +33,8 @@ import ScheduleBuilder from '../../components/teacher/ScheduleBuilder';
 import MaterialsCenter from '../../components/teacher/MaterialsCenter';
 import CreateAssignmentModal from '../../components/teacher/CreateAssignmentModal';
 import CreateQuizModal from '../../components/teacher/CreateQuizModal';
+import VideoManagement from '../../components/teacher/VideoManagement';
+import RecentActivities from '../../components/teacher/RecentActivities';
 
 const TeacherDashboard = () => {
   const navigate = useNavigate();
@@ -109,6 +112,13 @@ const TeacherDashboard = () => {
       shortName: 'Materials',
       icon: FolderIcon,
       color: 'bg-teal-600'
+    },
+    {
+      id: 'videos',
+      name: 'Video Management',
+      shortName: 'Videos',
+      icon: PlayIcon,
+      color: 'bg-blue-600'
     },
     {
       id: 'announcements',
@@ -256,6 +266,8 @@ const TeacherDashboard = () => {
         return <ScheduleBuilder />;
       case 'materials':
         return <MaterialsCenter />;
+      case 'videos':
+        return <VideoManagement />;
       case 'announcements':
         return <AnnouncementCenter />;
       case 'chat':
@@ -614,47 +626,7 @@ const DashboardOverview = ({ stats, loading, setActiveTab, setShowCreateAssignme
       </div>
 
       {/* Recent Activity */}
-      <div className="bg-white/10 backdrop-blur-sm rounded-xl shadow-xl p-6 lg:p-8 border border-white/20">
-        <h3 className="text-xl lg:text-2xl font-bold text-white mb-6 lg:mb-8">Recent Activity</h3>
-        <div className="space-y-4 lg:space-y-6">
-          {[
-            {
-              action: 'New registration received',
-              user: 'Sarah Ahmed',
-              time: '2 hours ago',
-              type: 'registration'
-            },
-            {
-              action: 'Assignment submitted',
-              user: 'Omar Hassan',
-              time: '4 hours ago',
-              type: 'assignment'
-            },
-            {
-              action: 'Fee payment received',
-              user: 'Fatima Al-Zahra',
-              time: '6 hours ago',
-              type: 'payment'
-            }
-          ].map((activity, index) => (
-            <div key={index} className="flex items-center space-x-4 lg:space-x-6 p-3 lg:p-4 hover:bg-white/5 rounded-xl transition-colors">
-              <div className="flex-shrink-0">
-                <div className="h-10 w-10 lg:h-12 lg:w-12 rounded-xl bg-[#CA133E]/20 flex items-center justify-center border border-[#CA133E]/30">
-                  <span className="text-sm lg:text-base font-bold text-[#CA133E]">
-                    {activity.user.split(' ').map(n => n[0]).join('')}
-                  </span>
-                </div>
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm lg:text-lg text-white">
-                  <span className="font-bold">{activity.user}</span> {activity.action}
-                </p>
-                <p className="text-xs lg:text-base text-gray-400">{activity.time}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+      <RecentActivities />
     </div>
   );
 };

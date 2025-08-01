@@ -14,12 +14,15 @@ export const API_ENDPOINTS = {
     ASSIGNMENTS: `${API_BASE_URL}/api/student/assignments`,
     QUIZZES: `${API_BASE_URL}/api/student/quizzes`,
     SCHEDULE: `${API_BASE_URL}/api/student/schedule`,
+    VIDEOS: `${API_BASE_URL}/api/student/videos`,
   },
   TEACHER: {
     DASHBOARD: `${API_BASE_URL}/api/teacher/dashboard`,
     STUDENTS: `${API_BASE_URL}/api/teacher/students`,
     MATERIALS: `${API_BASE_URL}/api/teacher/materials`,
     SCHEDULE: `${API_BASE_URL}/api/teacher/schedule`,
+    VIDEOS: `${API_BASE_URL}/api/teacher/videos`,
+    ACTIVITIES: `${API_BASE_URL}/api/teacher/activities`,
   },
   PARENT: {
     DASHBOARD: `${API_BASE_URL}/api/parent/dashboard`,

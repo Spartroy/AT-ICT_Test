@@ -14,12 +14,11 @@ const videoSchema = new mongoose.Schema({
   },
   type: {
     type: String,
-    enum: ['theory', 'practical'],
+    enum: ['theory', 'practical', 'other'],
     required: true
   },
   category: {
     type: String,
-    required: true,
     trim: true
   },
   subcategory: {
@@ -35,7 +34,7 @@ const videoSchema = new mongoose.Schema({
   },
   duration: {
     type: Number, // in seconds
-    required: true
+    default: 0
   },
   phase: {
     type: Number,
@@ -61,23 +60,11 @@ const videoSchema = new mongoose.Schema({
   },
   program: {
     type: String,
-    enum: ['word', 'powerpoint', 'access', 'excel', 'sharepoint'],
-    validate: {
-      validator: function(value) {
-        return this.type !== 'practical' || value;
-      },
-      message: 'Practical videos must specify a program'
-    }
+    enum: ['word', 'powerpoint', 'access', 'excel', 'sharepoint']
   },
   contentType: {
     type: String,
-    enum: ['guide', 'task'],
-    validate: {
-      validator: function(value) {
-        return this.type !== 'practical' || value;
-      },
-      message: 'Practical videos must specify content type (guide or task)'
-    }
+    enum: ['guide', 'task']
   },
   order: {
     type: Number,
@@ -193,7 +180,7 @@ videoSchema.statics.getPracticalVideosByProgram = async function(program, conten
   
   return await this.find(query)
     .populate('uploadedBy', 'firstName lastName')
-    .sort({ contentType: 1, order: 1 });
+    .sort({ contentType: -1, order: 1 });
 };
 
 // Static method to get accessible videos for student
@@ -209,7 +196,7 @@ videoSchema.statics.getAccessibleVideos = async function(studentId, studentYear)
   
   return await this.find(query)
     .populate('uploadedBy', 'firstName lastName')
-    .sort({ type: 1, phase: 1, chapter: 1, program: 1, contentType: 1, order: 1 });
+    .sort({ type: 1, phase: 1, chapter: 1, program: 1, contentType: -1, order: 1 });
 };
 
 // Get student's progress on videos

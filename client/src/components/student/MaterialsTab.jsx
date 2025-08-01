@@ -158,8 +158,13 @@ const MaterialsTab = ({ studentData }) => {
                   alt={material.title}
                   className="w-full h-full object-cover"
                   onError={(e) => {
+                    console.log('Thumbnail load error for:', material.thumbnailUrl);
                     e.target.style.display = 'none';
-                    e.target.nextSibling.style.display = 'flex';
+                    // Show fallback gradient instead
+                    const fallbackDiv = e.target.parentElement.querySelector('.fallback-gradient');
+                    if (fallbackDiv) {
+                      fallbackDiv.style.display = 'flex';
+                    }
                   }}
                 />
                 
@@ -179,6 +184,22 @@ const MaterialsTab = ({ studentData }) => {
                     <div className="flex items-center space-x-1 text-white/90 text-sm">
                       <EyeIcon className="h-4 w-4" />
                       <span className="drop-shadow">{material.downloadCount || 0}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Fallback gradient (hidden by default) */}
+                <div className={`fallback-gradient w-full h-full bg-gradient-to-br ${typeConfig.bookColor} flex flex-col items-center justify-center text-white relative p-4 hidden`}>
+                  <TypeIcon className="h-20 w-20 mb-6 opacity-80" />
+                  <div className="text-center">
+                    <h4 className="text-xl font-bold mb-3 line-clamp-3">{material.title}</h4>
+                    <div className="text-sm opacity-90 flex items-center justify-center space-x-3">
+                      <span className="text-2xl">{getFileIcon(material.mimeType)}</span>
+                      <span>{formatFileSize(material.fileSize)}</span>
+                    </div>
+                    <div className="flex items-center justify-center space-x-1 mt-3 text-sm opacity-80">
+                      <EyeIcon className="h-4 w-4" />
+                      <span>{material.downloadCount || 0} downloads</span>
                     </div>
                   </div>
                 </div>

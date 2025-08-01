@@ -90,7 +90,7 @@ const fileFilter = (req, file, cb) => {
 const upload = multer({
   storage: storage,
   limits: {
-    fileSize: 10 * 1024 * 1024 // 10MB limit
+    fileSize: 100 * 1024 * 1024 // 100MB limit
   },
   fileFilter: fileFilter
 });
@@ -105,6 +105,15 @@ const validateMaterial = [
     .isIn(['theory', 'practical', 'other'])
     .withMessage('Type must be theory, practical, or other')
 ];
+
+// Test endpoint
+router.get('/test', (req, res) => {
+  res.json({ 
+    status: 'success', 
+    message: 'Material routes are working',
+    timestamp: new Date().toISOString()
+  });
+});
 
 // Teacher Routes
 router.get('/', protect, (req, res, next) => {
