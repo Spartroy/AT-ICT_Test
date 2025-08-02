@@ -73,7 +73,13 @@ const About = () => {
       name: "Nouran Mohamed",
       country: "Egypt",
       text: "It was great, each point was explained in details and in a simple way"
-    }
+    },
+    {
+      name: "Karam Al Jarara",
+      country: "Jordan",
+      text: "The amount of benefit I gained is beyond count — whether in the practical sessions (which were my favorite, by the way), or the theoretical ones, which I used to dislike. But thanks to the collaborative notes and the engaging sessions themselves, even the theory became much easier — with only about 10% needing memorization, and the rest being fully understood during the lesson. truly, Dr. Ahmad was one of the best teachers I’ve ever had. Not only because of his excellent teaching, but also because of his personality. He’s extremely friendly, flexible (especially with timing!), and supportive. Beyond all that, I didn’t just gain knowledge — I gained a mentor, and one of the most inspiring people I’ve met.That said... all of this still doesn’t beat how much I appreciate and love him"
+    },
+   
 
   ];
 
