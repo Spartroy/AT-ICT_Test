@@ -29,6 +29,7 @@ import VideosTab from '../../components/student/VideosTab';
 import ChatTab from '../../components/student/ChatTab';
 import AnnouncementsTab from '../../components/student/AnnouncementsTab';
 import ScheduleTab from '../../components/student/ScheduleTab';
+import FlashcardsTab from '../../components/student/FlashcardsTab';
 
 const StudentDashboard = () => {
   const navigate = useNavigate();
@@ -99,6 +100,12 @@ const StudentDashboard = () => {
       name: 'Videos',
       icon: PlayIcon,
       component: VideosTab
+    },
+    {
+      id: 'flashcards',
+      name: 'Flashcards',
+      icon: BookOpenIcon,
+      component: FlashcardsTab
     },
     {
       id: 'chat',

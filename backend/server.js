@@ -44,6 +44,7 @@ const chatRoutes = require('./routes/chatRoutes');
 const registrationRoutes = require('./routes/registrationRoutes');
 const assignmentRoutes = require('./routes/assignmentRoutes');
 const quizRoutes = require('./routes/quizRoutes');
+const flashcardRoutes = require('./routes/flashcardRoutes');
 const activityRoutes = require('./routes/activityRoutes');
 
 // ===================================================================
@@ -319,6 +320,12 @@ app.use('/api/assignments', assignmentRoutes);
  * Quiz creation, taking, and scoring
  */
 app.use('/api/quizzes', quizRoutes);
+
+/**
+ * Flashcard Routes
+ * Flashcard creation, study, and management
+ */
+app.use('/api/flashcards', flashcardRoutes);
 
 /**
  * Activity Routes

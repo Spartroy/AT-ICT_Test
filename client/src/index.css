@@ -151,3 +151,61 @@ body {
 .Toastify__close-button:hover {
   opacity: 1 !important;
 }
+
+/* Flashcard 3D Transform Styles */
+.flashcard-container {
+  perspective: 1000px;
+  transform-style: preserve-3d;
+}
+
+.flashcard {
+  transform-style: preserve-3d;
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.flashcard-front,
+.flashcard-back {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+}
+
+.flashcard-back {
+  transform: rotateY(180deg);
+  -webkit-transform: rotateY(180deg);
+}
+
+.flashcard.flipped {
+  transform: rotateY(180deg);
+  -webkit-transform: rotateY(180deg);
+}
+
+/* Prevent text reflection */
+.flashcard-front *,
+.flashcard-back * {
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* Additional fixes for text reflection */
+.flashcard-front > *,
+.flashcard-back > * {
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+/* Line clamp utility */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}

@@ -40,6 +40,8 @@ export const API_ENDPOINTS = {
   },
   ASSIGNMENTS: `${API_BASE_URL}/api/assignments`,
   QUIZZES: `${API_BASE_URL}/api/quizzes`,
+  FLASHCARDS: `${API_BASE_URL}/api/flashcards`,
+  FLASHCARDS_MY_STACKS: `${API_BASE_URL}/api/flashcards/my-stacks`,
   REGISTRATION: {
     BASE: `${API_BASE_URL}/api/registration`,
     SUBMIT: `${API_BASE_URL}/api/registration/submit`,

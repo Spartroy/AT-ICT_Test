@@ -34,6 +34,7 @@ import MaterialsCenter from '../../components/teacher/MaterialsCenter';
 import CreateAssignmentModal from '../../components/teacher/CreateAssignmentModal';
 import CreateQuizModal from '../../components/teacher/CreateQuizModal';
 import VideoManagement from '../../components/teacher/VideoManagement';
+import FlashcardCenter from '../../components/teacher/FlashcardCenter';
 import RecentActivities from '../../components/teacher/RecentActivities';
 
 const TeacherDashboard = () => {
@@ -119,6 +120,13 @@ const TeacherDashboard = () => {
       shortName: 'Videos',
       icon: PlayIcon,
       color: 'bg-blue-600'
+    },
+    {
+      id: 'flashcards',
+      name: 'Flashcard Center',
+      shortName: 'Flashcards',
+      icon: MegaphoneIcon,
+      color: 'bg-yellow-600'
     },
     {
       id: 'announcements',
@@ -268,6 +276,8 @@ const TeacherDashboard = () => {
         return <MaterialsCenter />;
       case 'videos':
         return <VideoManagement />;
+      case 'flashcards':
+        return <FlashcardCenter />;
       case 'announcements':
         return <AnnouncementCenter />;
       case 'chat':
