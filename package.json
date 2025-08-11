@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "description": "AT-ICT Learning Management System (client + backend)",
   "engines": {
-    "node": "18.x"
+    "node": "22.x"
   },
   "scripts": {
     "dev": "concurrently \"npm run server\" \"npm run client\"",
