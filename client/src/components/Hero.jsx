@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import videoThumbnail from '../assets/video-thumbnail.png';
 
 const Hero = () => {
+  const [showVideo, setShowVideo] = useState(false);
   // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -130,27 +131,46 @@ const Hero = () => {
             viewport={{ once: true }}
           >
             <div className="relative bg-gray-800 rounded-xl overflow-hidden border-4 h-[600px] w-[750px] border-[#CA133E]">
-              {/* Video content */}
-              <div className="h-full bg-gray-800 flex items-center justify-center relative">
-                
-                {/* Thumbnail placeholder */}
-                <div className="absolute inset-0">
-                  <img 
-                    src={videoThumbnail}
-                    alt="Video Thumbnail"
-                    className="w-full h-full object-cover blur-sm"
-                  />
+              {/* Inline Instagram embed when playing */}
+              {showVideo ? (
+                <iframe
+                  title="AT-ICT Instagram Reel"
+                  src="https://www.instagram.com/reel/DBGr8dvton8/embed"
+                  className="absolute inset-0 w-full h-full"
+                  allow="autoplay; fullscreen; clipboard-read; clipboard-write; encrypted-media; picture-in-picture; web-share"
+                  allowFullScreen
+                  frameBorder="0"
+                />
+              ) : (
+                <div className="h-full bg-gray-800 flex items-center justify-center relative">
+                  {/* Thumbnail placeholder */}
+                  <div className="absolute inset-0">
+                    <img
+                      src={videoThumbnail}
+                      alt="Video Thumbnail"
+                      className="w-full h-full object-cover blur-sm"
+                    />
+                  </div>
+                  {/* Play button */}
+                  <div
+                    className="relative z-10 w-[92px] h-[92px] bg-[#333333] rounded-full cursor-pointer hover:scale-110 transition-all transform flex items-center justify-center"
+                    onClick={() => setShowVideo(true)}
+                    role="button"
+                    aria-label="Play Instagram video"
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') setShowVideo(true);
+                    }}
+                  >
+                    <svg className="w-[40.41px] h-[40.41px] text-[#CD143F] ml-1" fill="currentColor" viewBox="0 0 20 20" style={{ filter: 'drop-shadow(inset 3px 4px 6.1px rgba(0, 0, 0, 0.13))' }}>
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+                    </svg>
+                  </div>
                 </div>
-                
-                {/* Play button */}
-                <div className="relative z-10 w-[92px] h-[92px] bg-[#333333] rounded-full cursor-pointer hover:scale-110 transition-all transform flex items-center justify-center">
-                  <svg className="w-[40.41px] h-[40.41px] text-[#CD143F] ml-1" fill="currentColor" viewBox="0 0 20 20" style={{filter: 'drop-shadow(inset 3px 4px 6.1px rgba(0, 0, 0, 0.13))'}}>
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
-                  </svg>
-                </div>
-              </div>
+              )}
             </div>
           </motion.div>
+
 
         </div>
       </div>
