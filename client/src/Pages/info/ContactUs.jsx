@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import Nav from '../../components/Nav';
-import { Mail, Phone, MapPin, Clock } from 'lucide-react';
+import { Mail, Phone, MapPin, Clock, School } from 'lucide-react';
 
 const ContactUs = () => {
   const [formData, setFormData] = useState({
@@ -43,6 +43,13 @@ const ContactUs = () => {
       title: 'Centers',
       content: 'Apex Academy - EzScience - IG Cubs - IG Stars - Bright Minds',
       subContent: 'Future Stars Center - IG Guide Academy',
+     
+    },
+
+    {
+      icon: School,
+      title: 'Schools',
+      content: 'Gateway Montessori International School'
      
     },
   ];

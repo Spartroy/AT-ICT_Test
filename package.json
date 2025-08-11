@@ -1,22 +1,24 @@
 {
-  "name": "at-ict",
+  "name": "at-ict-monorepo",
+  "private": true,
   "version": "1.0.0",
-  "description": "AT-ICT Learning Management System",
+  "description": "AT-ICT Learning Management System (client + backend)",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "scripts": {
     "dev": "concurrently \"npm run server\" \"npm run client\"",
-    "server": "cd backend && npm start",
+    "server": "cd backend && npm run dev",
     "client": "cd client && npm start",
     "install-server": "cd backend && npm install",
     "install-client": "cd client && npm install",
     "install-all": "npm run install-server && npm run install-client",
     "build": "cd client && npm run build",
-    "start:prod": "cd backend && NODE_ENV=production npm start",
+    "start:prod": "cd backend && cross-env NODE_ENV=production npm start",
     "deploy": "npm run install-all && npm run build"
   },
-  "dependencies": {
-    "node-fetch": "^2.7.0",
-    "react-toastify": "^11.0.5",
-    "react-youtube": "^10.1.0",
-    "concurrently": "^7.6.0"
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "cross-env": "^10.0.0"
   }
 }

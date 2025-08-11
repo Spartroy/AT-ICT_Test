@@ -42,6 +42,16 @@ export const API_ENDPOINTS = {
   QUIZZES: `${API_BASE_URL}/api/quizzes`,
   FLASHCARDS: `${API_BASE_URL}/api/flashcards`,
   FLASHCARDS_MY_STACKS: `${API_BASE_URL}/api/flashcards/my-stacks`,
+  SESSIONS: {
+    BASE: `${API_BASE_URL}/api/sessions`,
+    STATS: `${API_BASE_URL}/api/sessions/stats`,
+    ALL: `${API_BASE_URL}/api/sessions/all`,
+  },
+  TEACHER_SESSIONS: {
+    BASE: `${API_BASE_URL}/api/teacher/sessions`,
+    STUDENTS: `${API_BASE_URL}/api/teacher/sessions/students`,
+    STATS: `${API_BASE_URL}/api/teacher/sessions/stats`,
+  },
   REGISTRATION: {
     BASE: `${API_BASE_URL}/api/registration`,
     SUBMIT: `${API_BASE_URL}/api/registration/submit`,

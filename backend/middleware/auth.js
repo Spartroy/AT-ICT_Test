@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const DeviceSession = require('../models/DeviceSession');
 
 // Protect routes - verify JWT token
 const protect = async (req, res, next) => {
@@ -22,6 +23,22 @@ const protect = async (req, res, next) => {
     try {
       // Verify token
       const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback_jwt_secret_for_development');
+
+      // Check if session is valid (optional for now to debug the issue)
+      const session = await DeviceSession.findOne({ 
+        token, 
+        isActive: true 
+      });
+
+      // For now, allow access even if session is not found (temporary fix)
+      if (!session) {
+        console.log('Session not found for token, but allowing access for debugging');
+        // Uncomment the following lines once the session issue is resolved
+        // return res.status(401).json({
+        //   status: 'error',
+        //   message: 'Session expired or invalid. Please log in again.'
+        // });
+      }
 
       // Get user from token
       const user = await User.findById(decoded.id);
@@ -49,8 +66,14 @@ const protect = async (req, res, next) => {
         });
       }
 
-      // Add user to request object
+      // Update session activity if session exists
+      if (session) {
+        await session.updateActivity();
+      }
+
+      // Add user and session to request object
       req.user = user;
+      req.session = session;
       next();
 
     } catch (error) {

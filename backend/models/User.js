@@ -8,6 +8,7 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const DeviceSession = require('./DeviceSession');
 
 // ===================================================================
 // USER SCHEMA DEFINITION
@@ -793,6 +794,88 @@ userSchema.methods.getSignedJwtToken = function() {
     jwtSecret,
     { expiresIn: jwtExpire }
   );
+};
+
+/**
+ * Create a new device session for the user
+ * @param {Object} sessionData - Session information
+ * @param {String} sessionData.deviceId - Device identifier
+ * @param {String} sessionData.deviceName - Device name
+ * @param {String} sessionData.userAgent - User agent string
+ * @param {String} sessionData.ipAddress - IP address
+ * @param {String} sessionData.location - Location information
+ * @returns {Promise<Object>} Created session with token
+ */
+userSchema.methods.createDeviceSession = async function(sessionData) {
+  // Determine session limit based on user role
+  let maxSessions;
+  if (this.role === 'teacher') {
+    maxSessions = 999; // Unlimited for teachers (practical limit)
+  } else {
+    maxSessions = 1; // Only one session for students and parents
+  }
+  
+  // Enforce session limit
+  await DeviceSession.enforceSessionLimit(this._id, maxSessions);
+  
+  // Generate token
+  const token = this.getSignedJwtToken();
+  
+  // Create session
+  const session = await DeviceSession.create({
+    userId: this._id,
+    token,
+    deviceId: sessionData.deviceId,
+    deviceName: sessionData.deviceName,
+    userAgent: sessionData.userAgent,
+    ipAddress: sessionData.ipAddress,
+    location: sessionData.location || 'Unknown'
+  });
+
+  return {
+    token,
+    sessionId: session._id,
+    deviceName: session.deviceName
+  };
+};
+
+/**
+ * Get all active sessions for the user
+ * @returns {Promise<Array>} Array of active sessions
+ */
+userSchema.methods.getActiveSessions = async function() {
+  return await DeviceSession.getActiveSessions(this._id);
+};
+
+/**
+ * Deactivate a specific session
+ * @param {String} sessionId - Session ID to deactivate
+ * @returns {Promise<Boolean>} Success status
+ */
+userSchema.methods.deactivateSession = async function(sessionId) {
+  const session = await DeviceSession.findById(sessionId);
+  if (session && session.userId.toString() === this._id.toString()) {
+    await session.deactivate();
+    return true;
+  }
+  return false;
+};
+
+/**
+ * Deactivate all sessions for the user
+ * @returns {Promise<Number>} Number of sessions deactivated
+ */
+userSchema.methods.deactivateAllSessions = async function() {
+  const result = await DeviceSession.deactivateAllSessions(this._id);
+  return result.modifiedCount || 0;
+};
+
+/**
+ * Get active session count for the user
+ * @returns {Promise<Number>} Number of active sessions
+ */
+userSchema.methods.getActiveSessionCount = async function() {
+  return await DeviceSession.getActiveSessionCount(this._id);
 };
 
 /**

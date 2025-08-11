@@ -46,6 +46,8 @@ const assignmentRoutes = require('./routes/assignmentRoutes');
 const quizRoutes = require('./routes/quizRoutes');
 const flashcardRoutes = require('./routes/flashcardRoutes');
 const activityRoutes = require('./routes/activityRoutes');
+const sessionRoutes = require('./routes/sessionRoutes');
+const teacherSessionRoutes = require('./routes/teacherSessionRoutes');
 
 // ===================================================================
 // SERVER INITIALIZATION
@@ -332,6 +334,18 @@ app.use('/api/flashcards', flashcardRoutes);
  * Teacher notification and activity tracking
  */
 app.use('/api/teacher/activities', activityRoutes);
+
+/**
+ * Session Routes
+ * Device session management and security
+ */
+app.use('/api/sessions', sessionRoutes);
+
+/**
+ * Teacher Session Monitoring Routes
+ * Teacher monitoring of student device sessions
+ */
+app.use('/api/teacher/sessions', teacherSessionRoutes);
 
 // ===================================================================
 // ERROR HANDLING

@@ -7,6 +7,7 @@
 
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 
 // ===================================================================
 // UTILITY FUNCTIONS
@@ -43,6 +44,44 @@ const logAuthEvent = (event, email, ip = 'unknown', details = '') => {
     console.log(`🔐 AUTH_EVENT: ${event} | ${email} | ${ip} | ${details}`);
   }
   // In production, this would log to a security audit system
+};
+
+/**
+ * Generate device fingerprint from request
+ * @param {Object} req - Express request object
+ * @returns {String} Device fingerprint hash
+ */
+const generateDeviceId = (req) => {
+  const userAgent = req.headers['user-agent'] || '';
+  const acceptLanguage = req.headers['accept-language'] || '';
+  const acceptEncoding = req.headers['accept-encoding'] || '';
+  const ip = req.ip || req.connection.remoteAddress || '';
+  
+  const fingerprint = `${userAgent}|${acceptLanguage}|${acceptEncoding}|${ip}`;
+  return crypto.createHash('sha256').update(fingerprint).digest('hex');
+};
+
+/**
+ * Get device name from user agent
+ * @param {String} userAgent - User agent string
+ * @returns {String} Device name
+ */
+const getDeviceName = (userAgent) => {
+  if (!userAgent) return 'Unknown Device';
+  
+  // Simple device detection
+  if (userAgent.includes('Mobile')) {
+    if (userAgent.includes('iPhone')) return 'iPhone';
+    if (userAgent.includes('Android')) return 'Android Phone';
+    return 'Mobile Device';
+  }
+  
+  if (userAgent.includes('iPad')) return 'iPad';
+  if (userAgent.includes('Mac')) return 'Mac';
+  if (userAgent.includes('Windows')) return 'Windows PC';
+  if (userAgent.includes('Linux')) return 'Linux PC';
+  
+  return 'Desktop Browser';
 };
 
 // ===================================================================
@@ -294,11 +333,23 @@ const login = async (req, res) => {
     user.lastLogin = new Date();
     await user.save();
 
-    // Generate JWT token
-    const token = user.getSignedJwtToken();
+    // Generate device fingerprint
+    const deviceId = generateDeviceId(req);
+    const deviceName = getDeviceName(req.headers['user-agent']);
+
+    // Create device session
+    const sessionData = {
+      deviceId,
+      deviceName,
+      userAgent: req.headers['user-agent'] || 'Unknown',
+      ipAddress: req.ip || req.connection.remoteAddress || 'Unknown',
+      location: 'Unknown' // Could be enhanced with IP geolocation
+    };
+
+    const sessionResult = await user.createDeviceSession(sessionData);
 
     // Log successful login
-    logAuthEvent('login_success', email, req.ip, `Role: ${user.role}`);
+    logAuthEvent('login_success', email, req.ip, `Role: ${user.role}, Device: ${sessionResult.deviceName}`);
 
     // Send response
     res.status(200).json({
@@ -306,7 +357,9 @@ const login = async (req, res) => {
       message: 'Login successful',
       data: {
         user: createUserResponse(user),
-        token
+        token: sessionResult.token,
+        sessionId: sessionResult.sessionId,
+        deviceName: sessionResult.deviceName
       }
     });
 
@@ -477,7 +530,7 @@ const changePassword = async (req, res) => {
 
 /**
  * User Logout
- * @desc    Logout user (client-side token removal)
+ * @desc    Logout user and deactivate current session
  * @route   POST /api/auth/logout
  * @access  Private
  * @param   {Object} req - Express request object with user data
@@ -485,7 +538,13 @@ const changePassword = async (req, res) => {
  */
 const logout = async (req, res) => {
   try {
-    logAuthEvent('logout', req.user?.email || 'unknown', req.ip, 'User logged out');
+    // Deactivate current session if it exists
+    if (req.session) {
+      await req.session.deactivate();
+      logAuthEvent('logout', req.user?.email || 'unknown', req.ip, `Session deactivated: ${req.session.deviceName}`);
+    } else {
+      logAuthEvent('logout', req.user?.email || 'unknown', req.ip, 'User logged out (no session)');
+    }
     
     res.status(200).json({
       status: 'success',
