@@ -16,7 +16,7 @@ import {
   ChevronUpIcon
 } from '@heroicons/react/24/outline';
 
-const AssignmentsTab = ({ studentData, stats }) => {
+const AssignmentsTab = ({ studentData, stats, fetchUrl, readonly = false }) => {
   const [assignments, setAssignments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -43,7 +43,8 @@ const AssignmentsTab = ({ studentData, stats }) => {
     
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(API_ENDPOINTS.STUDENT.ASSIGNMENTS, {
+      const url = fetchUrl || API_ENDPOINTS.STUDENT.ASSIGNMENTS;
+      const response = await fetch(url, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -51,17 +52,36 @@ const AssignmentsTab = ({ studentData, stats }) => {
       });
 
       if (response.ok) {
+        const ct = response.headers.get('content-type') || '';
+        if (!ct.includes('application/json')) {
+          throw new Error('Unexpected response type');
+        }
         const data = await response.json();
-        console.log('📚 Assignment data received:', data.data.assignments);
-        
-        // Log scores for debugging
-        data.data.assignments.forEach(assignment => {
-          if (assignment.studentData?.score !== undefined) {
-            console.log(`📊 ${assignment.title}: Score ${assignment.studentData.score}/${assignment.maxScore}, Status: ${assignment.studentData.status}`);
-          }
-        });
-        
-        setAssignments(data.data.assignments);
+        let list = data?.data?.assignments || [];
+        // If using parent progress endpoint, map fields to student shape
+        if (fetchUrl && url.includes('/api/parent/child/')) {
+          list = list.map(a => ({
+            _id: a._id,
+            title: a.title,
+            description: a.description,
+            type: a.type,
+            section: a.section,
+            difficulty: a.difficulty,
+            createdAt: a.createdAt,
+            maxScore: a.maxScore,
+            dueDate: a.dueDate,
+            studentData: {
+              status: a.status,
+              submissionDate: a.submissionDate,
+              isLate: a.isLate,
+              feedback: a.feedback,
+              score: a.score,
+              gradedDate: a.gradedDate
+            }
+          }));
+        }
+        console.log('📚 Assignment data received:', list);
+        setAssignments(list);
         setError('');
       } else {
         throw new Error('Failed to fetch assignments');
@@ -100,6 +120,7 @@ const AssignmentsTab = ({ studentData, stats }) => {
   };
 
   const submitAssignment = async (assignmentId) => {
+    if (readonly) return; // disabled in read-only mode (parent)
     const files = selectedFiles[assignmentId] || [];
     
     if (files.length === 0) {
@@ -432,50 +453,56 @@ const AssignmentsTab = ({ studentData, stats }) => {
                               </div>
                             ) : (
                               /* Upload Section */
-                              <div className="border-2 border-dashed border-gray-600 rounded-xl p-4 sm:p-6 text-center">
-                                <CloudArrowUpIcon className="h-10 w-10 sm:h-12 sm:w-12 text-gray-500 mx-auto mb-4" />
-                                <p className="text-gray-400 mb-4 text-sm sm:text-base">Upload your assignment files</p>
-                                
-                                <input
-                                  type="file"
-                                  multiple
-                                  onChange={(e) => handleFileChange(assignment._id, e.target.files)}
-                                  className="hidden"
-                                  id={`file-${assignment._id}`}
-                                  accept=".pdf,.doc,.docx,.txt,.jpg,.png"
-                                />
-                                <label
-                                  htmlFor={`file-${assignment._id}`}
-                                  className="inline-flex items-center space-x-2 px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 cursor-pointer transition-colors text-sm sm:text-base"
-                                >
-                                  <PaperClipIcon className="h-4 w-4 sm:h-5 sm:w-5" />
-                                  <span>Choose Files</span>
-                                </label>
-                                
-                                {selectedFiles[assignment._id] && selectedFiles[assignment._id].length > 0 && (
-                                  <div className="mt-4">
-                                    <p className="text-xs sm:text-sm text-gray-400 mb-2">Selected files:</p>
-                                    <div className="space-y-1">
-                                      {selectedFiles[assignment._id].map((file, index) => (
-                                        <div key={index} className="text-xs sm:text-sm text-blue-300 bg-blue-900/30 px-2 py-1 rounded">
-                                          {file.name} ({(file.size / 1024).toFixed(1)} KB)
-                                        </div>
-                                      ))}
+                              readonly ? (
+                                <div className="p-4 rounded-xl border border-gray-700 bg-gray-800/50 text-sm text-gray-300">
+                                  Not submitted yet.
+                                </div>
+                              ) : (
+                                <div className="border-2 border-dashed border-gray-600 rounded-xl p-4 sm:p-6 text-center">
+                                  <CloudArrowUpIcon className="h-10 w-10 sm:h-12 sm:w-12 text-gray-500 mx-auto mb-4" />
+                                  <p className="text-gray-400 mb-4 text-sm sm:text-base">Upload your assignment files</p>
+                                  
+                                  <input
+                                    type="file"
+                                    multiple
+                                    onChange={(e) => handleFileChange(assignment._id, e.target.files)}
+                                    className="hidden"
+                                    id={`file-${assignment._id}`}
+                                    accept=".pdf,.doc,.docx,.txt,.jpg,.png"
+                                  />
+                                  <label
+                                    htmlFor={`file-${assignment._id}`}
+                                    className="inline-flex items-center space-x-2 px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 cursor-pointer transition-colors text-sm sm:text-base"
+                                  >
+                                    <PaperClipIcon className="h-4 w-4 sm:h-5 sm:w-5" />
+                                    <span>Choose Files</span>
+                                  </label>
+                                  
+                                  {selectedFiles[assignment._id] && selectedFiles[assignment._id].length > 0 && (
+                                    <div className="mt-4">
+                                      <p className="text-xs sm:text-sm text-gray-400 mb-2">Selected files:</p>
+                                      <div className="space-y-1">
+                                        {selectedFiles[assignment._id].map((file, index) => (
+                                          <div key={index} className="text-xs sm:text-sm text-blue-300 bg-blue-900/30 px-2 py-1 rounded">
+                                            {file.name} ({(file.size / 1024).toFixed(1)} KB)
+                                          </div>
+                                        ))}
+                                      </div>
+                                      <button
+                                        onClick={() => submitAssignment(assignment._id)}
+                                        disabled={submitting}
+                                        className="mt-3 px-3 sm:px-4 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 disabled:opacity-50 transition-colors text-sm sm:text-base w-full sm:w-auto"
+                                      >
+                                        {submitting ? 'Submitting...' : 'Submit Assignment'}
+                                      </button>
                                     </div>
-                                    <button
-                                      onClick={() => submitAssignment(assignment._id)}
-                                      disabled={submitting}
-                                      className="mt-3 px-3 sm:px-4 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 disabled:opacity-50 transition-colors text-sm sm:text-base w-full sm:w-auto"
-                                    >
-                                      {submitting ? 'Submitting...' : 'Submit Assignment'}
-                                    </button>
-                                  </div>
-                                )}
-                                
-                                <p className="text-xs text-gray-500 mt-4">
-                                  Supported formats: PDF, DOC, DOCX, TXT, JPG, PNG
-                                </p>
-                              </div>
+                                  )}
+                                  
+                                  <p className="text-xs text-gray-500 mt-4">
+                                    Supported formats: PDF, DOC, DOCX, TXT, JPG, PNG
+                                  </p>
+                                </div>
+                              )
                             )}
                           </div>
                         </div>

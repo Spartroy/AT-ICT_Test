@@ -16,8 +16,10 @@ import {
   PhoneIcon,
   MapPinIcon,
   CalendarIcon,
-  TrophyIcon
+  TrophyIcon,
+  QrCodeIcon
 } from '@heroicons/react/24/outline';
+import { setAuthHeaders } from '../../utils/auth';
 
 const StudentManagement = () => {
   const [students, setStudents] = useState([]);
@@ -28,6 +30,7 @@ const StudentManagement = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingStudent, setEditingStudent] = useState(null);
   const [activeTab, setActiveTab] = useState('summary');
+  const [attendance, setAttendance] = useState({ summary: null, records: [] });
   const [feedbackLoading, setFeedbackLoading] = useState(false);
   const [filters, setFilters] = useState({
     search: '',
@@ -42,6 +45,9 @@ const StudentManagement = () => {
     hasNext: false,
     hasPrev: false
   });
+  const [showParentModal, setShowParentModal] = useState(false);
+  const [showChatModal, setShowChatModal] = useState(false);
+  const [parentCredentials, setParentCredentials] = useState(null);
 
   useEffect(() => {
     fetchStudents();
@@ -96,6 +102,35 @@ const StudentManagement = () => {
       console.error('Error fetching student details:', error);
     } finally {
       setDetailsLoading(false);
+    }
+  };
+
+  const createParentForStudent = async (studentId, firstName, lastName) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_ENDPOINTS.TEACHER.STUDENTS}/${studentId}/create-parent`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        showError(errorData.message || 'Failed to create parent account');
+        return;
+      }
+      const data = await response.json();
+      setParentCredentials({
+        email: data?.data?.credentials?.email,
+        password: data?.data?.credentials?.password,
+        studentName: `${firstName} ${lastName}`
+      });
+      setShowParentModal(true);
+      showOperationToast.saveSuccess('Parent account');
+    } catch (err) {
+      console.error('Create parent error:', err);
+      showOperationToast.networkError();
     }
   };
 
@@ -357,7 +392,7 @@ const StudentManagement = () => {
                     <div className="sm:hidden">
                       <span className="text-xs text-gray-400">ID: {student.studentId}</span>
                     </div>
-                    <div className="flex space-x-2">
+                      <div className="flex space-x-2">
                       <button
                         onClick={() => fetchStudentDetails(student._id)}
                         disabled={detailsLoading}
@@ -367,6 +402,39 @@ const StudentManagement = () => {
                         <span className="hidden sm:inline">View Details</span>
                         <span className="sm:hidden">View</span>
                       </button>
+                        {(student.hasParent) ? (
+                          <>
+                            <button
+                              onClick={() => {
+                                setParentCredentials({
+                                  email: student.parentEmail || 'parent@atict.com',
+                                  password: 'Hidden',
+                                  studentName: student.fullName
+                                });
+                                setShowParentModal(true);
+                              }}
+                              className="flex items-center space-x-2 px-3 sm:px-4 py-2 bg-amber-600 text-white rounded-xl hover:bg-amber-700 transition-colors text-sm"
+                              title="View Parent"
+                            >
+                              <span>View Parent</span>
+                            </button>
+                            <button
+                              onClick={() => setShowChatModal(true)}
+                              className="flex items-center space-x-2 px-3 sm:px-4 py-2 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors text-sm"
+                              title="Chat with Parent"
+                            >
+                              <span>Chat with Parent</span>
+                            </button>
+                          </>
+                        ) : (
+                          <button
+                            onClick={() => createParentForStudent(student._id, student.firstName, student.lastName)}
+                            className="flex items-center space-x-2 px-3 sm:px-4 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors text-sm"
+                            title="Create Parent"
+                          >
+                            <span>Create Parent</span>
+                          </button>
+                        )}
                     </div>
                   </div>
                 </div>
@@ -503,6 +571,28 @@ const StudentManagement = () => {
                         <span className="truncate">Quizzes ({selectedStudent.quizzes?.length || 0})</span>
                       </div>
                     </button>
+                    <button
+                      onClick={async () => {
+                        setActiveTab('attendance');
+                        try {
+                          const res = await fetch(`${API_ENDPOINTS.TEACHER.STUDENTS}/${selectedStudent.student._id}/attendance`, { headers: setAuthHeaders() });
+                          if (res.ok) {
+                            const data = await res.json();
+                            setAttendance({ summary: data?.data?.summary, records: data?.data?.records || [] });
+                          }
+                        } catch (e) {}
+                      }}
+                      className={`flex-1 sm:flex-none py-3 sm:py-4 px-2 sm:px-3 lg:px-4 border-b-2 font-medium text-xs sm:text-sm lg:text-base transition-colors ${
+                        activeTab === 'attendance'
+                          ? 'border-blue-500 text-blue-400 bg-blue-500/10'
+                          : 'border-transparent text-gray-400 hover:text-white hover:border-gray-500 hover:bg-gray-700/30'
+                      }`}
+                    >
+                      <div className="flex items-center justify-center sm:justify-start space-x-1 sm:space-x-2">
+                        <QrCodeIcon className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
+                        <span className="truncate">Attendance</span>
+                      </div>
+                    </button>
                   </div>
                 </nav>
               </div>
@@ -617,6 +707,31 @@ const StudentManagement = () => {
                             <span className="font-medium text-xs sm:text-sm text-gray-300">{selectedStudent.student.isRetaker ? 'Yes' : 'No'}</span>
                           </div>
                         </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                {activeTab === 'attendance' && (
+                  <div className="space-y-4">
+                    <div className="bg-gray-800/70 p-4 rounded-xl border border-gray-700/50">
+                      <h4 className="text-white font-semibold mb-2">Attendance Summary</h4>
+                      <div className="text-gray-300 text-sm">Total present: {attendance.summary?.present || 0} / {attendance.summary?.total || 0}</div>
+                      {attendance.summary?.latestDate && (
+                        <div className="text-gray-400 text-xs mt-1">Last attendance: {new Date(attendance.summary.latestDate).toLocaleDateString()}</div>
+                      )}
+                    </div>
+                    <div className="bg-gray-800/70 p-4 rounded-xl border border-gray-700/50">
+                      <h4 className="text-white font-semibold mb-2">Recent Records</h4>
+                      <div className="space-y-2 max-h-64 overflow-auto pr-1">
+                        {attendance.records.length === 0 && (
+                          <div className="text-gray-400 text-sm">No attendance records yet.</div>
+                        )}
+                        {attendance.records.map((r, idx) => (
+                          <div key={idx} className="flex items-center justify-between bg-white/5 rounded-lg px-3 py-2">
+                            <div className="text-gray-300 text-sm">{r.session?.day} {r.session?.startTime}-{r.session?.endTime} • {r.session?.topic || 'Session'}</div>
+                            <div className="text-green-400 text-xs font-bold">{r.status}</div>
+                          </div>
+                        ))}
                       </div>
                     </div>
                   </div>
@@ -1010,6 +1125,63 @@ const StudentManagement = () => {
                 <button
                   onClick={() => setShowModal(false)}
                   className="px-3 sm:px-4 py-2 text-gray-300 bg-gray-700/80 rounded-xl hover:bg-gray-700 transition-colors text-sm font-medium"
+                >
+                  Close
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Parent Credentials Modal */}
+      <AnimatePresence>
+        {showParentModal && parentCredentials && (
+          <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-gray-900 text-white rounded-xl shadow-2xl w-full max-w-md border border-gray-700"
+            >
+              <div className="p-5 border-b border-gray-800">
+                <h3 className="text-xl font-semibold">Parent Account Created</h3>
+                <p className="text-gray-400 text-sm mt-1">Share these credentials with the parent of {parentCredentials.studentName}.</p>
+              </div>
+              <div className="p-5 space-y-4">
+                <div>
+                  <label className="block text-sm text-gray-400 mb-1">Email</label>
+                  <div className="flex items-center bg-gray-800 rounded-lg px-3 py-2 border border-gray-700">
+                    <span className="truncate">{parentCredentials.email}</span>
+                    <button
+                      className="ml-auto text-blue-400 hover:text-blue-300 text-sm"
+                      onClick={() => navigator.clipboard?.writeText(parentCredentials.email)}
+                    >
+                      Copy
+                    </button>
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm text-gray-400 mb-1">Temporary Password</label>
+                  <div className="flex items-center bg-gray-800 rounded-lg px-3 py-2 border border-gray-700">
+                    <span className="truncate">{parentCredentials.password}</span>
+                    <button
+                      className="ml-auto text-blue-400 hover:text-blue-300 text-sm"
+                      onClick={() => navigator.clipboard?.writeText(parentCredentials.password)}
+                    >
+                      Copy
+                    </button>
+                  </div>
+                </div>
+                <p className="text-xs text-gray-500">Parent can log in at the Sign In page to access the Parent Portal.</p>
+              </div>
+              <div className="p-4 border-t border-gray-800 flex justify-end">
+                <button
+                  className="px-4 py-2 bg-gray-700 rounded-lg hover:bg-gray-600"
+                  onClick={() => {
+                    setShowParentModal(false);
+                    setParentCredentials(null);
+                  }}
                 >
                   Close
                 </button>

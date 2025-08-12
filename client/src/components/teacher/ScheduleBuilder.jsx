@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { API_ENDPOINTS } from '../../config/api';
+import QRCode from 'react-qr-code';
 import { getValidToken, clearAuth, redirectToLogin, setAuthHeaders } from '../../utils/auth';
 import { showSuccess, showError, showWarning } from '../../utils/toast';
 import {
@@ -12,7 +13,8 @@ import {
   AcademicCapIcon,
   DocumentTextIcon,
   BookOpenIcon,
-  ComputerDesktopIcon
+  ComputerDesktopIcon,
+  QrCodeIcon
 } from '@heroicons/react/24/outline';
 
 const ScheduleBuilder = () => {
@@ -39,6 +41,8 @@ const ScheduleBuilder = () => {
   const [loading, setLoading] = useState(true);
   const [showEditModal, setShowEditModal] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [qrToken, setQrToken] = useState('');
+  const [showQr, setShowQr] = useState(false);
 
   const [formData, setFormData] = useState({
     title: 'Class Schedule',
@@ -304,6 +308,23 @@ const ScheduleBuilder = () => {
     return sessionTypes.find(t => t.value === type) || sessionTypes[0];
   };
 
+  const viewAttendanceQr = async (dayName, session) => {
+    try {
+      const url = `${API_ENDPOINTS.SCHEDULE.QR}?day=${encodeURIComponent(dayName)}&start=${encodeURIComponent(session.startTime)}&end=${encodeURIComponent(session.endTime)}`;
+      const res = await fetch(url, { headers: setAuthHeaders() });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        showError(err.message || 'Failed to get QR');
+        return;
+      }
+      const data = await res.json();
+      setQrToken(data?.data?.token || '');
+      setShowQr(true);
+    } catch (e) {
+      showError('Failed to get QR');
+    }
+  };
+
   const openEditModal = () => {
     // Ensure formData is synchronized with current schedule
     if (schedule) {
@@ -425,6 +446,17 @@ const ScheduleBuilder = () => {
                                 </span>
                               </div>
                               <p className="text-white font-bold mt-2 text-base sm:text-lg lg:text-xl">{session.topic}</p>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <button
+                                type="button"
+                                onClick={() => viewAttendanceQr(day.day, session)}
+                                className="flex items-center space-x-2 px-3 py-2 bg-white/15 text-white rounded-xl hover:bg-white/25 transition-colors text-sm"
+                                title="View Attendance QR Code"
+                              >
+                                <QrCodeIcon className="h-5 w-5" />
+                                <span className="hidden sm:inline">Attendance QR</span>
+                              </button>
                             </div>
                           </div>
                         </div>
@@ -607,6 +639,39 @@ const ScheduleBuilder = () => {
                   </button>
                 </div>
               </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+      {/* QR Modal */}
+      <AnimatePresence>
+        {showQr && (
+          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-[#2a1a1a] rounded-xl p-6 border border-white/20 max-w-lg w-full"
+            >
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-white font-bold text-lg">Attendance QR Code</h3>
+                <button onClick={() => setShowQr(false)} className="text-gray-300 hover:text-white">
+                  <XMarkIcon className="h-6 w-6" />
+                </button>
+              </div>
+              {qrToken ? (
+                <div className="space-y-4">
+                  <div className="bg-white/5 rounded-xl p-4 flex items-center justify-center">
+                    <div className="bg-white p-3 rounded">
+                      <QRCode value={qrToken} size={220} bgColor="#ffffff" fgColor="#000000" />
+                    </div>
+                  </div>
+                  <div className="bg-white rounded-xl p-3 text-black text-xs break-all select-all">{qrToken}</div>
+                  <p className="text-gray-300 text-sm">Students can scan this code from their Attendance tab to check in.</p>
+                </div>
+              ) : (
+                <p className="text-gray-300">No token</p>
+              )}
             </motion.div>
           </div>
         )}

@@ -3,9 +3,11 @@ const Student = require('../models/Student');
 const Assignment = require('../models/Assignment');
 const Quiz = require('../models/Quiz');
 const Attendance = require('../models/Attendance');
+const UserAttendance = require('../models/UserAttendance');
 const Announcement = require('../models/Announcement');
 const Message = require('../models/Message');
 const User = require('../models/User');
+const crypto = require('crypto');
 
 // @desc    Get teacher dashboard stats
 // @route   GET /api/teacher/dashboard
@@ -135,6 +137,22 @@ const getStudents = async (req, res) => {
 
     const total = await User.countDocuments(query);
 
+    // Map parent accounts linked to these students
+    const studentIds = students.map(s => s._id);
+    const parents = await User.find({
+      role: 'parent',
+      'parentInfo.children.studentId': { $in: studentIds }
+    }).select('email parentInfo.children.studentId');
+    const studentIdToParent = new Map();
+    parents.forEach(p => {
+      (p.parentInfo?.children || []).forEach(ch => {
+        const sid = String(ch.studentId);
+        if (!studentIdToParent.has(sid)) {
+          studentIdToParent.set(sid, p.email);
+        }
+      });
+    });
+
     // Transform data for frontend
     const transformedStudents = students.map(student => ({
       _id: student._id,
@@ -155,7 +173,9 @@ const getStudents = async (req, res) => {
       overallProgress: student.studentInfo?.overallProgress || 0,
       currentGrade: student.studentInfo?.currentGrade || 'N/A',
       targetGrade: student.studentInfo?.targetGrade || 'A*',
-      avatar: student.avatar
+      avatar: student.avatar,
+      hasParent: studentIdToParent.has(String(student._id)),
+      parentEmail: studentIdToParent.get(String(student._id)) || null
     }));
 
     res.status(200).json({
@@ -494,5 +514,173 @@ module.exports = {
   getStudentDetails,
   updateStudent,
   updateAssignmentFeedback,
-  updateQuizFeedback
+  updateQuizFeedback,
+  // Attendance summary for a student
+  getStudentAttendance: async (req, res) => {
+    try {
+      const { id } = req.params;
+      // Ensure student exists
+      const student = await User.findById(id);
+      if (!student || student.role !== 'student') {
+        return res.status(404).json({ status: 'error', message: 'Student not found' });
+      }
+      const todayStart = new Date(new Date().toDateString());
+      const records = await UserAttendance.find({ user: id }).sort({ date: -1, createdAt: -1 }).limit(200);
+      const summary = {
+        total: records.length,
+        present: records.filter(r => r.status === 'present').length,
+        latestDate: records[0]?.date || null
+      };
+      return res.status(200).json({ status: 'success', data: { summary, records } });
+    } catch (e) {
+      console.error('Get student attendance error:', e);
+      return res.status(500).json({ status: 'error', message: 'Server error retrieving attendance' });
+    }
+  },
+  /**
+   * Create a parent account for a given student and return credentials
+   */
+  createParentAccount: async (req, res) => {
+    try {
+      const studentId = req.params.id;
+      // Accept both empty and JSON bodies; no required fields in body
+
+      const student = await User.findById(studentId);
+      if (!student || student.role !== 'student') {
+        return res.status(404).json({ status: 'error', message: 'Student not found' });
+      }
+
+      // Avoid duplicate parent for the same student
+      const existingParent = await User.findOne({
+        role: 'parent',
+        'parentInfo.children.studentId': student._id
+      });
+      if (existingParent) {
+        return res.status(409).json({
+          status: 'error',
+          message: 'A parent account is already linked to this student',
+          data: { email: existingParent.email }
+        });
+      }
+
+      // Format email as Last_FirstParent@atict.com
+      const formatName = (s) => (s || '').trim().replace(/\s+/g, ' ').split(' ').map(p => p.charAt(0).toUpperCase() + p.slice(1).toLowerCase()).join(' ');
+      const first = formatName(student.firstName).split(' ')[0] || 'Student';
+      const last = formatName(student.lastName).split(' ')[0] || 'Parent';
+      const desiredEmailDisplay = `${last}_${first}Parent@atict.com`;
+      const baseLocal = `${last}_${first}Parent`;
+      const domain = 'atict.com';
+
+      // Ensure unique email, try suffixes if needed
+      let emailToSave = `${baseLocal}@${domain}`;
+      let attempt = 0;
+      // Because schema lowercases, comparison should be lowercase
+      // Loop with reasonable cap
+      while (attempt < 5) {
+        const exists = await User.findOne({ email: emailToSave.toLowerCase() });
+        if (!exists) break;
+        attempt += 1;
+        emailToSave = `${baseLocal}${attempt}@${domain}`;
+      }
+
+      // Generate strong password (16 chars, mixed)
+      const genPassword = () => {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()-_=+[]{}';
+        let pwd = '';
+        for (let i = 0; i < 16; i += 1) {
+          const idx = crypto.randomInt(0, chars.length);
+          pwd += chars[idx];
+        }
+        // Ensure at least one of each class
+        if (!/[A-Z]/.test(pwd)) pwd = 'A' + pwd.slice(1);
+        if (!/[a-z]/.test(pwd)) pwd = pwd.slice(0, 1) + 'a' + pwd.slice(2);
+        if (!/\d/.test(pwd)) pwd = pwd.slice(0, 2) + '5' + pwd.slice(3);
+        if (!/[!@#$%^&*()\-_=+\[\]{}]/.test(pwd)) pwd = pwd.slice(0, 3) + '!' + pwd.slice(4);
+        return pwd;
+      };
+      const rawPassword = genPassword();
+
+      // Create parent user (primary link via User.parentInfo)
+      const parentUser = await User.create({
+        firstName: last, // e.g., Tarek
+        lastName: `${first} Parent`, // e.g., Omar Parent
+        email: emailToSave,
+        password: rawPassword,
+        role: 'parent',
+        contactNumber: (student.studentInfo?.parentContactNumber && /^[\+]?[1-9][\d]{0,15}$/.test(String(student.studentInfo.parentContactNumber).replace(/[\s\-\(\)]/g, ''))
+          ? student.studentInfo.parentContactNumber
+          : '1000000000'),
+        parentInfo: {
+          children: [
+            {
+              studentId: student._id,
+              relationship: 'guardian',
+              isPrimary: true
+            }
+          ]
+        },
+        registrationStatus: 'approved',
+        isActive: true
+      });
+
+      // Secondary link for legacy Parent/Student models (best-effort)
+      try {
+        const studentDoc = await Student.findOne({ user: student._id });
+        if (studentDoc) {
+          // Create Parent document if not exists for this parent user
+          const ParentModel = require('../models/Parent');
+          let parentDoc = await ParentModel.findOne({ user: parentUser._id });
+          if (!parentDoc) {
+            parentDoc = await ParentModel.create({
+              user: parentUser._id,
+              children: [{ student: studentDoc._id, relationship: 'guardian', isPrimary: true }],
+              contactNumber: parentUser.contactNumber || '0000000000',
+              isActive: true
+            });
+          } else {
+            // Ensure child exists on parent doc
+            const exists = parentDoc.children.some(c => String(c.student) === String(studentDoc._id));
+            if (!exists) {
+              parentDoc.children.push({ student: studentDoc._id, relationship: 'guardian', isPrimary: true });
+              // make only one primary
+              parentDoc.children = parentDoc.children.map((c, idx) => ({ ...c.toObject?.() || c, isPrimary: idx === parentDoc.children.length - 1 }));
+              await parentDoc.save();
+            }
+          }
+          // Link back on student document
+          if (!studentDoc.parent) {
+            studentDoc.parent = parentDoc._id;
+            await studentDoc.save();
+          }
+        }
+      } catch (linkErr) {
+        console.warn('Non-fatal: Legacy Parent/Student link setup failed:', linkErr.message);
+      }
+
+      // Return credentials for display
+      return res.status(201).json({
+        status: 'success',
+        message: 'Parent account created',
+        data: {
+          parent: {
+            id: parentUser._id,
+            firstName: parentUser.firstName,
+            lastName: parentUser.lastName,
+            email: parentUser.email,
+            savedEmail: parentUser.email
+          },
+          credentials: {
+            email: parentUser.email,
+            password: rawPassword
+          }
+        }
+      });
+    } catch (error) {
+      console.error('Create parent account error:', error);
+      if (!res.headersSent) {
+        return res.status(500).json({ status: 'error', message: 'Server error creating parent account' });
+      }
+      return; // headers already sent
+    }
+  }
 }; 

@@ -17,7 +17,8 @@ import {
   ArrowRightOnRectangleIcon,
   MegaphoneIcon,
   ChevronLeftIcon,
-  ChevronRightIcon
+  ChevronRightIcon,
+  QrCodeIcon
 } from '@heroicons/react/24/outline';
 
 // Import student components
@@ -30,6 +31,7 @@ import ChatTab from '../../components/student/ChatTab';
 import AnnouncementsTab from '../../components/student/AnnouncementsTab';
 import ScheduleTab from '../../components/student/ScheduleTab';
 import FlashcardsTab from '../../components/student/FlashcardsTab';
+import AttendanceTab from '../../components/student/AttendanceTab';
 
 const StudentDashboard = () => {
   const navigate = useNavigate();
@@ -76,6 +78,12 @@ const StudentDashboard = () => {
       name: 'Schedule',
       icon: CalendarDaysIcon,
       component: ScheduleTab
+    },
+    {
+      id: 'attendance',
+      name: 'Attendance',
+      icon: QrCodeIcon,
+      component: AttendanceTab
     },
     {
       id: 'assignments',

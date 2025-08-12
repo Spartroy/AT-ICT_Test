@@ -4,7 +4,8 @@ const {
   getStudents,
   getStudentDetails,
   updateStudent,
-  updateQuizFeedback
+  updateQuizFeedback,
+  createParentAccount
 } = require('../controllers/teacherController');
 const { protect, teacherOnly } = require('../middleware/auth');
 
@@ -34,7 +35,10 @@ router.get('/dashboard', getDashboardStats);
 // Student management routes
 router.get('/students', getStudents);
 router.get('/students/:id', getStudentDetails);
+router.get('/students/:id/attendance', require('../controllers/teacherController').getStudentAttendance);
 router.put('/students/:id', updateStudent);
+// Create parent account for a student
+router.post('/students/:id/create-parent', createParentAccount);
 
 // Assignment grading route (using the new gradeAssignment function)
 router.put('/assignments/:id/students/:studentId', gradeAssignment);

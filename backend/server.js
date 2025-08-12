@@ -38,6 +38,7 @@ const errorHandler = require('./middleware/errorHandler');
 const authRoutes = require('./routes/authRoutes');
 const studentRoutes = require('./routes/studentRoutes');
 const teacherRoutes = require('./routes/teacherRoutes');
+const scheduleRoutes = require('./routes/scheduleRoutes');
 const parentRoutes = require('./routes/parentRoutes');
 const announcementRoutes = require('./routes/announcementRoutes');
 const chatRoutes = require('./routes/chatRoutes');
@@ -123,10 +124,13 @@ app.use(cors(corsOptions));
 app.use(express.json({ 
   limit: '10mb',
   verify: (req, res, buf) => {
+    // Only validate when there is a non-empty JSON body
     try {
-      JSON.parse(buf);
+      if (buf && buf.length > 0) {
+        JSON.parse(buf);
+      }
     } catch (e) {
-      res.status(400).json({ 
+      return res.status(400).json({ 
         status: 'error', 
         message: 'Invalid JSON payload' 
       });
@@ -286,6 +290,7 @@ app.use('/api/student', studentRoutes);
  * Teacher dashboard, student management, grading
  */
 app.use('/api/teacher', teacherRoutes);
+app.use('/api/schedule', scheduleRoutes);
 
 /**
  * Parent-specific Routes

@@ -1,5 +1,7 @@
 const Schedule = require('../models/Schedule');
 const { validationResult } = require('express-validator');
+const jwt = require('jsonwebtoken');
+const UserAttendance = require('../models/UserAttendance');
 
 // @desc    Get the main schedule for teacher
 // @route   GET /api/teacher/schedule
@@ -321,3 +323,91 @@ module.exports = {
   getScheduleForStudent,
   getTodayScheduleForStudent
 }; 
+
+// --- Attendance via QR ---
+// @desc Generate a signed QR token for a schedule session
+// @route GET /api/teacher/schedule/qr?day=Tuesday&start=09:00&end=10:30
+// @access Private (Teacher)
+module.exports.getSessionQr = async (req, res) => {
+  try {
+    const { day, start: startTime, end: endTime } = req.query;
+    if (!day || !startTime || !endTime) {
+      return res.status(400).json({ status: 'error', message: 'Missing day/start/end' });
+    }
+    // sign minimal info; expiry 2 hours
+    const token = jwt.sign(
+      {
+        t: 'att',
+        day,
+        startTime,
+        endTime,
+        iat: Math.floor(Date.now() / 1000)
+      },
+      process.env.JWT_SECRET || 'fallback_jwt_secret_for_development',
+      { expiresIn: '2h' }
+    );
+    res.status(200).json({ status: 'success', data: { token } });
+  } catch (e) {
+    console.error('getSessionQr error:', e);
+    res.status(500).json({ status: 'error', message: 'Server error issuing QR' });
+  }
+};
+
+// @desc Student scans QR to mark attendance
+// @route POST /api/student/attendance/check
+// @access Private (Student)
+module.exports.checkInAttendance = async (req, res) => {
+  try {
+    const { token } = req.body || {};
+    if (!token) return res.status(400).json({ status: 'error', message: 'Missing token' });
+
+    let payload;
+    try {
+      payload = jwt.verify(token, process.env.JWT_SECRET || 'fallback_jwt_secret_for_development');
+    } catch (err) {
+      return res.status(400).json({ status: 'error', message: 'Invalid/expired QR token' });
+    }
+
+    if (payload.t !== 'att') {
+      return res.status(400).json({ status: 'error', message: 'Invalid token type' });
+    }
+
+    const todayStart = new Date(new Date().toDateString());
+
+    try {
+      const record = await UserAttendance.findOneAndUpdate(
+        {
+          user: req.user.id,
+          date: todayStart,
+          'session.startTime': payload.startTime,
+        },
+        {
+          user: req.user.id,
+          date: todayStart,
+          session: {
+            day: payload.day,
+            startTime: payload.startTime,
+            endTime: payload.endTime,
+            type: payload.type || 'theory',
+            topic: payload.topic || 'Session'
+          },
+          status: 'present',
+          markedBy: req.user.id
+        },
+        { upsert: true, new: true, setDefaultsOnInsert: true }
+      );
+
+      return res.status(200).json({ status: 'success', data: { attendance: record } });
+    } catch (err) {
+      // Handle duplicate key error gracefully (already marked)
+      if (err && err.code === 11000) {
+        return res.status(200).json({ status: 'success', message: 'Attendance already marked for this session.' });
+      }
+      console.error('checkInAttendance DB error:', err);
+      return res.status(500).json({ status: 'error', message: err.message || 'Server error marking attendance' });
+    }
+  } catch (e) {
+    console.error('checkInAttendance error (outer):', e);
+    res.status(500).json({ status: 'error', message: e.message || 'Server error marking attendance' });
+  }
+};

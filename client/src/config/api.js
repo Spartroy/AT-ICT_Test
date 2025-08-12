@@ -24,8 +24,13 @@ export const API_ENDPOINTS = {
     VIDEOS: `${API_BASE_URL}/api/teacher/videos`,
     ACTIVITIES: `${API_BASE_URL}/api/teacher/activities`,
   },
+  SCHEDULE: {
+    QR: `${API_BASE_URL}/api/schedule/qr`,
+    STUDENT_CHECK: `${API_BASE_URL}/api/schedule/attendance/check`,
+  },
   PARENT: {
     DASHBOARD: `${API_BASE_URL}/api/parent/dashboard`,
+    BASE: `${API_BASE_URL}/api/parent`
   },
   CHAT: {
     BASE: `${API_BASE_URL}/api/chat`,

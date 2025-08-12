@@ -9,12 +9,27 @@ html{
 /* Prevent horizontal scroll on mobile */
 body {
     overflow-x: hidden;
+    max-width: 100vw;
 }
 
 /* Ensure mobile containers don't exceed viewport width */
 @media (max-width: 640px) {
   * {
     max-width: 100vw;
+  }
+  
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+/* Additional mobile fixes */
+@media (max-width: 768px) {
+  .container {
+    max-width: 100%;
+    padding-left: 1rem;
+    padding-right: 1rem;
   }
 }
 

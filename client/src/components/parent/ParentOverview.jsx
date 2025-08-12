@@ -84,33 +84,33 @@ const ParentOverview = ({ parentData, selectedChild, stats }) => {
   return (
     <div className="space-y-8">
       {/* Child Summary Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl p-6 text-white">
+      <div className="bg-gray-900/60 border border-gray-700 rounded-xl p-6">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-2xl font-bold mb-2">
               {selectedChild.student.user.firstName}'s Progress Summary
             </h2>
-            <p className="text-blue-100 mb-4">
+            <p className="text-gray-300 mb-4">
               Tracking your child's academic journey at AT-ICT
             </p>
             <div className="flex items-center space-x-6">
               <div className="flex items-center space-x-2">
-                <TrophyIcon className="h-5 w-5" />
+                <TrophyIcon className="h-5 w-5 text-orange-400" />
                 <span>Current: <span className="font-semibold">{selectedChild.student.currentGrade || 'N/A'}</span></span>
               </div>
               <div className="flex items-center space-x-2">
-                <CheckCircleIcon className="h-5 w-5" />
+                <CheckCircleIcon className="h-5 w-5 text-green-400" />
                 <span>Target: <span className="font-semibold">{selectedChild.student.targetGrade || 'A*'}</span></span>
               </div>
               <div className="flex items-center space-x-2">
-                <UserGroupIcon className="h-5 w-5" />
+                <UserGroupIcon className="h-5 w-5 text-blue-400" />
                 <span>Year: <span className="font-semibold">{selectedChild.student.year}</span></span>
               </div>
             </div>
           </div>
           <div className="text-right">
             <div className="text-4xl font-bold mb-1">{selectedChild.student.overallProgress || 0}%</div>
-            <div className="text-blue-100 text-sm">Overall Progress</div>
+            <div className="text-gray-300 text-sm">Overall Progress</div>
           </div>
         </div>
       </div>
@@ -127,27 +127,27 @@ const ParentOverview = ({ parentData, selectedChild, stats }) => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
-              className={`${card.bgColor} rounded-lg p-6 border border-gray-200`}
+              className={`bg-gray-900/60 rounded-lg p-6 border border-gray-700`}
             >
               <div className="flex items-center justify-between mb-4">
-                <div className={`p-2 rounded-lg bg-white`}>
-                  <IconComponent className={`h-6 w-6 ${card.iconColor}`} />
+                <div className={`p-2 rounded-lg bg-gray-800 border border-gray-700`}>
+                  <IconComponent className={`h-6 w-6 text-white`} />
                 </div>
                 <div className="text-right">
-                  <div className="text-2xl font-bold text-gray-900">
+                  <div className="text-2xl font-bold">
                     {card.title === 'Overall Progress' ? `${card.completed}%` : `${card.completed}/${card.total}`}
                   </div>
-                  <div className="text-sm text-gray-600">{card.title}</div>
+                  <div className="text-sm text-gray-300">{card.title}</div>
                 </div>
               </div>
 
               {/* Progress Bar */}
               <div className="mb-3">
-                <div className="flex justify-between text-sm text-gray-600 mb-1">
+                <div className="flex justify-between text-sm text-gray-300 mb-1">
                   <span>Progress</span>
                   <span>{Math.round(completionPercentage)}%</span>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
+                <div className="w-full bg-gray-800 rounded-full h-2">
                   <div
                     className={`h-2 rounded-full transition-all duration-300 ${getProgressColor(completionPercentage)}`}
                     style={{ width: `${completionPercentage}%` }}
@@ -157,8 +157,8 @@ const ParentOverview = ({ parentData, selectedChild, stats }) => {
 
               {/* Average Score */}
               <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Avg Score:</span>
-                <span className="font-medium text-gray-900">
+                <span className="text-gray-300">Avg Score:</span>
+                <span className="font-medium">
                   {card.avgScore ? `${Math.round(card.avgScore)}%` : 'N/A'}
                 </span>
               </div>
@@ -174,65 +174,65 @@ const ParentOverview = ({ parentData, selectedChild, stats }) => {
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.3 }}
-          className="bg-white rounded-lg border border-gray-200 p-6"
+          className="bg-gray-900/60 rounded-lg border border-gray-700 p-6"
         >
-          <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-            <TrophyIcon className="h-5 w-5 mr-2 text-green-600" />
+          <h3 className="text-lg font-semibold mb-4 flex items-center">
+            <TrophyIcon className="h-5 w-5 mr-2 text-green-400" />
             Academic Performance
           </h3>
           
           <div className="space-y-4">
             {/* Grade Comparison */}
-            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+              <div className="flex items-center justify-between p-4 bg-gray-800/50 rounded-lg border border-gray-700">
               <div>
-                <p className="text-sm text-gray-600">Current vs Target Grade</p>
+                  <p className="text-sm text-gray-300">Current vs Target Grade</p>
                 <div className="flex items-center space-x-4 mt-1">
-                  <span className={`text-lg font-bold ${getGradeColor(selectedChild.student.currentGrade)}`}>
+                    <span className={`text-lg font-bold ${getGradeColor(selectedChild.student.currentGrade)}`}>
                     {selectedChild.student.currentGrade || 'N/A'}
                   </span>
                   <span className="text-gray-400">→</span>
-                  <span className="text-lg font-bold text-green-600">
+                    <span className="text-lg font-bold text-green-400">
                     {selectedChild.student.targetGrade || 'A*'}
                   </span>
                 </div>
               </div>
               <div className="text-right">
-                <div className="text-2xl font-bold text-gray-900">
+                  <div className="text-2xl font-bold">
                   {selectedChild.student.overallProgress || 0}%
                 </div>
-                <div className="text-xs text-gray-500">To Target</div>
+                  <div className="text-xs text-gray-300">To Target</div>
               </div>
             </div>
 
             {/* Subject Performance */}
             <div>
-              <h4 className="font-medium text-gray-900 mb-2">Subject Performance</h4>
+              <h4 className="font-medium mb-2">Subject Performance</h4>
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Computer Science Theory</span>
+                  <span className="text-sm text-gray-300">Computer Science Theory</span>
                   <div className="flex items-center space-x-2">
-                    <div className="w-20 bg-gray-200 rounded-full h-2">
+                    <div className="w-20 bg-gray-800 rounded-full h-2">
                       <div className="bg-blue-500 h-2 rounded-full" style={{ width: '85%' }}></div>
                     </div>
-                    <span className="text-sm font-medium text-gray-900">85%</span>
+                    <span className="text-sm font-medium">85%</span>
                   </div>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Practical Applications</span>
+                  <span className="text-sm text-gray-300">Practical Applications</span>
                   <div className="flex items-center space-x-2">
-                    <div className="w-20 bg-gray-200 rounded-full h-2">
+                    <div className="w-20 bg-gray-800 rounded-full h-2">
                       <div className="bg-green-500 h-2 rounded-full" style={{ width: '78%' }}></div>
                     </div>
-                    <span className="text-sm font-medium text-gray-900">78%</span>
+                    <span className="text-sm font-medium">78%</span>
                   </div>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Programming Tasks</span>
+                  <span className="text-sm text-gray-300">Programming Tasks</span>
                   <div className="flex items-center space-x-2">
-                    <div className="w-20 bg-gray-200 rounded-full h-2">
+                    <div className="w-20 bg-gray-800 rounded-full h-2">
                       <div className="bg-yellow-500 h-2 rounded-full" style={{ width: '72%' }}></div>
                     </div>
-                    <span className="text-sm font-medium text-gray-900">72%</span>
+                    <span className="text-sm font-medium">72%</span>
                   </div>
                 </div>
               </div>
@@ -245,57 +245,57 @@ const ParentOverview = ({ parentData, selectedChild, stats }) => {
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.4 }}
-          className="bg-white rounded-lg border border-gray-200 p-6"
+          className="bg-gray-900/60 rounded-lg border border-gray-700 p-6"
         >
-          <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-            <ExclamationTriangleIcon className="h-5 w-5 mr-2 text-orange-600" />
+          <h3 className="text-lg font-semibold mb-4 flex items-center">
+            <ExclamationTriangleIcon className="h-5 w-5 mr-2 text-orange-400" />
             Insights & Recommendations
           </h3>
           
           <div className="space-y-4">
             {/* Positive Feedback */}
-            <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
-              <div className="flex items-center text-green-700 mb-1">
+            <div className="p-3 bg-green-900/30 border border-green-700/40 rounded-lg">
+              <div className="flex items-center text-green-300 mb-1">
                 <CheckCircleIcon className="h-4 w-4 mr-1" />
                 <span className="font-medium">Great Progress!</span>
               </div>
-              <p className="text-sm text-green-600">
+              <p className="text-sm text-green-200">
                 {selectedChild.student.user.firstName} is consistently performing well in theory subjects. 
                 Keep up the excellent work!
               </p>
             </div>
 
             {/* Areas for Improvement */}
-            <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-              <div className="flex items-center text-yellow-700 mb-1">
+            <div className="p-3 bg-yellow-900/30 border border-yellow-700/40 rounded-lg">
+              <div className="flex items-center text-yellow-300 mb-1">
                 <ClockIcon className="h-4 w-4 mr-1" />
                 <span className="font-medium">Focus Areas</span>
               </div>
-              <p className="text-sm text-yellow-600">
+              <p className="text-sm text-yellow-200">
                 Consider additional practice in programming tasks to improve practical skills.
               </p>
             </div>
 
             {/* Attendance Note */}
             {stats?.attendance?.percentage < 90 && (
-              <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                <div className="flex items-center text-blue-700 mb-1">
+              <div className="p-3 bg-blue-900/30 border border-blue-700/40 rounded-lg">
+                <div className="flex items-center text-blue-300 mb-1">
                   <CalendarDaysIcon className="h-4 w-4 mr-1" />
                   <span className="font-medium">Attendance</span>
                 </div>
-                <p className="text-sm text-blue-600">
+                <p className="text-sm text-blue-200">
                   Regular attendance will help maintain consistent progress. Current: {stats.attendance.percentage}%
                 </p>
               </div>
             )}
 
             {/* Next Steps */}
-            <div className="p-3 bg-purple-50 border border-purple-200 rounded-lg">
-              <div className="flex items-center text-purple-700 mb-1">
+            <div className="p-3 bg-purple-900/30 border border-purple-700/40 rounded-lg">
+              <div className="flex items-center text-purple-300 mb-1">
                 <DocumentTextIcon className="h-4 w-4 mr-1" />
                 <span className="font-medium">Next Steps</span>
               </div>
-              <ul className="text-sm text-purple-600 space-y-1">
+              <ul className="text-sm text-purple-200 space-y-1">
                 <li>• Complete pending assignments for better practice</li>
                 <li>• Review quiz feedback for weak areas</li>
                 <li>• Schedule extra help sessions if needed</li>
@@ -310,33 +310,33 @@ const ParentOverview = ({ parentData, selectedChild, stats }) => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5 }}
-        className="bg-white rounded-lg border border-gray-200 p-6"
+        className="bg-gray-900/60 rounded-lg border border-gray-700 p-6"
       >
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
+        <h3 className="text-lg font-semibold mb-4">Recent Activity</h3>
         <div className="space-y-3">
-          <div className="flex items-center p-3 bg-green-50 rounded-lg">
-            <CheckCircleIcon className="h-5 w-5 text-green-600 mr-3" />
+          <div className="flex items-center p-3 bg-green-900/30 rounded-lg border border-green-700/40">
+            <CheckCircleIcon className="h-5 w-5 text-green-400 mr-3" />
             <div className="flex-1">
-              <p className="text-sm text-gray-900">Submitted Assignment: Database Design</p>
-              <p className="text-xs text-gray-500">2 hours ago</p>
+              <p className="text-sm">Submitted Assignment: Database Design</p>
+              <p className="text-xs text-gray-300">2 hours ago</p>
             </div>
-            <span className="text-green-600 font-medium text-sm">On Time</span>
+            <span className="text-green-300 font-medium text-sm">On Time</span>
           </div>
-          <div className="flex items-center p-3 bg-blue-50 rounded-lg">
-            <AcademicCapIcon className="h-5 w-5 text-blue-600 mr-3" />
+          <div className="flex items-center p-3 bg-blue-900/30 rounded-lg border border-blue-700/40">
+            <AcademicCapIcon className="h-5 w-5 text-blue-400 mr-3" />
             <div className="flex-1">
-              <p className="text-sm text-gray-900">Completed Quiz: Data Structures</p>
-              <p className="text-xs text-gray-500">1 day ago</p>
+              <p className="text-sm">Completed Quiz: Data Structures</p>
+              <p className="text-xs text-gray-300">1 day ago</p>
             </div>
-            <span className="text-blue-600 font-medium text-sm">87%</span>
+            <span className="text-blue-300 font-medium text-sm">87%</span>
           </div>
-          <div className="flex items-center p-3 bg-yellow-50 rounded-lg">
-            <ClockIcon className="h-5 w-5 text-yellow-600 mr-3" />
+          <div className="flex items-center p-3 bg-yellow-900/30 rounded-lg border border-yellow-700/40">
+            <ClockIcon className="h-5 w-5 text-yellow-300 mr-3" />
             <div className="flex-1">
-              <p className="text-sm text-gray-900">Upcoming Assignment: Programming Project</p>
-              <p className="text-xs text-gray-500">Due in 3 days</p>
+              <p className="text-sm">Upcoming Assignment: Programming Project</p>
+              <p className="text-xs text-gray-300">Due in 3 days</p>
             </div>
-            <span className="text-yellow-600 font-medium text-sm">Pending</span>
+            <span className="text-yellow-300 font-medium text-sm">Pending</span>
           </div>
         </div>
       </motion.div>
