@@ -100,7 +100,7 @@ connectDB();
 const corsOptions = {
   origin: process.env.NODE_ENV === 'production' 
     ? process.env.CLIENT_URL 
-    : ['http://localhost:3000', 'http://127.0.0.1:3000'],
+    : ['http://localhost:3000', 'https://at-ict-test.vercel.app'],
   credentials: true,
   optionsSuccessStatus: 200
 };
