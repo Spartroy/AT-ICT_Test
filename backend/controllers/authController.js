@@ -8,6 +8,7 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
+const { validationResult } = require('express-validator');
 
 // ===================================================================
 // UTILITY FUNCTIONS
@@ -98,6 +99,16 @@ const getDeviceName = (userAgent) => {
  */
 const register = async (req, res) => {
   try {
+    // Check for validation errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Validation failed',
+        errors: errors.array()
+      });
+    }
+
     const {
       firstName,
       lastName,
@@ -258,6 +269,16 @@ const register = async (req, res) => {
  */
 const login = async (req, res) => {
   try {
+    // Check for validation errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Validation failed',
+        errors: errors.array()
+      });
+    }
+
     const { email, password } = req.body;
 
     // Validate input
@@ -478,6 +499,16 @@ const updateProfile = async (req, res) => {
  */
 const changePassword = async (req, res) => {
   try {
+    // Check for validation errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Validation failed',
+        errors: errors.array()
+      });
+    }
+
     const { currentPassword, newPassword } = req.body;
 
     // Validate input
@@ -571,6 +602,16 @@ const logout = async (req, res) => {
  */
 const forgotPassword = async (req, res) => {
   try {
+    // Check for validation errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Validation failed',
+        errors: errors.array()
+      });
+    }
+
     const { email } = req.body;
 
     if (!email) {
@@ -618,6 +659,16 @@ const forgotPassword = async (req, res) => {
  */
 const resetPassword = async (req, res) => {
   try {
+    // Check for validation errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Validation failed',
+        errors: errors.array()
+      });
+    }
+
     const { password } = req.body;
     const { resettoken } = req.params;
 
