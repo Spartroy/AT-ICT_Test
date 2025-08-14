@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { showOperationToast, showError } from '../../utils/toast';
 import { API_ENDPOINTS } from '../../config/api';
@@ -17,7 +17,9 @@ import {
   MapPinIcon,
   CalendarIcon,
   TrophyIcon,
-  QrCodeIcon
+  QrCodeIcon,
+  ChevronDownIcon,
+  ChevronUpIcon
 } from '@heroicons/react/24/outline';
 import { setAuthHeaders } from '../../utils/auth';
 
@@ -48,10 +50,33 @@ const StudentManagement = () => {
   const [showParentModal, setShowParentModal] = useState(false);
   const [showChatModal, setShowChatModal] = useState(false);
   const [parentCredentials, setParentCredentials] = useState(null);
+  const [showTabDropdown, setShowTabDropdown] = useState(false);
+  const tabContainerRef = useRef(null);
+  const dropdownRef = useRef(null);
+
+  // Tab configuration
+  const tabs = [
+    { id: 'summary', name: 'Summary', icon: ChartBarIcon, shortName: 'Summary' },
+    { id: 'assignments', name: 'Assignments', icon: DocumentTextIcon, shortName: 'Assign.' },
+    { id: 'quizzes', name: 'Quizzes', icon: QuestionMarkCircleIcon, shortName: 'Quizzes' },
+    { id: 'attendance', name: 'Attendance', icon: QrCodeIcon, shortName: 'Attend.' }
+  ];
 
   useEffect(() => {
     fetchStudents();
   }, [filters, pagination.current]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowTabDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const fetchStudents = async () => {
     try {
@@ -267,6 +292,20 @@ const StudentManagement = () => {
     if (progress >= 80) return 'text-green-600';
     if (progress >= 60) return 'text-yellow-600';
     return 'text-red-600';
+  };
+
+  const handleAttendanceTabClick = async () => {
+    try {
+      const res = await fetch(`${API_ENDPOINTS.TEACHER.STUDENTS}/${selectedStudent.student._id}/attendance`, { 
+        headers: setAuthHeaders() 
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setAttendance({ summary: data?.data?.summary, records: data?.data?.records || [] });
+      }
+    } catch (e) {
+      console.error('Error fetching attendance:', e);
+    }
   };
 
   if (loading) {
@@ -525,74 +564,101 @@ const StudentManagement = () => {
                 </div>
               </div>
 
-              {/* Tab Navigation */}
+              {/* Tab Navigation - Responsive with Dropdown */}
               <div className="border-b border-gray-700/80 bg-gray-800/30 flex-shrink-0">
-                <nav className="flex justify-center sm:justify-start px-2 sm:px-4 lg:px-6">
-                  <div className="flex space-x-1 sm:space-x-2 lg:space-x-4 w-full max-w-full">
+                <nav className="flex justify-between items-center px-2 sm:px-4 lg:px-6">
+                  {/* Visible Tabs */}
+                  <div className="flex space-x-1 sm:space-x-2 lg:space-x-4 flex-1 overflow-hidden" ref={tabContainerRef}>
+                    {tabs.slice(0, 2).map((tab) => {
+                      const IconComponent = tab.icon;
+                      return (
+                        <button
+                          key={tab.id}
+                          onClick={() => {
+                            setActiveTab(tab.id);
+                            if (tab.id === 'attendance') {
+                              handleAttendanceTabClick();
+                            }
+                          }}
+                          className={`flex-shrink-0 py-3 sm:py-4 px-2 sm:px-3 lg:px-4 border-b-2 font-medium text-xs sm:text-sm lg:text-base transition-colors ${
+                            activeTab === tab.id
+                              ? 'border-blue-500 text-blue-400 bg-blue-500/10'
+                              : 'border-transparent text-gray-400 hover:text-white hover:border-gray-500 hover:bg-gray-700/30'
+                          }`}
+                        >
+                          <div className="flex items-center justify-center sm:justify-start space-x-1 sm:space-x-2">
+                            <IconComponent className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
+                            <span className="truncate">
+                              <span className="hidden sm:inline">{tab.name}</span>
+                              <span className="sm:hidden">{tab.shortName}</span>
+                              {tab.id === 'assignments' && (
+                                <span className="ml-1">({selectedStudent.assignments?.length || 0})</span>
+                              )}
+                              {tab.id === 'quizzes' && (
+                                <span className="ml-1">({selectedStudent.quizzes?.length || 0})</span>
+                              )}
+                            </span>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Dropdown for Additional Tabs */}
+                  <div className="relative flex-shrink-0" ref={dropdownRef}>
                     <button
-                      onClick={() => setActiveTab('summary')}
-                      className={`flex-1 sm:flex-none py-3 sm:py-4 px-2 sm:px-3 lg:px-4 border-b-2 font-medium text-xs sm:text-sm lg:text-base transition-colors ${
-                        activeTab === 'summary'
-                          ? 'border-blue-500 text-blue-400 bg-blue-500/10'
-                          : 'border-transparent text-gray-400 hover:text-white hover:border-gray-500 hover:bg-gray-700/30'
-                      }`}
+                      onClick={() => setShowTabDropdown(!showTabDropdown)}
+                      className="flex items-center space-x-1 py-3 sm:py-4 px-2 sm:px-3 lg:px-4 border-b-2 border-transparent text-gray-400 hover:text-white hover:border-gray-500 hover:bg-gray-700/30 transition-colors"
                     >
-                      <div className="flex items-center justify-center sm:justify-start space-x-1 sm:space-x-2">
-                        <ChartBarIcon className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
-                        <span className="truncate">Summary</span>
-                      </div>
+                      <span className="text-xs sm:text-sm font-medium">More</span>
+                      {showTabDropdown ? (
+                        <ChevronUpIcon className="h-4 w-4" />
+                      ) : (
+                        <ChevronDownIcon className="h-4 w-4" />
+                      )}
                     </button>
-                    <button
-                      onClick={() => setActiveTab('assignments')}
-                      className={`flex-1 sm:flex-none py-3 sm:py-4 px-2 sm:px-3 lg:px-4 border-b-2 font-medium text-xs sm:text-sm lg:text-base transition-colors ${
-                        activeTab === 'assignments'
-                          ? 'border-blue-500 text-blue-400 bg-blue-500/10'
-                          : 'border-transparent text-gray-400 hover:text-white hover:border-gray-500 hover:bg-gray-700/30'
-                      }`}
-                    >
-                      <div className="flex items-center justify-center sm:justify-start space-x-1 sm:space-x-2">
-                        <DocumentTextIcon className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
-                        <span className="truncate">
-                          <span className="hidden lg:inline">Assignments ({selectedStudent.assignments?.length || 0})</span>
-                          <span className="lg:hidden">Assign. ({selectedStudent.assignments?.length || 0})</span>
-                        </span>
-                      </div>
-                    </button>
-                    <button
-                      onClick={() => setActiveTab('quizzes')}
-                      className={`flex-1 sm:flex-none py-3 sm:py-4 px-2 sm:px-3 lg:px-4 border-b-2 font-medium text-xs sm:text-sm lg:text-base transition-colors ${
-                        activeTab === 'quizzes'
-                          ? 'border-blue-500 text-blue-400 bg-blue-500/10'
-                          : 'border-transparent text-gray-400 hover:text-white hover:border-gray-500 hover:bg-gray-700/30'
-                      }`}
-                    >
-                      <div className="flex items-center justify-center sm:justify-start space-x-1 sm:space-x-2">
-                        <QuestionMarkCircleIcon className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
-                        <span className="truncate">Quizzes ({selectedStudent.quizzes?.length || 0})</span>
-                      </div>
-                    </button>
-                    <button
-                      onClick={async () => {
-                        setActiveTab('attendance');
-                        try {
-                          const res = await fetch(`${API_ENDPOINTS.TEACHER.STUDENTS}/${selectedStudent.student._id}/attendance`, { headers: setAuthHeaders() });
-                          if (res.ok) {
-                            const data = await res.json();
-                            setAttendance({ summary: data?.data?.summary, records: data?.data?.records || [] });
-                          }
-                        } catch (e) {}
-                      }}
-                      className={`flex-1 sm:flex-none py-3 sm:py-4 px-2 sm:px-3 lg:px-4 border-b-2 font-medium text-xs sm:text-sm lg:text-base transition-colors ${
-                        activeTab === 'attendance'
-                          ? 'border-blue-500 text-blue-400 bg-blue-500/10'
-                          : 'border-transparent text-gray-400 hover:text-white hover:border-gray-500 hover:bg-gray-700/30'
-                      }`}
-                    >
-                      <div className="flex items-center justify-center sm:justify-start space-x-1 sm:space-x-2">
-                        <QrCodeIcon className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
-                        <span className="truncate">Attendance</span>
-                      </div>
-                    </button>
+
+                    {/* Dropdown Menu */}
+                    <AnimatePresence>
+                      {showTabDropdown && (
+                        <motion.div
+                          initial={{ opacity: 0, y: -10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -10 }}
+                          className="absolute right-0 top-full mt-1 bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-50 min-w-[200px]"
+                        >
+                          {tabs.slice(2).map((tab) => {
+                            const IconComponent = tab.icon;
+                            return (
+                              <button
+                                key={tab.id}
+                                onClick={() => {
+                                  setActiveTab(tab.id);
+                                  setShowTabDropdown(false);
+                                  if (tab.id === 'attendance') {
+                                    handleAttendanceTabClick();
+                                  }
+                                }}
+                                className={`w-full flex items-center space-x-3 px-4 py-3 text-left hover:bg-gray-700/50 transition-colors ${
+                                  activeTab === tab.id ? 'bg-blue-500/20 text-blue-400' : 'text-gray-300'
+                                }`}
+                              >
+                                <IconComponent className="h-4 w-4 flex-shrink-0" />
+                                <span className="text-sm font-medium">
+                                  {tab.name}
+                                  {tab.id === 'assignments' && (
+                                    <span className="ml-1 text-gray-400">({selectedStudent.assignments?.length || 0})</span>
+                                  )}
+                                  {tab.id === 'quizzes' && (
+                                    <span className="ml-1 text-gray-400">({selectedStudent.quizzes?.length || 0})</span>
+                                  )}
+                                </span>
+                              </button>
+                            );
+                          })}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
                 </nav>
               </div>

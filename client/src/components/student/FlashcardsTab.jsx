@@ -215,12 +215,12 @@ const FlashcardsTab = () => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-gray-800/70 rounded-xl border border-gray-700/50 p-4 shadow-md transition-all hover:bg-gray-700/90 hover:border-gray-600"
+        className="bg-gray-800/70 rounded-xl border border-gray-700/50 p-4 sm:p-6 shadow-md transition-all hover:bg-gray-700/90 hover:border-gray-600"
       >
-        <div className="flex items-start justify-between">
-          <div className="flex-1">
-            <div className="flex items-center space-x-2 mb-2">
-              <BookOpenIcon className="h-5 w-5 text-blue-400" />
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+          <div className="flex-1 min-w-0">
+            <div className="flex flex-wrap items-center gap-2 mb-2 sm:mb-3">
+              <BookOpenIcon className="h-4 w-4 sm:h-5 sm:w-5 text-blue-400 flex-shrink-0" />
               <span className="text-xs font-medium text-gray-400 uppercase tracking-wide">
                 {stack.isTeacherStack ? 'Teacher Stack' : 'Student Stack'}
               </span>
@@ -236,26 +236,30 @@ const FlashcardsTab = () => {
               )}
             </div>
             
-            <h3 className="text-lg font-semibold text-white mb-2">{stack.title}</h3>
+            <h3 className="text-base sm:text-lg font-semibold text-white mb-2 sm:mb-3 leading-tight break-words">
+              {stack.title}
+            </h3>
             
             {stack.description && (
-              <p className="text-sm text-gray-400 mb-3 line-clamp-2">{stack.description}</p>
+              <p className="text-sm text-gray-400 mb-3 sm:mb-4 line-clamp-2 break-words">
+                {stack.description}
+              </p>
             )}
             
-            <div className="flex items-center space-x-4 text-sm text-gray-400 mb-3">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-sm text-gray-400 mb-3">
               <div className="flex items-center space-x-1">
-                <BookOpenIcon className="h-4 w-4" />
+                <BookOpenIcon className="h-4 w-4 flex-shrink-0" />
                 <span>{stack.totalCards} cards</span>
               </div>
               <div className="flex items-center space-x-1">
-                <UsersIcon className="h-4 w-4" />
+                <UsersIcon className="h-4 w-4 flex-shrink-0" />
                 <span>{stack.studyCount || 0} studies</span>
               </div>
             </div>
 
-            <div className="flex items-center justify-between text-xs text-gray-500">
-              <span>By {stack.creatorName}</span>
-              <span className={`px-2 py-1 rounded-full text-xs ${
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-0 text-xs text-gray-500">
+              <span className="truncate">By {stack.creatorName}</span>
+              <span className={`px-2 py-1 rounded-full text-xs flex-shrink-0 ${
                 stack.creatorRole === 'teacher' 
                   ? 'bg-blue-500/20 text-blue-300' 
                   : 'bg-green-500/20 text-green-300'
@@ -265,7 +269,7 @@ const FlashcardsTab = () => {
             </div>
           </div>
           
-          <div className="flex flex-col space-y-2 ml-4">
+          <div className="flex sm:flex-col justify-end sm:justify-start gap-2 flex-shrink-0">
             <button
               onClick={() => handleViewStack(stack)}
               className="p-2 bg-blue-600/20 text-blue-400 rounded-xl hover:bg-blue-600/40 transition-colors"
@@ -363,100 +367,116 @@ const FlashcardsTab = () => {
 
       {/* Filters */}
       <div className="bg-gray-800/60 rounded-xl p-4 sm:p-6 shadow-2xl backdrop-blur-sm border-2 border-gray-600/50">
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-          <div className="flex-1">
-            <div className="relative">
-              <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+        <div className="space-y-4">
+          {/* Search and Filter Toggle */}
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex-1 relative">
+              <MagnifyingGlassIcon className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
               <input
                 type="text"
                 placeholder="Search flashcard stacks..."
+                className="w-full pl-10 pr-4 py-2 sm:py-3 border border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-900/70 text-white text-sm sm:text-base"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 bg-gray-700/50 border border-gray-600/50 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
-          </div>
-          
-          <div className="flex items-center space-x-2">
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className="flex items-center space-x-2 px-4 py-2 bg-gray-700/50 text-gray-300 rounded-xl hover:bg-gray-600/50 transition-colors"
+              className="flex items-center space-x-2 px-4 py-2 sm:py-3 bg-gray-700/50 hover:bg-gray-700/70 text-white rounded-xl transition-colors text-sm sm:text-base"
             >
-              <FunnelIcon className="h-5 w-5" />
-              <span>Filters</span>
-              {showFilters ? <ChevronUpIcon className="h-4 w-4" /> : <ChevronDownIcon className="h-4 w-4" />}
+              <FunnelIcon className="h-4 w-4 sm:h-5 sm:w-5" />
+              <span className="hidden sm:inline">Filters</span>
+              <span className="sm:hidden">Filter</span>
             </button>
           </div>
+
+          {/* Advanced Filters */}
+          <AnimatePresence>
+            {showFilters && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+              >
+                <select
+                  className="px-3 py-2 border border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-900/70 text-white text-sm sm:text-base"
+                  value={filterCategory}
+                  onChange={(e) => setFilterCategory(e.target.value)}
+                >
+                  {categories.map(category => (
+                    <option key={category.value} value={category.value}>
+                      {category.label}
+                    </option>
+                  ))}
+                </select>
+                <select
+                  className="px-3 py-2 border border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-900/70 text-white text-sm sm:text-base"
+                  value={filterCreator}
+                  onChange={(e) => setFilterCreator(e.target.value)}
+                >
+                  {creatorFilters.map(creator => (
+                    <option key={creator.value} value={creator.value}>
+                      {creator.label}
+                    </option>
+                  ))}
+                </select>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
-        <AnimatePresence>
-          {showFilters && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4"
-            >
-              <select
-                value={filterCategory}
-                onChange={(e) => setFilterCategory(e.target.value)}
-                className="px-3 py-2 bg-gray-700/50 border border-gray-600/50 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                {categories.map(category => (
-                  <option key={category.value} value={category.value}>
-                    {category.label}
-                  </option>
-                ))}
-              </select>
-
-              <select
-                value={filterCreator}
-                onChange={(e) => setFilterCreator(e.target.value)}
-                className="px-3 py-2 bg-gray-700/50 border border-gray-600/50 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                {creatorFilters.map(filter => (
-                  <option key={filter.value} value={filter.value}>
-                    {filter.label}
-                  </option>
-                ))}
-              </select>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-
-      {/* Tabs */}
-      <div className="bg-gray-800/60 rounded-xl p-4 shadow-2xl backdrop-blur-sm border-2 border-gray-600/50">
-        <nav className="flex space-x-8">
-          {[
-            { id: 'all', label: 'All Stacks', count: flashcardStacks.length },
-            { id: 'my', label: 'My Stacks', count: myStacks.length },
-            { id: 'teachers', label: 'Teacher Stacks', count: flashcardStacks.filter(s => s.isTeacherStack).length },
-            { id: 'students', label: 'Student Stacks', count: flashcardStacks.filter(s => !s.isTeacherStack).length }
-          ].map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`py-2 px-4 rounded-xl font-medium text-sm transition-all ${
-                activeTab === tab.id
-                  ? 'bg-blue-600 text-white'
-                  : 'text-gray-300 hover:text-white hover:bg-gray-700/50'
-              }`}
-            >
-              {tab.label}
-              <span className={`ml-2 py-0.5 px-2 rounded-xl text-xs ${
-                activeTab === tab.id
-                  ? 'bg-blue-500/30 text-white'
-                  : 'bg-gray-600/50 text-gray-300'
-              }`}>
-                {tab.count}
-              </span>
-            </button>
-          ))}
+        {/* Tab Navigation - Improved Responsiveness */}
+        <nav className="flex flex-wrap justify-center sm:justify-start gap-2 sm:gap-4 mt-6">
+          <button
+            onClick={() => setActiveTab('all')}
+            className={`flex items-center px-3 sm:px-4 py-2 sm:py-3 rounded-xl font-medium transition-all text-sm sm:text-base whitespace-nowrap ${
+              activeTab === 'all'
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-700/50 text-gray-300 hover:bg-gray-700/70 hover:text-white'
+            }`}
+          >
+            <BookOpenIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2 flex-shrink-0" />
+            <span className="hidden sm:inline">All Stacks</span>
+            <span className="sm:hidden">All</span>
+            <span className="ml-1 sm:ml-2 bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded-full text-xs">
+              {stats.totalStacks || 0}
+            </span>
+          </button>
+          <button
+            onClick={() => setActiveTab('my')}
+            className={`flex items-center px-3 sm:px-4 py-2 sm:py-3 rounded-xl font-medium transition-all text-sm sm:text-base whitespace-nowrap ${
+              activeTab === 'my'
+                ? 'bg-green-600 text-white'
+                : 'bg-gray-700/50 text-gray-300 hover:bg-gray-700/70 hover:text-white'
+            }`}
+          >
+            <UsersIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2 flex-shrink-0" />
+            <span className="hidden sm:inline">My Stacks</span>
+            <span className="sm:hidden">My</span>
+            <span className="ml-1 sm:ml-2 bg-green-500/20 text-green-300 px-2 py-0.5 rounded-full text-xs">
+              {myStacks.length}
+            </span>
+          </button>
+          <button
+            onClick={() => setActiveTab('teachers')}
+            className={`flex items-center px-3 sm:px-4 py-2 sm:py-3 rounded-xl font-medium transition-all text-sm sm:text-base whitespace-nowrap ${
+              activeTab === 'teachers'
+                ? 'bg-purple-600 text-white'
+                : 'bg-gray-700/50 text-gray-300 hover:bg-gray-700/70 hover:text-white'
+            }`}
+          >
+            <AcademicCapIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2 flex-shrink-0" />
+            <span className="hidden sm:inline">Teacher Stacks</span>
+            <span className="sm:hidden">Teachers</span>
+            <span className="ml-1 sm:ml-2 bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded-full text-xs">
+              {stats.teacherStacks || 0}
+            </span>
+          </button>
         </nav>
       </div>
 
-      {/* Flashcard Stacks List */}
+      {/* Flashcard Stacks List - Improved Grid */}
       <div className="space-y-4">
         {loading ? (
           <div className="text-center py-8">
@@ -470,7 +490,7 @@ const FlashcardsTab = () => {
             <p className="text-gray-500 text-sm">Add your first flashcard stack to get started</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
             {currentStacks.map((stack) => (
               <FlashcardStackCard key={stack._id} stack={stack} />
             ))}

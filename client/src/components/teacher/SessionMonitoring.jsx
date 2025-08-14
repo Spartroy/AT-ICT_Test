@@ -173,15 +173,15 @@ const SessionMonitoring = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
-        <div className="flex items-center justify-between mb-4">
+      <div className="bg-gray-800 rounded-xl p-4 sm:p-6 border border-gray-700">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4 sm:mb-6">
           <div className="flex items-center space-x-3">
             <div className="p-2 bg-red-600/20 rounded-xl">
-              <ArrowRightOnRectangleIcon className="h-6 w-6 text-red-400" />
+              <ArrowRightOnRectangleIcon className="h-5 w-5 sm:h-6 sm:w-6 text-red-400" />
             </div>
             <div>
-              <h2 className="text-xl font-semibold text-white">Session Monitoring</h2>
-              <p className="text-gray-400">Monitor student device sessions and login activity</p>
+              <h2 className="text-lg sm:text-xl font-semibold text-white">Session Monitoring</h2>
+              <p className="text-sm sm:text-base text-gray-400">Monitor student device sessions and login activity</p>
             </div>
           </div>
           <div className="flex items-center space-x-2 bg-gray-700/50 px-3 py-1 rounded-xl">
@@ -190,73 +190,73 @@ const SessionMonitoring = () => {
           </div>
         </div>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-gray-700/50 rounded-xl p-4 border border-gray-600">
-            <div className="flex items-center space-x-3">
-              <UsersIcon className="h-5 w-5 text-blue-400" />
-              <div>
-                <p className="text-sm text-gray-400">Total Students</p>
-                <p className="text-xl font-semibold text-white">{stats.totalStudents}</p>
+        {/* Stats Grid - Improved Responsiveness */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+          <div className="bg-gray-700/50 rounded-xl p-3 sm:p-4 border border-gray-600">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+              <UsersIcon className="h-5 w-5 sm:h-6 sm:w-6 text-blue-400 flex-shrink-0" />
+              <div className="min-w-0">
+                <p className="text-xs sm:text-sm text-gray-400">Total Students</p>
+                <p className="text-lg sm:text-xl font-semibold text-white">{stats.totalStudents}</p>
               </div>
             </div>
           </div>
           
-          <div className="bg-gray-700/50 rounded-xl p-4 border border-gray-600">
-            <div className="flex items-center space-x-3">
-              <WifiIcon className="h-5 w-5 text-green-400" />
-              <div>
-                <p className="text-sm text-gray-400">Active Sessions</p>
-                <p className="text-xl font-semibold text-white">{stats.totalActiveSessions}</p>
+          <div className="bg-gray-700/50 rounded-xl p-3 sm:p-4 border border-gray-600">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+              <WifiIcon className="h-5 w-5 sm:h-6 sm:w-6 text-green-400 flex-shrink-0" />
+              <div className="min-w-0">
+                <p className="text-xs sm:text-sm text-gray-400">Active Sessions</p>
+                <p className="text-lg sm:text-xl font-semibold text-white">{stats.totalActiveSessions}</p>
               </div>
             </div>
           </div>
           
-          <div className="bg-gray-700/50 rounded-xl p-4 border border-gray-600">
-            <div className="flex items-center space-x-3">
-              <CheckCircleIcon className="h-5 w-5 text-green-400" />
-              <div>
-                <p className="text-sm text-gray-400">Online Students</p>
-                <p className="text-xl font-semibold text-white">{stats.studentsWithSessions}</p>
+          <div className="bg-gray-700/50 rounded-xl p-3 sm:p-4 border border-gray-600">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+              <CheckCircleIcon className="h-5 w-5 sm:h-6 sm:w-6 text-green-400 flex-shrink-0" />
+              <div className="min-w-0">
+                <p className="text-xs sm:text-sm text-gray-400">Online Students</p>
+                <p className="text-lg sm:text-xl font-semibold text-white">{stats.studentsWithSessions}</p>
               </div>
             </div>
           </div>
           
-          <div className="bg-gray-700/50 rounded-xl p-4 border border-gray-600">
-            <div className="flex items-center space-x-3">
-              <NoSymbolIcon className="h-5 w-5 text-gray-400" />
-              <div>
-                <p className="text-sm text-gray-400">Offline Students</p>
-                <p className="text-xl font-semibold text-white">{stats.studentsWithoutSessions}</p>
+          <div className="bg-gray-700/50 rounded-xl p-3 sm:p-4 border border-gray-600">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+              <NoSymbolIcon className="h-5 w-5 sm:h-6 sm:w-6 text-gray-400 flex-shrink-0" />
+              <div className="min-w-0">
+                <p className="text-xs sm:text-sm text-gray-400">Offline Students</p>
+                <p className="text-lg sm:text-xl font-semibold text-white">{stats.studentsWithoutSessions}</p>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Students List */}
+      {/* Students List - Improved Responsiveness */}
       <div className="bg-gray-800 rounded-xl border border-gray-700">
-        <div className="p-6 border-b border-gray-700">
-          <h3 className="text-lg font-semibold text-white">Student Sessions</h3>
-          <p className="text-gray-400">Monitor individual student device activity</p>
+        <div className="p-4 sm:p-6 border-b border-gray-700">
+          <h3 className="text-base sm:text-lg font-semibold text-white">Student Sessions</h3>
+          <p className="text-sm sm:text-base text-gray-400">Monitor individual student device activity</p>
         </div>
         
         <div className="divide-y divide-gray-700">
           {students.map((student) => (
-            <div key={student.id} className="p-6 hover:bg-gray-700/30 transition-colors">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4">
-                  <div className="w-10 h-10 bg-blue-600/20 rounded-full flex items-center justify-center">
-                    <span className="text-blue-400 font-semibold">
+            <div key={student.id} className="p-4 sm:p-6 hover:bg-gray-700/30 transition-colors">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div className="flex items-center space-x-3 sm:space-x-4 min-w-0 flex-1">
+                  <div className="w-10 h-10 bg-blue-600/20 rounded-full flex items-center justify-center flex-shrink-0">
+                    <span className="text-blue-400 font-semibold text-sm">
                       {student.firstName.charAt(0)}{student.lastName.charAt(0)}
                     </span>
                   </div>
-                  <div>
-                    <h4 className="text-white font-medium">
+                  <div className="min-w-0 flex-1">
+                    <h4 className="text-white font-medium text-sm sm:text-base truncate">
                       {student.firstName} {student.lastName}
                     </h4>
-                    <p className="text-sm text-gray-400">{student.email}</p>
-                    <div className="flex items-center space-x-4 mt-1">
+                    <p className="text-sm text-gray-400 truncate">{student.email}</p>
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mt-1">
                       <span className={`text-xs px-2 py-1 rounded-full ${
                         student.registrationStatus === 'approved' 
                           ? 'bg-green-600/20 text-green-400' 
@@ -264,16 +264,16 @@ const SessionMonitoring = () => {
                       }`}>
                         {student.registrationStatus}
                       </span>
-                      <span className="text-xs text-gray-500">
+                      <span className="text-xs text-gray-500 truncate">
                         Last login: {formatLastLogin(student.lastLogin)}
                       </span>
                     </div>
                   </div>
                 </div>
                 
-                <div className="flex items-center space-x-4">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
                   <div className="text-right">
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center justify-end space-x-2">
                       {student.activeSessionCount > 0 ? (
                         <CheckCircleIcon className="h-4 w-4 text-green-400" />
                       ) : (
@@ -287,7 +287,7 @@ const SessionMonitoring = () => {
                     </div>
                   </div>
                   
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center justify-end space-x-2">
                     {student.activeSessionCount > 0 && (
                       <button
                         onClick={() => {
@@ -318,56 +318,60 @@ const SessionMonitoring = () => {
         </div>
       </div>
 
-      {/* Student Session Details Modal */}
+      {/* Student Session Details Modal - Improved Responsiveness */}
       <AnimatePresence>
         {showStudentDetails && selectedStudent && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 mt-[-100px]"
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
             onClick={() => setShowStudentDetails(false)}
           >
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-gray-800 rounded-xl p-6 max-w-2xl w-full mx-4 border border-gray-700"
+              className="bg-gray-800 rounded-xl p-4 sm:p-6 max-w-2xl w-full mx-4 border border-gray-700 max-h-[90vh] overflow-y-auto"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="flex items-center justify-between mb-6">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
                 <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-blue-600/20 rounded-full flex items-center justify-center">
-                    <span className="text-blue-400 font-semibold">
+                  <div className="w-10 h-10 bg-blue-600/20 rounded-full flex items-center justify-center flex-shrink-0">
+                    <span className="text-blue-400 font-semibold text-sm">
                       {selectedStudent.firstName.charAt(0)}{selectedStudent.lastName.charAt(0)}
                     </span>
                   </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-white">
+                  <div className="min-w-0">
+                    <h3 className="text-base sm:text-lg font-semibold text-white truncate">
                       {selectedStudent.firstName} {selectedStudent.lastName}
                     </h3>
-                    <p className="text-gray-400">{selectedStudent.email}</p>
+                    <p className="text-sm text-gray-400 truncate">{selectedStudent.email}</p>
                   </div>
                 </div>
                 <button
                   onClick={() => setShowStudentDetails(false)}
-                  className="p-2 bg-gray-700/50 text-gray-400 rounded-xl hover:bg-gray-700 transition-colors"
+                  className="p-2 bg-gray-700/50 text-gray-400 rounded-xl hover:bg-gray-700 transition-colors self-start sm:self-auto"
                 >
                   <XMarkIcon className="h-5 w-5" />
                 </button>
               </div>
 
               <div className="space-y-4">
-                <h4 className="text-white font-medium">Active Sessions ({selectedStudent.sessions.length})</h4>
+                <h4 className="text-white font-medium text-sm sm:text-base">
+                  Active Sessions ({selectedStudent.sessions.length})
+                </h4>
                 
                 {selectedStudent.sessions.map((session) => (
                   <div key={session.id} className="bg-gray-700/50 rounded-xl p-4 border border-gray-600">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                      <div className="flex items-center space-x-3 min-w-0 flex-1">
                         {getDeviceIcon(session.deviceName)}
-                        <div>
-                          <p className="text-white font-medium">{session.deviceName}</p>
-                          <p className="text-sm text-gray-400">{session.ipAddress}</p>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-white font-medium text-sm sm:text-base truncate">
+                            {session.deviceName}
+                          </p>
+                          <p className="text-sm text-gray-400 truncate">{session.ipAddress}</p>
                           <p className="text-xs text-gray-500">
                             Last activity: {formatLastActivity(session.lastActivity)}
                           </p>
@@ -379,7 +383,7 @@ const SessionMonitoring = () => {
                           handleDeactivateSession(selectedStudent.id, session.id);
                           setShowStudentDetails(false);
                         }}
-                        className="p-2 bg-red-600/20 text-red-400 rounded-xl hover:bg-red-600/40 transition-colors"
+                        className="p-2 bg-red-600/20 text-red-400 rounded-xl hover:bg-red-600/40 transition-colors self-start sm:self-auto"
                         title="Deactivate session"
                       >
                         <XMarkIcon className="h-4 w-4" />
