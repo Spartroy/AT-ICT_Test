@@ -33,6 +33,7 @@ const submitRegistration = async (req, res) => {
       contactNumber,
       parentNumber,
       techKnowledge,
+      englishLevel,
       otherSubjects,
       password
     } = req.body;
@@ -66,6 +67,7 @@ const submitRegistration = async (req, res) => {
       isRetaker,
         parentContactNumber: parentNumber,
       techKnowledge,
+        englishLevel,
         otherSubjects
       },
       registrationStatus: 'pending'

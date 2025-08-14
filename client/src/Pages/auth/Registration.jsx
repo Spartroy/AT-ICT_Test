@@ -22,7 +22,6 @@ const Registration = () => {
     
     // Contact Info
     contactNumber: '',
-    alternativeNumber: '',
     address: {
       street: '',
       city: '',
@@ -37,6 +36,7 @@ const Registration = () => {
     isRetaker: false,
     parentContactNumber: '',
     techKnowledge: 5,
+    englishLevel: 5,
     otherSubjects: ''
   });
 
@@ -111,7 +111,7 @@ const Registration = () => {
         if (!formData.address.country.trim()) stepErrors['address.country'] = 'Country is required';
         break;
 
-      case 4: // Tech Knowledge - no validation needed
+      case 4: // Skills Assessment - no validation needed
         break;
 
       default:
@@ -176,6 +176,7 @@ const Registration = () => {
         contactNumber: formData.contactNumber,
         parentNumber: formData.parentContactNumber,
         techKnowledge: parseInt(formData.techKnowledge),
+        englishLevel: parseInt(formData.englishLevel),
         otherSubjects: formData.otherSubjects || '',
         password: formData.password
       };
@@ -228,7 +229,6 @@ const Registration = () => {
         confirmPassword: '',
         role: 'student',
         contactNumber: '',
-        alternativeNumber: '',
         address: {
           street: '',
           city: '',
@@ -241,6 +241,7 @@ const Registration = () => {
         isRetaker: false,
         parentContactNumber: '',
         techKnowledge: 5,
+        englishLevel: 5,
         otherSubjects: ''
       });
       setCurrentStep(1);
@@ -276,30 +277,30 @@ const Registration = () => {
             transition={{ duration: 0.5 }}
             className="space-y-6"
           >
-            <div className="text-center mb-8">
+            <div className="text-center mb-6">
               <motion.div 
                 initial={{ scale: 0.8 }}
                 animate={{ scale: 1 }}
                 transition={{ duration: 0.5 }}
-                className="flex items-center justify-center mb-6"
+                className="flex items-center justify-center mb-4"
               >
-                <div className="w-[100px] h-[50px] rounded-full flex items-center justify-center mr-4" style={{ background: 'linear-gradient(135deg, #D91743, #ff6b9d)', boxShadow: '0 0 25px rgba(217, 23, 67, 0.4)' }}>
-                  <User className="text-white" size={40} />
+                <div className="w-[80px] h-[40px] rounded-full flex items-center justify-center mr-3" style={{ background: 'linear-gradient(135deg, #D91743, #ff6b9d)', boxShadow: '0 0 25px rgba(217, 23, 67, 0.4)' }}>
+                  <User className="text-white" size={32} />
                 </div>
           
               </motion.div>
-              <h2 className="text-4xl font-bold text-transparent bg-clip-text mb-4" style={{ backgroundImage: 'linear-gradient(135deg, #D91743, #ff6b9d)' }}>
+              <h2 className="text-3xl font-bold text-transparent bg-clip-text mb-3" style={{ backgroundImage: 'linear-gradient(135deg, #D91743, #ff6b9d)' }}>
                 I need a name... a Full name !
               </h2>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
               >
-                <label className="block text-sm font-medium mb-3" style={{ color: '#D91743' }}>
+                <label className="block text-sm font-medium mb-2" style={{ color: '#D91743' }}>
                   First Name *
                 </label>
                 <input
@@ -308,13 +309,13 @@ const Registration = () => {
                   value={formData.firstName}
                   onChange={handleInputChange}
                   onKeyDown={handleKeyDown}
-                  className={`w-full px-8 py-5 border-2 text-white placeholder-gray-500 transition-all duration-300 ${
+                  className={`w-full px-6 py-4 border-2 text-white placeholder-gray-500 transition-all duration-300 ${
                     errors.firstName ? 'shadow-xl' : 'hover:border-gray-600'
                   }`}
                   style={{
                     backgroundColor: '#0a0a0a',
                     borderColor: errors.firstName ? '#D91743' : '#2a2a2a',
-                    borderRadius: '2rem',
+                    borderRadius: '1.5rem',
                     boxShadow: errors.firstName ? '0 0 20px rgba(217, 23, 67, 0.5)' : 'none'
                   }}
                   onFocus={(e) => {
@@ -328,7 +329,7 @@ const Registration = () => {
                     }
                   }}
                 />
-                {errors.firstName && <p className="text-sm mt-2 flex items-center" style={{ color: '#D91743' }}><Heart size={14} className="mr-1" />{errors.firstName}</p>}
+                {errors.firstName && <p className="text-sm mt-1 flex items-center" style={{ color: '#D91743' }}><Heart size={14} className="mr-1" />{errors.firstName}</p>}
               </motion.div>
 
               <motion.div
@@ -336,7 +337,7 @@ const Registration = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
               >
-                <label className="block text-sm font-medium mb-3" style={{ color: '#D91743' }}>
+                <label className="block text-sm font-medium mb-2" style={{ color: '#D91743' }}>
                   Last Name *
                 </label>
                 <input
@@ -345,13 +346,13 @@ const Registration = () => {
                   value={formData.lastName}
                   onChange={handleInputChange}
                   onKeyDown={handleKeyDown}
-                  className={`w-full px-8 py-5 border-2 text-white placeholder-gray-500 transition-all duration-300 ${
+                  className={`w-full px-6 py-4 border-2 text-white placeholder-gray-500 transition-all duration-300 ${
                     errors.lastName ? 'shadow-xl' : 'hover:border-gray-600'
                   }`}
                   style={{
                     backgroundColor: '#0a0a0a',
                     borderColor: errors.lastName ? '#D91743' : '#2a2a2a',
-                    borderRadius: '2rem',
+                    borderRadius: '1.5rem',
                     boxShadow: errors.lastName ? '0 0 20px rgba(217, 23, 67, 0.5)' : 'none'
                   }}
                   onFocus={(e) => {
@@ -365,7 +366,7 @@ const Registration = () => {
                     }
                   }}
                 />
-                {errors.lastName && <p className="text-sm mt-2 flex items-center" style={{ color: '#D91743' }}><Heart size={14} className="mr-1" />{errors.lastName}</p>}
+                {errors.lastName && <p className="text-sm mt-1 flex items-center" style={{ color: '#D91743' }}><Heart size={14} className="mr-1" />{errors.lastName}</p>}
               </motion.div>
             </div>
 
@@ -374,7 +375,7 @@ const Registration = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
               >
-                <label className="block text-sm font-medium mb-3" style={{ color: '#D91743' }}>
+                <label className="block text-sm font-medium mb-2" style={{ color: '#D91743' }}>
                 Email Address *
               </label>
               <input
@@ -383,13 +384,13 @@ const Registration = () => {
                 value={formData.email}
                 onChange={handleInputChange}
                 onKeyDown={handleKeyDown}
-                  className={`w-full px-8 py-5 border-2 text-white placeholder-gray-500 transition-all duration-300 ${
+                  className={`w-full px-6 py-4 border-2 text-white placeholder-gray-500 transition-all duration-300 ${
                     errors.email ? 'shadow-xl' : 'hover:border-gray-600'
                   }`}
                   style={{
                     backgroundColor: '#0a0a0a',
                     borderColor: errors.email ? '#D91743' : '#2a2a2a',
-                    borderRadius: '2rem',
+                    borderRadius: '1.5rem',
                     boxShadow: errors.email ? '0 0 20px rgba(217, 23, 67, 0.5)' : 'none'
                   }}
                   onFocus={(e) => {
@@ -404,16 +405,16 @@ const Registration = () => {
                   }}
                 placeholder="your.email@example.com"
               />
-                {errors.email && <p className="text-sm mt-2 flex items-center" style={{ color: '#D91743' }}><Heart size={14} className="mr-1" />{errors.email}</p>}
+                {errors.email && <p className="text-sm mt-1 flex items-center" style={{ color: '#D91743' }}><Heart size={14} className="mr-1" />{errors.email}</p>}
               </motion.div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 }}
               >
-                <label className="block text-sm font-medium mb-3" style={{ color: '#D91743' }}>
+                <label className="block text-sm font-medium mb-2" style={{ color: '#D91743' }}>
                   Password *
                 </label>
                 <input
@@ -422,13 +423,13 @@ const Registration = () => {
                   value={formData.password}
                   onChange={handleInputChange}
                   onKeyDown={handleKeyDown}
-                  className={`w-full px-8 py-5 border-2 text-white placeholder-gray-500 transition-all duration-300 ${
+                  className={`w-full px-6 py-4 border-2 text-white placeholder-gray-500 transition-all duration-300 ${
                     errors.password ? 'shadow-xl' : 'hover:border-gray-600'
                   }`}
                   style={{
                     backgroundColor: '#0a0a0a',
                     borderColor: errors.password ? '#D91743' : '#2a2a2a',
-                    borderRadius: '2rem',
+                    borderRadius: '1.5rem',
                     boxShadow: errors.password ? '0 0 20px rgba(217, 23, 67, 0.5)' : 'none'
                   }}
                   onFocus={(e) => {
@@ -443,7 +444,7 @@ const Registration = () => {
                   }}
                   placeholder="Choose a strong password"
                 />
-                {errors.password && <p className="text-sm mt-2 flex items-center" style={{ color: '#D91743' }}><Heart size={14} className="mr-1" />{errors.password}</p>}
+                {errors.password && <p className="text-sm mt-1 flex items-center" style={{ color: '#D91743' }}><Heart size={14} className="mr-1" />{errors.password}</p>}
               </motion.div>
 
               <motion.div
@@ -451,7 +452,7 @@ const Registration = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5 }}
               >
-                <label className="block text-sm font-medium mb-3" style={{ color: '#D91743' }}>
+                <label className="block text-sm font-medium mb-2" style={{ color: '#D91743' }}>
                   Confirm Password *
                 </label>
                 <input
@@ -460,13 +461,13 @@ const Registration = () => {
                   value={formData.confirmPassword}
                   onChange={handleInputChange}
                   onKeyDown={handleKeyDown}
-                  className={`w-full px-8 py-5 border-2 text-white placeholder-gray-500 transition-all duration-300 ${
+                  className={`w-full px-6 py-4 border-2 text-white placeholder-gray-500 transition-all duration-300 ${
                     errors.confirmPassword ? 'shadow-xl' : 'hover:border-gray-600'
                   }`}
                   style={{
                     backgroundColor: '#0a0a0a',
                     borderColor: errors.confirmPassword ? '#D91743' : '#2a2a2a',
-                    borderRadius: '2rem',
+                    borderRadius: '1.5rem',
                     boxShadow: errors.confirmPassword ? '0 0 20px rgba(217, 23, 67, 0.5)' : 'none'
                   }}
                   onFocus={(e) => {
@@ -481,7 +482,7 @@ const Registration = () => {
                   }}
                   placeholder="Confirm your password"
                 />
-                {errors.confirmPassword && <p className="text-sm mt-2 flex items-center" style={{ color: '#D91743' }}><Heart size={14} className="mr-1" />{errors.confirmPassword}</p>}
+                {errors.confirmPassword && <p className="text-sm mt-1 flex items-center" style={{ color: '#D91743' }}><Heart size={14} className="mr-1" />{errors.confirmPassword}</p>}
               </motion.div>
             </div>
           </motion.div>
@@ -495,34 +496,34 @@ const Registration = () => {
             transition={{ duration: 0.5 }}
             className="space-y-6"
           >
-            <div className="text-center mb-8">
+            <div className="text-center mb-6">
               <motion.div 
                 initial={{ scale: 0.8 }}
                 animate={{ scale: 1 }}
                 transition={{ duration: 0.5 }}
-                className="flex items-center justify-center mb-4"
+                className="flex items-center justify-center mb-3"
               >
-                <GraduationCap className="text-red-500 mr-3" size={40} />
-                <Star className="text-red-600" size={32} />
+                <GraduationCap className="text-red-500 mr-3" size={32} />
+                <Star className="text-red-600" size={24} />
               </motion.div>
-              <h2 className="text-4xl font-bold bg-gradient-to-r from-red-400 to-red-600 bg-clip-text text-transparent mb-3">
+              <h2 className="text-3xl font-bold bg-gradient-to-r from-red-400 to-red-600 bg-clip-text text-transparent mb-2">
                 Tell me about your academic journey! 🎓
               </h2>
-              <p className="text-gray-300 text-xl">Let's understand where you're coming from</p>
+              <p className="text-gray-300 text-lg">Let's understand where you're coming from</p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
               >
-                <label className="block text-sm font-medium mb-4" style={{ color: '#D91743' }}>
+                <label className="block text-sm font-medium mb-3" style={{ color: '#D91743' }}>
                   What year are you in? *
                 </label>
-                <div className="space-y-4">
+                <div className="space-y-3">
                   {['10', '11', '12'].map((yearOption) => (
-                    <label key={yearOption} className="flex items-center p-5 border-2 transition-all duration-300 cursor-pointer" style={{
+                    <label key={yearOption} className="flex items-center p-4 border-2 transition-all duration-300 cursor-pointer" style={{
                       backgroundColor: formData.year === yearOption ? 'rgba(217, 23, 67, 0.12)' : '#0a0a0a',
                       borderColor: formData.year === yearOption ? '#D91743' : '#2a2a2a',
                       borderRadius: '1.5rem',
@@ -534,16 +535,16 @@ const Registration = () => {
                         value={yearOption}
                         checked={formData.year === yearOption}
                   onChange={handleInputChange}
-                        className="w-6 h-6 mr-5"
+                        className="w-5 h-5 mr-4"
                         style={{
                           accentColor: '#D91743'
                         }}
                       />
-                      <span className="text-white font-medium text-lg">Year {yearOption}</span>
+                      <span className="text-white font-medium text-base">Year {yearOption}</span>
                     </label>
                   ))}
               </div>
-                {errors.year && <p className="text-sm mt-2 flex items-center" style={{ color: '#D91743' }}><Heart size={14} className="mr-1" />{errors.year}</p>}
+                {errors.year && <p className="text-sm mt-1 flex items-center" style={{ color: '#D91743' }}><Heart size={14} className="mr-1" />{errors.year}</p>}
               </motion.div>
 
               <motion.div
@@ -551,15 +552,15 @@ const Registration = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
               >
-                <label className="block text-sm font-medium mb-4" style={{ color: '#D91743' }}>
+                <label className="block text-sm font-medium mb-3" style={{ color: '#D91743' }}>
                   Which session? *
                 </label>
-                <div className="space-y-4">
+                <div className="space-y-3">
                   {[
                     { value: 'NOV 25', label: 'November 2025' },
                     { value: 'JUN 26', label: 'June 2026' }
                   ].map((sessionOption) => (
-                    <label key={sessionOption.value} className="flex items-center p-5 border-2 transition-all duration-300 cursor-pointer" style={{
+                    <label key={sessionOption.value} className="flex items-center p-4 border-2 transition-all duration-300 cursor-pointer" style={{
                       backgroundColor: formData.session === sessionOption.value ? 'rgba(217, 23, 67, 0.12)' : '#0a0a0a',
                       borderColor: formData.session === sessionOption.value ? '#D91743' : '#2a2a2a',
                       borderRadius: '1.5rem',
@@ -571,39 +572,39 @@ const Registration = () => {
                         value={sessionOption.value}
                         checked={formData.session === sessionOption.value}
                   onChange={handleInputChange}
-                        className="w-6 h-6 mr-5"
+                        className="w-5 h-5 mr-4"
                         style={{
                           accentColor: '#D91743'
                         }}
                       />
-                      <span className="text-white font-medium text-lg">{sessionOption.label}</span>
+                      <span className="text-white font-medium text-base">{sessionOption.label}</span>
                     </label>
                   ))}
               </div>
-                {errors.session && <p className="text-sm mt-2 flex items-center" style={{ color: '#D91743' }}><Heart size={14} className="mr-1" />{errors.session}</p>}
+                {errors.session && <p className="text-sm mt-1 flex items-center" style={{ color: '#D91743' }}><Heart size={14} className="mr-1" />{errors.session}</p>}
               </motion.div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
               >
-                <label className="block text-sm font-medium mb-3" style={{ color: '#D91743' }}>
+                <label className="block text-sm font-medium mb-2" style={{ color: '#D91743' }}>
                   What's your nationality? *
                 </label>
                 <select
                   name="nationality"
                   value={formData.nationality}
                   onChange={handleInputChange}
-                  className={`w-full px-8 py-5 border-2 text-white transition-all duration-300 ${
+                  className={`w-full px-6 py-4 border-2 text-white transition-all duration-300 ${
                     errors.nationality ? 'shadow-xl' : 'hover:border-gray-600'
                   }`}
                   style={{
                     backgroundColor: '#0a0a0a',
                     borderColor: errors.nationality ? '#D91743' : '#2a2a2a',
-                    borderRadius: '2rem',
+                    borderRadius: '1.5rem',
                     boxShadow: errors.nationality ? '0 0 20px rgba(217, 23, 67, 0.5)' : 'none'
                   }}
                   onFocus={(e) => {
@@ -670,7 +671,7 @@ const Registration = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 }}
               >
-                <label className="block text-sm font-medium mb-3" style={{ color: '#D91743' }}>
+                <label className="block text-sm font-medium mb-2" style={{ color: '#D91743' }}>
                   Which school do you attend? *
                 </label>
                 <input
@@ -679,13 +680,13 @@ const Registration = () => {
                   value={formData.school}
                   onChange={handleInputChange}
                         onKeyDown={handleKeyDown}
-                  className={`w-full px-8 py-5 border-2 text-white placeholder-gray-500 transition-all duration-300 ${
+                  className={`w-full px-6 py-4 border-2 text-white placeholder-gray-500 transition-all duration-300 ${
                     errors.school ? 'shadow-xl' : 'hover:border-gray-600'
                   }`}
                   style={{
                     backgroundColor: '#0a0a0a',
                     borderColor: errors.school ? '#D91743' : '#2a2a2a',
-                    borderRadius: '2rem',
+                    borderRadius: '1.5rem',
                     boxShadow: errors.school ? '0 0 20px rgba(217, 23, 67, 0.5)' : 'none'
                   }}
                   onFocus={(e) => {
@@ -700,7 +701,7 @@ const Registration = () => {
                   }}
                   placeholder="Your school name"
                 />
-                {errors.school && <p className="text-sm mt-2 flex items-center" style={{ color: '#D91743' }}><Heart size={14} className="mr-1" />{errors.school}</p>}
+                {errors.school && <p className="text-sm mt-1 flex items-center" style={{ color: '#D91743' }}><Heart size={14} className="mr-1" />{errors.school}</p>}
               </motion.div>
             </div>
 
@@ -709,11 +710,11 @@ const Registration = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
             >
-              <h3 className="text-lg font-medium mb-4" style={{ color: '#D91743' }}>
+              <h3 className="text-lg font-medium mb-3" style={{ color: '#D91743' }}>
                 Additional Information
               </h3>
               
-              <label className="flex items-center space-x-5 p-5 border-2 transition-all duration-300 cursor-pointer" style={{
+              <label className="flex items-center space-x-4 p-4 border-2 transition-all duration-300 cursor-pointer" style={{
                 backgroundColor: '#0a0a0a',
                 borderColor: '#2a2a2a',
                 borderRadius: '1.5rem'
@@ -723,7 +724,7 @@ const Registration = () => {
                   name="isRetaker"
                   checked={formData.isRetaker}
                   onChange={handleInputChange}
-                  className="w-6 h-6 rounded"
+                  className="w-5 h-5 rounded"
                   style={{
                     accentColor: '#D91743'
                   }}
@@ -739,15 +740,15 @@ const Registration = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6 }}
             >
-              <label className="block text-sm font-medium mb-3" style={{ color: '#D91743' }}>
+              <label className="block text-sm font-medium mb-2" style={{ color: '#D91743' }}>
                 What other subjects are you taking?
               </label>
               <textarea
                 name="otherSubjects"
                 value={formData.otherSubjects}
                 onChange={handleInputChange}
-                rows="4"
-                className="w-full px-8 py-5 border-2 text-white placeholder-gray-500 transition-all duration-300 hover:border-gray-600"
+                rows="3"
+                className="w-full px-6 py-4 border-2 text-white placeholder-gray-500 transition-all duration-300 hover:border-gray-600"
                 style={{
                   backgroundColor: '#0a0a0a',
                   borderColor: '#2a2a2a',
@@ -869,36 +870,7 @@ const Registration = () => {
               </motion.div>
             </div>
 
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-            >
-              <label className="block text-sm font-medium mb-3" style={{ color: '#D91743' }}>
-                Alternative Contact Number
-              </label>
-              <input
-                type="tel"
-                name="alternativeNumber"
-                value={formData.alternativeNumber}
-                onChange={handleInputChange}
-                className="w-full px-8 py-5 border-2 text-white placeholder-gray-500 transition-all duration-300 hover:border-gray-600"
-                style={{
-                  backgroundColor: '#0a0a0a',
-                  borderColor: '#2a2a2a',
-                  borderRadius: '2rem'
-                }}
-                onFocus={(e) => {
-                  e.target.style.borderColor = '#D91743';
-                  e.target.style.boxShadow = '0 0 0 4px rgba(217, 23, 67, 0.2), 0 0 20px rgba(217, 23, 67, 0.4)';
-                }}
-                onBlur={(e) => {
-                  e.target.style.borderColor = '#2a2a2a';
-                  e.target.style.boxShadow = 'none';
-                }}
-                placeholder="Optional backup number"
-              />
-            </motion.div>
+
 
             <motion.div 
               className="space-y-6"
@@ -1005,9 +977,9 @@ const Registration = () => {
                 <Flame className="text-red-600" size={32} />
               </motion.div>
               <h2 className="text-4xl font-bold bg-gradient-to-r from-red-400 to-red-600 bg-clip-text text-transparent mb-3">
-                Tech Knowledge Check! 🤓
+                Skills Assessment! 🎯
               </h2>
-              <p className="text-gray-300 text-xl">Help us understand your comfort level with technology</p>
+              <p className="text-gray-300 text-xl">Help us understand your comfort levels with technology and English</p>
             </div>
 
             <motion.div 
@@ -1078,6 +1050,75 @@ const Registration = () => {
               </div>
             </motion.div>
 
+            {/* English Level Assessment */}
+            <motion.div 
+              className="border-2 shadow-2xl mt-8"
+              style={{
+                background: 'linear-gradient(135deg, rgba(217, 23, 67, 0.08) 0%, rgba(10, 10, 10, 0.95) 100%)',
+                borderColor: '#D91743',
+                boxShadow: '0 0 35px rgba(217, 23, 67, 0.4)',
+                borderRadius: '2rem',
+                padding: '3rem'
+              }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+            >
+              <label className="block text-xl font-medium mb-8 text-center" style={{ color: '#D91743' }}>
+                On a scale of 1-10, how comfortable are you with English language?
+              </label>
+              
+              <div className="space-y-8">
+                {/* Slider Container */}
+                <div className="relative">
+                <input
+                  type="range"
+                  name="englishLevel"
+                  min="1"
+                  max="10"
+                  value={formData.englishLevel}
+                  onChange={handleInputChange}
+                    className="w-full h-6 rounded-full appearance-none cursor-pointer"
+                    style={{
+                      background: `linear-gradient(to right, #D91743 0%, #D91743 ${(formData.englishLevel - 1) * 11.11}%, #2a2a2a ${(formData.englishLevel - 1) * 11.11}%, #2a2a2a 100%)`,
+                      boxShadow: 'inset 0 2px 6px rgba(0, 0, 0, 0.4)'
+                    }}
+                  />
+                </div>
+
+                {/* Value Display and Labels */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-center px-4 py-3 border-2 rounded-full" style={{
+                    backgroundColor: '#0a0a0a',
+                    borderColor: '#2a2a2a'
+                  }}>
+                    <span className="text-sm font-medium text-gray-300">1 - Basic English</span>
+              </div>
+                  
+                  <motion.div 
+                    className="font-bold text-4xl w-24 h-24 rounded-full flex items-center justify-center text-white border-4"
+                    style={{ 
+                      background: 'linear-gradient(135deg, #D91743, #ff6b9d)',
+                      borderColor: 'rgba(255, 255, 255, 0.2)',
+                      boxShadow: '0 0 30px rgba(217, 23, 67, 0.7)'
+                    }}
+                    animate={{ scale: [1, 1.15, 1] }}
+                    transition={{ duration: 1.2, ease: "easeInOut" }}
+                    key={formData.englishLevel}
+                  >
+                    {formData.englishLevel}
+                  </motion.div>
+                  
+                  <div className="flex items-center justify-center px-4 py-3 border-2 rounded-full" style={{
+                    backgroundColor: '#0a0a0a',
+                    borderColor: '#2a2a2a'
+                  }}>
+                    <span className="text-sm font-medium text-gray-300">10 - Fluent English</span>
+            </div>
+                </div>
+              </div>
+            </motion.div>
+
             {/* Registration Summary */}
             <motion.div 
               className="border-2 shadow-2xl"
@@ -1125,6 +1166,10 @@ const Registration = () => {
                 <div className="flex justify-between items-center p-5 border" style={{ backgroundColor: 'rgba(5, 5, 5, 0.7)', borderColor: '#D91743', borderRadius: '1.5rem' }}>
                   <span className="text-gray-300">Tech Level:</span>
                   <span className="font-medium" style={{ color: '#D91743' }}>{formData.techKnowledge}/10</span>
+              </div>
+                <div className="flex justify-between items-center p-5 border" style={{ backgroundColor: 'rgba(5, 5, 5, 0.7)', borderColor: '#D91743', borderRadius: '1.5rem' }}>
+                  <span className="text-gray-300">English Level:</span>
+                  <span className="font-medium" style={{ color: '#D91743' }}>{formData.englishLevel}/10</span>
               </div>
             </div>
             </motion.div>
@@ -1180,24 +1225,24 @@ const Registration = () => {
     <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #000000 0%, #0f0f0f 30%, #1a1a1a 60%, #D91743 100%)' }}>
       <Nav />
       
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 xl:px-8 py-12">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 xl:px-8 py-8" style={{ paddingTop: '100px' }}>
         {/* Progress Bar */}
         <motion.div 
-          className="mb-12"
+          className="mb-6"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <div className="flex items-center justify-between mb-6">
-            <h1 className="text-4xl font-bold text-transparent bg-clip-text" style={{ backgroundImage: 'linear-gradient(135deg, #D91743, #ff6b9d)' }}>
+          <div className="flex items-center justify-between mb-4 ">
+            <h1 className="text-3xl font-bold text-transparent mt-5 bg-clip-text" style={{ backgroundImage: 'linear-gradient(135deg, #D91743, #ff6b9d)' }}>
               Student Registration
             </h1>
-            <span className="font-medium px-6 py-3 rounded-full border-2 text-white" style={{ backgroundColor: '#D91743', borderColor: '#D91743', boxShadow: '0 0 20px rgba(217, 23, 67, 0.4)' }}>
+            <span className="font-medium px-4 py-2 rounded-full mt-5 border-2 text-white text-sm" style={{ backgroundColor: '#D91743', borderColor: '#D91743', boxShadow: '0 0 20px rgba(217, 23, 67, 0.4)' }}>
               Step {currentStep} of {totalSteps}
             </span>
           </div>
-          <div className="w-full bg-gray-800 rounded-full h-4 shadow-inner">
+          <div className="w-full bg-gray-800 rounded-full h-3 shadow-inner">
             <motion.div
-              className="h-4 rounded-full shadow-xl"
+              className="h-3 rounded-full shadow-xl"
               style={{ 
                 background: 'linear-gradient(135deg, #D91743, #ff6b9d)',
                 boxShadow: '0 0 15px rgba(217, 23, 67, 0.6)'
@@ -1211,12 +1256,12 @@ const Registration = () => {
 
         {/* Step Indicators */}
         <motion.div 
-          className="flex justify-between mb-12"
+          className="flex justify-between mb-8"
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
         >
-          {['Personal Info', 'Academic Journey', 'Contact Info', 'Tech Knowledge'].map((step, index) => (
+          {['Personal Info', 'Academic Journey', 'Contact Info', 'Skills Assessment'].map((step, index) => (
             <motion.div 
               key={step} 
               className="flex flex-col items-center"
@@ -1224,7 +1269,7 @@ const Registration = () => {
               transition={{ type: "spring", stiffness: 400 }}
             >
               <motion.div
-                className={`w-16 h-16 rounded-full flex items-center justify-center text-sm font-bold shadow-xl border-4 ${
+                className={`w-12 h-12 rounded-full flex items-center justify-center text-sm font-bold shadow-xl border-4 ${
                   index + 1 <= currentStep
                     ? 'text-white border-white/30'
                     : 'bg-gray-700 text-gray-400 border-gray-600'
@@ -1244,14 +1289,14 @@ const Registration = () => {
               >
                 {index + 1 < currentStep ? '✓' : index + 1}
               </motion.div>
-              <span className="text-xs text-gray-300 mt-3 text-center max-w-20 leading-tight font-medium">{step}</span>
+              <span className="text-xs text-gray-300 mt-2 text-center max-w-16 leading-tight font-medium">{step}</span>
             </motion.div>
           ))}
         </motion.div>
 
         {/* Form Content */}
         <motion.div 
-          className="backdrop-blur-sm shadow-2xl p-12 border-2"
+          className="backdrop-blur-sm shadow-2xl p-8 border-2"
           style={{
             background: 'linear-gradient(135deg, rgba(10, 10, 10, 0.95) 0%, rgba(0, 0, 0, 0.98) 100%)',
             borderColor: '#D91743',
@@ -1276,33 +1321,33 @@ const Registration = () => {
             {renderStepContent()}
 
             {/* Navigation Buttons */}
-            <div className="flex justify-between mt-12">
-              <motion.button
-                type="button"
-                onClick={handlePrevious}
-                className={`px-10 py-5 rounded-full font-medium transition-all duration-300 border-2 ${
-                  currentStep === 1
-                    ? 'text-gray-500 cursor-not-allowed'
-                    : 'text-white shadow-xl hover:shadow-xl transform hover:-translate-y-1'
-                }`}
-                style={{
-                  backgroundColor: currentStep === 1 ? '#1a1a1a' : 'transparent',
-                  background: currentStep !== 1 ? 'linear-gradient(135deg, #404040, #2a2a2a)' : '#1a1a1a',
-                  borderColor: currentStep === 1 ? '#2a2a2a' : '#404040'
-                }}
-                disabled={currentStep === 1}
-                whileHover={currentStep !== 1 ? { scale: 1.05 } : {}}
-                whileTap={currentStep !== 1 ? { scale: 0.95 } : {}}
-              >
-                <ChevronLeft className="inline mr-2" size={20} />
-                Previous
-              </motion.button>
+            <div className="flex justify-between mt-8">
+                              <motion.button
+                  type="button"
+                  onClick={handlePrevious}
+                  className={`px-8 py-4 rounded-full font-medium transition-all duration-300 border-2 ${
+                    currentStep === 1
+                      ? 'text-gray-500 cursor-not-allowed'
+                      : 'text-white shadow-xl hover:shadow-xl transform hover:-translate-y-1'
+                  }`}
+                  style={{
+                    backgroundColor: currentStep === 1 ? '#1a1a1a' : 'transparent',
+                    background: currentStep !== 1 ? 'linear-gradient(135deg, #404040, #2a2a2a)' : '#1a1a1a',
+                    borderColor: currentStep === 1 ? '#2a2a2a' : '#404040'
+                  }}
+                  disabled={currentStep === 1}
+                  whileHover={currentStep !== 1 ? { scale: 1.05 } : {}}
+                  whileTap={currentStep !== 1 ? { scale: 0.95 } : {}}
+                >
+                  <ChevronLeft className="inline mr-2" size={18} />
+                  Previous
+                </motion.button>
 
               {currentStep < totalSteps ? (
                 <motion.button
                   type="button"
                   onClick={handleNext}
-                  className="px-10 py-5 text-white rounded-full font-medium transition-all duration-300 shadow-xl hover:shadow-xl transform hover:-translate-y-1 border-2"
+                  className="px-8 py-4 text-white rounded-full font-medium transition-all duration-300 shadow-xl hover:shadow-xl transform hover:-translate-y-1 border-2"
                   style={{
                     background: 'linear-gradient(135deg, #D91743, #ff6b9d)',
                     borderColor: '#D91743',
@@ -1318,13 +1363,13 @@ const Registration = () => {
                   whileTap={{ scale: 0.95 }}
                 >
                   Next
-                  <ChevronRight className="inline ml-2" size={20} />
+                  <ChevronRight className="inline ml-2" size={18} />
                 </motion.button>
               ) : (
                 <motion.button
                   type="submit"
                   disabled={loading}
-                  className="px-12 py-5 text-white rounded-full font-medium transition-all duration-300 shadow-xl hover:shadow-xl transform hover:-translate-y-1 disabled:cursor-not-allowed disabled:transform-none border-2"
+                  className="px-10 py-4 text-white rounded-full font-medium transition-all duration-300 shadow-xl hover:shadow-xl transform hover:-translate-y-1 disabled:cursor-not-allowed disabled:transform-none border-2"
                   style={{
                     background: loading ? 'linear-gradient(135deg, #059669, #10b981)' : 'linear-gradient(135deg, #D91743, #ff6b9d)',
                     borderColor: loading ? '#059669' : '#D91743',
@@ -1350,7 +1395,7 @@ const Registration = () => {
                     </>
                   ) : (
                     <>
-                      <Star className="inline mr-2" size={20} />
+                      <Star className="inline mr-2" size={18} />
                       Complete Registration
                     </>
                   )}

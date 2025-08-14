@@ -311,6 +311,24 @@ const userSchema = new mongoose.Schema({
     },
 
     /**
+     * Student's self-assessed English language level
+     * @type {Number}
+     * @min 1
+     * @max 10
+     */
+    englishLevel: {
+      type: Number,
+      min: [1, 'English level must be at least 1'],
+      max: [10, 'English level cannot exceed 10'],
+      validate: {
+        validator: function(level) {
+          return this.role !== 'student' || level != null;
+        },
+        message: 'English level is required for students'
+      }
+    },
+
+    /**
      * Other subjects the student is taking
      * @type {String}
      */

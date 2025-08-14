@@ -26,7 +26,8 @@ const registrationValidation = [
   body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
   body('contactNumber').trim().isLength({ min: 10 }).withMessage('Contact number must be at least 10 digits'),
   body('parentNumber').trim().isLength({ min: 10 }).withMessage('Parent number must be at least 10 digits'),
-  body('techKnowledge').isInt({ min: 1, max: 10 }).withMessage('Tech knowledge must be between 1 and 10')
+  body('techKnowledge').isInt({ min: 1, max: 10 }).withMessage('Tech knowledge must be between 1 and 10'),
+  body('englishLevel').isInt({ min: 1, max: 10 }).withMessage('English level must be between 1 and 10')
 ];
 
 // Public routes
