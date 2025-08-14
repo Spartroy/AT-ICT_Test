@@ -134,75 +134,83 @@ const PendingRegistrations = ({ onRegistrationUpdate }) => {
               transition={{ delay: index * 0.1 }}
               className="bg-gray-900/70 backdrop-blur-md rounded-xl overflow-hidden hover:shadow-xl transition-shadow border border-gray-700/50"
             >
-              <div className="p-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-4">
-                    <div className="h-12 w-12 rounded-full bg-gradient-to-r from-red-500 to-red-700 flex items-center justify-center ring-2 ring-red-500/50">
+              <div className="p-4 sm:p-6">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                  <div className="flex items-start sm:items-center space-x-3 sm:space-x-4 min-w-0 flex-1">
+                    <div className="h-12 w-12 rounded-full bg-gradient-to-r from-red-500 to-red-700 flex items-center justify-center ring-2 ring-red-500/50 flex-shrink-0">
                       <span className="text-white font-semibold text-lg">
                         {registration.firstName[0]}{registration.lastName[0]}
                       </span>
                     </div>
-                    <div>
-                      <h3 className="text-lg font-semibold text-white">
+                    <div className="min-w-0 flex-1">
+                      <h3 className="text-lg sm:text-xl font-semibold text-white mb-1 sm:mb-2 truncate">
                         {registration.firstName} {registration.lastName}
                       </h3>
-                      <div className="flex items-center space-x-4 text-sm text-gray-400">
-                        <span className="flex items-center">
-                          <AcademicCapIcon className="h-4 w-4 mr-1" />
-                          Year {registration.year}
-                        </span>
-                        <span className="flex items-center">
-                          <MapPinIcon className="h-4 w-4 mr-1" />
-                          {registration.city}, {registration.nationality}
-                        </span>
-                        <span className="flex items-center">
-                          <ClockIcon className="h-4 w-4 mr-1" />
-                          {new Date(registration.createdAt).toLocaleDateString()}
-                        </span>
+                      <p className="text-sm text-gray-400 mb-2 sm:mb-3 truncate">{registration.email}</p>
+                      
+                      {/* Student Details - Responsive Grid */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 text-sm">
+                        <div className="flex items-center space-x-2">
+                          <AcademicCapIcon className="h-4 w-4 text-blue-400 flex-shrink-0" />
+                          <span className="text-gray-300">Year {registration.year}</span>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <MapPinIcon className="h-4 w-4 text-green-400 flex-shrink-0" />
+                          <span className="text-gray-300 truncate">{registration.nationality}</span>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <ClockIcon className="h-4 w-4 text-yellow-400 flex-shrink-0" />
+                          <span className="text-gray-300 truncate">{registration.createdAt ? new Date(registration.createdAt).toLocaleDateString() : 'N/A'}</span>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <PhoneIcon className="h-4 w-4 text-purple-400 flex-shrink-0" />
+                          <span className="text-gray-300 truncate">{registration.contactNumber || 'N/A'}</span>
+                        </div>
+                      </div>
+
+                      {/* Additional Info - Responsive Layout */}
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mt-3 sm:mt-4">
+                        <div className="bg-gray-800/50 rounded-lg p-2 sm:p-3">
+                          <p className="text-xs text-gray-400 mb-1">SCHOOL</p>
+                          <p className="text-sm font-semibold text-white truncate">{registration.school}</p>
+                        </div>
+                        <div className="bg-gray-800/50 rounded-lg p-2 sm:p-3">
+                          <p className="text-xs text-gray-400 mb-1">SESSION</p>
+                          <p className="text-sm font-semibold text-white truncate">{registration.session}</p>
+                        </div>
+                        <div className="bg-gray-800/50 rounded-lg p-2 sm:p-3">
+                          <p className="text-xs text-gray-400 mb-1">TECH LEVEL</p>
+                          <p className="text-sm font-semibold text-white truncate">{registration.techKnowledge}</p>
+                        </div>
+                        <div className="bg-gray-800/50 rounded-lg p-2 sm:p-3">
+                          <p className="text-xs text-gray-400 mb-1">RETAKER</p>
+                          <p className="text-sm font-semibold text-white truncate">{registration.isRetaker ? 'Yes' : 'No'}</p>
+                        </div>
                       </div>
                     </div>
                   </div>
 
-                  <div className="flex items-center space-x-3">
+                  <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 flex-shrink-0">
+                    <button
+                      onClick={() => handleApprove(registration._id)}
+                      disabled={actionLoading}
+                      className="flex items-center justify-center space-x-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-xl transition-colors font-medium text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <CheckCircleIcon className="h-4 w-4 sm:h-5 sm:w-5" />
+                      <span className="hidden sm:inline">Approve</span>
+                      <span className="sm:hidden">✓</span>
+                    </button>
                     <button
                       onClick={() => {
                         setSelectedRegistration(registration);
                         setShowModal(true);
                       }}
-                      className="flex items-center space-x-2 px-4 py-2 bg-gray-700/80 text-gray-300 rounded-xl hover:bg-gray-700 transition-colors"
+                      className="flex items-center justify-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl transition-colors font-medium text-sm sm:text-base"
                     >
-                      <EyeIcon className="h-4 w-4" />
-                      <span>View Details</span>
+                      <EyeIcon className="h-4 w-4 sm:h-5 sm:w-5" />
+                      <span className="hidden sm:inline">View Details</span>
+                      <span className="sm:hidden">View</span>
                     </button>
-                    <button
-                      onClick={() => handleApprove(registration._id)}
-                      disabled={actionLoading}
-                      className="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 disabled:bg-gray-600 disabled:cursor-not-allowed transition-colors"
-                    >
-                      <CheckCircleIcon className="h-4 w-4" />
-                      <span>Approve</span>
-                    </button>
-                  </div>
-                </div>
-
-                <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-gray-800/70 rounded-xl">
-                  <div>
-                    <p className="text-xs text-gray-500 uppercase tracking-wide">School</p>
-                    <p className="text-sm font-medium text-white">{registration.school}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-500 uppercase tracking-wide">Session</p>
-                    <p className="text-sm font-medium text-white">{registration.session}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-500 uppercase tracking-wide">Tech Level</p>
-                    <p className="text-sm font-medium text-white">{registration.techKnowledge}/10</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-500 uppercase tracking-wide">Retaker</p>
-                    <p className="text-sm font-medium text-white">
-                      {registration.isRetaker ? 'Yes' : 'No'}
-                    </p>
                   </div>
                 </div>
               </div>

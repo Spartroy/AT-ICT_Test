@@ -22,7 +22,8 @@ import {
   ChevronUpIcon,
   FunnelIcon,
   GlobeAltIcon,
-  LockClosedIcon
+  LockClosedIcon,
+  DocumentTextIcon
 } from '@heroicons/react/24/outline';
 
 // Import modal components
@@ -220,7 +221,7 @@ const FlashcardsTab = () => {
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
           <div className="flex-1 min-w-0">
             <div className="flex flex-wrap items-center gap-2 mb-2 sm:mb-3">
-              <BookOpenIcon className="h-4 w-4 sm:h-5 sm:w-5 text-blue-400 flex-shrink-0" />
+              <DocumentTextIcon className="h-4 w-4 sm:h-5 sm:w-5 text-blue-400 flex-shrink-0" />
               <span className="text-xs font-medium text-gray-400 uppercase tracking-wide">
                 {stack.isTeacherStack ? 'Teacher Stack' : 'Student Stack'}
               </span>
@@ -248,7 +249,7 @@ const FlashcardsTab = () => {
             
             <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-sm text-gray-400 mb-3">
               <div className="flex items-center space-x-1">
-                <BookOpenIcon className="h-4 w-4 flex-shrink-0" />
+                <DocumentTextIcon className="h-4 w-4 flex-shrink-0" />
                 <span>{stack.totalCards} cards</span>
               </div>
               <div className="flex items-center space-x-1">
@@ -333,7 +334,7 @@ const FlashcardsTab = () => {
               <p className="text-sm text-gray-400">Total Stacks</p>
               <p className="text-2xl font-bold text-white">{stats.totalStacks || 0}</p>
             </div>
-            <BookOpenIcon className="h-8 w-8 text-blue-400" />
+            <DocumentTextIcon className="h-8 w-8 text-blue-400" />
           </div>
         </div>
         <div className="bg-gray-800/60 rounded-xl p-4 border border-gray-700/50">
@@ -436,7 +437,7 @@ const FlashcardsTab = () => {
                 : 'bg-gray-700/50 text-gray-300 hover:bg-gray-700/70 hover:text-white'
             }`}
           >
-            <BookOpenIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2 flex-shrink-0" />
+            <DocumentTextIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2 flex-shrink-0" />
             <span className="hidden sm:inline">All Stacks</span>
             <span className="sm:hidden">All</span>
             <span className="ml-1 sm:ml-2 bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded-full text-xs">
@@ -485,7 +486,7 @@ const FlashcardsTab = () => {
           </div>
         ) : currentStacks.length === 0 ? (
           <div className="text-center py-8">
-            <BookOpenIcon className="h-16 w-16 text-gray-500 mx-auto mb-4" />
+            <DocumentTextIcon className="h-16 w-16 text-gray-500 mx-auto mb-4" />
             <p className="text-gray-400 text-lg">No flashcard stacks found</p>
             <p className="text-gray-500 text-sm">Add your first flashcard stack to get started</p>
           </div>

@@ -463,7 +463,7 @@ const TeacherDashboard = () => {
                     <motion.button
                       key={tab.id}
                       onClick={() => handleTabClick(tab.id)}
-                      className={`flex-shrink-0 flex items-center justify-center w-12 h-12 rounded-[10px] transition-all duration-300 relative snap-center ${
+                      className={`flex-shrink-0 flex items-center justify-center w-14 h-14 rounded-[12px] transition-all duration-300 relative snap-center ${
                         activeTab === tab.id
                           ? 'bg-[#CA133E] text-white shadow-lg'
                           : 'bg-gray-700/30 text-gray-400 hover:bg-gray-600/50 hover:text-white'
@@ -472,11 +472,11 @@ const TeacherDashboard = () => {
                       whileTap={{ scale: 0.95 }}
                       title={tab.name}
                     >
-                      <IconComponent className="h-6 w-6" />
+                      <IconComponent className="h-7 w-7" />
                       {/* Notification dot for mobile */}
                       {tab.badge > 0 && (
-                        <span className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-orange-500 rounded-full flex items-center justify-center border border-[#2a1a1a]">
-                          <span className="text-[10px] text-white font-bold">{tab.badge > 9 ? '9+' : tab.badge}</span>
+                        <span className="absolute -top-1 -right-1 w-4 h-4 bg-orange-500 rounded-full flex items-center justify-center border border-[#2a1a1a]">
+                          <span className="text-[11px] text-white font-bold">{tab.badge > 9 ? '9+' : tab.badge}</span>
                         </span>
                       )}
                     </motion.button>
@@ -486,7 +486,7 @@ const TeacherDashboard = () => {
             </div>
             
             {/* Active tab name display */}
-            <div className="text-center mt-2 px-4">
+            <div className="text-center mt-3 px-4">
               <span className="text-white font-semibold text-sm">
                 {tabs.find(tab => tab.id === activeTab)?.name || ''}
               </span>
