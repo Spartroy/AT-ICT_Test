@@ -162,7 +162,7 @@ const Samples = () => {
                       <div className="bg-gradient-to-r from-[#CA133E] to-[#A01030] p-4 sm:p-6">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center space-x-3">
-                            <div className="p-2 bg-white/20 rounded-lg">
+                            <div className="p-2 bg-white/20 rounded-xl">
                               {material.category === 'notes' && <FileText className="h-5 w-5 text-white" />}
                               {material.category === 'videos' && <Play className="h-5 w-5 text-white" />}
                               {material.category === 'exercises' && <CheckCircle className="h-5 w-5 text-white" />}

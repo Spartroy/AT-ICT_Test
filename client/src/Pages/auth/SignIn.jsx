@@ -180,7 +180,7 @@ const SignIn = () => {
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              className={`p-4 rounded-lg border ${
+              className={`p-4 rounded-xl border ${
                 message.includes('success') || message.includes('pending')
                   ? 'bg-green-50 border-green-200 text-green-700'
                   : 'bg-blue-50 border-blue-200 text-blue-700'
@@ -195,7 +195,7 @@ const SignIn = () => {
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="p-4 rounded-lg border bg-red-50 border-red-200"
+              className="p-4 rounded-xl border bg-red-50 border-red-200"
             >
               <p className="text-sm text-red-600 text-center">{errors.general}</p>
             </motion.div>

@@ -312,7 +312,7 @@ const Curriculum = () => {
                           </div>
                         </div>
                         
-                        <div className="bg-gray-50 p-4 rounded-lg">
+                        <div className="bg-gray-50 p-4 rounded-xl">
                           <h4 className="font-semibold text-gray-800 mb-2">Practical Work:</h4>
                           <p className="text-gray-600 text-sm mb-3">{module.practicalWork}</p>
                           <div className="flex items-center text-[#CA133E] text-sm font-semibold">
@@ -354,7 +354,7 @@ const Curriculum = () => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, delay: index * 0.1 }}
-                    className="flex items-start p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                    className="flex items-start p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors"
                   >
                     <Award className="text-[#CA133E] mr-3 mt-1 flex-shrink-0" size={20} />
                     <span className="text-gray-700">{outcome}</span>

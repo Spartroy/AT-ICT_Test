@@ -57,7 +57,7 @@ const ChildProgress = ({ selectedChild, parentData }) => {
     return (
       <div className="space-y-6">
         {[...Array(3)].map((_, i) => (
-          <div key={i} className="bg-white rounded-lg p-6 animate-pulse">
+          <div key={i} className="bg-white rounded-xl p-6 animate-pulse">
             <div className="h-4 bg-gray-200 rounded w-1/4 mb-4"></div>
             <div className="space-y-2">
               <div className="h-3 bg-gray-200 rounded"></div>
@@ -119,7 +119,7 @@ const ChildProgress = ({ selectedChild, parentData }) => {
           <select
             value={timeframe}
             onChange={(e) => setTimeframe(e.target.value)}
-            className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="border border-gray-300 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
             <option value="week">This Week</option>
             <option value="month">This Month</option>
@@ -134,10 +134,10 @@ const ChildProgress = ({ selectedChild, parentData }) => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-lg border border-gray-200 p-6"
+          className="bg-white rounded-xl border border-gray-200 p-6"
         >
           <div className="flex items-center justify-between mb-4">
-            <div className="p-2 bg-blue-100 rounded-lg">
+            <div className="p-2 bg-blue-100 rounded-xl">
               <TrophyIcon className="h-6 w-6 text-blue-600" />
             </div>
             <div className="text-right">
@@ -162,10 +162,10 @@ const ChildProgress = ({ selectedChild, parentData }) => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="bg-white rounded-lg border border-gray-200 p-6"
+          className="bg-white rounded-xl border border-gray-200 p-6"
         >
           <div className="flex items-center justify-between mb-4">
-            <div className="p-2 bg-green-100 rounded-lg">
+            <div className="p-2 bg-green-100 rounded-xl">
               <BookOpenIcon className="h-6 w-6 text-green-600" />
             </div>
             <div className="text-right">
@@ -189,10 +189,10 @@ const ChildProgress = ({ selectedChild, parentData }) => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="bg-white rounded-lg border border-gray-200 p-6"
+          className="bg-white rounded-xl border border-gray-200 p-6"
         >
           <div className="flex items-center justify-between mb-4">
-            <div className="p-2 bg-purple-100 rounded-lg">
+            <div className="p-2 bg-purple-100 rounded-xl">
               <AcademicCapIcon className="h-6 w-6 text-purple-600" />
             </div>
             <div className="text-right">
@@ -218,7 +218,7 @@ const ChildProgress = ({ selectedChild, parentData }) => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
-        className="bg-white rounded-lg border border-gray-200 p-6"
+        className="bg-white rounded-xl border border-gray-200 p-6"
       >
         <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
           <BookOpenIcon className="h-5 w-5 mr-2 text-blue-600" />
@@ -239,7 +239,7 @@ const ChildProgress = ({ selectedChild, parentData }) => {
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: index * 0.1 }}
-                  className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
+                  className="flex items-center justify-between p-4 bg-gray-50 rounded-xl"
                 >
                   <div className="flex items-center space-x-3">
                     <div className={`p-2 rounded-full ${getStatusColor(studentAssignment?.status)}`}>
@@ -279,7 +279,7 @@ const ChildProgress = ({ selectedChild, parentData }) => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4 }}
-        className="bg-white rounded-lg border border-gray-200 p-6"
+        className="bg-white rounded-xl border border-gray-200 p-6"
       >
         <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
           <AcademicCapIcon className="h-5 w-5 mr-2 text-green-600" />
@@ -299,7 +299,7 @@ const ChildProgress = ({ selectedChild, parentData }) => {
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: index * 0.1 }}
-                  className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
+                  className="flex items-center justify-between p-4 bg-gray-50 rounded-xl"
                 >
                   <div className="flex items-center space-x-3">
                     <div className={`p-2 rounded-full ${getStatusColor(studentQuiz?.status)}`}>
@@ -339,7 +339,7 @@ const ChildProgress = ({ selectedChild, parentData }) => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5 }}
-        className="bg-white rounded-lg border border-gray-200 p-6"
+        className="bg-white rounded-xl border border-gray-200 p-6"
       >
         <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
           <CalendarDaysIcon className="h-5 w-5 mr-2 text-purple-600" />
@@ -347,25 +347,25 @@ const ChildProgress = ({ selectedChild, parentData }) => {
         </h3>
         
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="text-center p-4 bg-green-50 rounded-lg">
+          <div className="text-center p-4 bg-green-50 rounded-xl">
             <div className="text-2xl font-bold text-green-600">
               {progressData?.attendance?.filter(a => a.status === 'present').length || 0}
             </div>
             <div className="text-sm text-green-600">Present</div>
           </div>
-          <div className="text-center p-4 bg-red-50 rounded-lg">
+          <div className="text-center p-4 bg-red-50 rounded-xl">
             <div className="text-2xl font-bold text-red-600">
               {progressData?.attendance?.filter(a => a.status === 'absent').length || 0}
             </div>
             <div className="text-sm text-red-600">Absent</div>
           </div>
-          <div className="text-center p-4 bg-yellow-50 rounded-lg">
+          <div className="text-center p-4 bg-yellow-50 rounded-xl">
             <div className="text-2xl font-bold text-yellow-600">
               {progressData?.attendance?.filter(a => a.status === 'late').length || 0}
             </div>
             <div className="text-sm text-yellow-600">Late</div>
           </div>
-          <div className="text-center p-4 bg-blue-50 rounded-lg">
+          <div className="text-center p-4 bg-blue-50 rounded-xl">
             <div className="text-2xl font-bold text-blue-600">
               {progressData?.attendance?.length > 0 
                 ? Math.round((progressData.attendance.filter(a => a.status === 'present').length / progressData.attendance.length) * 100)

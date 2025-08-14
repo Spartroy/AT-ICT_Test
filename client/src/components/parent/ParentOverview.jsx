@@ -127,10 +127,10 @@ const ParentOverview = ({ parentData, selectedChild, stats }) => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
-              className={`bg-gray-900/60 rounded-lg p-6 border border-gray-700`}
+              className={`bg-gray-900/60 rounded-xl p-6 border border-gray-700`}
             >
               <div className="flex items-center justify-between mb-4">
-                <div className={`p-2 rounded-lg bg-gray-800 border border-gray-700`}>
+                <div className={`p-2 rounded-xl bg-gray-800 border border-gray-700`}>
                   <IconComponent className={`h-6 w-6 text-white`} />
                 </div>
                 <div className="text-right">
@@ -174,7 +174,7 @@ const ParentOverview = ({ parentData, selectedChild, stats }) => {
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.3 }}
-          className="bg-gray-900/60 rounded-lg border border-gray-700 p-6"
+          className="bg-gray-900/60 rounded-xl border border-gray-700 p-6"
         >
           <h3 className="text-lg font-semibold mb-4 flex items-center">
             <TrophyIcon className="h-5 w-5 mr-2 text-green-400" />
@@ -183,7 +183,7 @@ const ParentOverview = ({ parentData, selectedChild, stats }) => {
           
           <div className="space-y-4">
             {/* Grade Comparison */}
-              <div className="flex items-center justify-between p-4 bg-gray-800/50 rounded-lg border border-gray-700">
+              <div className="flex items-center justify-between p-4 bg-gray-800/50 rounded-xl border border-gray-700">
               <div>
                   <p className="text-sm text-gray-300">Current vs Target Grade</p>
                 <div className="flex items-center space-x-4 mt-1">
@@ -245,7 +245,7 @@ const ParentOverview = ({ parentData, selectedChild, stats }) => {
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.4 }}
-          className="bg-gray-900/60 rounded-lg border border-gray-700 p-6"
+          className="bg-gray-900/60 rounded-xl border border-gray-700 p-6"
         >
           <h3 className="text-lg font-semibold mb-4 flex items-center">
             <ExclamationTriangleIcon className="h-5 w-5 mr-2 text-orange-400" />
@@ -254,7 +254,7 @@ const ParentOverview = ({ parentData, selectedChild, stats }) => {
           
           <div className="space-y-4">
             {/* Positive Feedback */}
-            <div className="p-3 bg-green-900/30 border border-green-700/40 rounded-lg">
+            <div className="p-3 bg-green-900/30 border border-green-700/40 rounded-xl">
               <div className="flex items-center text-green-300 mb-1">
                 <CheckCircleIcon className="h-4 w-4 mr-1" />
                 <span className="font-medium">Great Progress!</span>
@@ -266,7 +266,7 @@ const ParentOverview = ({ parentData, selectedChild, stats }) => {
             </div>
 
             {/* Areas for Improvement */}
-            <div className="p-3 bg-yellow-900/30 border border-yellow-700/40 rounded-lg">
+            <div className="p-3 bg-yellow-900/30 border border-yellow-700/40 rounded-xl">
               <div className="flex items-center text-yellow-300 mb-1">
                 <ClockIcon className="h-4 w-4 mr-1" />
                 <span className="font-medium">Focus Areas</span>
@@ -278,7 +278,7 @@ const ParentOverview = ({ parentData, selectedChild, stats }) => {
 
             {/* Attendance Note */}
             {stats?.attendance?.percentage < 90 && (
-              <div className="p-3 bg-blue-900/30 border border-blue-700/40 rounded-lg">
+              <div className="p-3 bg-blue-900/30 border border-blue-700/40 rounded-xl">
                 <div className="flex items-center text-blue-300 mb-1">
                   <CalendarDaysIcon className="h-4 w-4 mr-1" />
                   <span className="font-medium">Attendance</span>
@@ -290,7 +290,7 @@ const ParentOverview = ({ parentData, selectedChild, stats }) => {
             )}
 
             {/* Next Steps */}
-            <div className="p-3 bg-purple-900/30 border border-purple-700/40 rounded-lg">
+            <div className="p-3 bg-purple-900/30 border border-purple-700/40 rounded-xl">
               <div className="flex items-center text-purple-300 mb-1">
                 <DocumentTextIcon className="h-4 w-4 mr-1" />
                 <span className="font-medium">Next Steps</span>
@@ -310,11 +310,11 @@ const ParentOverview = ({ parentData, selectedChild, stats }) => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5 }}
-        className="bg-gray-900/60 rounded-lg border border-gray-700 p-6"
+        className="bg-gray-900/60 rounded-xl border border-gray-700 p-6"
       >
         <h3 className="text-lg font-semibold mb-4">Recent Activity</h3>
         <div className="space-y-3">
-          <div className="flex items-center p-3 bg-green-900/30 rounded-lg border border-green-700/40">
+          <div className="flex items-center p-3 bg-green-900/30 rounded-xl border border-green-700/40">
             <CheckCircleIcon className="h-5 w-5 text-green-400 mr-3" />
             <div className="flex-1">
               <p className="text-sm">Submitted Assignment: Database Design</p>
@@ -322,7 +322,7 @@ const ParentOverview = ({ parentData, selectedChild, stats }) => {
             </div>
             <span className="text-green-300 font-medium text-sm">On Time</span>
           </div>
-          <div className="flex items-center p-3 bg-blue-900/30 rounded-lg border border-blue-700/40">
+          <div className="flex items-center p-3 bg-blue-900/30 rounded-xl border border-blue-700/40">
             <AcademicCapIcon className="h-5 w-5 text-blue-400 mr-3" />
             <div className="flex-1">
               <p className="text-sm">Completed Quiz: Data Structures</p>
@@ -330,7 +330,7 @@ const ParentOverview = ({ parentData, selectedChild, stats }) => {
             </div>
             <span className="text-blue-300 font-medium text-sm">87%</span>
           </div>
-          <div className="flex items-center p-3 bg-yellow-900/30 rounded-lg border border-yellow-700/40">
+          <div className="flex items-center p-3 bg-yellow-900/30 rounded-xl border border-yellow-700/40">
             <ClockIcon className="h-5 w-5 text-yellow-300 mr-3" />
             <div className="flex-1">
               <p className="text-sm">Upcoming Assignment: Programming Project</p>

@@ -170,19 +170,19 @@ const PendingRegistrations = ({ onRegistrationUpdate }) => {
 
                       {/* Additional Info - Responsive Layout */}
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mt-3 sm:mt-4">
-                        <div className="bg-gray-800/50 rounded-lg p-2 sm:p-3">
+                        <div className="bg-gray-800/50 rounded-xl p-2 sm:p-3">
                           <p className="text-xs text-gray-400 mb-1">SCHOOL</p>
                           <p className="text-sm font-semibold text-white truncate">{registration.school}</p>
                         </div>
-                        <div className="bg-gray-800/50 rounded-lg p-2 sm:p-3">
+                        <div className="bg-gray-800/50 rounded-xl p-2 sm:p-3">
                           <p className="text-xs text-gray-400 mb-1">SESSION</p>
                           <p className="text-sm font-semibold text-white truncate">{registration.session}</p>
                         </div>
-                        <div className="bg-gray-800/50 rounded-lg p-2 sm:p-3">
+                        <div className="bg-gray-800/50 rounded-xl p-2 sm:p-3">
                           <p className="text-xs text-gray-400 mb-1">TECH LEVEL</p>
                           <p className="text-sm font-semibold text-white truncate">{registration.techKnowledge}</p>
                         </div>
-                        <div className="bg-gray-800/50 rounded-lg p-2 sm:p-3">
+                        <div className="bg-gray-800/50 rounded-xl p-2 sm:p-3">
                           <p className="text-xs text-gray-400 mb-1">RETAKER</p>
                           <p className="text-sm font-semibold text-white truncate">{registration.isRetaker ? 'Yes' : 'No'}</p>
                         </div>

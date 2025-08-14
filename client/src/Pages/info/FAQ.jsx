@@ -219,20 +219,22 @@ const FAQ = () => {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <div className="bg-gray-50 p-8 rounded-xl hover:bg-gray-100 transition-colors">
                   <MessageCircle className="mx-auto mb-4 text-[#CA133E]" size={48} />
-                  <h3 className="text-xl font-bold text-gray-800 mb-2">Live Chat</h3>
+                  <h3 className="text-xl font-bold text-gray-800 mb-2">Send Us A Message</h3>
                   <p className="text-gray-600 mb-4">
-                    Chat with us instantly during business hours
+                    Send us a whatsapp message and we'll get back to you
                   </p>
-                  <button className="bg-[#CA133E] text-white px-6 py-3 rounded-xl font-semibold hover:bg-[#A01030] transition-all">
-                    Start Chat
-                  </button>
+                  <div className="flex items-center justify-center">
+                    <a href="https://wa.me/01274584000" target="_blank" rel="noopener noreferrer" className="bg-[#CA133E] text-white px-6 py-3 rounded-xl font-semibold hover:bg-[#A01030] transition-all">
+                      Send Message
+                    </a>
+                  </div>
                 </div>
                 
                 <div className="bg-gray-50 p-8 rounded-xl hover:bg-gray-100 transition-colors">
                   <Mail className="mx-auto mb-4 text-[#CA133E]" size={48} />
                   <h3 className="text-xl font-bold text-gray-800 mb-2">Email Support</h3>
                   <p className="text-gray-600 mb-4">
-                    Send us detailed questions anytime
+                    Send us any questions you have anytime
                   </p>
                   <a 
                     href="/contact-us" 
@@ -246,11 +248,13 @@ const FAQ = () => {
                   <Phone className="mx-auto mb-4 text-[#CA133E]" size={48} />
                   <h3 className="text-xl font-bold text-gray-800 mb-2">Phone Call</h3>
                   <p className="text-gray-600 mb-4">
-                    Schedule a personal consultation call
+                    Call Us in case you have any questions 
                   </p>
-                  <button className="bg-[#CA133E] text-white px-6 py-3 rounded-xl font-semibold hover:bg-[#A01030] transition-all">
-                    Book Call
-                  </button>
+                  <div className="flex items-center justify-center">
+                    <a href="tel:+201274584000" className="bg-[#CA133E] text-white px-6 py-3 rounded-xl font-semibold hover:bg-[#A01030] transition-all">
+                      Call Us
+                    </a>
+                  </div>
                 </div>
               </div>
             </motion.div>

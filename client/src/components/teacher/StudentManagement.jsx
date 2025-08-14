@@ -625,7 +625,7 @@ const StudentManagement = () => {
                           initial={{ opacity: 0, y: -10 }}
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0, y: -10 }}
-                          className="absolute right-0 top-full mt-1 bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-50 min-w-[200px]"
+                          className="absolute right-0 top-full mt-1 bg-gray-800 border border-gray-700 rounded-xl shadow-xl z-50 min-w-[200px]"
                         >
                           {tabs.slice(2).map((tab) => {
                             const IconComponent = tab.icon;
@@ -669,7 +669,7 @@ const StudentManagement = () => {
                   <div className="space-y-4 sm:space-y-6 lg:space-y-8">
                     {/* Stats Cards */}
                     <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 lg:gap-4">
-                      <div className="bg-blue-900/40 rounded-lg sm:rounded-xl p-3 sm:p-4 border border-blue-700/50">
+                      <div className="bg-blue-900/40 rounded-xl sm:rounded-xl p-3 sm:p-4 border border-blue-700/50">
                         <div className="flex flex-col sm:flex-row sm:items-center">
                           <ChartBarIcon className="h-6 w-6 sm:h-8 sm:w-8 text-blue-400 mb-2 sm:mb-0" />
                           <div className="sm:ml-3">
@@ -680,7 +680,7 @@ const StudentManagement = () => {
                           </div>
                         </div>
                       </div>
-                      <div className="bg-green-900/40 rounded-lg sm:rounded-xl p-3 sm:p-4 border border-green-700/50">
+                      <div className="bg-green-900/40 rounded-xl sm:rounded-xl p-3 sm:p-4 border border-green-700/50">
                         <div className="flex flex-col sm:flex-row sm:items-center">
                           <DocumentTextIcon className="h-6 w-6 sm:h-8 sm:w-8 text-green-400 mb-2 sm:mb-0" />
                           <div className="sm:ml-3">
@@ -691,7 +691,7 @@ const StudentManagement = () => {
                           </div>
                         </div>
                       </div>
-                      <div className="bg-purple-900/40 rounded-lg sm:rounded-xl p-3 sm:p-4 border border-purple-700/50">
+                      <div className="bg-purple-900/40 rounded-xl sm:rounded-xl p-3 sm:p-4 border border-purple-700/50">
                         <div className="flex flex-col sm:flex-row sm:items-center">
                           <QuestionMarkCircleIcon className="h-6 w-6 sm:h-8 sm:w-8 text-purple-400 mb-2 sm:mb-0" />
                           <div className="sm:ml-3">
@@ -702,7 +702,7 @@ const StudentManagement = () => {
                           </div>
                         </div>
                       </div>
-                      <div className="bg-orange-900/40 rounded-lg sm:rounded-xl p-3 sm:p-4 border border-orange-700/50">
+                      <div className="bg-orange-900/40 rounded-xl sm:rounded-xl p-3 sm:p-4 border border-orange-700/50">
                         <div className="flex flex-col sm:flex-row sm:items-center">
                           <TrophyIcon className="h-6 w-6 sm:h-8 sm:w-8 text-orange-400 mb-2 sm:mb-0" />
                           <div className="sm:ml-3">
@@ -793,7 +793,7 @@ const StudentManagement = () => {
                           <div className="text-gray-400 text-sm">No attendance records yet.</div>
                         )}
                         {attendance.records.map((r, idx) => (
-                          <div key={idx} className="flex items-center justify-between bg-white/5 rounded-lg px-3 py-2">
+                          <div key={idx} className="flex items-center justify-between bg-white/5 rounded-xl px-3 py-2">
                             <div className="text-gray-300 text-sm">{r.session?.day} {r.session?.startTime}-{r.session?.endTime} • {r.session?.topic || 'Session'}</div>
                             <div className="text-green-400 text-xs font-bold">{r.status}</div>
                           </div>
@@ -1217,7 +1217,7 @@ const StudentManagement = () => {
               <div className="p-5 space-y-4">
                 <div>
                   <label className="block text-sm text-gray-400 mb-1">Email</label>
-                  <div className="flex items-center bg-gray-800 rounded-lg px-3 py-2 border border-gray-700">
+                  <div className="flex items-center bg-gray-800 rounded-xl px-3 py-2 border border-gray-700">
                     <span className="truncate">{parentCredentials.email}</span>
                     <button
                       className="ml-auto text-blue-400 hover:text-blue-300 text-sm"
@@ -1229,7 +1229,7 @@ const StudentManagement = () => {
                 </div>
                 <div>
                   <label className="block text-sm text-gray-400 mb-1">Temporary Password</label>
-                  <div className="flex items-center bg-gray-800 rounded-lg px-3 py-2 border border-gray-700">
+                  <div className="flex items-center bg-gray-800 rounded-xl px-3 py-2 border border-gray-700">
                     <span className="truncate">{parentCredentials.password}</span>
                     <button
                       className="ml-auto text-blue-400 hover:text-blue-300 text-sm"
@@ -1243,7 +1243,7 @@ const StudentManagement = () => {
               </div>
               <div className="p-4 border-t border-gray-800 flex justify-end">
                 <button
-                  className="px-4 py-2 bg-gray-700 rounded-lg hover:bg-gray-600"
+                  className="px-4 py-2 bg-gray-700 rounded-xl hover:bg-gray-600"
                   onClick={() => {
                     setShowParentModal(false);
                     setParentCredentials(null);

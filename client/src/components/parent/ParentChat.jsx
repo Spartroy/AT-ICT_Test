@@ -155,7 +155,7 @@ const ParentChat = ({ selectedChild, parentData }) => {
 
   if (loading) {
     return (
-      <div className="bg-white rounded-lg border border-gray-200 h-96 flex items-center justify-center">
+      <div className="bg-white rounded-xl border border-gray-200 h-96 flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
       </div>
     );
@@ -164,7 +164,7 @@ const ParentChat = ({ selectedChild, parentData }) => {
   return (
     <div className="space-y-6">
       {/* Chat Header */}
-      <div className="bg-white rounded-lg border border-gray-200 p-4">
+      <div className="bg-white rounded-xl border border-gray-200 p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <div className="relative">
@@ -195,7 +195,7 @@ const ParentChat = ({ selectedChild, parentData }) => {
       </div>
 
       {/* Chat Messages */}
-      <div className="bg-white rounded-lg border border-gray-200 h-96 flex flex-col">
+      <div className="bg-white rounded-xl border border-gray-200 h-96 flex flex-col">
         {/* Messages Area */}
         <div className="flex-1 p-4 overflow-y-auto space-y-4">
           {messages.map((message, index) => (
@@ -208,7 +208,7 @@ const ParentChat = ({ selectedChild, parentData }) => {
             >
               <div className={`max-w-xs lg:max-w-md ${message.sender === 'parent' ? 'order-2' : 'order-1'}`}>
                 <div
-                  className={`px-4 py-2 rounded-lg ${
+                  className={`px-4 py-2 rounded-xl ${
                     message.sender === 'parent'
                       ? 'bg-blue-600 text-white'
                       : 'bg-gray-100 text-gray-900'
@@ -251,14 +251,14 @@ const ParentChat = ({ selectedChild, parentData }) => {
                 onChange={(e) => setNewMessage(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
                 placeholder="Type your message..."
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 disabled={sending}
               />
             </div>
             <button
               onClick={() => handleSendMessage()}
               disabled={sending || !newMessage.trim()}
-              className="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="p-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               <UserIcon className="h-5 w-5" />
             </button>
@@ -267,14 +267,14 @@ const ParentChat = ({ selectedChild, parentData }) => {
       </div>
 
       {/* Quick Messages */}
-      <div className="bg-white rounded-lg border border-gray-200 p-4">
+      <div className="bg-white rounded-xl border border-gray-200 p-4">
         <h4 className="font-medium text-gray-900 mb-3">Quick Messages</h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
           {quickMessages.map((message, index) => (
             <button
               key={index}
               onClick={() => handleQuickMessage(message)}
-              className="text-left p-3 text-sm bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
+              className="text-left p-3 text-sm bg-gray-50 hover:bg-gray-100 rounded-xl transition-colors"
               disabled={sending}
             >
               {message}
@@ -284,7 +284,7 @@ const ParentChat = ({ selectedChild, parentData }) => {
       </div>
 
       {/* Communication Guidelines */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+      <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
         <h4 className="font-medium text-blue-900 mb-2 flex items-center">
           <ClockIcon className="h-4 w-4 mr-1" />
           Communication Guidelines

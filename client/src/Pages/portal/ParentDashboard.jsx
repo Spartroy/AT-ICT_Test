@@ -151,7 +151,7 @@ const ParentDashboard = () => {
                       const child = parentData.children.find(c => c.student._id === e.target.value);
                       switchChild(child);
                     }}
-                    className="bg-gray-800/70 border border-gray-700 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="bg-gray-800/70 border border-gray-700 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
                     {parentData.children.map((child) => (
                       <option key={child.student._id} value={child.student._id}>
@@ -185,7 +185,7 @@ const ParentDashboard = () => {
               
               <motion.button
                 onClick={handleLogout}
-                className="flex items-center space-x-2 px-4 py-2 bg-gray-800/70 text-white rounded-lg hover:bg-gray-700/80 transition-colors border border-gray-700"
+                className="flex items-center space-x-2 px-4 py-2 bg-gray-800/70 text-white rounded-xl hover:bg-gray-700/80 transition-colors border border-gray-700"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >

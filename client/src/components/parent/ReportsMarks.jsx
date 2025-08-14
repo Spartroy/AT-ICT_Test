@@ -58,7 +58,7 @@ const ReportsMarks = ({ selectedChild, parentData }) => {
     return (
       <div className="space-y-6">
         {[...Array(3)].map((_, i) => (
-          <div key={i} className="bg-white rounded-lg p-6 animate-pulse">
+          <div key={i} className="bg-white rounded-xl p-6 animate-pulse">
             <div className="h-4 bg-gray-200 rounded w-1/4 mb-4"></div>
             <div className="space-y-2">
               <div className="h-3 bg-gray-200 rounded"></div>
@@ -123,7 +123,7 @@ const ReportsMarks = ({ selectedChild, parentData }) => {
       <h2 className="text-2xl font-bold text-gray-900">
         {selectedChild.student.user.firstName}'s Reports & Marks
       </h2>
-      <div className="bg-white rounded-lg border border-gray-200 p-6">
+      <div className="bg-white rounded-xl border border-gray-200 p-6">
         <p className="text-gray-600">Reports and marks functionality will be implemented here.</p>
       </div>
     </div>

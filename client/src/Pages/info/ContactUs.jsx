@@ -36,7 +36,7 @@ const ContactUs = () => {
       icon: Phone,
       title: 'Phone',
       content: '(+20) 127 458 4000',
-      subContent: '(+20) 1070895012'
+      subContent: '(+20) 107 089 5012'
     },
     {
       icon: MapPin,

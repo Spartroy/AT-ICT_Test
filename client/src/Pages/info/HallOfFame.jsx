@@ -37,7 +37,7 @@ const HallOfFame = () => {
     { name: "Jad", grade: "A*", subject: "IGCSE ICT", year: "2024" },
     { name: "Ahmad", grade: "A", subject: "IGCSE ICT", year: "2023" },
     { name: "Tala", grade: "A*", subject: "IGCSE ICT", year: "2024" },
-    { name: "Natalie", grade: "A", subject: "IGCSE ICT", year: "2024" },
+    { name: "Nataly", grade: "A", subject: "IGCSE ICT", year: "2024" },
     { name: "Shady", grade: "A*", subject: "IGCSE ICT", year: "2024" },
     { name: "Ahmad Farag", grade: "A*", subject: "IGCSE ICT", year: "2024" },
   ];
@@ -78,7 +78,7 @@ const HallOfFame = () => {
             transition={{ duration: 0.8 }}
             className="mb-16"
           >
-       
+           
             
             <h1 className="text-[48pt] lg:text-[64pt] font-bold mb-6">
               Hall of <span className="text-[#CA133E]">Fame</span>
@@ -170,6 +170,21 @@ const HallOfFame = () => {
                 </div>
               </motion.div>
             ))}
+
+            {/* CTA Card - You're Next */}
+            <motion.a
+              href="/register"
+              variants={cardVariants}
+              whileHover={{ scale: 1.05, boxShadow: "0 20px 40px rgba(202, 19, 62, 0.35)" }}
+              className="rounded-xl p-6 border-2 border-dashed border-[#CA133E]/60 bg-gray-900/60 hover:bg-gray-900 transition-all duration-300 flex flex-col items-center justify-center text-center cursor-pointer"
+            >
+              <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-[#CA133E] to-[#A01030] flex items-center justify-center mb-4 animate-pulse">
+                <span className="text-white text-[24pt] font-bold">?</span>
+              </div>
+              <h3 className="text-[18pt] font-bold mb-2">You're next</h3>
+              <p className="text-[12pt] text-gray-400 mb-4">Your name belongs here. Start today.</p>
+              <span className="inline-block px-5 py-2 rounded-xl bg-white text-[#CA133E] font-bold">Claim your spot now !</span>
+            </motion.a>
           </motion.div>
         </div>
       </div>
@@ -192,13 +207,18 @@ const HallOfFame = () => {
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="bg-white text-[#CA133E] px-8 py-4 rounded-xl text-[16pt] font-semibold hover:bg-gray-100 transition-all">
-              Start Learning Today
-            </button>
             
-            <button className="border-2 border-white text-white px-8 py-4 rounded-xl text-[16pt] font-semibold hover:bg-white hover:text-[#CA133E] transition-all">
-              View Free Samples
-            </button>
+            <a href="/register">
+              <button className="bg-white text-[#CA133E] px-8 py-4 rounded-xl text-[16pt] font-semibold hover:bg-gray-100 transition-all">
+                Start Learning Today
+              </button>
+            </a>
+            
+            <a href="/samples">
+              <button className="border-2 border-white text-white px-8 py-4 rounded-xl text-[16pt] font-semibold hover:bg-white hover:text-[#CA133E] transition-all">
+                View Free Samples
+              </button>
+            </a>
           </div>
         </div>
       </motion.div>

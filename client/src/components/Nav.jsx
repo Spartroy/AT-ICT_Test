@@ -1,11 +1,23 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
 import Logo from "../assets/logo.png";
 
 const Nav = () => {
   const [navOpen, setNavOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const navigate = useNavigate();
+
+  // Handle scroll effect
+  useEffect(() => {
+    const handleScroll = () => {
+      const isScrolled = window.scrollY > 50;
+      setScrolled(isScrolled);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const toggleNav = () => {
     setNavOpen(!navOpen);
@@ -15,17 +27,23 @@ const Nav = () => {
     <nav className="fixed w-full left-0 right-0 z-50 px-4 sm:px-6 lg:px-8" style={{ top: '20px' }}>
       {/* Main Navigation Container */}
       <div 
-        className="mx-auto flex items-center justify-between px-4 sm:px-6 lg:px-8 py-4 lg:py-5"
+        className="mx-auto flex items-center justify-between px-4 sm:px-6 lg:px-8 py-4 lg:py-5 transition-all duration-300"
         style={{
           maxWidth: '1200px',
           width: '100%',
           minHeight: '70px',
-          background: 'rgba(255, 255, 255, 0.1)',
+          background: scrolled 
+            ? 'rgba(255, 255, 255, 0.95)' 
+            : 'rgba(255, 255, 255, 0.1)',
           backdropFilter: 'blur(12px)',
           WebkitBackdropFilter: 'blur(12px)',
-          border: '1px solid rgba(255, 255, 255, 0.25)',
+          border: scrolled 
+            ? '1px solid rgba(0, 0, 0, 0.1)' 
+            : '1px solid rgba(255, 255, 255, 0.25)',
           borderRadius: '10px',
-          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.3), inset 0 -1px 0 rgba(255, 255, 255, 0.1)',
+          boxShadow: scrolled 
+            ? '0 8px 32px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.8)' 
+            : '0 8px 32px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.3), inset 0 -1px 0 rgba(255, 255, 255, 0.1)',
         }}
       >
         
@@ -44,14 +62,18 @@ const Nav = () => {
         <div className="hidden lg:flex items-center gap-[25px]">
           <Link 
             to="/about" 
-            className="text-white hover:text-[#CD143F] transition-all duration-300 relative group"
+            className={`transition-all duration-300 relative group ${
+              scrolled ? 'text-gray-800 hover:text-[#CD143F]' : 'text-white hover:text-[#CD143F]'
+            }`}
             style={{
               fontFamily: 'Geist, system-ui, sans-serif',
               fontWeight: '500',
               fontSize: '20px',
               lineHeight: '110%',
               letterSpacing: '-0.05em',
-              textShadow: '0 1px 3px rgba(0, 0, 0, 0.5)'
+              textShadow: scrolled 
+                ? '0 1px 2px rgba(0, 0, 0, 0.1)' 
+                : '0 1px 3px rgba(0, 0, 0, 0.5)'
             }}
           >
             About Us
@@ -60,14 +82,18 @@ const Nav = () => {
           
           <Link 
             to="/hall-of-fame" 
-            className="text-white hover:text-[#CD143F] transition-all duration-300 relative group"
+            className={`transition-all duration-300 relative group ${
+              scrolled ? 'text-gray-800 hover:text-[#CD143F]' : 'text-white hover:text-[#CD143F]'
+            }`}
             style={{
               fontFamily: 'Geist, system-ui, sans-serif',
               fontWeight: '500',
               fontSize: '20px',
               lineHeight: '110%',
               letterSpacing: '-0.05em',
-              textShadow: '0 1px 3px rgba(0, 0, 0, 0.5)'
+              textShadow: scrolled 
+                ? '0 1px 2px rgba(0, 0, 0, 0.1)' 
+                : '0 1px 3px rgba(0, 0, 0, 0.5)'
             }}
           >
             Hall of Fame
@@ -76,14 +102,18 @@ const Nav = () => {
           
           <Link 
             to="/samples" 
-            className="text-white hover:text-[#CD143F] transition-all duration-300 relative group"
+            className={`transition-all duration-300 relative group ${
+              scrolled ? 'text-gray-800 hover:text-[#CD143F]' : 'text-white hover:text-[#CD143F]'
+            }`}
             style={{
               fontFamily: 'Geist, system-ui, sans-serif',
               fontWeight: '500',
               fontSize: '20px',
               lineHeight: '110%',
               letterSpacing: '-0.05em',
-              textShadow: '0 1px 3px rgba(0, 0, 0, 0.5)'
+              textShadow: scrolled 
+                ? '0 1px 2px rgba(0, 0, 0, 0.1)' 
+                : '0 1px 3px rgba(0, 0, 0, 0.5)'
             }}
           >
             Free Samples
@@ -92,14 +122,18 @@ const Nav = () => {
           
           <Link 
             to="/faq" 
-            className="text-white hover:text-[#CD143F] transition-all duration-300 relative group"
+            className={`transition-all duration-300 relative group ${
+              scrolled ? 'text-gray-800 hover:text-[#CD143F]' : 'text-white hover:text-[#CD143F]'
+            }`}
             style={{
               fontFamily: 'Geist, system-ui, sans-serif',
               fontWeight: '500',
               fontSize: '20px',
               lineHeight: '110%',
               letterSpacing: '-0.05em',
-              textShadow: '0 1px 3px rgba(0, 0, 0, 0.5)'
+              textShadow: scrolled 
+                ? '0 1px 2px rgba(0, 0, 0, 0.1)' 
+                : '0 1px 3px rgba(0, 0, 0, 0.5)'
             }}
           >
             FAQ
@@ -108,14 +142,18 @@ const Nav = () => {
 
           <Link 
             to="/contact" 
-            className="text-white hover:text-[#CD143F] transition-all duration-300 relative group"
+            className={`transition-all duration-300 relative group ${
+              scrolled ? 'text-gray-800 hover:text-[#CD143F]' : 'text-white hover:text-[#CD143F]'
+            }`}
             style={{
               fontFamily: 'Geist, system-ui, sans-serif',
               fontWeight: '500',
               fontSize: '20px',
               lineHeight: '110%',
               letterSpacing: '-0.05em',
-              textShadow: '0 1px 3px rgba(0, 0, 0, 0.5)'
+              textShadow: scrolled 
+                ? '0 1px 2px rgba(0, 0, 0, 0.1)' 
+                : '0 1px 3px rgba(0, 0, 0, 0.5)'
             }}
           >
             Contact
@@ -130,14 +168,22 @@ const Nav = () => {
             {/* Login Button */}
             <button 
               onClick={() => navigate('/signin')}
-              className="flex justify-center items-center text-white hover:bg-white hover:bg-opacity-20 transition-all duration-300 relative overflow-hidden group"
+              className={`flex justify-center items-center transition-all duration-300 relative overflow-hidden group ${
+                scrolled 
+                  ? 'text-gray-700 hover:bg-gray-100' 
+                  : 'text-white hover:bg-white hover:bg-opacity-20'
+              }`}
               style={{
                 width: '106px',
                 height: '42px',
-                background: 'rgba(255, 255, 255, 0.15)',
+                background: scrolled 
+                  ? 'rgba(255, 255, 255, 0.8)' 
+                  : 'rgba(255, 255, 255, 0.15)',
                 backdropFilter: 'blur(8px)',
                 WebkitBackdropFilter: 'blur(8px)',
-                border: '1px solid rgba(255, 255, 255, 0.3)',
+                border: scrolled 
+                  ? '1px solid rgba(0, 0, 0, 0.1)' 
+                  : '1px solid rgba(255, 255, 255, 0.3)',
                 borderRadius: '7.15164px',
                 padding: '10.7275px 14.3033px',
                 fontFamily: 'Geist, system-ui, sans-serif',
@@ -145,8 +191,12 @@ const Nav = () => {
                 fontSize: '18.5943px',
                 lineHeight: '110%',
                 letterSpacing: '-0.05em',
-                boxShadow: '0 4px 16px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.2)',
-                textShadow: '0 1px 2px rgba(0, 0, 0, 0.4)'
+                boxShadow: scrolled 
+                  ? '0 4px 16px rgba(0, 0, 0, 0.05)' 
+                  : '0 4px 16px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.2)',
+                textShadow: scrolled 
+                  ? 'none' 
+                  : '0 1px 2px rgba(0, 0, 0, 0.4)'
               }}
             >
               <span className="relative z-10">Login</span>
@@ -182,7 +232,9 @@ const Nav = () => {
 
           {/* Mobile Menu Button */}
           <button 
-            className="lg:hidden text-white text-3xl sm:text-4xl p-2 hover:bg-white hover:bg-opacity-10 rounded-lg transition-all duration-300" 
+            className={`lg:hidden text-3xl sm:text-4xl p-2 hover:bg-opacity-10 rounded-xl transition-all duration-300 ${
+              scrolled ? 'text-gray-700 hover:bg-gray-200' : 'text-white hover:bg-white hover:bg-opacity-10'
+            }`}
             onClick={toggleNav}
             aria-label="Toggle navigation menu"
           >
@@ -201,12 +253,12 @@ const Nav = () => {
             transition={{ duration: 0.3 }}
             className="fixed inset-0 z-40 flex flex-col items-center justify-center space-y-6 lg:hidden"
             style={{
-              background: 'rgba(255, 255, 255, 0.08)',
+              background: 'rgba(0, 0, 0, 0.85)',
               backdropFilter: 'blur(15px)',
               WebkitBackdropFilter: 'blur(15px)'
             }}
           >
-            <button className="absolute top-6 right-6 text-white text-3xl hover:bg-white hover:bg-opacity-10 rounded-lg p-2 transition-all duration-300" onClick={toggleNav}>
+            <button className="absolute top-6 right-6 text-white text-3xl hover:bg-white hover:bg-opacity-10 rounded-xl p-2 transition-all duration-300" onClick={toggleNav}>
               ✕
             </button>
 
@@ -233,7 +285,7 @@ const Nav = () => {
             <div className="flex flex-col space-y-4 mt-8">
               <button 
                 onClick={() => { navigate('/signin'); toggleNav(); }}
-                className="text-white hover:bg-white hover:bg-opacity-20 px-8 py-3 rounded-lg font-medium text-[18px] transition-all"
+                className="text-white hover:bg-white hover:bg-opacity-20 px-8 py-3 rounded-xl font-medium text-[18px] transition-all"
                 style={{
                   background: 'rgba(255, 255, 255, 0.15)',
                   backdropFilter: 'blur(8px)',
@@ -247,7 +299,7 @@ const Nav = () => {
               
               <button 
                 onClick={() => { navigate('/register'); toggleNav(); }}
-                className="text-white px-8 py-3 rounded-lg font-medium text-[18px] transition-colors"
+                className="text-white px-8 py-3 rounded-xl font-medium text-[18px] transition-colors"
                 style={{
                   background: 'linear-gradient(135deg, #CD143F 0%, #A01030 100%)',
                   backdropFilter: 'blur(8px)',
