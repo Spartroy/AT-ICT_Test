@@ -214,7 +214,7 @@ const About = () => {
               <div className="text-center mb-8">
                 <h1 className="text-4xl font-bold text-[#CA133E] mb-2">🏛️ The Chronicles of AT-ICT</h1>
                 <div className="w-32 h-1 bg-gradient-to-r from-[#CA133E] to-[#A01030] mx-auto"></div>
-                <p className="text-gray-400 mt-2">A Tale of Innovation & Excellence</p>
+                <p className="text-gray-400 mt-2">A Tale of Innovation & Rise</p>
               </div>
 
               {/* Story Content */}
@@ -280,7 +280,7 @@ const About = () => {
               {/* Footer */}
               <div className="text-center mt-8 pt-6 border-t border-gray-700">
                 <p className="text-gray-400 text-sm">
-                  "Education is not preparation for life; education is life itself."
+                  "A Winner is just a Loser who tried one more time !"
                   <br />
                   <span className="text-[#CA133E] font-semibold">- AT-ICT Philosophy</span>
                 </p>
