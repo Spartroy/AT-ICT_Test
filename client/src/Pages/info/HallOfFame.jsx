@@ -4,42 +4,42 @@ import Nav from '../../components/Nav';
 
 const HallOfFame = () => {
   const students = [
-    { name: "Nuria", grade: "A*", subject: "IGCSE ICT", year: "2024" },
-    { name: "Jana", grade: "A*", subject: "IGCSE ICT", year: "2024" },
-    { name: "Abdo Bassem", grade: "A*", subject: "IGCSE ICT", year: "2024" },
-    { name: "Andrew", grade: "A", subject: "IGCSE ICT", year: "2024" },
-    { name: "Hussain", grade: "A*", subject: "IGCSE ICT", year: "2024" },
-    { name: "Razan", grade: "A", subject: "IGCSE ICT", year: "2024" },
-    { name: "Mohamed", grade: "A*", subject: "IGCSE ICT", year: "2023" },
-    { name: "Haitham", grade: "A", subject: "IGCSE ICT", year: "2023" },
-    { name: "Kenzy", grade: "A*", subject: "IGCSE ICT", year: "2024" },
-    { name: "Ahmad Qayem", grade: "A", subject: "IGCSE ICT", year: "2024" },
-    { name: "Abdo Drogham", grade: "A*", subject: "IGCSE ICT", year: "2023" },
-    { name: "Malak", grade: "A", subject: "IGCSE ICT", year: "2024" },
-    { name: "Shaikha", grade: "A*", subject: "IGCSE ICT", year: "2024" },
-    { name: "Boda", grade: "A", subject: "IGCSE ICT", year: "2023" },
-    { name: "Nouran", grade: "A*", subject: "IGCSE ICT", year: "2024" },
-    { name: "Mohannad", grade: "A", subject: "IGCSE ICT", year: "2023" },
-    { name: "Hatem", grade: "A*", subject: "IGCSE ICT", year: "2024" },
-    { name: "Fahmy", grade: "A", subject: "IGCSE ICT", year: "2024" },
-    { name: "Dina", grade: "A*", subject: "IGCSE ICT", year: "2023" },
-    { name: "Joud", grade: "A", subject: "IGCSE ICT", year: "2024" },
-    { name: "Karam", grade: "A*", subject: "IGCSE ICT", year: "2024" },
-    { name: "Omar Tarek", grade: "A", subject: "IGCSE ICT", year: "2024" },
-    { name: "Omar Badawy", grade: "A*", subject: "IGCSE ICT", year: "2023" },
-    { name: "Shahd", grade: "A", subject: "IGCSE ICT", year: "2024" },
-    { name: "Abdelrahman", grade: "A*", subject: "IGCSE ICT", year: "2024" },
-    { name: "Ali", grade: "A", subject: "IGCSE ICT", year: "2023" },
-    { name: "Basel", grade: "A*", subject: "IGCSE ICT", year: "2024" },
-    { name: "Joury", grade: "A", subject: "IGCSE ICT", year: "2024" },
-    { name: "Yassin", grade: "A*", subject: "IGCSE ICT", year: "2023" },
-    { name: "Muntaha", grade: "A", subject: "IGCSE ICT", year: "2024" },
-    { name: "Jad", grade: "A*", subject: "IGCSE ICT", year: "2024" },
-    { name: "Ahmad", grade: "A", subject: "IGCSE ICT", year: "2023" },
-    { name: "Tala", grade: "A*", subject: "IGCSE ICT", year: "2024" },
-    { name: "Nataly", grade: "A", subject: "IGCSE ICT", year: "2024" },
-    { name: "Shady", grade: "A*", subject: "IGCSE ICT", year: "2024" },
-    { name: "Ahmad Farag", grade: "A*", subject: "IGCSE ICT", year: "2024" },
+    { name: "Nuria Amr", year: "2024" },
+    { name: "Jana Ahmad", year: "2024" },
+    { name: "Abdelrahman Bassem", year: "2024" },
+    { name: "Andrew", year: "2024" },
+    { name: "Hussain", year: "2024" },
+    { name: "Razan Mohamed", year: "2024" },
+    { name: "Mohamed Tamer", year: "2023" },
+    { name: "Haitham", year: "2023" },
+    { name: "Kenzy", year: "2024" },
+    { name: "Ahmad Qayem", year: "2024" },
+    { name: "Abdelrahman Drogham", year: "2023" },
+    { name: "Malak", year: "2024" },
+    { name: "Shaikha", year: "2024" },
+    { name: "Abdelrahman (Boda)", year: "2023" },
+    { name: "Nouran Mohamed", year: "2024" },
+    { name: "Mohannad", year: "2023" },
+    { name: "Ahmad Hatem", year: "2024" },
+    { name: "Fahmy", year: "2024" },
+    { name: "Dina", year: "2023" },
+    { name: "Joud El Daher", year: "2024" },
+    { name: "Karam Al Jararah", year: "2024" },
+    { name: "Omar Tarek", year: "2024" },
+    { name: "Omar Badawy", year: "2023" },
+    { name: "Shahd", year: "2024" },
+    { name: "Abdelrahman", year: "2024" },
+    { name: "Ali Jamal", year: "2023" },
+    { name: "Basel El Dawakhly", year: "2024" },
+    { name: "Joury", year: "2024" },
+    { name: "Yassin", year: "2023" },
+    { name: "Muntaha", year: "2024" },
+    { name: "Jad", year: "2024" },
+    { name: "Ahmad", year: "2023" },
+    { name: "Tala", year: "2024" },
+    { name: "Natalie", year: "2024" },
+    { name: "Shady El Trawneh", year: "2024" },
+    { name: "Omar Amer", year: "2024" },
   ];
 
   const containerVariants = {
@@ -144,21 +144,13 @@ const HallOfFame = () => {
                   </h3>
                   
                   <div className="space-y-2">
-                    <div className={`inline-block px-3 py-1 rounded-full text-[12pt] font-semibold ${
-                      student.grade === 'A*' 
-                        ? 'bg-yellow-500 text-black' 
-                        : 'bg-green-500 text-white'
-                    }`}>
-                      Grade {student.grade}
-                    </div>
+                   
                     
-                    <div className="text-[14pt] text-gray-400">
-                      {student.subject}
-                    </div>
+                   
                     
-                    <div className="text-[12pt] text-gray-500">
+                    {/* <div className="text-[12pt] text-gray-500">
                       Class of {student.year}
-                    </div>
+                    </div> */}
                   </div>
                 </div>
 

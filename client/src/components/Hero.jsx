@@ -61,11 +61,12 @@ const Hero = () => {
               className="flex flex-col sm:flex-row gap-4"
               variants={itemVariants}
             >
-              <button className="bg-[#CA133E] text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl text-[14pt] sm:text-[16pt] font-semibold hover:bg-[#A01030] transition-all">
+              <button onClick={() => window.open('https://drive.google.com/file/d/1ECbYVvxmOv89e9ifF34_ozVzsd-EHiq2/view?usp=sharing', '_blank')} className="bg-[#CA133E] text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl text-[14pt] sm:text-[16pt] font-semibold hover:bg-[#A01030] transition-all">
                 Watch a Free Lesson
               </button>
               
-              <button className="border-2 border-gray-500 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl text-[14pt] sm:text-[16pt] font-semibold hover:bg-gray-500 hover:text-white transition-all">
+              
+              <button onClick={() => window.location.href = '/register'} className="border-2 border-gray-500 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl text-[14pt] sm:text-[16pt] font-semibold hover:bg-gray-500 hover:text-white transition-all">
                 Start Learning
               </button>
             </motion.div>
