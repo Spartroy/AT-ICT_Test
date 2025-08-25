@@ -50,17 +50,6 @@ const activityRoutes = require('./routes/activityRoutes');
 const sessionRoutes = require('./routes/sessionRoutes');
 const teacherSessionRoutes = require('./routes/teacherSessionRoutes');
 
-// Health check endpoint
-app.get('/health', (req, res) => {
-  res.status(200).json({
-    status: 'success',
-    message: 'AT-ICT Backend is running',
-    timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV,
-    uptime: process.uptime()
-  });
-});
-
 // ===================================================================
 // SERVER INITIALIZATION
 // ===================================================================
@@ -110,12 +99,10 @@ connectDB();
  */
 const corsOptions = {
   origin: process.env.NODE_ENV === 'production' 
-    ? [process.env.CLIENT_URL, 'https://at-ict-test.vercel.app']
+    ? process.env.CLIENT_URL 
     : ['http://localhost:3000', 'https://at-ict-test.vercel.app'],
   credentials: true,
-  optionsSuccessStatus: 200,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+  optionsSuccessStatus: 200
 };
 
 // Security Headers
@@ -135,7 +122,7 @@ app.use(cors(corsOptions));
 
 // Request Parsing Middleware
 app.use(express.json({ 
-  limit: '100mb',
+  limit: '10mb',
   verify: (req, res, buf) => {
     // Only validate when there is a non-empty JSON body
     try {
@@ -153,7 +140,7 @@ app.use(express.json({
 
 app.use(express.urlencoded({ 
   extended: true, 
-  limit: '100mb' 
+  limit: '10mb' 
 }));
 
 // Static File Serving

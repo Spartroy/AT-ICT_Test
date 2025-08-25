@@ -16,9 +16,7 @@ const materialStorage = new CloudinaryStorage({
     folder: 'at-ict/materials',
     allowed_formats: ['pdf', 'doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx', 'txt', 'zip', 'rar', 'jpg', 'jpeg', 'png', 'gif', 'mp4', 'avi', 'mp3', 'wav'],
     resource_type: 'auto',
-    transformation: [{ quality: 'auto' }],
-    chunk_size: 6000000, // 6MB chunks for large files
-    eager: [{ quality: 'auto' }]
+    transformation: [{ quality: 'auto' }]
   },
 });
 
@@ -38,21 +36,9 @@ const thumbnailStorage = new CloudinaryStorage({
   },
 });
 
-// Create multer upload instances with increased limits
-const uploadMaterial = multer({ 
-  storage: materialStorage,
-  limits: {
-    fileSize: 100 * 1024 * 1024, // 100MB limit
-    fieldSize: 100 * 1024 * 1024 // 100MB field size
-  }
-});
-const uploadThumbnail = multer({ 
-  storage: thumbnailStorage,
-  limits: {
-    fileSize: 10 * 1024 * 1024, // 10MB limit for thumbnails
-    fieldSize: 10 * 1024 * 1024
-  }
-});
+// Create multer upload instances
+const uploadMaterial = multer({ storage: materialStorage });
+const uploadThumbnail = multer({ storage: thumbnailStorage });
 
 // Function to delete file from Cloudinary
 const deleteFromCloudinary = async (publicId) => {
