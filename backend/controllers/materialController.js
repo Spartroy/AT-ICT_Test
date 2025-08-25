@@ -1,28 +1,16 @@
 const Material = require('../models/Material');
 const User = require('../models/User');
 const { validationResult } = require('express-validator');
-const path = require('path');
-const fs = require('fs');
+const { deleteFromCloudinary, getFileUrl } = require('../config/cloudinary');
 
-// @desc    Get all materials for teacher
+// @desc    Get all materials
 // @route   GET /api/teacher/materials
 // @access  Private (Teacher)
 const getMaterials = async (req, res) => {
   try {
-    const { type, search } = req.query;
-    
-    // Build query
-    let query = { uploadedBy: req.user.id };
-    
-    if (type) query.type = type;
-    
-    if (search) {
-      query.title = { $regex: search, $options: 'i' };
-    }
-
-    const materials = await Material.find(query)
+    const materials = await Material.find({ uploadedBy: req.user.id })
       .populate('uploadedBy', 'firstName lastName')
-      .sort({ type: 1, createdAt: -1 });
+      .sort({ createdAt: -1 });
 
     res.status(200).json({
       status: 'success',
@@ -39,7 +27,7 @@ const getMaterials = async (req, res) => {
   }
 };
 
-// @desc    Upload new material
+// @desc    Upload material
 // @route   POST /api/teacher/materials
 // @access  Private (Teacher)
 const uploadMaterial = async (req, res) => {
@@ -64,34 +52,27 @@ const uploadMaterial = async (req, res) => {
     const materialFile = req.files.material[0];
     const thumbnailFile = req.files.thumbnail ? req.files.thumbnail[0] : null;
 
-    // Ensure upload directories exist
-    const materialsDir = path.join(__dirname, '..', 'uploads', 'materials');
-    const thumbnailsDir = path.join(__dirname, '..', 'uploads', 'materials', 'thumbnails');
-    
-    if (!fs.existsSync(materialsDir)) {
-      fs.mkdirSync(materialsDir, { recursive: true });
-    }
-    if (!fs.existsSync(thumbnailsDir)) {
-      fs.mkdirSync(thumbnailsDir, { recursive: true });
-    }
-
-    // Prepare material data
+    // Prepare material data with Cloudinary information
     const materialData = {
       title,
       type,
-      fileUrl: `/uploads/materials/${materialFile.filename}`,
+      fileUrl: materialFile.path, // Cloudinary URL
       fileName: materialFile.originalname,
       fileSize: materialFile.size,
       mimeType: materialFile.mimetype,
+      cloudinaryPublicId: materialFile.filename, // Cloudinary public ID
+      cloudinaryUrl: materialFile.path, // Cloudinary URL
       uploadedBy: req.user.id
     };
 
     // Add thumbnail data if provided
     if (thumbnailFile) {
-      materialData.thumbnailUrl = `/uploads/materials/thumbnails/${thumbnailFile.filename}`;
+      materialData.thumbnailUrl = thumbnailFile.path; // Cloudinary URL
       materialData.thumbnailFileName = thumbnailFile.originalname;
       materialData.thumbnailSize = thumbnailFile.size;
       materialData.thumbnailMimeType = thumbnailFile.mimetype;
+      materialData.thumbnailCloudinaryPublicId = thumbnailFile.filename; // Cloudinary public ID
+      materialData.thumbnailCloudinaryUrl = thumbnailFile.path; // Cloudinary URL
     }
 
     const material = await Material.create(materialData);
@@ -110,24 +91,6 @@ const uploadMaterial = async (req, res) => {
     console.error('Error stack:', error.stack);
     console.error('Request body:', req.body);
     console.error('Request files:', req.files);
-    
-    // Delete uploaded files if database save failed
-    if (req.files) {
-      if (req.files.material) {
-        try {
-          fs.unlinkSync(req.files.material[0].path);
-        } catch (deleteError) {
-          console.error('Error deleting material file:', deleteError);
-        }
-      }
-      if (req.files.thumbnail) {
-        try {
-          fs.unlinkSync(req.files.thumbnail[0].path);
-        } catch (deleteError) {
-          console.error('Error deleting thumbnail file:', deleteError);
-        }
-      }
-    }
     
     res.status(500).json({
       status: 'error',
@@ -153,7 +116,6 @@ const updateMaterial = async (req, res) => {
       });
     }
 
-    // Check if user uploaded this material
     if (material.uploadedBy.toString() !== req.user.id) {
       return res.status(403).json({
         status: 'error',
@@ -161,55 +123,11 @@ const updateMaterial = async (req, res) => {
       });
     }
 
-    // Update material
-    material.title = title;
-    material.type = type;
-
-    // If new material file is uploaded, update file information
-    if (req.files && req.files.material) {
-      const materialFile = req.files.material[0];
-      
-      // Delete old file
-      try {
-        const oldFilePath = path.join(__dirname, '..', material.fileUrl);
-        if (fs.existsSync(oldFilePath)) {
-          fs.unlinkSync(oldFilePath);
-        }
-      } catch (deleteError) {
-        console.error('Error deleting old file:', deleteError);
-      }
-
-      // Update with new file info
-      material.fileUrl = `/uploads/materials/${materialFile.filename}`;
-      material.fileName = materialFile.originalname;
-      material.fileSize = materialFile.size;
-      material.mimeType = materialFile.mimetype;
-    }
-
-    // If new thumbnail is uploaded, update thumbnail information
-    if (req.files && req.files.thumbnail) {
-      const thumbnailFile = req.files.thumbnail[0];
-      
-      // Delete old thumbnail if exists
-      try {
-        if (material.thumbnailUrl) {
-          const oldThumbnailPath = path.join(__dirname, '..', material.thumbnailUrl);
-          if (fs.existsSync(oldThumbnailPath)) {
-            fs.unlinkSync(oldThumbnailPath);
-          }
-        }
-      } catch (deleteError) {
-        console.error('Error deleting old thumbnail:', deleteError);
-      }
-
-      // Update with new thumbnail info
-      material.thumbnailUrl = `/uploads/materials/thumbnails/${thumbnailFile.filename}`;
-      material.thumbnailFileName = thumbnailFile.originalname;
-      material.thumbnailSize = thumbnailFile.size;
-      material.thumbnailMimeType = thumbnailFile.mimetype;
-    }
+    material.title = title || material.title;
+    material.type = type || material.type;
 
     await material.save();
+
     await material.populate('uploadedBy', 'firstName lastName');
 
     res.status(200).json({
@@ -221,25 +139,6 @@ const updateMaterial = async (req, res) => {
     });
   } catch (error) {
     console.error('Update material error:', error);
-    
-    // Delete uploaded files if database save failed
-    if (req.files) {
-      if (req.files.material) {
-        try {
-          fs.unlinkSync(req.files.material[0].path);
-        } catch (deleteError) {
-          console.error('Error deleting material file:', deleteError);
-        }
-      }
-      if (req.files.thumbnail) {
-        try {
-          fs.unlinkSync(req.files.thumbnail[0].path);
-        } catch (deleteError) {
-          console.error('Error deleting thumbnail file:', deleteError);
-        }
-      }
-    }
-    
     res.status(500).json({
       status: 'error',
       message: 'Server error updating material'
@@ -261,7 +160,6 @@ const deleteMaterial = async (req, res) => {
       });
     }
 
-    // Check if user uploaded this material
     if (material.uploadedBy.toString() !== req.user.id) {
       return res.status(403).json({
         status: 'error',
@@ -269,26 +167,20 @@ const deleteMaterial = async (req, res) => {
       });
     }
 
-    // Delete files from filesystem
+    // Delete files from Cloudinary
     try {
-      // Delete material file
-      const filePath = path.join(__dirname, '..', material.fileUrl);
-      if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath);
+      if (material.cloudinaryPublicId) {
+        await deleteFromCloudinary(material.cloudinaryPublicId);
       }
-      
-      // Delete thumbnail file if exists
-      if (material.thumbnailUrl) {
-        const thumbnailPath = path.join(__dirname, '..', material.thumbnailUrl);
-        if (fs.existsSync(thumbnailPath)) {
-          fs.unlinkSync(thumbnailPath);
-        }
+      if (material.thumbnailCloudinaryPublicId) {
+        await deleteFromCloudinary(material.thumbnailCloudinaryPublicId);
       }
-    } catch (deleteError) {
-      console.error('Error deleting files:', deleteError);
+    } catch (cloudinaryError) {
+      console.error('Error deleting from Cloudinary:', cloudinaryError);
+      // Continue with database deletion even if Cloudinary deletion fails
     }
 
-    await material.deleteOne();
+    await Material.findByIdAndDelete(req.params.id);
 
     res.status(200).json({
       status: 'success',
@@ -317,7 +209,6 @@ const downloadMaterial = async (req, res) => {
       });
     }
 
-    // Check if user uploaded this material
     if (material.uploadedBy.toString() !== req.user.id) {
       return res.status(403).json({
         status: 'error',
@@ -325,24 +216,11 @@ const downloadMaterial = async (req, res) => {
       });
     }
 
-    const filePath = path.join(__dirname, '..', material.fileUrl);
-    
-    if (!fs.existsSync(filePath)) {
-      return res.status(404).json({
-        status: 'error',
-        message: 'File not found'
-      });
-    }
-
     // Increment download count
     await material.incrementDownload();
 
-    // Set appropriate headers
-    res.setHeader('Content-Disposition', `attachment; filename="${material.fileName}"`);
-    res.setHeader('Content-Type', material.mimeType);
-
-    // Send file
-    res.sendFile(filePath);
+    // Redirect to Cloudinary URL for download
+    res.redirect(material.cloudinaryUrl);
   } catch (error) {
     console.error('Download material error:', error);
     res.status(500).json({
@@ -352,13 +230,13 @@ const downloadMaterial = async (req, res) => {
   }
 };
 
-// @desc    Get materials accessible by student
+// @desc    Get materials for student
 // @route   GET /api/student/materials
 // @access  Private (Student)
 const getMaterialsForStudent = async (req, res) => {
   try {
     const { type } = req.query;
-    
+
     const student = await User.findById(req.user.id);
     if (!student || student.role !== 'student') {
       return res.status(404).json({
@@ -426,24 +304,11 @@ const downloadMaterialForStudent = async (req, res) => {
       });
     }
 
-    const filePath = path.join(__dirname, '..', material.fileUrl);
-    
-    if (!fs.existsSync(filePath)) {
-      return res.status(404).json({
-        status: 'error',
-        message: 'File not found'
-      });
-    }
-
     // Increment download count
     await material.incrementDownload();
 
-    // Set appropriate headers
-    res.setHeader('Content-Disposition', `attachment; filename="${material.fileName}"`);
-    res.setHeader('Content-Type', material.mimeType);
-
-    // Send file
-    res.sendFile(filePath);
+    // Redirect to Cloudinary URL for download
+    res.redirect(material.cloudinaryUrl);
   } catch (error) {
     console.error('Download material for student error:', error);
     res.status(500).json({

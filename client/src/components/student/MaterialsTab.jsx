@@ -67,19 +67,14 @@ const MaterialsTab = ({ studentData }) => {
       const response = await fetch(`${API_ENDPOINTS.STUDENT.MATERIALS}/${materialId}/download`, {
         headers: {
           'Authorization': `Bearer ${token}`
-        }
+        },
+        redirect: 'follow'
       });
 
       if (response.ok) {
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = fileName;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(url);
+        // For Cloudinary redirects, we need to open the URL directly
+        // The backend will redirect to the Cloudinary URL
+        window.open(response.url, '_blank');
       } else {
         const errorData = await response.json();
         alert(`❌ Error: ${errorData.message}`);

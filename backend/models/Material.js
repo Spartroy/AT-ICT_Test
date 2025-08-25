@@ -28,6 +28,15 @@ const materialSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  // Cloudinary fields
+  cloudinaryPublicId: {
+    type: String,
+    required: true
+  },
+  cloudinaryUrl: {
+    type: String,
+    required: true
+  },
   thumbnailUrl: {
     type: String,
     default: null
@@ -41,6 +50,15 @@ const materialSchema = new mongoose.Schema({
     default: null
   },
   thumbnailMimeType: {
+    type: String,
+    default: null
+  },
+  // Cloudinary thumbnail fields
+  thumbnailCloudinaryPublicId: {
+    type: String,
+    default: null
+  },
+  thumbnailCloudinaryUrl: {
     type: String,
     default: null
   },
