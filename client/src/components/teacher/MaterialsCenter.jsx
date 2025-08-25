@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { API_ENDPOINTS } from '../../config/api';
 import { getValidToken, clearAuth, redirectToLogin, setAuthHeaders } from '../../utils/auth';
 import { showSuccess, showError, showWarning } from '../../utils/toast';
+import ProgressBar from '../shared/ProgressBar';
+import LoadingSpinner from '../shared/LoadingSpinner';
 import {
   DocumentTextIcon,
   FolderIcon,
@@ -281,19 +283,15 @@ const MaterialsCenter = () => {
       const response = await fetch(`${API_ENDPOINTS.TEACHER.MATERIALS}/${material._id}/download`, {
         headers: {
           'Authorization': `Bearer ${token}`
-        }
+        },
+        redirect: 'follow'
       });
 
       if (response.ok) {
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = material.fileName;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(url);
+        // For Cloudinary redirects, we need to open the URL directly
+        // The backend will redirect to the Cloudinary URL
+        window.open(response.url, '_blank');
+        showSuccess('Download started successfully!');
       } else {
         showError('Failed to download file');
       }
@@ -399,12 +397,12 @@ const MaterialsCenter = () => {
             <span className="text-sm font-medium text-white">Uploading Material...</span>
             <span className="text-sm text-blue-400 font-medium">{uploadProgress}%</span>
           </div>
-          <div className="w-full bg-gray-700 rounded-full h-3">
-            <div 
-              className="bg-blue-500 h-3 rounded-full transition-all duration-300 ease-out"
-              style={{ width: `${uploadProgress}%` }}
-            />
-          </div>
+          <ProgressBar 
+            progress={uploadProgress}
+            showPercentage={false}
+            color="blue"
+            size="large"
+          />
           <p className="text-xs text-gray-400 mt-1">Please wait while your file is being uploaded...</p>
         </div>
       )}
@@ -726,18 +724,12 @@ const MaterialsCenter = () => {
 
                 {/* Upload Progress Bar */}
                 {uploading && (
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm text-gray-400">
-                      <span>Uploading...</span>
-                      <span>{uploadProgress}%</span>
-                    </div>
-                    <div className="w-full bg-gray-700 rounded-full h-2">
-                      <div 
-                        className="bg-blue-500 h-2 rounded-full transition-all duration-300 ease-out"
-                        style={{ width: `${uploadProgress}%` }}
-                      />
-                    </div>
-                  </div>
+                  <ProgressBar 
+                    progress={uploadProgress}
+                    label="Uploading..."
+                    color="blue"
+                    size="default"
+                  />
                 )}
 
                 <div className="flex justify-end space-x-3 pt-4">

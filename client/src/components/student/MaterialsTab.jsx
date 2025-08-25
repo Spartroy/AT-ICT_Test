@@ -1,33 +1,34 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { API_ENDPOINTS } from '../../config/api';
+import { getValidToken, clearAuth, redirectToLogin, setAuthHeaders } from '../../utils/auth';
+import { showSuccess, showError, showWarning } from '../../utils/toast';
+import ProgressBar from '../shared/ProgressBar';
+import LoadingSpinner from '../shared/LoadingSpinner';
 import {
-  BookOpenIcon,
-  DocumentTextIcon,
-  ArrowDownTrayIcon,
-  EyeIcon,
   FolderIcon,
   AcademicCapIcon,
   ComputerDesktopIcon,
   MagnifyingGlassIcon,
-  FunnelIcon,
-  TagIcon,
+  ArrowDownTrayIcon,
   UserIcon,
-  ExclamationCircleIcon,
+  EyeIcon,
   XMarkIcon,
+  DocumentTextIcon,
   CalendarIcon,
-  InformationCircleIcon
+  ClockIcon
 } from '@heroicons/react/24/outline';
 
-const MaterialsTab = ({ studentData }) => {
-  const [materials, setMaterials] = useState({ theory: [], practical: [], other: [] });
+const MaterialsTab = () => {
   const [allMaterials, setAllMaterials] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [activeSection, setActiveSection] = useState('theory');
   const [searchTerm, setSearchTerm] = useState('');
-  const [error, setError] = useState('');
   const [selectedMaterial, setSelectedMaterial] = useState(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
+  const [downloadingMaterials, setDownloadingMaterials] = useState(new Set());
+  const [downloadProgress, setDownloadProgress] = useState({});
 
   useEffect(() => {
     fetchMaterials();
@@ -36,26 +37,35 @@ const MaterialsTab = ({ studentData }) => {
   const fetchMaterials = async () => {
     try {
       setLoading(true);
-      setError('');
-      const token = localStorage.getItem('token');
+      setError(null);
+      const token = getValidToken();
+      
+      if (!token) {
+        console.error('Authentication token is missing or invalid');
+        setLoading(false);
+        clearAuth();
+        setTimeout(() => {
+          redirectToLogin('invalid_token');
+        }, 100);
+        return;
+      }
+      
       const response = await fetch(API_ENDPOINTS.STUDENT.MATERIALS, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
+        headers: setAuthHeaders({
           'Content-Type': 'application/json'
-        }
+        })
       });
 
       if (response.ok) {
         const data = await response.json();
-        setMaterials(data.data.materials);
-        setAllMaterials(data.data.allMaterials);
+        setAllMaterials(data.data.allMaterials || []);
       } else {
-        const errorData = await response.json();
-        setError(errorData.message || 'Failed to fetch materials');
+        console.error('Failed to fetch materials');
+        setError('Failed to load materials');
       }
     } catch (error) {
       console.error('Error fetching materials:', error);
-      setError('Error fetching materials');
+      setError('Error loading materials');
     } finally {
       setLoading(false);
     }
@@ -63,7 +73,13 @@ const MaterialsTab = ({ studentData }) => {
 
   const handleDownload = async (materialId, fileName) => {
     try {
+      // Add material to downloading set
+      setDownloadingMaterials(prev => new Set(prev).add(materialId));
+      setDownloadProgress(prev => ({ ...prev, [materialId]: 0 }));
+
       const token = localStorage.getItem('token');
+      
+      // Create a new fetch request with progress tracking
       const response = await fetch(`${API_ENDPOINTS.STUDENT.MATERIALS}/${materialId}/download`, {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -75,13 +91,28 @@ const MaterialsTab = ({ studentData }) => {
         // For Cloudinary redirects, we need to open the URL directly
         // The backend will redirect to the Cloudinary URL
         window.open(response.url, '_blank');
+        
+        // Show success message
+        showSuccess('Download started successfully!');
       } else {
         const errorData = await response.json();
-        alert(`❌ Error: ${errorData.message}`);
+        showError(`Download failed: ${errorData.message}`);
       }
     } catch (error) {
       console.error('Error downloading material:', error);
-      alert('❌ Error downloading material');
+      showError('Error downloading material');
+    } finally {
+      // Remove material from downloading set
+      setDownloadingMaterials(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(materialId);
+        return newSet;
+      });
+      setDownloadProgress(prev => {
+        const newProgress = { ...prev };
+        delete newProgress[materialId];
+        return newProgress;
+      });
     }
   };
 
@@ -242,17 +273,33 @@ const MaterialsTab = ({ studentData }) => {
               </div>
             </div>
 
-            {/* Download button */}
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleDownload(material._id, material.fileName);
-              }}
-              className="w-full mt-3 flex items-center justify-center px-3 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors text-sm font-medium"
-            >
-              <ArrowDownTrayIcon className="h-4 w-4 mr-2" />
-              Download
-            </button>
+            {/* Download button with progress */}
+            <div className="w-full mt-3">
+              {downloadingMaterials.has(material._id) ? (
+                <div className="space-y-2">
+                  <div className="flex items-center justify-center px-3 py-2 bg-blue-600 text-white rounded-xl text-sm font-medium">
+                    <LoadingSpinner size="small" color="white" text="Downloading..." />
+                  </div>
+                  <ProgressBar 
+                    progress={downloadProgress[material._id] || 0}
+                    showPercentage={false}
+                    color="blue"
+                    size="small"
+                  />
+                </div>
+              ) : (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDownload(material._id, material.fileName);
+                  }}
+                  className="w-full flex items-center justify-center px-3 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors text-sm font-medium"
+                >
+                  <ArrowDownTrayIcon className="h-4 w-4 mr-2" />
+                  Download
+                </button>
+              )}
+            </div>
           </div>
         </div>
 
@@ -586,16 +633,30 @@ const MaterialsTab = ({ studentData }) => {
                     {/* Action Buttons */}
                     <div className="pt-4 border-t border-gray-700">
                       <div className="flex flex-col sm:flex-row gap-3">
-                        <button
-                          onClick={() => {
-                            handleDownload(selectedMaterial._id, selectedMaterial.fileName);
-                            closeDetailModal();
-                          }}
-                          className="flex-1 flex items-center justify-center px-6 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors font-medium"
-                        >
-                          <ArrowDownTrayIcon className="h-5 w-5 mr-2" />
-                          Download Material
-          </button>
+                        {downloadingMaterials.has(selectedMaterial._id) ? (
+                          <div className="flex-1 space-y-2">
+                            <div className="flex items-center justify-center px-6 py-3 bg-blue-600 text-white rounded-xl font-medium">
+                              <LoadingSpinner size="default" color="white" text="Downloading..." />
+                            </div>
+                            <ProgressBar 
+                              progress={downloadProgress[selectedMaterial._id] || 0}
+                              showPercentage={false}
+                              color="blue"
+                              size="default"
+                            />
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => {
+                              handleDownload(selectedMaterial._id, selectedMaterial.fileName);
+                              closeDetailModal();
+                            }}
+                            className="flex-1 flex items-center justify-center px-6 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors font-medium"
+                          >
+                            <ArrowDownTrayIcon className="h-5 w-5 mr-2" />
+                            Download Material
+                          </button>
+                        )}
                         <button
                           onClick={closeDetailModal}
                           className="flex-1 flex items-center justify-center px-6 py-3 bg-gray-700 text-white rounded-xl hover:bg-gray-600 transition-colors font-medium"
