@@ -98,6 +98,13 @@ const MaterialsCenter = () => {
         return;
       }
       
+      // Show file info
+      console.log('Selected file:', {
+        name: file.name,
+        size: file.size,
+        type: file.type
+      });
+      
       setFormData({ ...formData, file });
     }
   };
@@ -163,14 +170,21 @@ const MaterialsCenter = () => {
       return new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
         
+        // Set timeout for large files (5 minutes)
+        xhr.timeout = 300000; // 5 minutes
+        
         xhr.upload.addEventListener('progress', (event) => {
           if (event.lengthComputable) {
             const progress = Math.round((event.loaded / event.total) * 100);
             setUploadProgress(progress);
+            console.log(`Upload progress: ${progress}%`);
           }
         });
 
         xhr.addEventListener('load', () => {
+          console.log('Upload response status:', xhr.status);
+          console.log('Upload response:', xhr.responseText);
+          
           if (xhr.status >= 200 && xhr.status < 300) {
             try {
               const data = JSON.parse(xhr.responseText);
@@ -209,17 +223,26 @@ const MaterialsCenter = () => {
           } else {
             try {
               const errorData = JSON.parse(xhr.responseText);
-              showError(errorData.message || 'Upload failed');
+              console.error('Upload error response:', errorData);
+              showError(errorData.message || `Upload failed with status ${xhr.status}`);
             } catch (error) {
-              showError('Upload failed');
+              console.error('Upload failed with status:', xhr.status);
+              showError(`Upload failed with status ${xhr.status}`);
             }
-            reject(new Error('Upload failed'));
+            reject(new Error(`Upload failed with status ${xhr.status}`));
           }
         });
 
-        xhr.addEventListener('error', () => {
-          showError('Network error during upload');
+        xhr.addEventListener('error', (error) => {
+          console.error('XHR error:', error);
+          showError('Network error during upload. Please check your connection and try again.');
           reject(new Error('Network error'));
+        });
+
+        xhr.addEventListener('timeout', () => {
+          console.error('Upload timeout');
+          showError('Upload timed out. Please try again with a smaller file or check your connection.');
+          reject(new Error('Upload timeout'));
         });
 
         xhr.addEventListener('abort', () => {
@@ -229,6 +252,13 @@ const MaterialsCenter = () => {
 
         xhr.open(method, url);
         xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+        
+        // Add additional headers for better compatibility
+        xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+        
+        console.log('Starting upload to:', url);
+        console.log('Upload data size:', uploadData.get('material')?.size || 'unknown');
+        
         xhr.send(uploadData);
       });
 
