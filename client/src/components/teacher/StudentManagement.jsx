@@ -34,14 +34,10 @@ const StudentManagement = () => {
   const [editingStudent, setEditingStudent] = useState(null);
   const [showLegacyModal, setShowLegacyModal] = useState(false);
   const [legacyStudent, setLegacyStudent] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    schoolType: '',
-    royalClass: '',
-    contactNumber: '',
-    parentContactNumber: ''
+    studentId: '',
+    royalClass: ''
   });
+  const [unclassifiedStudents, setUnclassifiedStudents] = useState([]);
   const [activeTab, setActiveTab] = useState('summary');
   const [attendance, setAttendance] = useState({ summary: null, records: [] });
   const [feedbackLoading, setFeedbackLoading] = useState(false);
@@ -81,6 +77,12 @@ const StudentManagement = () => {
     fetchStudents();
   }, [filters, pagination.current]);
 
+  useEffect(() => {
+    if (showLegacyModal) {
+      fetchUnclassifiedStudents();
+    }
+  }, [showLegacyModal]);
+
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -92,6 +94,26 @@ const StudentManagement = () => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  const fetchUnclassifiedStudents = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_ENDPOINTS.TEACHER.STUDENTS}?unclassified=true`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      const data = await response.json();
+      
+      if (data.status === 'success') {
+        setUnclassifiedStudents(data.data.students || []);
+      }
+    } catch (error) {
+      console.error('Fetch unclassified students error:', error);
+    }
+  };
 
   const fetchStudents = async () => {
     try {
@@ -344,24 +366,20 @@ const StudentManagement = () => {
       const data = await response.json();
       
       if (data.status === 'success') {
-        showOperationToast('Legacy student added successfully!');
+        showOperationToast('Student classified successfully!');
         setShowLegacyModal(false);
         setLegacyStudent({
-          firstName: '',
-          lastName: '',
-          email: '',
-          schoolType: '',
-          royalClass: '',
-          contactNumber: '',
-          parentContactNumber: ''
+          studentId: '',
+          royalClass: ''
         });
         fetchStudents();
+        fetchUnclassifiedStudents();
       } else {
-        showError(data.message || 'Failed to add legacy student');
+        showError(data.message || 'Failed to classify student');
       }
     } catch (error) {
-      console.error('Add legacy student error:', error);
-      showError('Failed to add legacy student');
+      console.error('Classify student error:', error);
+      showError('Failed to classify student');
     }
   };
 
@@ -1462,7 +1480,7 @@ const StudentManagement = () => {
             >
               <div className="p-6 border-b border-gray-700">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-xl font-bold text-white">Add Legacy Student</h3>
+                  <h3 className="text-xl font-bold text-white">Classify Student</h3>
                   <button
                     onClick={() => setShowLegacyModal(false)}
                     className="text-gray-400 hover:text-white transition-colors"
@@ -1471,96 +1489,43 @@ const StudentManagement = () => {
                   </button>
                 </div>
                 <p className="text-gray-400 text-sm mt-1">
-                  Add existing students who registered before the new classification system
+                  Assign existing students to Royal College classes (9H or 9J)
                 </p>
               </div>
               
               <form onSubmit={handleLegacyStudentSubmit} className="p-6 space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">First Name *</label>
-                    <input
-                      type="text"
-                      required
-                      className="w-full px-3 py-2 border border-gray-600 rounded-lg bg-gray-900 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      value={legacyStudent.firstName}
-                      onChange={(e) => setLegacyStudent({ ...legacyStudent, firstName: e.target.value })}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">Last Name *</label>
-                    <input
-                      type="text"
-                      required
-                      className="w-full px-3 py-2 border border-gray-600 rounded-lg bg-gray-900 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      value={legacyStudent.lastName}
-                      onChange={(e) => setLegacyStudent({ ...legacyStudent, lastName: e.target.value })}
-                    />
-                  </div>
-                </div>
-
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">Email *</label>
-                  <input
-                    type="email"
-                    required
-                    className="w-full px-3 py-2 border border-gray-600 rounded-lg bg-gray-900 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    value={legacyStudent.email}
-                    onChange={(e) => setLegacyStudent({ ...legacyStudent, email: e.target.value })}
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">School Type *</label>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Select Student *</label>
                   <select
                     required
                     className="w-full px-3 py-2 border border-gray-600 rounded-lg bg-gray-900 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    value={legacyStudent.schoolType}
-                    onChange={(e) => setLegacyStudent({ ...legacyStudent, schoolType: e.target.value })}
+                    value={legacyStudent.studentId}
+                    onChange={(e) => setLegacyStudent({ ...legacyStudent, studentId: e.target.value })}
                   >
-                    <option value="">Select School Type</option>
-                    <option value="royal">Royal College</option>
-                    <option value="center">Center/Other</option>
+                    <option value="">Select a student to classify</option>
+                    {unclassifiedStudents.map((student) => (
+                      <option key={student._id} value={student._id}>
+                        {student.firstName} {student.lastName} ({student.email})
+                      </option>
+                    ))}
                   </select>
+                  {unclassifiedStudents.length === 0 && (
+                    <p className="text-gray-400 text-sm mt-2">No unclassified students found</p>
+                  )}
                 </div>
 
-                {legacyStudent.schoolType === 'royal' && (
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">Royal Class *</label>
-                    <select
-                      required
-                      className="w-full px-3 py-2 border border-gray-600 rounded-lg bg-gray-900 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      value={legacyStudent.royalClass}
-                      onChange={(e) => setLegacyStudent({ ...legacyStudent, royalClass: e.target.value })}
-                    >
-                      <option value="">Select Class</option>
-                      <option value="9H">9H</option>
-                      <option value="9J">9J</option>
-                    </select>
-                  </div>
-                )}
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">Contact Number *</label>
-                    <input
-                      type="tel"
-                      required
-                      className="w-full px-3 py-2 border border-gray-600 rounded-lg bg-gray-900 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      value={legacyStudent.contactNumber}
-                      onChange={(e) => setLegacyStudent({ ...legacyStudent, contactNumber: e.target.value })}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">Parent Contact Number *</label>
-                    <input
-                      type="tel"
-                      required
-                      className="w-full px-3 py-2 border border-gray-600 rounded-lg bg-gray-900 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      value={legacyStudent.parentContactNumber}
-                      onChange={(e) => setLegacyStudent({ ...legacyStudent, parentContactNumber: e.target.value })}
-                    />
-                  </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Assign to Royal Class *</label>
+                  <select
+                    required
+                    className="w-full px-3 py-2 border border-gray-600 rounded-lg bg-gray-900 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    value={legacyStudent.royalClass}
+                    onChange={(e) => setLegacyStudent({ ...legacyStudent, royalClass: e.target.value })}
+                  >
+                    <option value="">Select Class</option>
+                    <option value="9H">9H</option>
+                    <option value="9J">9J</option>
+                  </select>
                 </div>
 
                 <div className="flex justify-end space-x-3 pt-4">
@@ -1573,10 +1538,11 @@ const StudentManagement = () => {
                   </button>
                   <button
                     type="submit"
-                    className="px-4 py-2 bg-green-600 rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2"
+                    disabled={!legacyStudent.studentId || !legacyStudent.royalClass}
+                    className="px-4 py-2 bg-green-600 rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-2"
                   >
                     <UserIcon className="h-4 w-4" />
-                    <span>Add Legacy Student</span>
+                    <span>Classify Student</span>
                   </button>
                 </div>
               </form>

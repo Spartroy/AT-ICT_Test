@@ -102,7 +102,7 @@ const getStudents = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
-    const { search, session, year, status, schoolType, royalClass } = req.query;
+    const { search, session, year, status, schoolType, royalClass, unclassified } = req.query;
 
     let query = { 
       role: 'student',
@@ -122,15 +122,30 @@ const getStudents = async (req, res) => {
     // Filter by royal class (only for Royal College students)
     if (royalClass) query['studentInfo.royalClass'] = royalClass;
     
-    // Search functionality
+    // Build search conditions
+    let searchConditions = [];
     if (search) {
-      query.$or = [
+      searchConditions.push(
         { firstName: { $regex: search, $options: 'i' } },
         { lastName: { $regex: search, $options: 'i' } },
         { email: { $regex: search, $options: 'i' } },
         { 'studentInfo.studentId': { $regex: search, $options: 'i' } },
         { 'studentInfo.school': { $regex: search, $options: 'i' } }
-      ];
+      );
+    }
+    
+    // Filter for unclassified students (no schoolType set)
+    if (unclassified === 'true') {
+      searchConditions.push(
+        { 'studentInfo.schoolType': { $exists: false } },
+        { 'studentInfo.schoolType': null },
+        { 'studentInfo.schoolType': '' }
+      );
+    }
+    
+    // Apply search conditions if any
+    if (searchConditions.length > 0) {
+      query.$or = searchConditions;
     }
 
     const students = await User.find(query)
@@ -568,112 +583,78 @@ const deleteStudent = async (req, res) => {
   }
 };
 
-// @desc    Add legacy student
+// @desc    Classify existing student to Royal College
 // @route   POST /api/teacher/legacy-students
 // @access  Private (Teacher)
 const addLegacyStudent = async (req, res) => {
   try {
-    const {
-      firstName,
-      lastName,
-      email,
-      schoolType,
-      royalClass,
-      contactNumber,
-      parentContactNumber
-    } = req.body;
+    const { studentId, royalClass } = req.body;
 
     // Validate required fields
-    if (!firstName || !lastName || !email || !schoolType || !contactNumber || !parentContactNumber) {
+    if (!studentId || !royalClass) {
       return res.status(400).json({
         status: 'error',
-        message: 'All required fields must be provided'
+        message: 'Student ID and Royal class are required'
       });
     }
 
-    // Validate school type
-    if (!['royal', 'center'].includes(schoolType)) {
+    // Validate royal class
+    if (!['9H', '9J'].includes(royalClass)) {
       return res.status(400).json({
         status: 'error',
-        message: 'Invalid school type'
+        message: 'Royal class must be 9H or 9J'
       });
     }
 
-    // Validate royal class if school type is royal
-    if (schoolType === 'royal' && !royalClass) {
-      return res.status(400).json({
+    // Find the existing student
+    const student = await User.findById(studentId);
+    if (!student) {
+      return res.status(404).json({
         status: 'error',
-        message: 'Royal class is required for Royal College students'
+        message: 'Student not found'
       });
     }
 
-    if (schoolType === 'royal' && !['9H', '9J'].includes(royalClass)) {
+    // Check if student is already classified
+    if (student.studentInfo?.schoolType) {
       return res.status(400).json({
         status: 'error',
-        message: 'Invalid royal class'
+        message: 'Student is already classified'
       });
     }
 
-    // Check if user already exists
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(400).json({
-        status: 'error',
-        message: 'User with this email already exists'
-      });
-    }
-
-    // Create student info object
-    const studentInfo = {
-      studentId: `STU${Date.now()}`,
-      year: '11', // Default year for legacy students
-      session: 'NOV 25', // Default session
-      nationality: 'Unknown', // Default nationality
-      school: schoolType === 'royal' ? 'The Royal College School' : 'Center/Other',
-      schoolType,
-      royalClass: schoolType === 'royal' ? royalClass : undefined,
-      royalNationality: schoolType === 'royal' ? 'Unknown' : undefined,
-      contactNumber,
-      parentContactNumber,
-      address: {
-        city: 'Unknown',
-        country: 'Unknown'
-      },
-      isRetaker: false,
-      otherSubjects: ''
+    // Update student info to classify as Royal College
+    student.studentInfo = {
+      ...student.studentInfo,
+      schoolType: 'royal',
+      royalClass,
+      royalNationality: student.studentInfo?.nationality || 'Unknown',
+      school: 'The Royal College School',
+      year: student.studentInfo?.year || '11',
+      session: student.studentInfo?.session || 'NOV 25'
     };
 
-    // Create new user
-    const newUser = await User.create({
-      firstName,
-      lastName,
-      email,
-      password: 'LegacyStudent123!', // Default password for legacy students
-      role: 'student',
-      registrationStatus: 'approved',
-      isActive: true,
-      studentInfo
-    });
+    await student.save();
 
-    res.status(201).json({
+    res.status(200).json({
       status: 'success',
-      message: 'Legacy student added successfully',
+      message: 'Student classified successfully',
       data: {
         student: {
-          id: newUser._id,
-          name: `${firstName} ${lastName}`,
-          email,
-          schoolType,
-          royalClass: schoolType === 'royal' ? royalClass : null,
-          studentId: studentInfo.studentId
+          id: student._id,
+          name: `${student.firstName} ${student.lastName}`,
+          email: student.email,
+          schoolType: 'royal',
+          royalClass,
+          studentId: student.studentInfo?.studentId
         }
       }
     });
   } catch (error) {
-    console.error('Add legacy student error:', error);
+    console.error('Classify student error:', error);
     res.status(500).json({
       status: 'error',
-      message: 'Server error adding legacy student'
+      message: 'Server error classifying student'
     });
   }
 };

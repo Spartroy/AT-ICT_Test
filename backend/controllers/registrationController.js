@@ -62,21 +62,22 @@ const submitRegistration = async (req, res) => {
       role: 'student',
       contactNumber,
       address: {
-        city
+        city: schoolType === 'center' ? city : 'Unknown',
+        country: 'Unknown'
       },
       studentInfo: {
-        year,
-        nationality,
-        school,
-        session,
-        isRetaker,
+        year: schoolType === 'center' ? year : '11', // Default year for Royal students
+        nationality: schoolType === 'center' ? nationality : royalNationality,
+        school: schoolType === 'center' ? school : 'The Royal College School',
+        session: schoolType === 'center' ? session : 'NOV 25', // Default session for Royal students
+        isRetaker: schoolType === 'center' ? isRetaker : false,
         parentContactNumber: parentNumber,
         techKnowledge,
         englishLevel,
-        otherSubjects,
+        otherSubjects: schoolType === 'center' ? otherSubjects : '',
         schoolType,
-        royalClass,
-        royalNationality
+        royalClass: schoolType === 'royal' ? royalClass : undefined,
+        royalNationality: schoolType === 'royal' ? royalNationality : undefined
       },
       registrationStatus: 'pending'
     });
