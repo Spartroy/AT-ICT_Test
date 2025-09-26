@@ -15,7 +15,6 @@ import {
 
 // Import parent components
 import ParentOverview from '../../components/parent/ParentOverview';
-import AttendanceHomework from '../../components/parent/AttendanceHomework';
 import AssignmentsLikeStudent from '../../components/student/AssignmentsTab';
 import QuizTracking from '../../components/parent/QuizTracking';
 import WeeklyReports from '../../components/parent/WeeklyReports';
@@ -32,7 +31,6 @@ const ParentDashboard = () => {
   const tabs = [
     { id: 'overview', name: 'Overview', icon: ChartBarIcon, component: ParentOverview },
     { id: 'assignments', name: 'Homework', icon: DocumentTextIcon, component: AssignmentsLikeStudent },
-    { id: 'attendance', name: 'Attendance', icon: CalendarDaysIcon, component: AttendanceHomework },
     { id: 'quiz', name: 'Quiz Tracking', icon: DocumentTextIcon, component: QuizTracking },
     { id: 'reports', name: 'Weekly Reports', icon: DocumentTextIcon, component: WeeklyReports },
     { id: 'chat', name: 'Chat with Teacher', icon: ChatBubbleLeftRightIcon, component: ParentChat }

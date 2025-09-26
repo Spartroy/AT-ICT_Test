@@ -338,6 +338,59 @@ const userSchema = new mongoose.Schema({
     },
 
     /**
+     * School type selection
+     * @type {String}
+     * @enum ['royal', 'center']
+     */
+    schoolType: {
+      type: String,
+      enum: {
+        values: ['royal', 'center'],
+        message: 'School type must be either royal or center'
+      }
+    },
+
+    /**
+     * Royal College class (for Royal College students only)
+     * @type {String}
+     * @enum ['9H', '9J']
+     */
+    royalClass: {
+      type: String,
+      enum: {
+        values: ['9H', '9J'],
+        message: 'Royal class must be either 9H or 9J'
+      },
+      validate: {
+        validator: function(classValue) {
+          if (this.schoolType === 'royal' && !classValue) {
+            return false;
+          }
+          return true;
+        },
+        message: 'Royal class is required for Royal College students'
+      }
+    },
+
+    /**
+     * Royal College nationality (for Royal College students only)
+     * @type {String}
+     */
+    royalNationality: {
+      type: String,
+      trim: true,
+      validate: {
+        validator: function(nationality) {
+          if (this.schoolType === 'royal' && !nationality) {
+            return false;
+          }
+          return true;
+        },
+        message: 'Royal nationality is required for Royal College students'
+      }
+    },
+
+    /**
      * Current grade/performance level
      * @type {String}
      */

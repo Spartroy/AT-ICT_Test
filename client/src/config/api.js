@@ -26,7 +26,9 @@ export const API_ENDPOINTS = {
   },
   SCHEDULE: {
     QR: `${API_BASE_URL}/api/schedule/qr`,
-    STUDENT_CHECK: `${API_BASE_URL}/api/schedule/attendance/check`,
+    ASSIGN_STUDENTS: `${API_BASE_URL}/api/teacher/schedule/assign-students`,
+    ASSIGNED_STUDENTS: `${API_BASE_URL}/api/teacher/schedule/assigned-students`,
+    REMOVE_STUDENT: `${API_BASE_URL}/api/teacher/schedule/students`,
   },
   PARENT: {
     DASHBOARD: `${API_BASE_URL}/api/parent/dashboard`,

@@ -63,7 +63,6 @@ const StudentManagement = () => {
     { id: 'summary', name: 'Summary', icon: ChartBarIcon, shortName: 'Summary' },
     { id: 'assignments', name: 'Assignments', icon: DocumentTextIcon, shortName: 'Assign.' },
     { id: 'quizzes', name: 'Quizzes', icon: QuestionMarkCircleIcon, shortName: 'Quizzes' },
-    { id: 'attendance', name: 'Attendance', icon: QrCodeIcon, shortName: 'Attend.' }
   ];
 
   useEffect(() => {

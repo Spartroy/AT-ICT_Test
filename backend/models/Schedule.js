@@ -54,7 +54,18 @@ const scheduleSchema = new mongoose.Schema({
   notes: {
     type: String,
     trim: true
-  }
+  },
+  assignedStudents: [{
+    student: {
+      type: mongoose.Schema.ObjectId,
+      ref: 'User',
+      required: true
+    },
+    assignedAt: {
+      type: Date,
+      default: Date.now
+    }
+  }]
 }, {
   timestamps: true
 });

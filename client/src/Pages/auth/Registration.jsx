@@ -20,6 +20,13 @@ const Registration = () => {
     confirmPassword: '',
     role: 'student', // Default to student
     
+    // School Selection
+    schoolType: '', // 'royal' or 'center'
+    
+    // Royal College specific fields
+    royalClass: '', // '9H' or '9J'
+    royalNationality: '',
+    
     // Contact Info
     contactNumber: '',
     address: {
@@ -40,7 +47,7 @@ const Registration = () => {
     otherSubjects: ''
   });
 
-  const totalSteps = 4;
+  const totalSteps = 5;
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -97,21 +104,38 @@ const Registration = () => {
         if (formData.password !== formData.confirmPassword) stepErrors.confirmPassword = 'Passwords do not match';
         break;
 
-      case 2: // Academic Journey
-        if (!formData.year) stepErrors.year = 'Year is required';
-        if (!formData.session) stepErrors.session = 'Session is required';
-        if (!formData.nationality.trim()) stepErrors.nationality = 'Nationality is required';
-        if (!formData.school.trim()) stepErrors.school = 'School is required';
+      case 2: // School Selection
+        if (!formData.schoolType) stepErrors.schoolType = 'Please select your school type';
+        if (formData.schoolType === 'royal') {
+          if (!formData.royalClass) stepErrors.royalClass = 'Class selection is required for Royal College students';
+          if (!formData.royalNationality.trim()) stepErrors.royalNationality = 'Nationality is required for Royal College students';
+        }
         break;
 
-      case 3: // Contact Info
-        if (!formData.contactNumber.trim()) stepErrors.contactNumber = 'Contact number is required';
-        if (!formData.parentContactNumber.trim()) stepErrors.parentContactNumber = 'Parent contact is required';
-        if (!formData.address.city.trim()) stepErrors['address.city'] = 'City is required';
-        if (!formData.address.country.trim()) stepErrors['address.country'] = 'Country is required';
+      case 3: // Academic Journey (for Center students) or Contact Info (for Royal students)
+        if (formData.schoolType === 'center') {
+          if (!formData.year) stepErrors.year = 'Year is required';
+          if (!formData.session) stepErrors.session = 'Session is required';
+          if (!formData.nationality.trim()) stepErrors.nationality = 'Nationality is required';
+          if (!formData.school.trim()) stepErrors.school = 'School is required';
+        } else if (formData.schoolType === 'royal') {
+          if (!formData.contactNumber.trim()) stepErrors.contactNumber = 'Contact number is required';
+          if (!formData.parentContactNumber.trim()) stepErrors.parentContactNumber = 'Parent contact is required';
+        }
         break;
 
-      case 4: // Skills Assessment - no validation needed
+      case 4: // Contact Info (for Center students) or Skills Assessment (for Royal students)
+        if (formData.schoolType === 'center') {
+          if (!formData.contactNumber.trim()) stepErrors.contactNumber = 'Contact number is required';
+          if (!formData.parentContactNumber.trim()) stepErrors.parentContactNumber = 'Parent contact is required';
+          if (!formData.address.city.trim()) stepErrors['address.city'] = 'City is required';
+          if (!formData.address.country.trim()) stepErrors['address.country'] = 'Country is required';
+        }
+        // For Royal students, this is skills assessment - no validation needed
+        break;
+
+      case 5: // Skills Assessment (for Center students)
+        // No validation needed
         break;
 
       default:
@@ -507,10 +531,226 @@ const Registration = () => {
                 <Star className="text-red-600" size={24} />
               </motion.div>
               <h2 className="text-3xl font-bold bg-gradient-to-r from-red-400 to-red-600 bg-clip-text text-transparent mb-2">
-                Tell me about your academic journey! 🎓
+                Which school are you from? 🏫
               </h2>
-              <p className="text-gray-300 text-lg">Let's understand where you're coming from</p>
+              <p className="text-gray-300 text-lg">Please select your school type</p>
             </div>
+
+            <div className="space-y-4">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className="space-y-4"
+              >
+                <label className="block text-sm font-medium mb-3" style={{ color: '#D91743' }}>
+                  School Type *
+                </label>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {[
+                    { value: 'royal', label: 'The Royal College School', description: 'I am a student at The Royal College School' },
+                    { value: 'center', label: 'Center/Other School', description: 'I study at a center or other school' }
+                  ].map((option) => (
+                    <label key={option.value} className="flex flex-col p-6 border-2 transition-all duration-300 cursor-pointer" style={{
+                      backgroundColor: formData.schoolType === option.value ? 'rgba(217, 23, 67, 0.12)' : '#0a0a0a',
+                      borderColor: formData.schoolType === option.value ? '#D91743' : '#2a2a2a',
+                      borderRadius: '1.5rem',
+                      boxShadow: formData.schoolType === option.value ? '0 0 15px rgba(217, 23, 67, 0.3)' : 'none'
+                    }}>
+                      <input
+                        type="radio"
+                        name="schoolType"
+                        value={option.value}
+                        checked={formData.schoolType === option.value}
+                        onChange={handleInputChange}
+                        className="w-5 h-5 mb-3"
+                        style={{ accentColor: '#D91743' }}
+                      />
+                      <span className="text-white font-medium text-lg mb-2">{option.label}</span>
+                      <span className="text-gray-400 text-sm">{option.description}</span>
+                    </label>
+                  ))}
+                </div>
+                {errors.schoolType && <p className="text-sm mt-1 flex items-center" style={{ color: '#D91743' }}><Heart size={14} className="mr-1" />{errors.schoolType}</p>}
+              </motion.div>
+
+              {/* Royal College specific fields */}
+              {formData.schoolType === 'royal' && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                  className="space-y-4"
+                >
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-3" style={{ color: '#D91743' }}>
+                        Class *
+                      </label>
+                      <div className="space-y-3">
+                        {['9H', '9J'].map((classOption) => (
+                          <label key={classOption} className="flex items-center p-4 border-2 transition-all duration-300 cursor-pointer" style={{
+                            backgroundColor: formData.royalClass === classOption ? 'rgba(217, 23, 67, 0.12)' : '#0a0a0a',
+                            borderColor: formData.royalClass === classOption ? '#D91743' : '#2a2a2a',
+                            borderRadius: '1.5rem',
+                            boxShadow: formData.royalClass === classOption ? '0 0 15px rgba(217, 23, 67, 0.3)' : 'none'
+                          }}>
+                            <input
+                              type="radio"
+                              name="royalClass"
+                              value={classOption}
+                              checked={formData.royalClass === classOption}
+                              onChange={handleInputChange}
+                              className="w-5 h-5 mr-4"
+                              style={{ accentColor: '#D91743' }}
+                            />
+                            <span className="text-white font-medium text-base">Class {classOption}</span>
+                          </label>
+                        ))}
+                      </div>
+                      {errors.royalClass && <p className="text-sm mt-1 flex items-center" style={{ color: '#D91743' }}><Heart size={14} className="mr-1" />{errors.royalClass}</p>}
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium mb-2" style={{ color: '#D91743' }}>
+                        Nationality *
+                      </label>
+                      <input
+                        type="text"
+                        name="royalNationality"
+                        value={formData.royalNationality}
+                        onChange={handleInputChange}
+                        onKeyDown={handleKeyDown}
+                        className={`w-full px-6 py-4 border-2 text-white placeholder-gray-500 transition-all duration-300 ${
+                          errors.royalNationality ? 'shadow-xl' : 'hover:border-gray-600'
+                        }`}
+                        style={{
+                          backgroundColor: '#0a0a0a',
+                          borderColor: errors.royalNationality ? '#D91743' : '#2a2a2a',
+                          borderRadius: '1.5rem',
+                          boxShadow: errors.royalNationality ? '0 0 15px rgba(217, 23, 67, 0.3)' : 'none'
+                        }}
+                        placeholder="Enter your nationality"
+                      />
+                      {errors.royalNationality && <p className="text-sm mt-1 flex items-center" style={{ color: '#D91743' }}><Heart size={14} className="mr-1" />{errors.royalNationality}</p>}
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </div>
+          </motion.div>
+        );
+
+      case 3:
+        // Show different content based on school type
+        if (formData.schoolType === 'royal') {
+          // Royal College students go to contact info
+          return (
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5 }}
+              className="space-y-6"
+            >
+              <div className="text-center mb-6">
+                <motion.div 
+                  initial={{ scale: 0.8 }}
+                  animate={{ scale: 1 }}
+                  transition={{ duration: 0.5 }}
+                  className="flex items-center justify-center mb-3"
+                >
+                  <Phone className="text-red-500 mr-3" size={32} />
+                  <Star className="text-red-600" size={24} />
+                </motion.div>
+                <h2 className="text-3xl font-bold bg-gradient-to-r from-red-400 to-red-600 bg-clip-text text-transparent mb-2">
+                  Contact Information 📞
+                </h2>
+                <p className="text-gray-300 text-lg">We need your contact details</p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 }}
+                >
+                  <label className="block text-sm font-medium mb-2" style={{ color: '#D91743' }}>
+                    Your Contact Number *
+                  </label>
+                  <input
+                    type="tel"
+                    name="contactNumber"
+                    value={formData.contactNumber}
+                    onChange={handleInputChange}
+                    onKeyDown={handleKeyDown}
+                    className={`w-full px-6 py-4 border-2 text-white placeholder-gray-500 transition-all duration-300 ${
+                      errors.contactNumber ? 'shadow-xl' : 'hover:border-gray-600'
+                    }`}
+                    style={{
+                      backgroundColor: '#0a0a0a',
+                      borderColor: errors.contactNumber ? '#D91743' : '#2a2a2a',
+                      borderRadius: '1.5rem',
+                      boxShadow: errors.contactNumber ? '0 0 15px rgba(217, 23, 67, 0.3)' : 'none'
+                    }}
+                    placeholder="Enter your phone number"
+                  />
+                  {errors.contactNumber && <p className="text-sm mt-1 flex items-center" style={{ color: '#D91743' }}><Heart size={14} className="mr-1" />{errors.contactNumber}</p>}
+                </motion.div>
+
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                >
+                  <label className="block text-sm font-medium mb-2" style={{ color: '#D91743' }}>
+                    Parent Contact Number *
+                  </label>
+                  <input
+                    type="tel"
+                    name="parentContactNumber"
+                    value={formData.parentContactNumber}
+                    onChange={handleInputChange}
+                    onKeyDown={handleKeyDown}
+                    className={`w-full px-6 py-4 border-2 text-white placeholder-gray-500 transition-all duration-300 ${
+                      errors.parentContactNumber ? 'shadow-xl' : 'hover:border-gray-600'
+                    }`}
+                    style={{
+                      backgroundColor: '#0a0a0a',
+                      borderColor: errors.parentContactNumber ? '#D91743' : '#2a2a2a',
+                      borderRadius: '1.5rem',
+                      boxShadow: errors.parentContactNumber ? '0 0 15px rgba(217, 23, 67, 0.3)' : 'none'
+                    }}
+                    placeholder="Enter parent's phone number"
+                  />
+                  {errors.parentContactNumber && <p className="text-sm mt-1 flex items-center" style={{ color: '#D91743' }}><Heart size={14} className="mr-1" />{errors.parentContactNumber}</p>}
+                </motion.div>
+              </div>
+            </motion.div>
+          );
+        } else {
+          // Center students go to academic journey
+          return (
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5 }}
+              className="space-y-6"
+            >
+              <div className="text-center mb-6">
+                <motion.div 
+                  initial={{ scale: 0.8 }}
+                  animate={{ scale: 1 }}
+                  transition={{ duration: 0.5 }}
+                  className="flex items-center justify-center mb-3"
+                >
+                  <GraduationCap className="text-red-500 mr-3" size={32} />
+                  <Star className="text-red-600" size={24} />
+                </motion.div>
+                <h2 className="text-3xl font-bold bg-gradient-to-r from-red-400 to-red-600 bg-clip-text text-transparent mb-2">
+                  Tell me about your academic journey! 🎓
+                </h2>
+                <p className="text-gray-300 text-lg">Let's understand where you're coming from</p>
+              </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <motion.div
@@ -765,200 +1005,292 @@ const Registration = () => {
                 placeholder="e.g., Mathematics, Physics, Chemistry, Business Studies..."
               />
             </motion.div>
-          </motion.div>
-        );
-
-      case 3:
-        return (
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5 }}
-            className="space-y-6"
-          >
-            <div className="text-center mb-8">
-              <motion.div 
-                initial={{ scale: 0.8 }}
-                animate={{ scale: 1 }}
-                transition={{ duration: 0.5 }}
-                className="flex items-center justify-center mb-4"
-              >
-                <Phone className="text-red-500 mr-3" size={40} />
-                <Flame className="text-red-600" size={32} />
-              </motion.div>
-              <h2 className="text-4xl font-bold bg-gradient-to-r from-red-400 to-red-600 bg-clip-text text-transparent mb-3">
-                Contact Number, So we can TALK! 📞
-              </h2>
-              <p className="text-gray-300 text-xl">We need to know how to reach you and your parents</p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 }}
-              >
-                <label className="block text-sm font-medium mb-3" style={{ color: '#D91743' }}>
-                  Your Contact Number *
-                </label>
-                <input
-                  type="tel"
-                  name="contactNumber"
-                  value={formData.contactNumber}
-                  onChange={handleInputChange}
-                    onKeyDown={handleKeyDown}
-                  className={`w-full px-8 py-5 border-2 text-white placeholder-gray-500 transition-all duration-300 ${
-                    errors.contactNumber ? 'shadow-xl' : 'hover:border-gray-600'
-                  }`}
-                  style={{
-                    backgroundColor: '#0a0a0a',
-                    borderColor: errors.contactNumber ? '#D91743' : '#2a2a2a',
-                    borderRadius: '2rem',
-                    boxShadow: errors.contactNumber ? '0 0 20px rgba(217, 23, 67, 0.5)' : 'none'
-                  }}
-                  onFocus={(e) => {
-                    e.target.style.borderColor = '#D91743';
-                    e.target.style.boxShadow = '0 0 0 4px rgba(217, 23, 67, 0.2), 0 0 20px rgba(217, 23, 67, 0.4)';
-                  }}
-                  onBlur={(e) => {
-                    if (!errors.contactNumber) {
-                      e.target.style.borderColor = '#2a2a2a';
-                      e.target.style.boxShadow = 'none';
-                    }
-                  }}
-                  placeholder="+92 300 1234567"
-                />
-                {errors.contactNumber && <p className="text-sm mt-2 flex items-center" style={{ color: '#D91743' }}><Heart size={14} className="mr-1" />{errors.contactNumber}</p>}
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-              >
-                <label className="block text-sm font-medium mb-3" style={{ color: '#D91743' }}>
-                  Parent/Guardian Contact *
-                </label>
-                <input
-                  type="tel"
-                  name="parentContactNumber"
-                  value={formData.parentContactNumber}
-                  onChange={handleInputChange}
-                    onKeyDown={handleKeyDown}
-                  className={`w-full px-8 py-5 border-2 text-white placeholder-gray-500 transition-all duration-300 ${
-                    errors.parentContactNumber ? 'shadow-xl' : 'hover:border-gray-600'
-                  }`}
-                  style={{
-                    backgroundColor: '#0a0a0a',
-                    borderColor: errors.parentContactNumber ? '#D91743' : '#2a2a2a',
-                    borderRadius: '2rem',
-                    boxShadow: errors.parentContactNumber ? '0 0 20px rgba(217, 23, 67, 0.5)' : 'none'
-                  }}
-                  onFocus={(e) => {
-                    e.target.style.borderColor = '#D91743';
-                    e.target.style.boxShadow = '0 0 0 4px rgba(217, 23, 67, 0.2), 0 0 20px rgba(217, 23, 67, 0.4)';
-                  }}
-                  onBlur={(e) => {
-                    if (!errors.parentContactNumber) {
-                      e.target.style.borderColor = '#2a2a2a';
-                      e.target.style.boxShadow = 'none';
-                    }
-                  }}
-                  placeholder="+92 300 1234567"
-                />
-                {errors.parentContactNumber && <p className="text-sm mt-2 flex items-center" style={{ color: '#D91743' }}><Heart size={14} className="mr-1" />{errors.parentContactNumber}</p>}
-              </motion.div>
-            </div>
-
-
-
-            <motion.div 
-              className="space-y-6"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-            >
-              <h3 className="text-xl font-medium flex items-center" style={{ color: '#D91743' }}>
-                <span className="mr-2">🌍</span>
-                Where are you located?
-              </h3>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium mb-3" style={{ color: '#D91743' }}>
-                    City *
-                  </label>
-                  <input
-                    type="text"
-                    name="address.city"
-                    value={formData.address.city}
-                    onChange={handleInputChange}
-                    onKeyDown={handleKeyDown}
-                    className={`w-full px-8 py-5 border-2 text-white placeholder-gray-500 transition-all duration-300 ${
-                      errors['address.city'] ? 'shadow-xl' : 'hover:border-gray-600'
-                    }`}
-                    style={{
-                      backgroundColor: '#0a0a0a',
-                      borderColor: errors['address.city'] ? '#D91743' : '#2a2a2a',
-                      borderRadius: '2rem',
-                      boxShadow: errors['address.city'] ? '0 0 20px rgba(217, 23, 67, 0.5)' : 'none'
-                    }}
-                    onFocus={(e) => {
-                      e.target.style.borderColor = '#D91743';
-                      e.target.style.boxShadow = '0 0 0 4px rgba(217, 23, 67, 0.2), 0 0 20px rgba(217, 23, 67, 0.4)';
-                    }}
-                    onBlur={(e) => {
-                      if (!errors['address.city']) {
-                        e.target.style.borderColor = '#2a2a2a';
-                        e.target.style.boxShadow = 'none';
-                      }
-                    }}
-                    placeholder="Your city"
-                  />
-                  {errors['address.city'] && <p className="text-sm mt-2 flex items-center" style={{ color: '#D91743' }}><Heart size={14} className="mr-1" />{errors['address.city']}</p>}
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-3" style={{ color: '#D91743' }}>
-                    Country *
-                  </label>
-                  <input
-                    type="text"
-                    name="address.country"
-                    value={formData.address.country}
-                    onChange={handleInputChange}
-                    onKeyDown={handleKeyDown}
-                    className={`w-full px-8 py-5 border-2 text-white placeholder-gray-500 transition-all duration-300 ${
-                      errors['address.country'] ? 'shadow-xl' : 'hover:border-gray-600'
-                    }`}
-                    style={{
-                      backgroundColor: '#0a0a0a',
-                      borderColor: errors['address.country'] ? '#D91743' : '#2a2a2a',
-                      borderRadius: '2rem',
-                      boxShadow: errors['address.country'] ? '0 0 20px rgba(217, 23, 67, 0.5)' : 'none'
-                    }}
-                    onFocus={(e) => {
-                      e.target.style.borderColor = '#D91743';
-                      e.target.style.boxShadow = '0 0 0 4px rgba(217, 23, 67, 0.2), 0 0 20px rgba(217, 23, 67, 0.4)';
-                    }}
-                    onBlur={(e) => {
-                      if (!errors['address.country']) {
-                        e.target.style.borderColor = '#2a2a2a';
-                        e.target.style.boxShadow = 'none';
-                      }
-                    }}
-                    placeholder="Your country"
-                  />
-                  {errors['address.country'] && <p className="text-sm mt-2 flex items-center" style={{ color: '#D91743' }}><Heart size={14} className="mr-1" />{errors['address.country']}</p>}
-                </div>
-              </div>
-
-
             </motion.div>
-          </motion.div>
-        );
+          );
+        }
 
       case 4:
+        // Show different content based on school type
+        if (formData.schoolType === 'royal') {
+          // Royal College students go to skills assessment
+          return (
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5 }}
+              className="space-y-6"
+            >
+              <div className="text-center mb-8">
+                <motion.div 
+                  initial={{ scale: 0.8 }}
+                  animate={{ scale: 1 }}
+                  transition={{ duration: 0.5 }}
+                  className="flex items-center justify-center mb-4"
+                >
+                  <Star className="text-red-500 mr-3" size={40} />
+                  <Flame className="text-red-600" size={32} />
+                </motion.div>
+                <h2 className="text-4xl font-bold bg-gradient-to-r from-red-400 to-red-600 bg-clip-text text-transparent mb-3">
+                  Skills Assessment! ⭐
+                </h2>
+                <p className="text-gray-300 text-xl">Let's see where you stand with your skills</p>
+              </div>
+
+              {/* Skills Assessment for Royal College students */}
+              <motion.div 
+                className="space-y-6"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 }}
+              >
+                <h3 className="text-xl font-medium flex items-center" style={{ color: '#D91743' }}>
+                  <span className="mr-2">🎯</span>
+                  Skills Assessment
+                </h3>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.5 }}
+                  >
+                    <label className="block text-sm font-medium mb-3" style={{ color: '#D91743' }}>
+                      Technology Knowledge (1-10) *
+                    </label>
+                    <input
+                      type="range"
+                      name="techKnowledge"
+                      min="1"
+                      max="10"
+                      value={formData.techKnowledge}
+                      onChange={handleInputChange}
+                      className="w-full h-3 bg-gray-700 rounded-lg appearance-none cursor-pointer"
+                      style={{ accentColor: '#D91743' }}
+                    />
+                    <div className="flex justify-between text-sm text-gray-400 mt-2">
+                      <span>Beginner</span>
+                      <span className="font-bold" style={{ color: '#D91743' }}>{formData.techKnowledge}</span>
+                      <span>Expert</span>
+                    </div>
+                  </motion.div>
+
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.6 }}
+                  >
+                    <label className="block text-sm font-medium mb-3" style={{ color: '#D91743' }}>
+                      English Level (1-10) *
+                    </label>
+                    <input
+                      type="range"
+                      name="englishLevel"
+                      min="1"
+                      max="10"
+                      value={formData.englishLevel}
+                      onChange={handleInputChange}
+                      className="w-full h-3 bg-gray-700 rounded-lg appearance-none cursor-pointer"
+                      style={{ accentColor: '#D91743' }}
+                    />
+                    <div className="flex justify-between text-sm text-gray-400 mt-2">
+                      <span>Basic</span>
+                      <span className="font-bold" style={{ color: '#D91743' }}>{formData.englishLevel}</span>
+                      <span>Fluent</span>
+                    </div>
+                  </motion.div>
+                </div>
+              </motion.div>
+            </motion.div>
+          );
+        } else {
+          // Center students go to contact info
+          return (
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5 }}
+              className="space-y-6"
+            >
+              <div className="text-center mb-8">
+                <motion.div 
+                  initial={{ scale: 0.8 }}
+                  animate={{ scale: 1 }}
+                  transition={{ duration: 0.5 }}
+                  className="flex items-center justify-center mb-4"
+                >
+                  <Phone className="text-red-500 mr-3" size={40} />
+                  <Flame className="text-red-600" size={32} />
+                </motion.div>
+                <h2 className="text-4xl font-bold bg-gradient-to-r from-red-400 to-red-600 bg-clip-text text-transparent mb-3">
+                  Contact Number, So we can TALK! 📞
+                </h2>
+                <p className="text-gray-300 text-xl">We need to know how to reach you and your parents</p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 }}
+                >
+                  <label className="block text-sm font-medium mb-3" style={{ color: '#D91743' }}>
+                    Your Contact Number *
+                  </label>
+                  <input
+                    type="tel"
+                    name="contactNumber"
+                    value={formData.contactNumber}
+                    onChange={handleInputChange}
+                    onKeyDown={handleKeyDown}
+                    className={`w-full px-8 py-5 border-2 text-white placeholder-gray-500 transition-all duration-300 ${
+                      errors.contactNumber ? 'shadow-xl' : 'hover:border-gray-600'
+                    }`}
+                    style={{
+                      backgroundColor: '#0a0a0a',
+                      borderColor: errors.contactNumber ? '#D91743' : '#2a2a2a',
+                      borderRadius: '2rem',
+                      boxShadow: errors.contactNumber ? '0 0 20px rgba(217, 23, 67, 0.5)' : 'none'
+                    }}
+                    onFocus={(e) => {
+                      e.target.style.borderColor = '#D91743';
+                      e.target.style.boxShadow = '0 0 0 4px rgba(217, 23, 67, 0.2), 0 0 20px rgba(217, 23, 67, 0.4)';
+                    }}
+                    onBlur={(e) => {
+                      if (!errors.contactNumber) {
+                        e.target.style.borderColor = '#2a2a2a';
+                        e.target.style.boxShadow = 'none';
+                      }
+                    }}
+                    placeholder="+92 300 1234567"
+                  />
+                  {errors.contactNumber && <p className="text-sm mt-2 flex items-center" style={{ color: '#D91743' }}><Heart size={14} className="mr-1" />{errors.contactNumber}</p>}
+                </motion.div>
+
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                >
+                  <label className="block text-sm font-medium mb-3" style={{ color: '#D91743' }}>
+                    Parent/Guardian Contact *
+                  </label>
+                  <input
+                    type="tel"
+                    name="parentContactNumber"
+                    value={formData.parentContactNumber}
+                    onChange={handleInputChange}
+                    onKeyDown={handleKeyDown}
+                    className={`w-full px-8 py-5 border-2 text-white placeholder-gray-500 transition-all duration-300 ${
+                      errors.parentContactNumber ? 'shadow-xl' : 'hover:border-gray-600'
+                    }`}
+                    style={{
+                      backgroundColor: '#0a0a0a',
+                      borderColor: errors.parentContactNumber ? '#D91743' : '#2a2a2a',
+                      borderRadius: '2rem',
+                      boxShadow: errors.parentContactNumber ? '0 0 20px rgba(217, 23, 67, 0.5)' : 'none'
+                    }}
+                    onFocus={(e) => {
+                      e.target.style.borderColor = '#D91743';
+                      e.target.style.boxShadow = '0 0 0 4px rgba(217, 23, 67, 0.2), 0 0 20px rgba(217, 23, 67, 0.4)';
+                    }}
+                    onBlur={(e) => {
+                      if (!errors.parentContactNumber) {
+                        e.target.style.borderColor = '#2a2a2a';
+                        e.target.style.boxShadow = 'none';
+                      }
+                    }}
+                    placeholder="+92 300 1234567"
+                  />
+                  {errors.parentContactNumber && <p className="text-sm mt-2 flex items-center" style={{ color: '#D91743' }}><Heart size={14} className="mr-1" />{errors.parentContactNumber}</p>}
+                </motion.div>
+              </div>
+
+              <motion.div 
+                className="space-y-6"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 }}
+              >
+                <h3 className="text-xl font-medium flex items-center" style={{ color: '#D91743' }}>
+                  <span className="mr-2">🌍</span>
+                  Where are you located?
+                </h3>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium mb-3" style={{ color: '#D91743' }}>
+                      City *
+                    </label>
+                    <input
+                      type="text"
+                      name="address.city"
+                      value={formData.address.city}
+                      onChange={handleInputChange}
+                      onKeyDown={handleKeyDown}
+                      className={`w-full px-8 py-5 border-2 text-white placeholder-gray-500 transition-all duration-300 ${
+                        errors['address.city'] ? 'shadow-xl' : 'hover:border-gray-600'
+                      }`}
+                      style={{
+                        backgroundColor: '#0a0a0a',
+                        borderColor: errors['address.city'] ? '#D91743' : '#2a2a2a',
+                        borderRadius: '2rem',
+                        boxShadow: errors['address.city'] ? '0 0 20px rgba(217, 23, 67, 0.5)' : 'none'
+                      }}
+                      onFocus={(e) => {
+                        e.target.style.borderColor = '#D91743';
+                        e.target.style.boxShadow = '0 0 0 4px rgba(217, 23, 67, 0.2), 0 0 20px rgba(217, 23, 67, 0.4)';
+                      }}
+                      onBlur={(e) => {
+                        if (!errors['address.city']) {
+                          e.target.style.borderColor = '#2a2a2a';
+                          e.target.style.boxShadow = 'none';
+                        }
+                      }}
+                      placeholder="Your city"
+                    />
+                    {errors['address.city'] && <p className="text-sm mt-2 flex items-center" style={{ color: '#D91743' }}><Heart size={14} className="mr-1" />{errors['address.city']}</p>}
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-3" style={{ color: '#D91743' }}>
+                      Country *
+                    </label>
+                    <input
+                      type="text"
+                      name="address.country"
+                      value={formData.address.country}
+                      onChange={handleInputChange}
+                      onKeyDown={handleKeyDown}
+                      className={`w-full px-8 py-5 border-2 text-white placeholder-gray-500 transition-all duration-300 ${
+                        errors['address.country'] ? 'shadow-xl' : 'hover:border-gray-600'
+                      }`}
+                      style={{
+                        backgroundColor: '#0a0a0a',
+                        borderColor: errors['address.country'] ? '#D91743' : '#2a2a2a',
+                        borderRadius: '2rem',
+                        boxShadow: errors['address.country'] ? '0 0 20px rgba(217, 23, 67, 0.5)' : 'none'
+                      }}
+                      onFocus={(e) => {
+                        e.target.style.borderColor = '#D91743';
+                        e.target.style.boxShadow = '0 0 0 4px rgba(217, 23, 67, 0.2), 0 0 20px rgba(217, 23, 67, 0.4)';
+                      }}
+                      onBlur={(e) => {
+                        if (!errors['address.country']) {
+                          e.target.style.borderColor = '#2a2a2a';
+                          e.target.style.boxShadow = 'none';
+                        }
+                      }}
+                      placeholder="Your country"
+                    />
+                    {errors['address.country'] && <p className="text-sm mt-2 flex items-center" style={{ color: '#D91743' }}><Heart size={14} className="mr-1" />{errors['address.country']}</p>}
+                  </div>
+                </div>
+              </motion.div>
+            </motion.div>
+          );
+        }
+
+      case 5:
         return (
           <motion.div
             initial={{ opacity: 0, x: 20 }}

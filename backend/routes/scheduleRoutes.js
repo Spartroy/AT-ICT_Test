@@ -7,7 +7,10 @@ const {
   updateScheduleDay,
   resetSchedule,
   getScheduleForStudent,
-  getTodayScheduleForStudent
+  getTodayScheduleForStudent,
+  assignStudentsToSchedule,
+  getAssignedStudents,
+  removeStudentFromSchedule
 } = require('../controllers/scheduleController');
 
 // Validation middleware for schedule
@@ -52,5 +55,10 @@ router.post('/', validateSchedule, createOrUpdateSchedule);
 router.put('/:day', validateDayUpdate, updateScheduleDay);
 
 router.delete('/', resetSchedule);
+
+// Student assignment routes
+router.post('/assign-students', assignStudentsToSchedule);
+router.get('/assigned-students', getAssignedStudents);
+router.delete('/students/:studentId', removeStudentFromSchedule);
 
 module.exports = router; 

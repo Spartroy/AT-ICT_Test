@@ -2,8 +2,6 @@ const mongoose = require('mongoose');
 const Student = require('../models/Student');
 const Assignment = require('../models/Assignment');
 const Quiz = require('../models/Quiz');
-const Attendance = require('../models/Attendance');
-const UserAttendance = require('../models/UserAttendance');
 const Announcement = require('../models/Announcement');
 const Message = require('../models/Message');
 const User = require('../models/User');
@@ -574,28 +572,6 @@ module.exports = {
   updateAssignmentFeedback,
   updateQuizFeedback,
   deleteStudent,
-  // Attendance summary for a student
-  getStudentAttendance: async (req, res) => {
-    try {
-      const { id } = req.params;
-      // Ensure student exists
-      const student = await User.findById(id);
-      if (!student || student.role !== 'student') {
-        return res.status(404).json({ status: 'error', message: 'Student not found' });
-      }
-      const todayStart = new Date(new Date().toDateString());
-      const records = await UserAttendance.find({ user: id }).sort({ date: -1, createdAt: -1 }).limit(200);
-      const summary = {
-        total: records.length,
-        present: records.filter(r => r.status === 'present').length,
-        latestDate: records[0]?.date || null
-      };
-      return res.status(200).json({ status: 'success', data: { summary, records } });
-    } catch (e) {
-      console.error('Get student attendance error:', e);
-      return res.status(500).json({ status: 'error', message: 'Server error retrieving attendance' });
-    }
-  },
   /**
    * Create a parent account for a given student and return credentials
    */

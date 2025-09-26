@@ -1,7 +1,7 @@
 const Schedule = require('../models/Schedule');
+const User = require('../models/User');
 const { validationResult } = require('express-validator');
 const jwt = require('jsonwebtoken');
-const UserAttendance = require('../models/UserAttendance');
 
 // @desc    Get the main schedule for teacher
 // @route   GET /api/teacher/schedule
@@ -315,13 +315,150 @@ const getTodayScheduleForStudent = async (req, res) => {
   }
 };
 
+// @desc    Assign students to schedule
+// @route   POST /api/teacher/schedule/assign-students
+// @access  Private (Teacher)
+const assignStudentsToSchedule = async (req, res) => {
+  try {
+    const { studentIds } = req.body;
+    
+    if (!studentIds || !Array.isArray(studentIds) || studentIds.length === 0) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Student IDs are required'
+      });
+    }
+
+    // Get the active schedule
+    const schedule = await Schedule.findOne({ isActive: true });
+    
+    if (!schedule) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'No active schedule found'
+      });
+    }
+
+    // Verify all students exist and are active
+    const validStudents = await User.find({
+      _id: { $in: studentIds },
+      role: 'student',
+      registrationStatus: 'approved',
+      isActive: true
+    }).select('_id firstName lastName email');
+
+    if (validStudents.length !== studentIds.length) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Some selected students are not valid or active'
+      });
+    }
+
+    // Clear existing assignments and add new ones
+    schedule.assignedStudents = studentIds.map(studentId => ({
+      student: studentId,
+      assignedAt: new Date()
+    }));
+
+    await schedule.save();
+
+    res.status(200).json({
+      status: 'success',
+      message: `Schedule assigned to ${validStudents.length} students`,
+      data: {
+        assignedStudents: validStudents,
+        totalAssigned: schedule.assignedStudents.length
+      }
+    });
+  } catch (error) {
+    console.error('Assign students to schedule error:', error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Server error assigning students to schedule'
+    });
+  }
+};
+
+// @desc    Get students assigned to schedule
+// @route   GET /api/teacher/schedule/assigned-students
+// @access  Private (Teacher)
+const getAssignedStudents = async (req, res) => {
+  try {
+    const schedule = await Schedule.findOne({ isActive: true })
+      .populate('assignedStudents.student', 'firstName lastName email studentInfo.studentId');
+
+    if (!schedule) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'No active schedule found'
+      });
+    }
+
+    res.status(200).json({
+      status: 'success',
+      data: {
+        assignedStudents: schedule.assignedStudents,
+        totalAssigned: schedule.assignedStudents.length
+      }
+    });
+  } catch (error) {
+    console.error('Get assigned students error:', error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Server error retrieving assigned students'
+    });
+  }
+};
+
+// @desc    Remove student from schedule
+// @route   DELETE /api/teacher/schedule/students/:studentId
+// @access  Private (Teacher)
+const removeStudentFromSchedule = async (req, res) => {
+  try {
+    const { studentId } = req.params;
+
+    const schedule = await Schedule.findOne({ isActive: true });
+    
+    if (!schedule) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'No active schedule found'
+      });
+    }
+
+    // Remove student from assigned students
+    schedule.assignedStudents = schedule.assignedStudents.filter(
+      assignment => assignment.student.toString() !== studentId
+    );
+
+    await schedule.save();
+
+    res.status(200).json({
+      status: 'success',
+      message: 'Student removed from schedule',
+      data: {
+        totalAssigned: schedule.assignedStudents.length
+      }
+    });
+  } catch (error) {
+    console.error('Remove student from schedule error:', error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Server error removing student from schedule'
+    });
+  }
+};
+
 module.exports = {
   getSchedule,
   createOrUpdateSchedule,
   updateScheduleDay,
   resetSchedule,
   getScheduleForStudent,
-  getTodayScheduleForStudent
+  getTodayScheduleForStudent,
+  assignStudentsToSchedule,
+  getAssignedStudents,
+  removeStudentFromSchedule
 }; 
 
 // --- Attendance via QR ---
@@ -350,64 +487,5 @@ module.exports.getSessionQr = async (req, res) => {
   } catch (e) {
     console.error('getSessionQr error:', e);
     res.status(500).json({ status: 'error', message: 'Server error issuing QR' });
-  }
-};
-
-// @desc Student scans QR to mark attendance
-// @route POST /api/student/attendance/check
-// @access Private (Student)
-module.exports.checkInAttendance = async (req, res) => {
-  try {
-    const { token } = req.body || {};
-    if (!token) return res.status(400).json({ status: 'error', message: 'Missing token' });
-
-    let payload;
-    try {
-      payload = jwt.verify(token, process.env.JWT_SECRET || 'fallback_jwt_secret_for_development');
-    } catch (err) {
-      return res.status(400).json({ status: 'error', message: 'Invalid/expired QR token' });
-    }
-
-    if (payload.t !== 'att') {
-      return res.status(400).json({ status: 'error', message: 'Invalid token type' });
-    }
-
-    const todayStart = new Date(new Date().toDateString());
-
-    try {
-      const record = await UserAttendance.findOneAndUpdate(
-        {
-          user: req.user.id,
-          date: todayStart,
-          'session.startTime': payload.startTime,
-        },
-        {
-          user: req.user.id,
-          date: todayStart,
-          session: {
-            day: payload.day,
-            startTime: payload.startTime,
-            endTime: payload.endTime,
-            type: payload.type || 'theory',
-            topic: payload.topic || 'Session'
-          },
-          status: 'present',
-          markedBy: req.user.id
-        },
-        { upsert: true, new: true, setDefaultsOnInsert: true }
-      );
-
-      return res.status(200).json({ status: 'success', data: { attendance: record } });
-    } catch (err) {
-      // Handle duplicate key error gracefully (already marked)
-      if (err && err.code === 11000) {
-        return res.status(200).json({ status: 'success', message: 'Attendance already marked for this session.' });
-      }
-      console.error('checkInAttendance DB error:', err);
-      return res.status(500).json({ status: 'error', message: err.message || 'Server error marking attendance' });
-    }
-  } catch (e) {
-    console.error('checkInAttendance error (outer):', e);
-    res.status(500).json({ status: 'error', message: e.message || 'Server error marking attendance' });
   }
 };

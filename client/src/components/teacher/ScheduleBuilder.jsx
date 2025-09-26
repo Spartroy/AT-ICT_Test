@@ -43,6 +43,11 @@ const ScheduleBuilder = () => {
   const [saving, setSaving] = useState(false);
   const [qrToken, setQrToken] = useState('');
   const [showQr, setShowQr] = useState(false);
+  const [showStudentModal, setShowStudentModal] = useState(false);
+  const [students, setStudents] = useState([]);
+  const [selectedStudents, setSelectedStudents] = useState([]);
+  const [assignedStudents, setAssignedStudents] = useState([]);
+  const [loadingStudents, setLoadingStudents] = useState(false);
 
   const [formData, setFormData] = useState({
     title: 'Class Schedule',
@@ -52,6 +57,8 @@ const ScheduleBuilder = () => {
 
   useEffect(() => {
     fetchSchedule();
+    fetchStudents();
+    fetchAssignedStudents();
   }, []);
 
   const fetchSchedule = async () => {
@@ -230,6 +237,129 @@ const ScheduleBuilder = () => {
       showError('Error resetting schedule');
     } finally {
       setSaving(false);
+    }
+  };
+
+  const fetchStudents = async () => {
+    try {
+      setLoadingStudents(true);
+      const token = getValidToken();
+      
+      if (!token) {
+        console.error('Authentication token is missing or invalid');
+        return;
+      }
+      
+      const response = await fetch(API_ENDPOINTS.TEACHER.STUDENTS, {
+        headers: setAuthHeaders({
+          'Content-Type': 'application/json'
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setStudents(data.data.students || []);
+      } else {
+        console.error('Failed to fetch students');
+      }
+    } catch (error) {
+      console.error('Error fetching students:', error);
+    } finally {
+      setLoadingStudents(false);
+    }
+  };
+
+  const fetchAssignedStudents = async () => {
+    try {
+      const token = getValidToken();
+      
+      if (!token) {
+        console.error('Authentication token is missing or invalid');
+        return;
+      }
+      
+      const response = await fetch(API_ENDPOINTS.SCHEDULE.ASSIGNED_STUDENTS, {
+        headers: setAuthHeaders({
+          'Content-Type': 'application/json'
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setAssignedStudents(data.data.assignedStudents || []);
+      } else {
+        console.error('Failed to fetch assigned students');
+      }
+    } catch (error) {
+      console.error('Error fetching assigned students:', error);
+    }
+  };
+
+  const handleAssignStudents = async () => {
+    try {
+      setSaving(true);
+      const token = getValidToken();
+      
+      if (!token) {
+        showWarning('Authentication token is missing or invalid. Please log in again.');
+        clearAuth();
+        redirectToLogin('invalid_token');
+        return;
+      }
+      
+      const response = await fetch(API_ENDPOINTS.SCHEDULE.ASSIGN_STUDENTS, {
+        method: 'POST',
+        headers: setAuthHeaders({
+          'Content-Type': 'application/json'
+        }),
+        body: JSON.stringify({ studentIds: selectedStudents })
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        showSuccess(data.message);
+        setShowStudentModal(false);
+        setSelectedStudents([]);
+        await fetchAssignedStudents();
+      } else {
+        const errorData = await response.json();
+        showError(errorData.message || 'Failed to assign students');
+      }
+    } catch (error) {
+      console.error('Error assigning students:', error);
+      showError('Error assigning students');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleRemoveStudent = async (studentId) => {
+    try {
+      const token = getValidToken();
+      
+      if (!token) {
+        showWarning('Authentication token is missing or invalid. Please log in again.');
+        clearAuth();
+        redirectToLogin('invalid_token');
+        return;
+      }
+      
+      const response = await fetch(`${API_ENDPOINTS.SCHEDULE.REMOVE_STUDENT}/${studentId}`, {
+        method: 'DELETE',
+        headers: setAuthHeaders()
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        showSuccess(data.message);
+        await fetchAssignedStudents();
+      } else {
+        const errorData = await response.json();
+        showError(errorData.message || 'Failed to remove student');
+      }
+    } catch (error) {
+      console.error('Error removing student:', error);
+      showError('Error removing student');
     }
   };
 
@@ -643,6 +773,154 @@ const ScheduleBuilder = () => {
           </div>
         )}
       </AnimatePresence>
+      {/* Student Management Section */}
+      {schedule && (
+        <div className="mt-8 bg-white/10 backdrop-blur-sm rounded-xl shadow-xl p-6 border border-white/20">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+            <div>
+              <h3 className="text-xl font-bold text-white mb-2">Assigned Students</h3>
+              <p className="text-gray-300 text-sm">
+                {assignedStudents.length} student{assignedStudents.length !== 1 ? 's' : ''} assigned to this schedule
+              </p>
+            </div>
+            <button
+              onClick={() => setShowStudentModal(true)}
+              className="bg-[#CA133E] text-white px-4 py-2 rounded-xl hover:bg-[#A01030] font-bold text-sm shadow-lg transition-colors"
+            >
+              Manage Students
+            </button>
+          </div>
+
+          {assignedStudents.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {assignedStudents.map((assignment) => (
+                <div key={assignment.student._id} className="bg-white/10 rounded-xl p-4 flex items-center justify-between">
+                  <div>
+                    <p className="text-white font-semibold">
+                      {assignment.student.firstName} {assignment.student.lastName}
+                    </p>
+                    <p className="text-gray-300 text-sm">
+                      ID: {assignment.student.studentInfo?.studentId || 'N/A'}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => handleRemoveStudent(assignment.student._id)}
+                    className="text-red-400 hover:text-red-300 p-1 rounded-lg hover:bg-red-900/20 transition-colors"
+                    title="Remove student"
+                  >
+                    <TrashIcon className="h-4 w-4" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <p className="text-gray-300 mb-4">No students assigned to this schedule</p>
+              <button
+                onClick={() => setShowStudentModal(true)}
+                className="bg-[#CA133E] text-white px-4 py-2 rounded-xl hover:bg-[#A01030] font-bold text-sm shadow-lg transition-colors"
+              >
+                Assign Students
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Student Selection Modal */}
+      <AnimatePresence>
+        {showStudentModal && (
+          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-[#2a1a1a] rounded-xl shadow-2xl p-6 max-w-4xl w-full max-h-[80vh] overflow-y-auto border border-[#CA133E]/30"
+            >
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-xl font-bold text-white">Assign Students to Schedule</h3>
+                <button
+                  onClick={() => {
+                    setShowStudentModal(false);
+                    setSelectedStudents([]);
+                  }}
+                  className="text-gray-400 hover:text-white"
+                >
+                  <XMarkIcon className="h-6 w-6" />
+                </button>
+              </div>
+
+              {loadingStudents ? (
+                <div className="text-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#CA133E] mx-auto mb-4"></div>
+                  <p className="text-gray-300">Loading students...</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 max-h-60 overflow-y-auto">
+                    {students.map((student) => (
+                      <label
+                        key={student._id}
+                        className={`flex items-center p-3 rounded-xl border-2 cursor-pointer transition-colors ${
+                          selectedStudents.includes(student._id)
+                            ? 'border-[#CA133E] bg-[#CA133E]/20'
+                            : 'border-white/20 bg-white/10 hover:bg-white/20'
+                        }`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={selectedStudents.includes(student._id)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setSelectedStudents([...selectedStudents, student._id]);
+                            } else {
+                              setSelectedStudents(selectedStudents.filter(id => id !== student._id));
+                            }
+                          }}
+                          className="sr-only"
+                        />
+                        <div className="flex-1">
+                          <p className="text-white font-semibold">
+                            {student.firstName} {student.lastName}
+                          </p>
+                          <p className="text-gray-300 text-sm">
+                            ID: {student.studentInfo?.studentId || 'N/A'}
+                          </p>
+                        </div>
+                      </label>
+                    ))}
+                  </div>
+
+                  <div className="flex justify-between items-center pt-4 border-t border-white/20">
+                    <p className="text-gray-300 text-sm">
+                      {selectedStudents.length} student{selectedStudents.length !== 1 ? 's' : ''} selected
+                    </p>
+                    <div className="flex gap-3">
+                      <button
+                        onClick={() => {
+                          setShowStudentModal(false);
+                          setSelectedStudents([]);
+                        }}
+                        className="px-4 py-2 text-gray-300 hover:text-white transition-colors"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={handleAssignStudents}
+                        disabled={selectedStudents.length === 0 || saving}
+                        className="bg-[#CA133E] text-white px-4 py-2 rounded-xl hover:bg-[#A01030] font-bold text-sm shadow-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {saving ? 'Assigning...' : 'Assign Students'}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
       {/* QR Modal */}
       <AnimatePresence>
         {showQr && (

@@ -36,7 +36,6 @@ router.get('/dashboard', getDashboardStats);
 // Student management routes
 router.get('/students', getStudents);
 router.get('/students/:id', getStudentDetails);
-router.get('/students/:id/attendance', require('../controllers/teacherController').getStudentAttendance);
 router.put('/students/:id', updateStudent);
 router.delete('/students/:id', deleteStudent);
 // Create parent account for a student

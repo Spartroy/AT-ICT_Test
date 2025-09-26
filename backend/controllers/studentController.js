@@ -1,7 +1,6 @@
 const User = require('../models/User');
 const Assignment = require('../models/Assignment');
 const Quiz = require('../models/Quiz');
-const Attendance = require('../models/Attendance');
 const Schedule = require('../models/Schedule');
 const Material = require('../models/Material');
 const Video = require('../models/Video');

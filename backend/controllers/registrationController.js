@@ -37,7 +37,10 @@ const submitRegistration = async (req, res) => {
       techKnowledge,
       englishLevel,
       otherSubjects,
-      password
+      password,
+      schoolType,
+      royalClass,
+      royalNationality
     } = req.body;
 
     // Check if email already exists 
@@ -62,15 +65,18 @@ const submitRegistration = async (req, res) => {
         city
       },
       studentInfo: {
-      year,
-      nationality,
-      school,
-      session,
-      isRetaker,
+        year,
+        nationality,
+        school,
+        session,
+        isRetaker,
         parentContactNumber: parentNumber,
-      techKnowledge,
+        techKnowledge,
         englishLevel,
-        otherSubjects
+        otherSubjects,
+        schoolType,
+        royalClass,
+        royalNationality
       },
       registrationStatus: 'pending'
     });
