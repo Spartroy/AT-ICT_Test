@@ -36,12 +36,6 @@ router.get('/children/:childId/progress', (req, res) => {
   });
 });
 
-router.get('/children/:childId/attendance', (req, res) => {
-  res.json({
-    status: 'success',
-    message: 'Child attendance - Coming soon!'
-  });
-});
 
 router.get('/fees', (req, res) => {
   res.json({

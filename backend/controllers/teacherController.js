@@ -532,8 +532,6 @@ const deleteStudent = async (req, res) => {
         { 'assignedTo.student': student._id },
         { $pull: { assignedTo: { student: student._id } } }
       ),
-      // Delete attendance records
-      UserAttendance.deleteMany({ user: student._id }),
       // Delete messages
       Message.deleteMany({
         $or: [

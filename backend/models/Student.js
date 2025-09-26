@@ -107,19 +107,6 @@ const studentSchema = new mongoose.Schema({
     enum: ['paid', 'partial', 'pending', 'overdue'],
     default: 'pending'
   },
-  // Attendance
-  totalClasses: {
-    type: Number,
-    default: 0
-  },
-  attendedClasses: {
-    type: Number,
-    default: 0
-  },
-  attendancePercentage: {
-    type: Number,
-    default: 0
-  },
   // Performance Metrics
   assignmentsCompleted: {
     type: Number,
@@ -162,10 +149,6 @@ studentSchema.pre('save', function(next) {
     this.feeStatus = 'pending';
   }
   
-  // Calculate attendance percentage
-  if (this.totalClasses > 0) {
-    this.attendancePercentage = Math.round((this.attendedClasses / this.totalClasses) * 100);
-  }
   
   next();
 });
@@ -184,12 +167,5 @@ studentSchema.virtual('performanceStatus').get(function() {
   return 'needs_improvement';
 });
 
-// Virtual for attendance status
-studentSchema.virtual('attendanceStatus').get(function() {
-  if (this.attendancePercentage >= 90) return 'excellent';
-  if (this.attendancePercentage >= 75) return 'good';
-  if (this.attendancePercentage >= 60) return 'average';
-  return 'poor';
-});
 
 module.exports = mongoose.model('Student', studentSchema); 

@@ -3,7 +3,6 @@ const Student = require('../models/Student');
 const User = require('../models/User');
 const Assignment = require('../models/Assignment');
 const Quiz = require('../models/Quiz');
-const Attendance = require('../models/Attendance');
 const Message = require('../models/Message');
 
 // @desc    Get parent dashboard data
@@ -55,8 +54,6 @@ const getDashboardData = async (req, res) => {
         }
       ]);
 
-      const attendanceSummary = await Attendance.getStudentAttendanceSummary?.(student._id);
-
       return res.status(200).json({
         status: 'success',
         data: {
@@ -65,8 +62,7 @@ const getDashboardData = async (req, res) => {
           allChildren: parent.children,
           stats: {
             assignments: assignmentStats[0] || { totalAssignments: 0, completedAssignments: 0, avgScore: 0 },
-            quizzes: quizStats[0] || { totalQuizzes: 0, completedQuizzes: 0, avgScore: 0 },
-            attendance: attendanceSummary?.summary || { present: 0, absent: 0, late: 0, total: 0, percentage: 0 }
+            quizzes: quizStats[0] || { totalQuizzes: 0, completedQuizzes: 0, avgScore: 0 }
           }
         }
       });
@@ -153,8 +149,7 @@ const getDashboardData = async (req, res) => {
         ],
         stats: {
           assignments: assignmentStats[0] || { totalAssignments: 0, completedAssignments: 0, avgScore: 0 },
-          quizzes: quizStats[0] || { totalQuizzes: 0, completedQuizzes: 0, avgScore: 0 },
-          attendance: { present: 0, absent: 0, late: 0, total: 0, percentage: 0 }
+          quizzes: quizStats[0] || { totalQuizzes: 0, completedQuizzes: 0, avgScore: 0 }
         }
       }
     });
