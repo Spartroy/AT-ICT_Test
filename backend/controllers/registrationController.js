@@ -129,6 +129,24 @@ const submitRegistration = async (req, res) => {
         });
       }
       
+      // Check if it's a duplicate key error
+      if (error.code === 11000) {
+        const field = Object.keys(error.keyPattern)[0];
+        let message = 'A user with this information already exists';
+        
+        if (field === 'email') {
+          message = 'A user with this email already exists';
+        } else if (field === 'studentInfo.studentId') {
+          message = 'A student with this ID already exists. Please try again.';
+        }
+        
+        return res.status(400).json({
+          status: 'error',
+          message,
+          details: 'Duplicate entry detected'
+        });
+      }
+      
       res.status(500).json({
         status: 'error',
         message: 'Server error submitting registration',

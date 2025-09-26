@@ -751,8 +751,8 @@ const userSchema = new mongoose.Schema({
  */
 userSchema.index({ email: 1 }, { unique: true });
 userSchema.index({ role: 1 });
-userSchema.index({ 'studentInfo.studentId': 1 }, { sparse: true });
-userSchema.index({ 'teacherInfo.employeeId': 1 }, { sparse: true });
+userSchema.index({ 'studentInfo.studentId': 1 }, { unique: true, sparse: true });
+userSchema.index({ 'teacherInfo.employeeId': 1 }, { unique: true, sparse: true });
 userSchema.index({ registrationStatus: 1 });
 userSchema.index({ isActive: 1 });
 userSchema.index({ lastLogin: 1 });
@@ -785,18 +785,47 @@ userSchema.pre('save', async function(next) {
 /**
  * Generate student ID for new student accounts
  * Format: AT{YEAR}{4-digit-sequential-number}
+ * Uses atomic operations to prevent duplicate IDs
  */
 userSchema.pre('save', async function(next) {
   if (this.role === 'student' && this.isNew && !this.studentInfo.studentId) {
     try {
       const currentYear = new Date().getFullYear();
-      const count = await this.constructor.countDocuments({ 
-        role: 'student',
-        'studentInfo.studentId': { $exists: true, $ne: null }
-      });
+      let attempts = 0;
+      const maxAttempts = 10;
       
-      // Format: AT + Year + 4-digit number (e.g., AT20240001)
-      this.studentInfo.studentId = `AT${currentYear}${String(count + 1).padStart(4, '0')}`;
+      while (attempts < maxAttempts) {
+        // Get the highest existing student ID for this year
+        const lastStudent = await this.constructor.findOne({
+          role: 'student',
+          'studentInfo.studentId': { $regex: `^AT${currentYear}` }
+        }).sort({ 'studentInfo.studentId': -1 });
+        
+        let nextNumber = 1;
+        if (lastStudent && lastStudent.studentInfo.studentId) {
+          const lastId = lastStudent.studentInfo.studentId;
+          const lastNumber = parseInt(lastId.slice(-4));
+          nextNumber = lastNumber + 1;
+        }
+        
+        const candidateId = `AT${currentYear}${String(nextNumber).padStart(4, '0')}`;
+        
+        // Check if this ID already exists
+        const existingStudent = await this.constructor.findOne({
+          'studentInfo.studentId': candidateId
+        });
+        
+        if (!existingStudent) {
+          this.studentInfo.studentId = candidateId;
+          break;
+        }
+        
+        attempts++;
+      }
+      
+      if (attempts >= maxAttempts) {
+        return next(new Error('Unable to generate unique student ID after multiple attempts'));
+      }
     } catch (error) {
       return next(error);
     }
