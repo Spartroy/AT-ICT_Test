@@ -186,6 +186,13 @@ const Registration = () => {
     if (!validateStep(currentStep)) {
       return;
     }
+    
+    // Additional check for schoolType
+    if (!formData.schoolType) {
+      setErrors({ schoolType: 'Please select your school type' });
+      setLoading(false);
+      return;
+    }
 
     setLoading(true);
     setErrors({});
@@ -208,13 +215,15 @@ const Registration = () => {
         englishLevel: parseInt(formData.englishLevel),
         otherSubjects: formData.otherSubjects || '',
         password: formData.password,
-        schoolType: formData.schoolType,
+        schoolType: formData.schoolType || '',
         royalClass: formData.royalClass,
         royalNationality: formData.royalNationality
       };
 
       console.log('Sending registration data:', registrationData);
-            console.log('Request URL:', API_ENDPOINTS.REGISTRATION.SUBMIT);
+      console.log('Request URL:', API_ENDPOINTS.REGISTRATION.SUBMIT);
+      console.log('School type value:', formData.schoolType);
+      console.log('Form data school type:', formData.schoolType);
       
       const response = await fetch(API_ENDPOINTS.REGISTRATION.SUBMIT, {
         method: 'POST',
@@ -554,6 +563,7 @@ const Registration = () => {
                 <label className="block text-sm font-medium mb-3" style={{ color: '#D91743' }}>
                   School Type *
                 </label>
+                {errors.schoolType && <p className="text-sm mb-3 flex items-center" style={{ color: '#D91743' }}><Heart size={14} className="mr-1" />{errors.schoolType}</p>}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {[
                     { value: 'royal', label: 'The Royal College School', description: 'I am a student at The Royal College School' },
