@@ -19,7 +19,8 @@ import {
   TrophyIcon,
   QrCodeIcon,
   ChevronDownIcon,
-  ChevronUpIcon
+  ChevronUpIcon,
+  TrashIcon
 } from '@heroicons/react/24/outline';
 import { setAuthHeaders } from '../../utils/auth';
 
@@ -51,6 +52,9 @@ const StudentManagement = () => {
   const [showChatModal, setShowChatModal] = useState(false);
   const [parentCredentials, setParentCredentials] = useState(null);
   const [showTabDropdown, setShowTabDropdown] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [studentToDelete, setStudentToDelete] = useState(null);
+  const [deleting, setDeleting] = useState(false);
   const tabContainerRef = useRef(null);
   const dropdownRef = useRef(null);
 
@@ -275,6 +279,42 @@ const StudentManagement = () => {
     }
   };
 
+  const handleDeleteStudent = async () => {
+    if (!studentToDelete) return;
+    
+    setDeleting(true);
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_ENDPOINTS.TEACHER.STUDENTS}/${studentToDelete._id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        showOperationToast.saveSuccess('Student removed');
+        setShowDeleteModal(false);
+        setStudentToDelete(null);
+        fetchStudents(); // Refresh the student list
+      } else {
+        const errorData = await response.json();
+        showOperationToast.saveError('Student removal', errorData.message);
+      }
+    } catch (error) {
+      console.error('Error deleting student:', error);
+      showOperationToast.networkError();
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const confirmDeleteStudent = (student) => {
+    setStudentToDelete(student);
+    setShowDeleteModal(true);
+  };
+
   const getStatusBadge = (status) => {
     const styles = {
       pending: 'bg-yellow-100 text-yellow-800',
@@ -474,6 +514,14 @@ const StudentManagement = () => {
                             <span>Create Parent</span>
                           </button>
                         )}
+                        <button
+                          onClick={() => confirmDeleteStudent(student)}
+                          className="flex items-center space-x-2 px-3 sm:px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors text-sm"
+                          title="Remove Student"
+                        >
+                          <TrashIcon className="h-4 w-4 sm:h-5 sm:w-5" />
+                          <span className="hidden sm:inline">Remove</span>
+                        </button>
                     </div>
                   </div>
                 </div>
@@ -1250,6 +1298,62 @@ const StudentManagement = () => {
                   }}
                 >
                   Close
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Delete Confirmation Modal */}
+      <AnimatePresence>
+        {showDeleteModal && studentToDelete && (
+          <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-gray-900 text-white rounded-xl shadow-2xl w-full max-w-md border border-gray-700"
+            >
+              <div className="p-5 border-b border-gray-800">
+                <h3 className="text-xl font-semibold text-red-400 flex items-center">
+                  <TrashIcon className="h-6 w-6 mr-2" />
+                  Remove Student
+                </h3>
+                <p className="text-gray-400 text-sm mt-1">
+                  Are you sure you want to remove <strong>{studentToDelete.fullName}</strong> from the system?
+                </p>
+                <p className="text-red-400 text-xs mt-2">
+                  ⚠️ This action cannot be undone. All student data, assignments, and progress will be permanently deleted.
+                </p>
+              </div>
+              <div className="p-5 flex justify-end space-x-3">
+                <button
+                  onClick={() => {
+                    setShowDeleteModal(false);
+                    setStudentToDelete(null);
+                  }}
+                  className="px-4 py-2 bg-gray-700 rounded-xl hover:bg-gray-600 transition-colors"
+                  disabled={deleting}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleDeleteStudent}
+                  disabled={deleting}
+                  className="px-4 py-2 bg-red-600 rounded-xl hover:bg-red-700 disabled:opacity-50 transition-colors flex items-center space-x-2"
+                >
+                  {deleting ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                      <span>Removing...</span>
+                    </>
+                  ) : (
+                    <>
+                      <TrashIcon className="h-4 w-4" />
+                      <span>Remove Student</span>
+                    </>
+                  )}
                 </button>
               </div>
             </motion.div>

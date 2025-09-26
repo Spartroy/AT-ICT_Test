@@ -5,7 +5,8 @@ const {
   getStudentDetails,
   updateStudent,
   updateQuizFeedback,
-  createParentAccount
+  createParentAccount,
+  deleteStudent
 } = require('../controllers/teacherController');
 const { protect, teacherOnly } = require('../middleware/auth');
 
@@ -37,6 +38,7 @@ router.get('/students', getStudents);
 router.get('/students/:id', getStudentDetails);
 router.get('/students/:id/attendance', require('../controllers/teacherController').getStudentAttendance);
 router.put('/students/:id', updateStudent);
+router.delete('/students/:id', deleteStudent);
 // Create parent account for a student
 router.post('/students/:id/create-parent', createParentAccount);
 

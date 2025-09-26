@@ -1,4 +1,6 @@
 const User = require('../models/User');
+const Assignment = require('../models/Assignment');
+const Quiz = require('../models/Quiz');
 const { validationResult } = require('express-validator');
 const { createActivityFromEvent } = require('./activityController');
 
@@ -375,6 +377,54 @@ const approveRegistration = async (req, res) => {
     }
     
     await user.save();
+
+    // Automatically assign existing assignments and quizzes to the newly approved student
+    try {
+      // Get all active assignments
+      const assignments = await Assignment.find({ isActive: true });
+      
+      // Get all active quizzes
+      const quizzes = await Quiz.find({ isActive: true });
+      
+      // Assign existing assignments to the new student
+      for (const assignment of assignments) {
+        // Check if student is not already assigned to this assignment
+        const isAlreadyAssigned = assignment.assignedTo.some(
+          a => a.student.toString() === user._id.toString()
+        );
+        
+        if (!isAlreadyAssigned) {
+          assignment.assignedTo.push({
+            student: user._id,
+            assignedDate: new Date(),
+            status: 'assigned'
+          });
+          await assignment.save();
+        }
+      }
+      
+      // Assign existing quizzes to the new student
+      for (const quiz of quizzes) {
+        // Check if student is not already assigned to this quiz
+        const isAlreadyAssigned = quiz.assignedTo.some(
+          a => a.student.toString() === user._id.toString()
+        );
+        
+        if (!isAlreadyAssigned) {
+          quiz.assignedTo.push({
+            student: user._id,
+            assignedDate: new Date(),
+            status: 'assigned'
+          });
+          await quiz.save();
+        }
+      }
+      
+      console.log(`📚 Assigned ${assignments.length} assignments and ${quizzes.length} quizzes to newly approved student ${user.email}`);
+    } catch (assignmentError) {
+      console.error('Error assigning existing assignments/quizzes to new student:', assignmentError);
+      // Don't fail the approval process if assignment assignment fails
+    }
 
     console.log(`✅ Registration approved for ${user.email}`);
     

@@ -508,6 +508,64 @@ const updateQuizFeedback = async (req, res) => {
   }
 };
 
+// @desc    Delete student
+// @route   DELETE /api/teacher/students/:id
+// @access  Private (Teacher)
+const deleteStudent = async (req, res) => {
+  try {
+    const student = await User.findById(req.params.id);
+
+    if (!student || student.role !== 'student') {
+      return res.status(404).json({
+        status: 'error',
+        message: 'Student not found'
+      });
+    }
+
+    // Delete related data
+    await Promise.all([
+      // Delete assignments where student is assigned
+      Assignment.updateMany(
+        { 'assignedTo.student': student._id },
+        { $pull: { assignedTo: { student: student._id } } }
+      ),
+      // Delete quizzes where student is assigned
+      Quiz.updateMany(
+        { 'assignedTo.student': student._id },
+        { $pull: { assignedTo: { student: student._id } } }
+      ),
+      // Delete attendance records
+      UserAttendance.deleteMany({ user: student._id }),
+      // Delete messages
+      Message.deleteMany({
+        $or: [
+          { sender: student._id },
+          { recipient: student._id }
+        ]
+      }),
+      // Delete student from parent accounts
+      User.updateMany(
+        { 'parentInfo.children.studentId': student._id },
+        { $pull: { 'parentInfo.children': { studentId: student._id } } }
+      )
+    ]);
+
+    // Delete the student
+    await student.deleteOne();
+
+    res.status(200).json({
+      status: 'success',
+      message: 'Student removed successfully'
+    });
+  } catch (error) {
+    console.error('Delete student error:', error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Server error removing student'
+    });
+  }
+};
+
 module.exports = {
   getDashboardStats,
   getStudents,
@@ -515,6 +573,7 @@ module.exports = {
   updateStudent,
   updateAssignmentFeedback,
   updateQuizFeedback,
+  deleteStudent,
   // Attendance summary for a student
   getStudentAttendance: async (req, res) => {
     try {
