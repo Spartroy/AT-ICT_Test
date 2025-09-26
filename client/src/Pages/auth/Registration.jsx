@@ -80,7 +80,7 @@ const Registration = () => {
 
   // Prevent Enter key from submitting form on non-final steps
   const handleKeyDown = (e) => {
-    if (e.key === 'Enter' && currentStep < totalSteps) {
+    if (e.key === 'Enter' && currentStep < (formData.schoolType === 'royal' ? 4 : 5)) {
       e.preventDefault();
       console.warn('Enter key prevented on step', currentStep);
       // Instead of submitting, move to next step if current step is valid
@@ -134,8 +134,11 @@ const Registration = () => {
         // For Royal students, this is skills assessment - no validation needed
         break;
 
-      case 5: // Skills Assessment (for Center students)
-        // No validation needed
+      case 5: // Skills Assessment (for Center students only)
+        // Only Center students reach this step
+        if (formData.schoolType === 'center') {
+          // No validation needed for skills assessment
+        }
         break;
 
       default:
@@ -154,7 +157,9 @@ const Registration = () => {
     }
     
     if (validateStep(currentStep)) {
-      setCurrentStep(prev => Math.min(prev + 1, totalSteps));
+      // Royal students only have 4 steps, Center students have 5 steps
+      const maxSteps = formData.schoolType === 'royal' ? 4 : 5;
+      setCurrentStep(prev => Math.min(prev + 1, maxSteps));
     }
   };
 
@@ -173,7 +178,7 @@ const Registration = () => {
     e.stopPropagation();
     
     // Extra safety check - only allow submission on final step
-    if (currentStep !== totalSteps) {
+    if (currentStep !== (formData.schoolType === 'royal' ? 4 : 5)) {
       console.warn('Attempted submission before final step. Current step:', currentStep);
       return;
     }
@@ -1291,7 +1296,9 @@ const Registration = () => {
         }
 
       case 5:
-        return (
+        // Only show this step for Center students
+        if (formData.schoolType === 'center') {
+          return (
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -1547,6 +1554,9 @@ const Registration = () => {
             )}
           </motion.div>
         );
+        }
+        // For Royal students, they should not reach step 5
+        return null;
 
       default:
         return null;
@@ -1569,7 +1579,7 @@ const Registration = () => {
               Student Registration
             </h1>
             <span className="font-medium px-4 py-2 rounded-full mt-5 border-2 text-white text-sm" style={{ backgroundColor: '#D91743', borderColor: '#D91743', boxShadow: '0 0 20px rgba(217, 23, 67, 0.4)' }}>
-              Step {currentStep} of {totalSteps}
+              Step {currentStep} of {formData.schoolType === 'royal' ? 4 : 5}
             </span>
           </div>
           <div className="w-full bg-gray-800 rounded-full h-3 shadow-inner">
@@ -1580,7 +1590,7 @@ const Registration = () => {
                 boxShadow: '0 0 15px rgba(217, 23, 67, 0.6)'
               }}
               initial={{ width: 0 }}
-              animate={{ width: `${(currentStep / totalSteps) * 100}%` }}
+              animate={{ width: `${(currentStep / (formData.schoolType === 'royal' ? 4 : 5)) * 100}%` }}
               transition={{ duration: 0.5, ease: "easeOut" }}
             ></motion.div>
           </div>
@@ -1593,7 +1603,10 @@ const Registration = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
         >
-          {['Personal Info', 'Academic Journey', 'Contact Info', 'Skills Assessment'].map((step, index) => (
+          {(formData.schoolType === 'royal' 
+            ? ['Personal Info', 'School Selection', 'Contact Info', 'Skills Assessment']
+            : ['Personal Info', 'Academic Journey', 'Contact Info', 'Skills Assessment']
+          ).map((step, index) => (
             <motion.div 
               key={step} 
               className="flex flex-col items-center"
@@ -1644,10 +1657,10 @@ const Registration = () => {
             e.stopPropagation();
             
             // Only allow submission on the final step
-            if (currentStep === totalSteps) {
+            if (currentStep === (formData.schoolType === 'royal' ? 4 : 5)) {
               handleSubmit(e);
             } else {
-              console.warn('Form submission prevented. Current step:', currentStep, 'Total steps:', totalSteps);
+              console.warn('Form submission prevented. Current step:', currentStep, 'Total steps:', formData.schoolType === 'royal' ? 4 : 5);
             }
           }}>
             {renderStepContent()}
@@ -1675,7 +1688,7 @@ const Registration = () => {
                   Previous
                 </motion.button>
 
-              {currentStep < totalSteps ? (
+              {currentStep < (formData.schoolType === 'royal' ? 4 : 5) ? (
                 <motion.button
                   type="button"
                   onClick={handleNext}

@@ -32,6 +32,16 @@ const StudentManagement = () => {
   const [showModal, setShowModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingStudent, setEditingStudent] = useState(null);
+  const [showLegacyModal, setShowLegacyModal] = useState(false);
+  const [legacyStudent, setLegacyStudent] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    schoolType: '',
+    royalClass: '',
+    contactNumber: '',
+    parentContactNumber: ''
+  });
   const [activeTab, setActiveTab] = useState('summary');
   const [attendance, setAttendance] = useState({ summary: null, records: [] });
   const [feedbackLoading, setFeedbackLoading] = useState(false);
@@ -39,7 +49,9 @@ const StudentManagement = () => {
     search: '',
     session: '',
     year: '',
-    status: ''
+    status: '',
+    schoolType: '',
+    royalClass: ''
   });
   const [pagination, setPagination] = useState({
     current: 1,
@@ -90,6 +102,8 @@ const StudentManagement = () => {
       if (filters.session) params.append('session', filters.session);
       if (filters.year) params.append('year', filters.year);
       if (filters.status) params.append('status', filters.status);
+      if (filters.schoolType) params.append('schoolType', filters.schoolType);
+      if (filters.royalClass) params.append('royalClass', filters.royalClass);
       params.append('page', pagination.current);
       params.append('limit', 10);
 
@@ -314,6 +328,43 @@ const StudentManagement = () => {
     setShowDeleteModal(true);
   };
 
+  const handleLegacyStudentSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(API_ENDPOINTS.TEACHER.ADD_LEGACY_STUDENT, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...setAuthHeaders()
+        },
+        body: JSON.stringify(legacyStudent)
+      });
+
+      const data = await response.json();
+      
+      if (data.status === 'success') {
+        showOperationToast('Legacy student added successfully!');
+        setShowLegacyModal(false);
+        setLegacyStudent({
+          firstName: '',
+          lastName: '',
+          email: '',
+          schoolType: '',
+          royalClass: '',
+          contactNumber: '',
+          parentContactNumber: ''
+        });
+        fetchStudents();
+      } else {
+        showError(data.message || 'Failed to add legacy student');
+      }
+    } catch (error) {
+      console.error('Add legacy student error:', error);
+      showError('Failed to add legacy student');
+    }
+  };
+
   const getStatusBadge = (status) => {
     const styles = {
       pending: 'bg-yellow-100 text-yellow-800',
@@ -377,14 +428,23 @@ const StudentManagement = () => {
           <h2 className="text-lg sm:text-xl lg:text-[20pt] font-bold text-white">Student Management</h2>
           <p className="text-sm lg:text-[14pt] text-gray-300 mt-1">Manage and monitor student progress and information</p>
         </div>
-        <div className="bg-blue-500/30 text-blue-300 px-3 py-1 rounded-full text-sm font-medium">
-          {pagination.total} Students
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => setShowLegacyModal(true)}
+            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center gap-2"
+          >
+            <UserIcon className="h-4 w-4" />
+            Add Legacy Student
+          </button>
+          <div className="bg-blue-500/30 text-blue-300 px-3 py-1 rounded-full text-sm font-medium">
+            {pagination.total} Students
+          </div>
         </div>
       </div>
 
       {/* Filters */}
       <div className="bg-gray-800/60 rounded-xl p-4 sm:p-6 shadow-2xl backdrop-blur-sm border-2 border-gray-600/50">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
           <div className="relative">
             <MagnifyingGlassIcon className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
             <input
@@ -424,6 +484,26 @@ const StudentManagement = () => {
             <option value="approved">Approved</option>
             <option value="rejected">Rejected</option>
           </select>
+          <select
+            className="px-3 py-2 border border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-900/70 text-white"
+            value={filters.schoolType}
+            onChange={(e) => setFilters({ ...filters, schoolType: e.target.value })}
+          >
+            <option value="">All School Types</option>
+            <option value="royal">Royal College</option>
+            <option value="center">Center/Other</option>
+          </select>
+          {filters.schoolType === 'royal' && (
+            <select
+              className="px-3 py-2 border border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-900/70 text-white"
+              value={filters.royalClass}
+              onChange={(e) => setFilters({ ...filters, royalClass: e.target.value })}
+            >
+              <option value="">All Classes</option>
+              <option value="9H">9H</option>
+              <option value="9J">9J</option>
+            </select>
+          )}
         </div>
       </div>
 
@@ -462,6 +542,16 @@ const StudentManagement = () => {
                           Year {student.year} • {student.session}
                         </span>
                         <span className="hidden sm:inline">ID: {student.studentId}</span>
+                        {student.schoolType && (
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            student.schoolType === 'royal' 
+                              ? 'bg-purple-900/50 text-purple-300' 
+                              : 'bg-blue-900/50 text-blue-300'
+                          }`}>
+                            {student.schoolType === 'royal' ? 'Royal College' : 'Center/Other'}
+                            {student.royalClass && ` • ${student.royalClass}`}
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -1355,6 +1445,141 @@ const StudentManagement = () => {
                   )}
                 </button>
               </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Legacy Student Modal */}
+      <AnimatePresence>
+        {showLegacyModal && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              className="bg-gray-800 rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto"
+            >
+              <div className="p-6 border-b border-gray-700">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xl font-bold text-white">Add Legacy Student</h3>
+                  <button
+                    onClick={() => setShowLegacyModal(false)}
+                    className="text-gray-400 hover:text-white transition-colors"
+                  >
+                    <XCircleIcon className="h-6 w-6" />
+                  </button>
+                </div>
+                <p className="text-gray-400 text-sm mt-1">
+                  Add existing students who registered before the new classification system
+                </p>
+              </div>
+              
+              <form onSubmit={handleLegacyStudentSubmit} className="p-6 space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">First Name *</label>
+                    <input
+                      type="text"
+                      required
+                      className="w-full px-3 py-2 border border-gray-600 rounded-lg bg-gray-900 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      value={legacyStudent.firstName}
+                      onChange={(e) => setLegacyStudent({ ...legacyStudent, firstName: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Last Name *</label>
+                    <input
+                      type="text"
+                      required
+                      className="w-full px-3 py-2 border border-gray-600 rounded-lg bg-gray-900 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      value={legacyStudent.lastName}
+                      onChange={(e) => setLegacyStudent({ ...legacyStudent, lastName: e.target.value })}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Email *</label>
+                  <input
+                    type="email"
+                    required
+                    className="w-full px-3 py-2 border border-gray-600 rounded-lg bg-gray-900 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    value={legacyStudent.email}
+                    onChange={(e) => setLegacyStudent({ ...legacyStudent, email: e.target.value })}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">School Type *</label>
+                  <select
+                    required
+                    className="w-full px-3 py-2 border border-gray-600 rounded-lg bg-gray-900 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    value={legacyStudent.schoolType}
+                    onChange={(e) => setLegacyStudent({ ...legacyStudent, schoolType: e.target.value })}
+                  >
+                    <option value="">Select School Type</option>
+                    <option value="royal">Royal College</option>
+                    <option value="center">Center/Other</option>
+                  </select>
+                </div>
+
+                {legacyStudent.schoolType === 'royal' && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Royal Class *</label>
+                    <select
+                      required
+                      className="w-full px-3 py-2 border border-gray-600 rounded-lg bg-gray-900 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      value={legacyStudent.royalClass}
+                      onChange={(e) => setLegacyStudent({ ...legacyStudent, royalClass: e.target.value })}
+                    >
+                      <option value="">Select Class</option>
+                      <option value="9H">9H</option>
+                      <option value="9J">9J</option>
+                    </select>
+                  </div>
+                )}
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Contact Number *</label>
+                    <input
+                      type="tel"
+                      required
+                      className="w-full px-3 py-2 border border-gray-600 rounded-lg bg-gray-900 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      value={legacyStudent.contactNumber}
+                      onChange={(e) => setLegacyStudent({ ...legacyStudent, contactNumber: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Parent Contact Number *</label>
+                    <input
+                      type="tel"
+                      required
+                      className="w-full px-3 py-2 border border-gray-600 rounded-lg bg-gray-900 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      value={legacyStudent.parentContactNumber}
+                      onChange={(e) => setLegacyStudent({ ...legacyStudent, parentContactNumber: e.target.value })}
+                    />
+                  </div>
+                </div>
+
+                <div className="flex justify-end space-x-3 pt-4">
+                  <button
+                    type="button"
+                    onClick={() => setShowLegacyModal(false)}
+                    className="px-4 py-2 bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-4 py-2 bg-green-600 rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2"
+                  >
+                    <UserIcon className="h-4 w-4" />
+                    <span>Add Legacy Student</span>
+                  </button>
+                </div>
+              </form>
             </motion.div>
           </div>
         )}

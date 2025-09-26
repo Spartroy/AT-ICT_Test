@@ -6,7 +6,8 @@ const {
   updateStudent,
   updateQuizFeedback,
   createParentAccount,
-  deleteStudent
+  deleteStudent,
+  addLegacyStudent
 } = require('../controllers/teacherController');
 const { protect, teacherOnly } = require('../middleware/auth');
 
@@ -40,6 +41,8 @@ router.put('/students/:id', updateStudent);
 router.delete('/students/:id', deleteStudent);
 // Create parent account for a student
 router.post('/students/:id/create-parent', createParentAccount);
+// Add legacy student
+router.post('/legacy-students', addLegacyStudent);
 
 // Assignment grading route (using the new gradeAssignment function)
 router.put('/assignments/:id/students/:studentId', gradeAssignment);
