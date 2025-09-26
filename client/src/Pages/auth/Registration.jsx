@@ -207,7 +207,10 @@ const Registration = () => {
         techKnowledge: parseInt(formData.techKnowledge),
         englishLevel: parseInt(formData.englishLevel),
         otherSubjects: formData.otherSubjects || '',
-        password: formData.password
+        password: formData.password,
+        schoolType: formData.schoolType,
+        royalClass: formData.royalClass,
+        royalNationality: formData.royalNationality
       };
 
       console.log('Sending registration data:', registrationData);

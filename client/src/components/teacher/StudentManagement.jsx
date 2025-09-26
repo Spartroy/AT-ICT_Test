@@ -22,7 +22,6 @@ import {
   ChevronUpIcon,
   TrashIcon
 } from '@heroicons/react/24/outline';
-import { setAuthHeaders } from '../../utils/auth';
 
 const StudentManagement = () => {
   const [students, setStudents] = useState([]);
@@ -100,8 +99,7 @@ const StudentManagement = () => {
       const token = localStorage.getItem('token');
       const response = await fetch(`${API_ENDPOINTS.TEACHER.STUDENTS}?unclassified=true`, {
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
+          'Authorization': `Bearer ${token}`
         }
       });
 
@@ -358,7 +356,7 @@ const StudentManagement = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          ...setAuthHeaders()
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(legacyStudent)
       });
@@ -404,8 +402,11 @@ const StudentManagement = () => {
 
   const handleAttendanceTabClick = async () => {
     try {
+      const token = localStorage.getItem('token');
       const res = await fetch(`${API_ENDPOINTS.TEACHER.STUDENTS}/${selectedStudent.student._id}/attendance`, { 
-        headers: setAuthHeaders() 
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
       });
       if (res.ok) {
         const data = await res.json();
