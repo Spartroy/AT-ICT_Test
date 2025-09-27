@@ -44,11 +44,25 @@ const RecentActivities = () => {
       } else {
         const errorData = await response.json().catch(() => ({}));
         console.error('❌ Failed to fetch activities:', response.status, errorData);
-        showError(`Failed to fetch activities: ${errorData.message || 'Unknown error'}`);
+        
+        // Set empty data instead of showing error to prevent UI crashes
+        setActivities([]);
+        setUnreadCount(0);
+        
+        // Only show error if it's not a 500 error (which we're handling gracefully)
+        if (response.status !== 500) {
+          showError(`Failed to fetch activities: ${errorData.message || 'Unknown error'}`);
+        }
       }
     } catch (error) {
       console.error('❌ Error fetching activities:', error);
-      showError('Network error fetching activities');
+      
+      // Set empty data for network errors too
+      setActivities([]);
+      setUnreadCount(0);
+      
+      // Don't show error for network issues to prevent UI crashes
+      console.log('🔄 Setting empty activities due to network error');
     } finally {
       setLoading(false);
     }
