@@ -135,9 +135,12 @@ const userSchema = new mongoose.Schema({
     trim: true,
     validate: {
       validator: function(phone) {
-        return /^[\+]?[1-9][\d]{0,15}$/.test(phone.replace(/[\s\-\(\)]/g, ''));
+        // Remove all non-digit characters except + at the beginning
+        const cleaned = phone.replace(/[^\d+]/g, '');
+        // Accept all valid phone number formats: +1234567890, 1234567890, 03001234567, etc.
+        return /^[\+]?[0-9]{7,15}$/.test(cleaned);
       },
-      message: 'Please provide a valid contact number'
+      message: 'Please provide a valid contact number (7-15 digits)'
     }
   },
 
@@ -151,9 +154,12 @@ const userSchema = new mongoose.Schema({
     validate: {
       validator: function(phone) {
         if (!phone) return true; // Allow empty
-        return /^[\+]?[1-9][\d]{0,15}$/.test(phone.replace(/[\s\-\(\)]/g, ''));
+        // Remove all non-digit characters except + at the beginning
+        const cleaned = phone.replace(/[^\d+]/g, '');
+        // Accept all valid phone number formats: +1234567890, 1234567890, 03001234567, etc.
+        return /^[\+]?[0-9]{7,15}$/.test(cleaned);
       },
-      message: 'Please provide a valid alternative contact number'
+      message: 'Please provide a valid alternative contact number (7-15 digits)'
     }
   },
   
@@ -286,9 +292,12 @@ const userSchema = new mongoose.Schema({
       validate: {
         validator: function(phone) {
           if (this.role !== 'student' || !phone) return true;
-          return /^[\+]?[1-9][\d]{0,15}$/.test(phone.replace(/[\s\-\(\)]/g, ''));
+          // Remove all non-digit characters except + at the beginning
+          const cleaned = phone.replace(/[^\d+]/g, '');
+          // Accept all valid phone number formats: +1234567890, 1234567890, 03001234567, etc.
+          return /^[\+]?[0-9]{7,15}$/.test(cleaned);
         },
-        message: 'Please provide a valid parent contact number'
+        message: 'Please provide a valid parent contact number (7-15 digits)'
       }
     },
 
@@ -603,9 +612,12 @@ const userSchema = new mongoose.Schema({
         validate: {
           validator: function(phone) {
             if (!phone) return true;
-            return /^[\+]?[1-9][\d]{0,15}$/.test(phone.replace(/[\s\-\(\)]/g, ''));
+            // Remove all non-digit characters except + at the beginning
+            const cleaned = phone.replace(/[^\d+]/g, '');
+            // Accept all valid phone number formats: +1234567890, 1234567890, 03001234567, etc.
+            return /^[\+]?[0-9]{7,15}$/.test(cleaned);
           },
-          message: 'Please provide a valid emergency contact number'
+          message: 'Please provide a valid emergency contact number (7-15 digits)'
         }
       }
     },

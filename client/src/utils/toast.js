@@ -113,7 +113,7 @@ export const showOperationToast = {
   logoutSuccess: () => showInfo("👋 Logged out successfully"),
   
   // Registration
-  registrationSuccess: () => showSuccess("Registration submitted! Check your WhatsApp for approval."),
+  registrationSuccess: () => showSuccess("Registration submitted! Wait for approval message."),
   registrationError: (message) => showError(`❌ Registration failed: ${message}`),
   
   // Data operations

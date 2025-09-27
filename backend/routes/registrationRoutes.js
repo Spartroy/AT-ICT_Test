@@ -20,8 +20,26 @@ const registrationValidation = [
   body('schoolType').isIn(['royal', 'center']).withMessage('School type must be royal or center'),
   body('email').isEmail().normalizeEmail().withMessage('Please enter a valid email'),
   body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
-  body('contactNumber').trim().isLength({ min: 10 }).withMessage('Contact number must be at least 10 digits'),
-  body('parentNumber').trim().isLength({ min: 10 }).withMessage('Parent number must be at least 10 digits'),
+  body('contactNumber').trim().custom((value) => {
+    // Remove all non-digit characters except + at the beginning
+    const cleaned = value.replace(/[^\d+]/g, '');
+    // Check if it's a valid phone number format
+    // Accepts: +1234567890, 1234567890, 03001234567, etc.
+    if (!/^[\+]?[0-9]{7,15}$/.test(cleaned)) {
+      throw new Error('Please provide a valid contact number (7-15 digits)');
+    }
+    return true;
+  }),
+  body('parentNumber').trim().custom((value) => {
+    // Remove all non-digit characters except + at the beginning
+    const cleaned = value.replace(/[^\d+]/g, '');
+    // Check if it's a valid phone number format
+    // Accepts: +1234567890, 1234567890, 03001234567, etc.
+    if (!/^[\+]?[0-9]{7,15}$/.test(cleaned)) {
+      throw new Error('Please provide a valid parent contact number (7-15 digits)');
+    }
+    return true;
+  }),
   body('techKnowledge').isInt({ min: 1, max: 10 }).withMessage('Tech knowledge must be between 1 and 10'),
   body('englishLevel').isInt({ min: 1, max: 10 }).withMessage('English level must be between 1 and 10'),
   
