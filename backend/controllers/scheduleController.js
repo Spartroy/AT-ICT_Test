@@ -449,6 +449,212 @@ const removeStudentFromSchedule = async (req, res) => {
   }
 };
 
+// @desc    Get all schedules
+// @route   GET /api/teacher/schedules
+// @access  Private (Teacher)
+const getAllSchedules = async (req, res) => {
+  try {
+    const schedules = await Schedule.getAllSchedules();
+    
+    res.status(200).json({
+      status: 'success',
+      data: {
+        schedules,
+        total: schedules.length
+      }
+    });
+  } catch (error) {
+    console.error('Get all schedules error:', error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Server error retrieving schedules'
+    });
+  }
+};
+
+// @desc    Create new schedule
+// @route   POST /api/teacher/schedules
+// @access  Private (Teacher)
+const createSchedule = async (req, res) => {
+  try {
+    const { title, description, targetStudentGroups, scheduleType, startDate, endDate, notes } = req.body;
+    
+    // Validate required fields
+    if (!title) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Schedule title is required'
+      });
+    }
+
+    // Create new schedule
+    const schedule = await Schedule.create({
+      title,
+      description,
+      targetStudentGroups: targetStudentGroups || [],
+      scheduleType: scheduleType || 'main',
+      startDate,
+      endDate,
+      notes,
+      createdBy: req.user.id,
+      lastUpdatedBy: req.user.id,
+      schedule: Schedule.initializeWeekSchedule()
+    });
+
+    await schedule.populate('createdBy', 'firstName lastName');
+
+    res.status(201).json({
+      status: 'success',
+      message: 'Schedule created successfully',
+      data: {
+        schedule
+      }
+    });
+  } catch (error) {
+    console.error('Create schedule error:', error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Server error creating schedule'
+    });
+  }
+};
+
+// @desc    Get students by classification
+// @route   GET /api/teacher/schedules/students
+// @access  Private (Teacher)
+const getStudentsByClassification = async (req, res) => {
+  try {
+    const classifiedStudents = await Schedule.getStudentsByClassification();
+    
+    res.status(200).json({
+      status: 'success',
+      data: {
+        students: classifiedStudents,
+        summary: {
+          '9H': classifiedStudents['9H'].length,
+          '9J': classifiedStudents['9J'].length,
+          'custom': classifiedStudents['custom'].length,
+          'unclassified': classifiedStudents['unclassified'].length
+        }
+      }
+    });
+  } catch (error) {
+    console.error('Get students by classification error:', error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Server error retrieving student classifications'
+    });
+  }
+};
+
+// @desc    Assign students to specific schedule
+// @route   POST /api/teacher/schedules/:scheduleId/assign-students
+// @access  Private (Teacher)
+const assignStudentsToSpecificSchedule = async (req, res) => {
+  try {
+    const { scheduleId } = req.params;
+    const { studentIds, groupType } = req.body;
+    
+    if (!studentIds || !Array.isArray(studentIds) || studentIds.length === 0) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Student IDs are required'
+      });
+    }
+
+    // Find the schedule
+    const schedule = await Schedule.findById(scheduleId);
+    if (!schedule) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'Schedule not found'
+      });
+    }
+
+    // Verify all students exist and are active
+    const validStudents = await User.find({
+      _id: { $in: studentIds },
+      role: 'student',
+      registrationStatus: 'approved',
+      isActive: true
+    }).select('_id firstName lastName email studentInfo');
+
+    if (validStudents.length !== studentIds.length) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Some selected students are not valid or active'
+      });
+    }
+
+    // Add students to schedule
+    const newAssignments = studentIds.map(studentId => ({
+      student: studentId,
+      assignedAt: new Date(),
+      assignedBy: req.user.id
+    }));
+
+    // Remove duplicates and add new assignments
+    const existingStudentIds = schedule.assignedStudents.map(a => a.student.toString());
+    const uniqueNewAssignments = newAssignments.filter(a => !existingStudentIds.includes(a.student.toString()));
+    
+    schedule.assignedStudents.push(...uniqueNewAssignments);
+    schedule.lastUpdatedBy = req.user.id;
+
+    await schedule.save();
+
+    res.status(200).json({
+      status: 'success',
+      message: `Students assigned to schedule successfully`,
+      data: {
+        assignedStudents: validStudents,
+        totalAssigned: schedule.assignedStudents.length,
+        newAssignments: uniqueNewAssignments.length
+      }
+    });
+  } catch (error) {
+    console.error('Assign students to specific schedule error:', error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Server error assigning students to schedule'
+    });
+  }
+};
+
+// @desc    Get specific schedule with assigned students
+// @route   GET /api/teacher/schedules/:scheduleId
+// @access  Private (Teacher)
+const getSpecificSchedule = async (req, res) => {
+  try {
+    const { scheduleId } = req.params;
+    
+    const schedule = await Schedule.findById(scheduleId)
+      .populate('createdBy', 'firstName lastName')
+      .populate('lastUpdatedBy', 'firstName lastName')
+      .populate('assignedStudents.student', 'firstName lastName email studentInfo')
+      .populate('assignedStudents.assignedBy', 'firstName lastName');
+
+    if (!schedule) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'Schedule not found'
+      });
+    }
+
+    res.status(200).json({
+      status: 'success',
+      data: {
+        schedule
+      }
+    });
+  } catch (error) {
+    console.error('Get specific schedule error:', error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Server error retrieving schedule'
+    });
+  }
+};
+
 module.exports = {
   getSchedule,
   createOrUpdateSchedule,
@@ -458,7 +664,12 @@ module.exports = {
   getTodayScheduleForStudent,
   assignStudentsToSchedule,
   getAssignedStudents,
-  removeStudentFromSchedule
+  removeStudentFromSchedule,
+  getAllSchedules,
+  createSchedule,
+  getStudentsByClassification,
+  assignStudentsToSpecificSchedule,
+  getSpecificSchedule
 }; 
 
 // --- Attendance via QR ---

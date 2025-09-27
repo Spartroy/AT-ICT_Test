@@ -21,6 +21,8 @@ export const API_ENDPOINTS = {
     STUDENTS: `${API_BASE_URL}/api/teacher/students`,
     MATERIALS: `${API_BASE_URL}/api/teacher/materials`,
     SCHEDULE: `${API_BASE_URL}/api/teacher/schedule`,
+    SCHEDULES: `${API_BASE_URL}/api/teacher/schedules`,
+    SCHEDULES_STUDENTS: `${API_BASE_URL}/api/teacher/schedules/students`,
     VIDEOS: `${API_BASE_URL}/api/teacher/videos`,
     ACTIVITIES: `${API_BASE_URL}/api/teacher/activities`,
     ADD_LEGACY_STUDENT: `${API_BASE_URL}/api/teacher/legacy-students`,

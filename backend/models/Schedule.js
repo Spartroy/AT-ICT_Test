@@ -6,6 +6,11 @@ const scheduleSchema = new mongoose.Schema({
     required: [true, 'Schedule title is required'],
     default: 'Class Schedule'
   },
+  description: {
+    type: String,
+    trim: true,
+    maxLength: 500
+  },
   schedule: [{
     day: {
       type: String,
@@ -55,6 +60,26 @@ const scheduleSchema = new mongoose.Schema({
     type: String,
     trim: true
   },
+  // New fields for student classification
+  targetStudentGroups: {
+    type: [{
+      groupType: {
+        type: String,
+        enum: ['9H', '9J', 'custom'],
+        required: true
+      },
+      groupName: {
+        type: String,
+        required: true,
+        trim: true
+      },
+      description: {
+        type: String,
+        trim: true
+      }
+    }],
+    default: []
+  },
   assignedStudents: [{
     student: {
       type: mongoose.Schema.ObjectId,
@@ -64,8 +89,24 @@ const scheduleSchema = new mongoose.Schema({
     assignedAt: {
       type: Date,
       default: Date.now
+    },
+    assignedBy: {
+      type: mongoose.Schema.ObjectId,
+      ref: 'User'
     }
-  }]
+  }],
+  // Schedule metadata
+  scheduleType: {
+    type: String,
+    enum: ['main', 'special', 'remedial', 'advanced'],
+    default: 'main'
+  },
+  startDate: {
+    type: Date
+  },
+  endDate: {
+    type: Date
+  }
 }, {
   timestamps: true
 });
@@ -81,6 +122,46 @@ scheduleSchema.statics.getMainSchedule = async function() {
     .populate('lastUpdatedBy', 'firstName lastName');
   
   return schedule;
+};
+
+// Static method to get all schedules
+scheduleSchema.statics.getAllSchedules = async function() {
+  return await this.find({ isActive: true })
+    .populate('createdBy', 'firstName lastName')
+    .populate('lastUpdatedBy', 'firstName lastName')
+    .populate('assignedStudents.student', 'firstName lastName email')
+    .sort({ createdAt: -1 });
+};
+
+// Static method to get schedules by student group
+scheduleSchema.statics.getSchedulesByGroup = async function(groupType) {
+  return await this.find({ 
+    isActive: true,
+    'targetStudentGroups.groupType': groupType 
+  })
+    .populate('createdBy', 'firstName lastName')
+    .populate('assignedStudents.student', 'firstName lastName email')
+    .sort({ createdAt: -1 });
+};
+
+// Static method to get students by classification
+scheduleSchema.statics.getStudentsByClassification = async function() {
+  const User = require('./User');
+  
+  const students = await User.find({
+    role: 'student',
+    registrationStatus: 'approved',
+    isActive: true
+  }).select('firstName lastName email studentInfo');
+
+  const classified = {
+    '9H': students.filter(s => s.studentInfo?.royalClass === '9H'),
+    '9J': students.filter(s => s.studentInfo?.royalClass === '9J'),
+    'custom': students.filter(s => s.studentInfo?.schoolType === 'center'),
+    'unclassified': students.filter(s => !s.studentInfo?.schoolType || !s.studentInfo?.royalClass)
+  };
+
+  return classified;
 };
 
 // Method to get today's schedule
