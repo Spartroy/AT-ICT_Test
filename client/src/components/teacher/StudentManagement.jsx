@@ -227,7 +227,9 @@ const StudentManagement = () => {
   const downloadStudentFile = async (assignmentId, studentId, filename, originalName) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${API_ENDPOINTS.ASSIGNMENTS}/${assignmentId}/submissions/${studentId}/download/${filename}`, {
+      // Properly encode the filename to handle special characters
+      const encodedFilename = encodeURIComponent(filename);
+      const response = await fetch(`${API_ENDPOINTS.ASSIGNMENTS}/${assignmentId}/submissions/${studentId}/download/${encodedFilename}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -257,7 +259,9 @@ const StudentManagement = () => {
   const downloadQuizFile = async (quizId, studentId, filename, originalName) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${API_ENDPOINTS.QUIZZES}/${quizId}/submissions/${studentId}/download/${filename}`, {
+      // Properly encode the filename to handle special characters
+      const encodedFilename = encodeURIComponent(filename);
+      const response = await fetch(`${API_ENDPOINTS.QUIZZES}/${quizId}/submissions/${studentId}/download/${encodedFilename}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }

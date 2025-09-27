@@ -425,6 +425,9 @@ const assignToStudents = async (req, res) => {
 const downloadSubmissionFile = async (req, res) => {
   try {
     const { id: assignmentId, studentId, filename } = req.params;
+    
+    // Decode the filename in case it was URL encoded
+    const decodedFilename = decodeURIComponent(filename);
 
     const assignment = await Assignment.findById(assignmentId);
     if (!assignment) {
@@ -454,9 +457,9 @@ const downloadSubmissionFile = async (req, res) => {
       });
     }
 
-    // Find the specific file
+    // Find the specific file using the decoded filename
     const file = studentSubmission.submission.attachments.find(
-      att => att.filename === filename
+      att => att.filename === decodedFilename
     );
 
     if (!file) {
