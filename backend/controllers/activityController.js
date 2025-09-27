@@ -9,6 +9,7 @@ const Message = require('../models/Message');
 // @access  Private (Teacher)
 const getRecentActivities = async (req, res) => {
   try {
+    console.log('📊 Fetching recent activities...');
     const { limit = 10, type } = req.query;
     
     let query = {};
@@ -16,13 +17,19 @@ const getRecentActivities = async (req, res) => {
       query.type = type;
     }
     
+    console.log('🔍 Query:', query);
+    console.log('📝 Limit:', limit);
+    
     const activities = await Activity.find(query)
       .populate('student', 'firstName lastName email profileImage')
       .populate('relatedItem')
       .sort({ createdAt: -1 })
       .limit(parseInt(limit));
     
-    const unreadCount = await Activity.getUnreadCount();
+    console.log('📋 Found activities:', activities.length);
+    
+    const unreadCount = await Activity.countDocuments({ isRead: false });
+    console.log('🔢 Unread count:', unreadCount);
     
     res.status(200).json({
       status: 'success',
@@ -32,10 +39,13 @@ const getRecentActivities = async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Get recent activities error:', error);
+    console.error('❌ Get recent activities error:', error);
+    console.error('❌ Error details:', error.message);
+    console.error('❌ Stack trace:', error.stack);
     res.status(500).json({
       status: 'error',
-      message: 'Server error retrieving activities'
+      message: 'Server error retrieving activities',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 };
@@ -54,7 +64,10 @@ const markActivitiesAsRead = async (req, res) => {
       });
     }
     
-    await Activity.markAsRead(activityIds);
+    await Activity.updateMany(
+      { _id: { $in: activityIds } },
+      { isRead: true }
+    );
     
     res.status(200).json({
       status: 'success',
@@ -94,7 +107,7 @@ const createActivity = async (req, res) => {
       });
     }
     
-    const activity = await Activity.createActivity({
+    const activity = new Activity({
       type,
       title,
       description,
@@ -104,6 +117,8 @@ const createActivity = async (req, res) => {
       metadata,
       priority
     });
+    
+    await activity.save();
     
     await activity.populate('student', 'firstName lastName email profileImage');
     
@@ -134,7 +149,7 @@ const createActivityFromEvent = async (eventData) => {
       priority = 'medium'
     } = eventData;
     
-    await Activity.createActivity({
+    const activity = new Activity({
       type,
       title,
       description,
@@ -144,6 +159,8 @@ const createActivityFromEvent = async (eventData) => {
       metadata,
       priority
     });
+    
+    await activity.save();
   } catch (error) {
     console.error('Error creating activity from event:', error);
   }

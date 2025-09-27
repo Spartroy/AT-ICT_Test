@@ -25,21 +25,30 @@ const RecentActivities = () => {
   const fetchActivities = async () => {
     try {
       const token = localStorage.getItem('token');
+      console.log('🔍 Fetching activities from:', API_ENDPOINTS.TEACHER.ACTIVITIES);
+      
       const response = await fetch(API_ENDPOINTS.TEACHER.ACTIVITIES, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
 
+      console.log('📡 Response status:', response.status);
+      console.log('📡 Response ok:', response.ok);
+
       if (response.ok) {
         const data = await response.json();
+        console.log('📊 Activities data:', data);
         setActivities(data.data.activities || []);
         setUnreadCount(data.data.unreadCount || 0);
       } else {
-        console.error('Failed to fetch activities');
+        const errorData = await response.json().catch(() => ({}));
+        console.error('❌ Failed to fetch activities:', response.status, errorData);
+        showError(`Failed to fetch activities: ${errorData.message || 'Unknown error'}`);
       }
     } catch (error) {
-      console.error('Error fetching activities:', error);
+      console.error('❌ Error fetching activities:', error);
+      showError('Network error fetching activities');
     } finally {
       setLoading(false);
     }
