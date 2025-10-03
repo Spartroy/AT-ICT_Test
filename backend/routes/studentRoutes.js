@@ -15,6 +15,9 @@ const {
   startQuiz
 } = require('../controllers/studentController');
 
+// Notes (interactive) - student view
+const { getNotesForStudent } = require('../controllers/noteController');
+
 // Import material controller functions
 const {
   getMaterialsForStudent,
@@ -129,6 +132,17 @@ router.get('/videos', protect, (req, res, next) => {
   }
   next();
 }, getVideos);
+
+// Interactive notes route
+router.get('/notes', protect, (req, res, next) => {
+  if (req.user.role !== 'student') {
+    return res.status(403).json({ 
+      status: 'error', 
+      message: 'Access denied. Student role required.' 
+    });
+  }
+  next();
+}, getNotesForStudent);
 
 // Announcements routes
 router.get('/announcements', protect, (req, res, next) => {

@@ -27,6 +27,7 @@ import AssignmentsTab from '../../components/student/AssignmentsTab';
 import QuizzesTab from '../../components/student/QuizzesTab';
 import MaterialsTab from '../../components/student/MaterialsTab';
 import VideosTab from '../../components/student/VideosTab';
+import NotesTab from '../../components/student/NotesTab';
 import ChatTab from '../../components/student/ChatTab';
 import AnnouncementsTab from '../../components/student/AnnouncementsTab';
 import ScheduleTab from '../../components/student/ScheduleTab';
@@ -101,6 +102,12 @@ const StudentDashboard = () => {
       name: 'Videos',
       icon: PlayIcon,
       component: VideosTab
+    },
+    {
+      id: 'notes',
+      name: 'Interactive Notes',
+      icon: BookOpenIcon,
+      component: NotesTab
     },
     {
       id: 'flashcards',

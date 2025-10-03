@@ -15,6 +15,7 @@ const { protect, teacherOnly } = require('../middleware/auth');
 const scheduleRoutes = require('./scheduleRoutes');
 const materialRoutes = require('./materialRoutes');
 const videoRoutes = require('./videoRoutes');
+const noteRoutes = require('./noteRoutes');
 
 // Import assignment and quiz controller functions for grading
 const {
@@ -61,5 +62,8 @@ router.use('/materials', materialRoutes);
 
 // Video management routes
 router.use('/videos', videoRoutes);
+
+// Notes management routes
+router.use('/notes', noteRoutes);
 
 module.exports = router; 

@@ -34,6 +34,7 @@ import MaterialsCenter from '../../components/teacher/MaterialsCenter';
 import CreateAssignmentModal from '../../components/teacher/CreateAssignmentModal';
 import CreateQuizModal from '../../components/teacher/CreateQuizModal';
 import VideoManagement from '../../components/teacher/VideoManagement';
+import NotesManagement from '../../components/teacher/NotesManagement';
 import FlashcardCenter from '../../components/teacher/FlashcardCenter';
 import SessionMonitoring from '../../components/teacher/SessionMonitoring';
 import RecentActivities from '../../components/teacher/RecentActivities';
@@ -121,6 +122,13 @@ const TeacherDashboard = () => {
       shortName: 'Videos',
       icon: PlayIcon,
       color: 'bg-blue-600'
+    },
+    {
+      id: 'notes',
+      name: 'Interactive Notes',
+      shortName: 'Notes',
+      icon: BookOpenIcon,
+      color: 'bg-teal-600'
     },
     {
       id: 'flashcards',
@@ -284,6 +292,8 @@ const TeacherDashboard = () => {
         return <MaterialsCenter />;
       case 'videos':
         return <VideoManagement />;
+      case 'notes':
+        return <NotesManagement />;
       case 'flashcards':
         return <FlashcardCenter />;
       case 'sessions':
