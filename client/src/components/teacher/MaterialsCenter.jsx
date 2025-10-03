@@ -123,8 +123,8 @@ const MaterialsCenter = () => {
   const handleUploadMaterial = async (e) => {
     e.preventDefault();
     
-    if (!formData.file && !editingMaterial) {
-      showError('Please select a file to upload');
+    if (!formData.file && !formData.externalUrl && !editingMaterial) {
+      showError('Please select a file or enter a link');
       return;
     }
 
@@ -191,7 +191,8 @@ const MaterialsCenter = () => {
                 title: '',
                 type: 'theory',
                 file: null,
-                thumbnail: null
+                thumbnail: null,
+                externalUrl: ''
               });
               
               // Reset file inputs
@@ -787,16 +788,5 @@ const MaterialsCenter = () => {
     </div>
   );
 };
-                {/* Link-only section */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">Google Drive Link (optional)</label>
-                  <input
-                    type="url"
-                    value={formData.externalUrl}
-                    onChange={(e) => setFormData(prev => ({ ...prev, externalUrl: e.target.value }))}
-                    className="w-full px-3 py-2 bg-gray-700/50 border border-gray-600/50 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="https://drive.google.com/file/d/..."
-                  />
-                  <p className="text-xs text-gray-400 mt-1">If provided, students will be directed to this link when clicking the material.</p>
-                </div>
-export default MaterialsCenter; 
+
+export default MaterialsCenter;
