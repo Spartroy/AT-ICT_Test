@@ -127,7 +127,7 @@ const TeacherDashboard = () => {
       id: 'notes',
       name: 'Interactive Notes',
       shortName: 'Notes',
-      icon: BookOpenIcon,
+      icon: FolderIcon,
       color: 'bg-teal-600'
     },
     {
