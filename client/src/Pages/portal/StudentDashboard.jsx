@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom';
 import { API_ENDPOINTS } from '../../config/api';
 import {
   AcademicCapIcon,
-  BookOpenIcon,
   ChartBarIcon,
   ChatBubbleLeftRightIcon,
   DocumentTextIcon,
@@ -18,7 +17,10 @@ import {
   MegaphoneIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
-  QrCodeIcon
+  QrCodeIcon,
+  FolderIcon,
+  BookmarkSquareIcon,
+  Squares2X2Icon
 } from '@heroicons/react/24/outline';
 
 // Import student components
@@ -94,7 +96,7 @@ const StudentDashboard = () => {
     {
       id: 'materials',
       name: 'Materials',
-      icon: BookOpenIcon,
+      icon: FolderIcon,
       component: MaterialsTab
     },
     {
@@ -106,13 +108,13 @@ const StudentDashboard = () => {
     {
       id: 'notes',
       name: 'Interactive Notes',
-      icon: BookOpenIcon,
+      icon: BookmarkSquareIcon,
       component: NotesTab
     },
     {
       id: 'flashcards',
       name: 'Flashcards',
-      icon: BookOpenIcon,
+      icon: Squares2X2Icon,
       component: FlashcardsTab
     },
     {

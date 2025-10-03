@@ -115,8 +115,8 @@ const MaterialsTab = ({ studentData }) => {
   };
 
   const handleMaterialClick = (material) => {
-    setSelectedMaterial(material);
-    setShowDetailModal(true);
+    // Open direct download via backend redirect (Cloudinary/Drive)
+    handleDownload(material._id, material.fileName);
   };
 
   const closeDetailModal = () => {

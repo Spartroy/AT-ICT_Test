@@ -35,7 +35,6 @@ const NotesTab = () => {
         </div>
         <div className="flex-1">
           <h4 className="text-sm font-medium text-white">{note.title}</h4>
-          <p className="text-xs text-gray-400">Phase {note.phase}</p>
         </div>
       </div>
     </div>
@@ -58,14 +57,19 @@ const NotesTab = () => {
             {[1,2,3].map((p) => {
               const key = `phase${p}`;
               const list = notes[key] || [];
+              const colorClasses = p === 1
+                ? { panel: 'border-blue-800/60', header: 'bg-blue-900/40', count: 'text-blue-300', chevron: 'text-blue-300' }
+                : p === 2
+                ? { panel: 'border-green-800/60', header: 'bg-green-900/40', count: 'text-green-300', chevron: 'text-green-300' }
+                : { panel: 'border-purple-800/60', header: 'bg-purple-900/40', count: 'text-purple-300', chevron: 'text-purple-300' };
               return (
-                <div key={key} className="bg-gray-900/70 rounded-xl border border-gray-700/50">
-                  <button onClick={() => toggle(key)} className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-gray-800/70 rounded-xl">
+                <div key={key} className={`bg-gray-900/70 rounded-xl border ${colorClasses.panel}`}>
+                  <button onClick={() => toggle(key)} className={`w-full px-6 py-4 flex items-center justify-between text-left rounded-xl ${expanded[key] ? colorClasses.header : 'hover:bg-gray-800/70'}`}>
                     <div>
                       <h3 className="text-lg font-medium text-white">Phase {p}</h3>
-                      <p className="text-sm text-gray-400">{list.length} notes</p>
+                      <p className={`text-sm ${colorClasses.count}`}>{list.length} notes</p>
                     </div>
-                    {expanded[key] ? <ChevronDownIcon className="h-5 w-5 text-gray-400" /> : <ChevronRightIcon className="h-5 w-5 text-gray-400" />}
+                    {expanded[key] ? <ChevronDownIcon className={`h-5 w-5 ${colorClasses.chevron}`} /> : <ChevronRightIcon className={`h-5 w-5 ${colorClasses.chevron}`} />}
                   </button>
                   {expanded[key] && (
                     <div className="px-6 pb-6 grid grid-cols-1 md:grid-cols-2 gap-3">
