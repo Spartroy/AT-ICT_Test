@@ -27,7 +27,7 @@ const getMaterials = async (req, res) => {
   }
 };
 
-// @desc    Upload material
+// @desc    Upload material (file or link-only)
 // @route   POST /api/teacher/materials
 // @access  Private (Teacher)
 const uploadMaterial = async (req, res) => {
@@ -41,29 +41,35 @@ const uploadMaterial = async (req, res) => {
       });
     }
 
-    if (!req.files || !req.files.material) {
+    const { title, type, externalUrl } = req.body;
+    const materialFile = req.files?.material ? req.files.material[0] : null;
+    const thumbnailFile = req.files?.thumbnail ? req.files.thumbnail[0] : null;
+
+    // Allow link-only materials when no file is provided and externalUrl is present
+    if (!materialFile && !externalUrl) {
       return res.status(400).json({
         status: 'error',
-        message: 'No material file uploaded'
+        message: 'Provide either a file or an external link'
       });
     }
 
-    const { title, type } = req.body;
-    const materialFile = req.files.material[0];
-    const thumbnailFile = req.files.thumbnail ? req.files.thumbnail[0] : null;
-
-    // Prepare material data with Cloudinary information
+    // Prepare material data
     const materialData = {
       title,
       type,
-      fileUrl: materialFile.path, // Cloudinary URL
-      fileName: materialFile.originalname,
-      fileSize: materialFile.size,
-      mimeType: materialFile.mimetype,
-      cloudinaryPublicId: materialFile.filename, // Cloudinary public ID
-      cloudinaryUrl: materialFile.path, // Cloudinary URL
       uploadedBy: req.user.id
     };
+
+    if (materialFile) {
+      materialData.fileUrl = materialFile.path; // Cloudinary URL
+      materialData.fileName = materialFile.originalname;
+      materialData.fileSize = materialFile.size;
+      materialData.mimeType = materialFile.mimetype;
+      materialData.cloudinaryPublicId = materialFile.filename; // Cloudinary public ID
+      materialData.cloudinaryUrl = materialFile.path; // Cloudinary URL
+    } else if (externalUrl) {
+      materialData.externalUrl = externalUrl;
+    }
 
     // Add thumbnail data if provided
     if (thumbnailFile) {

@@ -14,28 +14,33 @@ const materialSchema = new mongoose.Schema({
   },
   fileUrl: {
     type: String,
-    required: [true, 'File URL is required']
+    default: null
   },
   fileName: {
     type: String,
-    required: true
+    default: null
   },
   fileSize: {
     type: Number,
-    required: true
+    default: null
   },
   mimeType: {
     type: String,
-    required: true
+    default: null
   },
   // Cloudinary fields
   cloudinaryPublicId: {
     type: String,
-    required: true
+    default: null
   },
   cloudinaryUrl: {
     type: String,
-    required: true
+    default: null
+  },
+  // External link for link-only materials
+  externalUrl: {
+    type: String,
+    default: null
   },
   thumbnailUrl: {
     type: String,

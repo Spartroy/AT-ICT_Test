@@ -115,8 +115,13 @@ const MaterialsTab = ({ studentData }) => {
   };
 
   const handleMaterialClick = (material) => {
-    // Open direct download via backend redirect (Cloudinary/Drive)
-    handleDownload(material._id, material.fileName);
+    // If external link provided by teacher, open it; otherwise, download from backend
+    if (material.externalUrl) {
+      const url = material.externalUrl.includes('/view') ? material.externalUrl.replace('/view', '/preview') : material.externalUrl;
+      window.open(url, '_blank');
+    } else {
+      handleDownload(material._id, material.fileName);
+    }
   };
 
   const closeDetailModal = () => {
