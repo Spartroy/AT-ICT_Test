@@ -37,7 +37,29 @@ const AnnouncementsTab = ({ studentData }) => {
   const [newComment, setNewComment] = useState('');
   const [submittingComment, setSubmittingComment] = useState(false);
 
-  // ... (rest of the state)
+  const announcementTypes = [
+    { value: 'all', label: 'All', icon: MegaphoneIcon, color: 'text-gray-400' },
+    { value: 'general', label: 'General', icon: InformationCircleIcon, color: 'text-blue-400' },
+    { value: 'assignment', label: 'Assignment', icon: BookOpenIcon, color: 'text-green-400' },
+    { value: 'exam', label: 'Exam', icon: AcademicCapIcon, color: 'text-red-400' },
+    { value: 'holiday', label: 'Holiday', icon: CalendarIcon, color: 'text-purple-400' },
+    { value: 'meeting', label: 'Meeting', icon: UserGroupIcon, color: 'text-indigo-400' },
+    { value: 'important', label: 'Important', icon: ExclamationTriangleIcon, color: 'text-yellow-400' }
+  ];
+
+  const priorityColors = {
+    low: 'text-gray-400',
+    medium: 'text-blue-400',
+    high: 'text-orange-400',
+    urgent: 'text-red-400'
+  };
+
+  const priorityBadges = {
+    low: 'bg-gray-700 text-gray-200',
+    medium: 'bg-blue-900/50 text-blue-300',
+    high: 'bg-orange-900/50 text-orange-300',
+    urgent: 'bg-red-900/50 text-red-300'
+  };
 
   useEffect(() => {
     fetchAnnouncements();
@@ -288,8 +310,8 @@ const AnnouncementsTab = ({ studentData }) => {
                 <span className="sm:hidden">{type.label.substring(0, 3)}</span>
                 {count > 0 && (
                   <span className={`ml-1 sm:ml-2 inline-flex items-center px-1.5 sm:px-2.5 py-0.5 rounded-full text-xs font-medium ${filter === type.value
-                      ? 'bg-blue-900/70 text-blue-300'
-                      : 'bg-gray-700 text-gray-200'
+                    ? 'bg-blue-900/70 text-blue-300'
+                    : 'bg-gray-700 text-gray-200'
                     }`}>
                     {count}
                   </span>
@@ -476,8 +498,8 @@ const AnnouncementsTab = ({ studentData }) => {
                       <button
                         onClick={() => toggleLike(selectedAnnouncement._id)}
                         className={`flex items-center space-x-2 px-3 sm:px-4 py-2 rounded-xl transition-colors text-sm ${selectedAnnouncement.hasLiked
-                            ? 'bg-red-900/50 text-red-400 hover:bg-red-900/80'
-                            : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                          ? 'bg-red-900/50 text-red-400 hover:bg-red-900/80'
+                          : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
                           }`}
                       >
                         {selectedAnnouncement.hasLiked ? (
