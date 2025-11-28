@@ -1,5 +1,5 @@
 import React from "react";
-import {BrowserRouter as Router, Routes, Route} from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -21,6 +21,7 @@ import Registration from "./Pages/auth/Registration";
 import TeacherDashboard from "./Pages/portal/TeacherDashboard";
 import StudentDashboard from "./Pages/portal/StudentDashboard";
 import ParentDashboard from "./Pages/portal/ParentDashboard";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
   return (
@@ -36,17 +37,38 @@ function App() {
           <Route path="/faq" element={<FAQ />} />
           <Route path="/fees" element={<Fees />} />
           <Route path="/samples" element={<Samples />} />
-          
+
           {/* Auth Routes */}
           <Route path="/signin" element={<SignIn />} />
           <Route path="/register" element={<Registration />} />
-          
+
           {/* Portal Routes */}
-          <Route path="/teacher-dashboard" element={<TeacherDashboard />} />
-          <Route path="/student-dashboard" element={<StudentDashboard />} />
-          <Route path="/parent-dashboard" element={<ParentDashboard />} />
+          <Route
+            path="/teacher-dashboard"
+            element={
+              <ProtectedRoute allowedRoles={['teacher', 'admin']}>
+                <TeacherDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/student-dashboard"
+            element={
+              <ProtectedRoute allowedRoles={['student']}>
+                <StudentDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/parent-dashboard"
+            element={
+              <ProtectedRoute allowedRoles={['parent']}>
+                <ParentDashboard />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
-        
+
         {/* Toast Container for notifications */}
         <ToastContainer
           position="top-right"

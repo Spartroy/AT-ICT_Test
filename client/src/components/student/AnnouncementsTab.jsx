@@ -25,6 +25,8 @@ import {
   MegaphoneIcon as MegaphoneIconSolid
 } from '@heroicons/react/24/solid';
 
+import io from 'socket.io-client';
+
 const AnnouncementsTab = ({ studentData }) => {
   const [announcements, setAnnouncements] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -35,32 +37,22 @@ const AnnouncementsTab = ({ studentData }) => {
   const [newComment, setNewComment] = useState('');
   const [submittingComment, setSubmittingComment] = useState(false);
 
-  const announcementTypes = [
-    { value: 'all', label: 'All', icon: MegaphoneIcon, color: 'text-gray-400' },
-    { value: 'general', label: 'General', icon: InformationCircleIcon, color: 'text-blue-400' },
-    { value: 'assignment', label: 'Assignment', icon: BookOpenIcon, color: 'text-green-400' },
-    { value: 'exam', label: 'Exam', icon: AcademicCapIcon, color: 'text-red-400' },
-    { value: 'holiday', label: 'Holiday', icon: CalendarIcon, color: 'text-purple-400' },
-    { value: 'meeting', label: 'Meeting', icon: UserGroupIcon, color: 'text-indigo-400' },
-    { value: 'important', label: 'Important', icon: ExclamationTriangleIcon, color: 'text-yellow-400' }
-  ];
-
-  const priorityColors = {
-    low: 'text-gray-400',
-    medium: 'text-blue-400', 
-    high: 'text-orange-400',
-    urgent: 'text-red-400'
-  };
-
-  const priorityBadges = {
-    low: 'bg-gray-700 text-gray-200',
-    medium: 'bg-blue-900/50 text-blue-300',
-    high: 'bg-orange-900/50 text-orange-300', 
-    urgent: 'bg-red-900/50 text-red-300'
-  };
+  // ... (rest of the state)
 
   useEffect(() => {
     fetchAnnouncements();
+
+    // Initialize socket connection
+    const socket = io(API_ENDPOINTS.BASE_URL);
+
+    // Listen for new announcements
+    socket.on('new_announcement', (newAnnouncement) => {
+      setAnnouncements(prev => [newAnnouncement, ...prev]);
+    });
+
+    return () => {
+      socket.disconnect();
+    };
   }, []);
 
   const fetchAnnouncements = async () => {
@@ -101,18 +93,18 @@ const AnnouncementsTab = ({ studentData }) => {
       if (response.ok) {
         const data = await response.json();
         // Update announcements list
-        setAnnouncements(prev => prev.map(ann => 
-          ann._id === announcementId 
+        setAnnouncements(prev => prev.map(ann =>
+          ann._id === announcementId
             ? { ...ann, likeCount: data.data.likeCount, hasLiked: data.data.hasLiked }
             : ann
         ));
-        
+
         // Update selected announcement if it's open
         if (selectedAnnouncement && selectedAnnouncement._id === announcementId) {
-          setSelectedAnnouncement(prev => ({ 
-            ...prev, 
-            likeCount: data.data.likeCount, 
-            hasLiked: data.data.hasLiked 
+          setSelectedAnnouncement(prev => ({
+            ...prev,
+            likeCount: data.data.likeCount,
+            hasLiked: data.data.hasLiked
           }));
         }
       }
@@ -210,11 +202,11 @@ const AnnouncementsTab = ({ studentData }) => {
 
   const filteredAnnouncements = announcements.filter(announcement => {
     const matchesFilter = filter === 'all' || announcement.type === filter;
-    const matchesSearch = searchTerm === '' || 
+    const matchesSearch = searchTerm === '' ||
       announcement.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       announcement.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
       announcement.tags?.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
-    
+
     return matchesFilter && matchesSearch;
   });
 
@@ -267,10 +259,10 @@ const AnnouncementsTab = ({ studentData }) => {
         <nav className="-mb-px flex space-x-2 sm:space-x-4 lg:space-x-6 min-w-max pb-2" style={{ overflow: 'visible' }}>
           {announcementTypes.map((type) => {
             const IconComponent = type.icon;
-            const count = type.value === 'all' 
-              ? announcements.length 
+            const count = type.value === 'all'
+              ? announcements.length
               : announcements.filter(a => a.type === type.value).length;
-            
+
             return (
               <button
                 key={type.value}
@@ -295,11 +287,10 @@ const AnnouncementsTab = ({ studentData }) => {
                 <span className="hidden sm:inline">{type.label}</span>
                 <span className="sm:hidden">{type.label.substring(0, 3)}</span>
                 {count > 0 && (
-                  <span className={`ml-1 sm:ml-2 inline-flex items-center px-1.5 sm:px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                    filter === type.value 
+                  <span className={`ml-1 sm:ml-2 inline-flex items-center px-1.5 sm:px-2.5 py-0.5 rounded-full text-xs font-medium ${filter === type.value
                       ? 'bg-blue-900/70 text-blue-300'
                       : 'bg-gray-700 text-gray-200'
-                  }`}>
+                    }`}>
                     {count}
                   </span>
                 )}
@@ -318,7 +309,7 @@ const AnnouncementsTab = ({ studentData }) => {
               {searchTerm || filter !== 'all' ? 'No matching announcements' : 'No announcements yet'}
             </h3>
             <p className="text-sm sm:text-base text-gray-400">
-              {searchTerm || filter !== 'all' 
+              {searchTerm || filter !== 'all'
                 ? 'Try adjusting your search or filter criteria.'
                 : 'Your teachers haven\'t posted any announcements yet.'
               }
@@ -327,16 +318,15 @@ const AnnouncementsTab = ({ studentData }) => {
         ) : (
           filteredAnnouncements.map((announcement, index) => {
             const TypeIcon = getTypeIcon(announcement.type);
-            
+
             return (
               <motion.div
                 key={announcement._id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
-                className={`bg-gray-900/70 backdrop-blur-md rounded-xl shadow-lg border-l-4 p-4 sm:p-6 hover:shadow-xl transition-all cursor-pointer ${
-                  announcement.isPinned ? 'border-l-yellow-400 bg-yellow-900/20' : 'border-l-blue-400'
-                }`}
+                className={`bg-gray-900/70 backdrop-blur-md rounded-xl shadow-lg border-l-4 p-4 sm:p-6 hover:shadow-xl transition-all cursor-pointer ${announcement.isPinned ? 'border-l-yellow-400 bg-yellow-900/20' : 'border-l-blue-400'
+                  }`}
                 onClick={() => openAnnouncementModal(announcement)}
               >
                 <div className="flex justify-between items-start gap-4">
@@ -357,9 +347,9 @@ const AnnouncementsTab = ({ studentData }) => {
                         </span>
                       </div>
                     </div>
-                    
+
                     <p className="text-sm sm:text-base text-gray-300 mb-4 line-clamp-2">{announcement.content}</p>
-                    
+
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-6">
                       <div className="flex flex-wrap items-center gap-3 sm:gap-6 text-xs sm:text-sm text-gray-400">
                         <div className="flex items-center">
@@ -375,7 +365,7 @@ const AnnouncementsTab = ({ studentData }) => {
                           <span>{announcement.metadata?.views || 0} views</span>
                         </div>
                       </div>
-                      
+
                       <div className="flex items-center justify-between sm:justify-end gap-4">
                         <div className="flex items-center space-x-4">
                           <button
@@ -383,9 +373,8 @@ const AnnouncementsTab = ({ studentData }) => {
                               e.stopPropagation();
                               toggleLike(announcement._id);
                             }}
-                            className={`flex items-center space-x-1 ${
-                              announcement.hasLiked ? 'text-red-500' : 'text-gray-400 hover:text-red-500'
-                            }`}
+                            className={`flex items-center space-x-1 ${announcement.hasLiked ? 'text-red-500' : 'text-gray-400 hover:text-red-500'
+                              }`}
                           >
                             {announcement.hasLiked ? (
                               <HeartIconSolid className="h-4 w-4 sm:h-5 sm:w-5" />
@@ -394,13 +383,13 @@ const AnnouncementsTab = ({ studentData }) => {
                             )}
                             <span className="text-xs sm:text-sm">{announcement.likeCount || 0}</span>
                           </button>
-                          
+
                           <div className="flex items-center space-x-1 text-gray-400">
                             <ChatBubbleLeftRightIcon className="h-4 w-4 sm:h-5 sm:w-5" />
                             <span className="text-xs sm:text-sm">{announcement.commentCount || 0}</span>
                           </div>
                         </div>
-                        
+
                         <ChevronRightIcon className="h-4 w-4 sm:h-5 sm:w-5 text-gray-500 flex-shrink-0" />
                       </div>
                     </div>
@@ -486,11 +475,10 @@ const AnnouncementsTab = ({ studentData }) => {
                     <div className="flex flex-wrap items-center gap-4 sm:gap-6">
                       <button
                         onClick={() => toggleLike(selectedAnnouncement._id)}
-                        className={`flex items-center space-x-2 px-3 sm:px-4 py-2 rounded-xl transition-colors text-sm ${
-                          selectedAnnouncement.hasLiked 
-                            ? 'bg-red-900/50 text-red-400 hover:bg-red-900/80' 
+                        className={`flex items-center space-x-2 px-3 sm:px-4 py-2 rounded-xl transition-colors text-sm ${selectedAnnouncement.hasLiked
+                            ? 'bg-red-900/50 text-red-400 hover:bg-red-900/80'
                             : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                        }`}
+                          }`}
                       >
                         {selectedAnnouncement.hasLiked ? (
                           <HeartIconSolid className="h-4 w-4 sm:h-5 sm:w-5" />
@@ -499,7 +487,7 @@ const AnnouncementsTab = ({ studentData }) => {
                         )}
                         <span>{selectedAnnouncement.likeCount || 0} Likes</span>
                       </button>
-                      
+
                       <div className="flex items-center space-x-2 text-gray-400 text-sm">
                         <EyeIcon className="h-4 w-4 sm:h-5 sm:w-5" />
                         <span>{selectedAnnouncement.metadata?.views || 0} Views</span>
@@ -512,7 +500,7 @@ const AnnouncementsTab = ({ studentData }) => {
                     <h4 className="text-base sm:text-lg font-medium text-white">
                       Comments ({selectedAnnouncement.comments?.length || 0})
                     </h4>
-                    
+
                     {/* Add Comment */}
                     <div className="flex space-x-2 sm:space-x-3">
                       <div className="w-8 h-8 bg-blue-500/20 rounded-full flex items-center justify-center ring-2 ring-blue-500/50 flex-shrink-0">

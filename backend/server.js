@@ -98,8 +98,8 @@ connectDB();
  * Allows requests from frontend domains based on environment
  */
 const corsOptions = {
-  origin: process.env.NODE_ENV === 'production' 
-    ? process.env.CLIENT_URL 
+  origin: process.env.NODE_ENV === 'production'
+    ? process.env.CLIENT_URL
     : ['http://localhost:3000', 'https://at-ict-test.vercel.app'],
   credentials: true,
   optionsSuccessStatus: 200
@@ -121,7 +121,7 @@ app.use(helmet({
 app.use(cors(corsOptions));
 
 // Request Parsing Middleware
-app.use(express.json({ 
+app.use(express.json({
   limit: '10mb',
   verify: (req, res, buf) => {
     // Only validate when there is a non-empty JSON body
@@ -130,17 +130,17 @@ app.use(express.json({
         JSON.parse(buf);
       }
     } catch (e) {
-      return res.status(400).json({ 
-        status: 'error', 
-        message: 'Invalid JSON payload' 
+      return res.status(400).json({
+        status: 'error',
+        message: 'Invalid JSON payload'
       });
     }
   }
 }));
 
-app.use(express.urlencoded({ 
-  extended: true, 
-  limit: '10mb' 
+app.use(express.urlencoded({
+  extended: true,
+  limit: '10mb'
 }));
 
 // Static File Serving
@@ -152,7 +152,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads'), {
 // Request Logging (Development Only)
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
-  
+
   // Custom request logging for debugging
   app.use((req, res, next) => {
     console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`.yellow);
@@ -183,6 +183,12 @@ const apiLimiter = rateLimit({
 // Apply rate limiting to all API routes
 app.use('/api/', apiLimiter);
 
+// Attach Socket.IO to request object
+app.use((req, res, next) => {
+  req.io = io;
+  next();
+});
+
 // ===================================================================
 // SOCKET.IO REAL-TIME COMMUNICATION
 // ===================================================================
@@ -203,7 +209,7 @@ io.on('connection', (socket) => {
       socket.emit('error', { message: 'Invalid room ID' });
       return;
     }
-    
+
     socket.join(roomId);
     console.log(`📨 User ${socket.id} joined room ${roomId}`.cyan);
   });
@@ -217,7 +223,7 @@ io.on('connection', (socket) => {
       socket.emit('error', { message: 'Invalid message data' });
       return;
     }
-    
+
     socket.to(messageData.roomId).emit('receive_message', messageData);
   });
 
@@ -413,7 +419,7 @@ server.listen(PORT, () => {
 process.on('unhandledRejection', (err, promise) => {
   console.log(`❌ Unhandled Promise Rejection: ${err.message}`.red.bold);
   console.log('Stack:', err.stack);
-  
+
   // Close server and exit process
   server.close(() => {
     console.log('🔴 Server closed due to unhandled promise rejection');
@@ -438,7 +444,7 @@ process.on('uncaughtException', (err) => {
  */
 process.on('SIGTERM', () => {
   console.log('🔄 SIGTERM received. Shutting down gracefully...'.yellow);
-  
+
   server.close(() => {
     console.log('✅ Server shutdown complete'.green);
     process.exit(0);
@@ -451,7 +457,7 @@ process.on('SIGTERM', () => {
  */
 process.on('SIGINT', () => {
   console.log('\n🔄 SIGINT received. Shutting down gracefully...'.yellow);
-  
+
   server.close(() => {
     console.log('✅ Server shutdown complete'.green);
     process.exit(0);
@@ -465,8 +471,8 @@ process.on('SIGINT', () => {
 /**
  * Export server components for testing
  */
-module.exports = { 
-  app, 
-  io, 
-  server 
+module.exports = {
+  app,
+  io,
+  server
 }; 

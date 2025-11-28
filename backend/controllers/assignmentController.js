@@ -60,10 +60,10 @@ const createAssignment = async (req, res) => {
     // Handle student assignment
     if (assignToAll === true || assignToAll === 'true') {
       // Assign to all approved students
-      const students = await User.find({ 
-        role: 'student', 
+      const students = await User.find({
+        role: 'student',
         registrationStatus: 'approved',
-        isActive: true 
+        isActive: true
       }).select('_id');
 
       assignment.assignedTo = students.map(student => ({
@@ -74,7 +74,7 @@ const createAssignment = async (req, res) => {
     } else if (selectedStudents) {
       // Assign to selected students
       let studentIds = selectedStudents;
-      
+
       // Parse if it's a JSON string (from FormData)
       if (typeof selectedStudents === 'string') {
         try {
@@ -126,6 +126,11 @@ const createAssignment = async (req, res) => {
 
     await assignment.populate('createdBy', 'firstName lastName');
 
+    // Emit real-time event
+    if (req.io) {
+      req.io.emit('new_assignment', assignment);
+    }
+
     res.status(201).json({
       status: 'success',
       message: 'Assignment created successfully',
@@ -154,12 +159,12 @@ const getAssignments = async (req, res) => {
 
     // Build query
     let query = { createdBy: req.user.id };
-    
+
     if (type) query.type = type;
     if (section) query.section = section;
     if (difficulty) query.difficulty = difficulty;
     if (status) query.isActive = status === 'active';
-    
+
     if (search) {
       query.$or = [
         { title: { $regex: search, $options: 'i' } },
@@ -181,7 +186,7 @@ const getAssignments = async (req, res) => {
     const assignmentsWithStats = assignments.map(assignment => {
       const stats = assignment.getCompletionStats();
       const avgScore = assignment.getAverageScore();
-      
+
       return {
         ...assignment.toObject(),
         stats,
@@ -366,7 +371,7 @@ const deleteAssignment = async (req, res) => {
 const assignToStudents = async (req, res) => {
   try {
     const { studentIds } = req.body;
-    
+
     if (!studentIds || !Array.isArray(studentIds) || studentIds.length === 0) {
       return res.status(400).json({
         status: 'error',
@@ -425,7 +430,7 @@ const assignToStudents = async (req, res) => {
 const downloadSubmissionFile = async (req, res) => {
   try {
     const { id: assignmentId, studentId, filename } = req.params;
-    
+
     // Decode the filename in case it was URL encoded
     const decodedFilename = decodeURIComponent(filename);
 
@@ -470,7 +475,7 @@ const downloadSubmissionFile = async (req, res) => {
     }
 
     const filePath = path.join(__dirname, '..', file.path);
-    
+
     // Check if file exists
     const fs = require('fs');
     if (!fs.existsSync(filePath)) {

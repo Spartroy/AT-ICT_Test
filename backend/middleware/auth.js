@@ -32,12 +32,10 @@ const protect = async (req, res, next) => {
 
       // For now, allow access even if session is not found (temporary fix)
       if (!session) {
-        console.log('Session not found for token, but allowing access for debugging');
-        // Uncomment the following lines once the session issue is resolved
-        // return res.status(401).json({
-        //   status: 'error',
-        //   message: 'Session expired or invalid. Please log in again.'
-        // });
+        return res.status(401).json({
+          status: 'error',
+          message: 'Session expired or invalid. Please log in again.'
+        });
       }
 
       // Get user from token

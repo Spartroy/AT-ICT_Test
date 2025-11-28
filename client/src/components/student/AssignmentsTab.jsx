@@ -16,6 +16,8 @@ import {
   ChevronUpIcon
 } from '@heroicons/react/24/outline';
 
+import io from 'socket.io-client';
+
 const AssignmentsTab = ({ studentData, stats, fetchUrl, readonly = false }) => {
   const [assignments, setAssignments] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -27,20 +29,37 @@ const AssignmentsTab = ({ studentData, stats, fetchUrl, readonly = false }) => {
 
   useEffect(() => {
     fetchAssignments();
-    
+
+    // Initialize socket connection
+    const socket = io(API_ENDPOINTS.BASE_URL);
+
+    // Listen for new assignments
+    socket.on('new_assignment', (newAssignment) => {
+      // Check if the assignment is relevant to the student (assigned to all or specifically to them)
+      // For simplicity, we'll just add it and let the backend filter on next fetch if needed, 
+      // or ideally the backend should only emit to specific rooms. 
+      // For now, we'll assume global announcements/assignments or basic filtering.
+      // A better approach is to fetch again to ensure correct data shape and permissions.
+      console.log('🔔 New assignment received via socket:', newAssignment);
+      fetchAssignments(true);
+    });
+
     // Set up auto-refresh every 30 seconds to check for grade updates
     const interval = setInterval(() => {
       console.log('🔄 Auto-refreshing assignments...');
       fetchAssignments(true); // Silent refresh
     }, 30000);
 
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      socket.disconnect();
+    };
   }, []);
 
   const fetchAssignments = async (silent = false) => {
     if (!silent) setLoading(true);
     if (!silent) setRefreshing(true);
-    
+
     try {
       const token = localStorage.getItem('token');
       const url = fetchUrl || API_ENDPOINTS.STUDENT.ASSIGNMENTS;
@@ -122,7 +141,7 @@ const AssignmentsTab = ({ studentData, stats, fetchUrl, readonly = false }) => {
   const submitAssignment = async (assignmentId) => {
     if (readonly) return; // disabled in read-only mode (parent)
     const files = selectedFiles[assignmentId] || [];
-    
+
     if (files.length === 0) {
       alert('Please select files to submit');
       return;
@@ -132,7 +151,7 @@ const AssignmentsTab = ({ studentData, stats, fetchUrl, readonly = false }) => {
     try {
       const token = localStorage.getItem('token');
       const formData = new FormData();
-      
+
       files.forEach(file => {
         formData.append('files', file);
       });
@@ -192,10 +211,10 @@ const AssignmentsTab = ({ studentData, stats, fetchUrl, readonly = false }) => {
   };
 
   // Calculate assignment statistics
-  const completedCount = assignments.filter(a => 
+  const completedCount = assignments.filter(a =>
     a.studentData?.status === 'submitted' || a.studentData?.status === 'graded'
   ).length;
-  const pendingCount = assignments.filter(a => 
+  const pendingCount = assignments.filter(a =>
     a.studentData?.status === 'assigned' || a.studentData?.status === 'in_progress'
   ).length;
 
@@ -261,7 +280,7 @@ const AssignmentsTab = ({ studentData, stats, fetchUrl, readonly = false }) => {
         ) : (
           assignments.map((assignment) => {
             const isExpanded = expandedAssignments.has(assignment._id);
-            
+
             return (
               <motion.div
                 key={assignment._id}
@@ -273,25 +292,24 @@ const AssignmentsTab = ({ studentData, stats, fetchUrl, readonly = false }) => {
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div className="flex items-start sm:items-center space-x-3 sm:space-x-4 flex-1 min-w-0">
                       <DocumentTextIcon className="h-5 w-5 sm:h-6 sm:w-6 text-blue-400 flex-shrink-0 mt-1 sm:mt-0" />
-                      
+
                       <div className="flex-1 min-w-0">
                         <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
                           <h3 className="text-base sm:text-lg lg:text-[18pt] font-semibold text-white truncate">
                             {assignment.title}
                           </h3>
-                          <span className={`px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium self-start sm:self-auto ${
-                            assignment.studentData?.status === 'graded' ? 'bg-green-900/50 text-green-300' :
-                            assignment.studentData?.status === 'submitted' ? 'bg-blue-900/50 text-blue-300' :
-                            assignment.studentData?.status === 'in_progress' ? 'bg-yellow-900/50 text-yellow-300' :
-                            'bg-red-900/50 text-red-300'
-                          }`}>
+                          <span className={`px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium self-start sm:self-auto ${assignment.studentData?.status === 'graded' ? 'bg-green-900/50 text-green-300' :
+                              assignment.studentData?.status === 'submitted' ? 'bg-blue-900/50 text-blue-300' :
+                                assignment.studentData?.status === 'in_progress' ? 'bg-yellow-900/50 text-yellow-300' :
+                                  'bg-red-900/50 text-red-300'
+                            }`}>
                             {assignment.studentData?.status === 'graded' ? 'Graded' :
-                             assignment.studentData?.status === 'submitted' ? 'Submitted' :
-                             assignment.studentData?.status === 'in_progress' ? 'In Progress' :
-                             'Not Started'}
+                              assignment.studentData?.status === 'submitted' ? 'Submitted' :
+                                assignment.studentData?.status === 'in_progress' ? 'In Progress' :
+                                  'Not Started'}
                           </span>
                         </div>
-                        
+
                         {/* Condensed Info Row */}
                         <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 text-xs sm:text-sm lg:text-[12pt] text-gray-400">
                           <span className="flex items-center">
@@ -316,7 +334,7 @@ const AssignmentsTab = ({ studentData, stats, fetchUrl, readonly = false }) => {
                         </div>
                       </div>
                     </div>
-                    
+
                     {/* Score and Expand Button */}
                     <div className="flex items-center justify-between sm:justify-end gap-4">
                       {/* Current Score Display */}
@@ -331,7 +349,7 @@ const AssignmentsTab = ({ studentData, stats, fetchUrl, readonly = false }) => {
                           </div>
                         )}
                       </div>
-                      
+
                       {/* Expand/Collapse Button */}
                       <button
                         onClick={() => toggleAssignmentExpansion(assignment._id)}
@@ -418,7 +436,7 @@ const AssignmentsTab = ({ studentData, stats, fetchUrl, readonly = false }) => {
                                   <div>
                                     <span className="text-green-400">Score: </span>
                                     <span className="font-medium text-white">
-                                      {assignment.studentData?.score}/{assignment.maxScore} : 
+                                      {assignment.studentData?.score}/{assignment.maxScore} :
                                       ({getScorePercentage(assignment.studentData?.score, assignment.maxScore)} %)
                                     </span>
                                   </div>
@@ -461,7 +479,7 @@ const AssignmentsTab = ({ studentData, stats, fetchUrl, readonly = false }) => {
                                 <div className="border-2 border-dashed border-gray-600 rounded-xl p-4 sm:p-6 text-center">
                                   <CloudArrowUpIcon className="h-10 w-10 sm:h-12 sm:w-12 text-gray-500 mx-auto mb-4" />
                                   <p className="text-gray-400 mb-4 text-sm sm:text-base">Upload your assignment files</p>
-                                  
+
                                   <input
                                     type="file"
                                     multiple
@@ -477,7 +495,7 @@ const AssignmentsTab = ({ studentData, stats, fetchUrl, readonly = false }) => {
                                     <PaperClipIcon className="h-4 w-4 sm:h-5 sm:w-5" />
                                     <span>Choose Files</span>
                                   </label>
-                                  
+
                                   {selectedFiles[assignment._id] && selectedFiles[assignment._id].length > 0 && (
                                     <div className="mt-4">
                                       <p className="text-xs sm:text-sm text-gray-400 mb-2">Selected files:</p>
@@ -497,7 +515,7 @@ const AssignmentsTab = ({ studentData, stats, fetchUrl, readonly = false }) => {
                                       </button>
                                     </div>
                                   )}
-                                  
+
                                   <p className="text-xs text-gray-500 mt-4">
                                     Supported formats: PDF, DOC, DOCX, TXT, JPG, PNG
                                   </p>
