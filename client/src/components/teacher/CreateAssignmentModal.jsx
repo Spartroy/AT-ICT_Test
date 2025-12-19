@@ -25,13 +25,14 @@ const CreateAssignmentModal = ({ isOpen, onClose, onSuccess }) => {
     assignToAll: true,
     selectedStudents: []
   });
-  
+
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [students, setStudents] = useState([]);
   const [loadingStudents, setLoadingStudents] = useState(false);
   const [showStudentDropdown, setShowStudentDropdown] = useState(false);
+  const [studentSearchQuery, setStudentSearchQuery] = useState('');
 
   // Fetch students when modal opens
   useEffect(() => {
@@ -58,7 +59,8 @@ const CreateAssignmentModal = ({ isOpen, onClose, onSuccess }) => {
     try {
       setLoadingStudents(true);
       const token = localStorage.getItem('token');
-      const response = await fetch(API_ENDPOINTS.TEACHER.STUDENTS, {
+      // Fetch all students without pagination limit for assignment creation
+      const response = await fetch(`${API_ENDPOINTS.TEACHER.STUDENTS}?all=true`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -81,10 +83,10 @@ const CreateAssignmentModal = ({ isOpen, onClose, onSuccess }) => {
   const handleStudentSelection = (studentId) => {
     setFormData(prev => {
       const isSelected = prev.selectedStudents.includes(studentId);
-      const newSelectedStudents = isSelected 
+      const newSelectedStudents = isSelected
         ? prev.selectedStudents.filter(id => id !== studentId)
         : [...prev.selectedStudents, studentId];
-      
+
       return {
         ...prev,
         selectedStudents: newSelectedStudents,
@@ -112,26 +114,26 @@ const CreateAssignmentModal = ({ isOpen, onClose, onSuccess }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Validate maxScore is a positive number
     if (!formData.maxScore || parseInt(formData.maxScore) < 1) {
       showError('Max score must be a positive number');
       return;
     }
-    
+
     // Validate student selection
     if (!formData.assignToAll && formData.selectedStudents.length === 0) {
       showWarning('Please select at least one student or choose "All Students"');
       return;
     }
-    
+
     setLoading(true);
     setUploadProgress(0);
 
     try {
       const token = localStorage.getItem('token');
       const formDataToSend = new FormData();
-      
+
       // Append form fields with proper data types
       Object.keys(formData).forEach(key => {
         if (key === 'maxScore') {
@@ -149,7 +151,7 @@ const CreateAssignmentModal = ({ isOpen, onClose, onSuccess }) => {
           formDataToSend.append(key, formData[key]);
         }
       });
-      
+
       // Append files
       files.forEach(file => {
         formDataToSend.append('attachments', file);
@@ -158,7 +160,7 @@ const CreateAssignmentModal = ({ isOpen, onClose, onSuccess }) => {
       // Use XMLHttpRequest for progress tracking
       return new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
-        
+
         xhr.upload.addEventListener('progress', (event) => {
           if (event.lengthComputable) {
             const progress = Math.round((event.loaded / event.total) * 100);
@@ -230,6 +232,7 @@ const CreateAssignmentModal = ({ isOpen, onClose, onSuccess }) => {
     });
     setFiles([]);
     setShowStudentDropdown(false);
+    setStudentSearchQuery('');
     onClose();
   };
 
@@ -407,7 +410,7 @@ const CreateAssignmentModal = ({ isOpen, onClose, onSuccess }) => {
                 <span className="text-xs text-gray-500">PDF, DOC, Images (Max 5 files)</span>
               </label>
             </div>
-            
+
             {files.length > 0 && (
               <div className="mt-2 space-y-2">
                 {files.map((file, index) => (
@@ -430,28 +433,26 @@ const CreateAssignmentModal = ({ isOpen, onClose, onSuccess }) => {
             <label className="block text-sm font-medium text-gray-300 mb-2">
               Student Assignment
             </label>
-            
+
             {/* Assignment Type Toggle */}
             <div className="flex space-x-3 mb-3">
               <button
                 type="button"
                 onClick={() => setFormData({ ...formData, assignToAll: true, selectedStudents: [] })}
-                className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
-                  formData.assignToAll 
-                    ? 'bg-blue-600 text-white' 
-                    : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                }`}
+                className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${formData.assignToAll
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                  }`}
               >
                 All Students
               </button>
               <button
                 type="button"
                 onClick={() => setFormData({ ...formData, assignToAll: false })}
-                className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
-                  !formData.assignToAll 
-                    ? 'bg-blue-600 text-white' 
-                    : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                }`}
+                className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${!formData.assignToAll
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                  }`}
               >
                 Select Students
               </button>
@@ -472,16 +473,15 @@ const CreateAssignmentModal = ({ isOpen, onClose, onSuccess }) => {
                       : `${formData.selectedStudents.length} student(s) selected`
                     }
                   </span>
-                  <ChevronDownIcon 
-                    className={`h-4 w-4 text-gray-400 transition-transform ${
-                      showStudentDropdown ? 'rotate-180' : ''
-                    }`} 
+                  <ChevronDownIcon
+                    className={`h-4 w-4 text-gray-400 transition-transform ${showStudentDropdown ? 'rotate-180' : ''
+                      }`}
                   />
                 </button>
 
                 {/* Dropdown List */}
                 {showStudentDropdown && (
-                  <div className="absolute top-full left-0 right-0 mt-1 bg-gray-800 border border-gray-600 rounded-xl shadow-lg z-50 max-h-60 overflow-y-auto">
+                  <div className="absolute top-full left-0 right-0 mt-1 bg-gray-800 border border-gray-600 rounded-xl shadow-lg z-50 max-h-60 overflow-hidden flex flex-col">
                     {loadingStudents ? (
                       <div className="p-3 text-center text-gray-400">
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500 mx-auto mb-2"></div>
@@ -493,64 +493,112 @@ const CreateAssignmentModal = ({ isOpen, onClose, onSuccess }) => {
                       </div>
                     ) : (
                       <>
-                        {/* Select All Students Option */}
-                        <div className="p-2 border-b border-gray-700">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              const allStudentIds = students.map(s => s._id);
-                              const allSelected = allStudentIds.every(id => 
-                                formData.selectedStudents.includes(id)
-                              );
-                              
-                              if (allSelected) {
-                                setFormData({ ...formData, selectedStudents: [] });
-                              } else {
-                                setFormData({ ...formData, selectedStudents: allStudentIds });
-                              }
-                            }}
-                            className="w-full text-left px-3 py-2 hover:bg-gray-700 rounded-xl transition-colors flex items-center"
-                          >
-                            <input
-                              type="checkbox"
-                              checked={students.length > 0 && students.every(s => 
-                                formData.selectedStudents.includes(s._id)
-                              )}
-                              onChange={() => {}} // Handled by button click
-                              className="h-4 w-4 text-blue-500 border-gray-600 rounded mr-3"
-                            />
-                            <span className="font-medium text-blue-400">Select All</span>
-                          </button>
+                        {/* Search Input */}
+                        <div className="p-2 border-b border-gray-700 sticky top-0 bg-gray-800">
+                          <input
+                            type="text"
+                            placeholder="Search by name..."
+                            value={studentSearchQuery}
+                            onChange={(e) => setStudentSearchQuery(e.target.value)}
+                            className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            onClick={(e) => e.stopPropagation()}
+                          />
                         </div>
 
-                        {/* Individual Student Options */}
-                        {students.map((student) => (
-                          <div key={student._id} className="p-2">
-                            <button
-                              type="button"
-                              onClick={() => handleStudentSelection(student._id)}
-                              className="w-full text-left px-3 py-2 hover:bg-gray-700 rounded-xl transition-colors flex items-center"
-                            >
-                              <input
-                                type="checkbox"
-                                checked={formData.selectedStudents.includes(student._id)}
-                                onChange={() => {}} // Handled by button click
-                                className="h-4 w-4 text-blue-500 border-gray-600 rounded mr-3"
-                              />
-                              <div className="flex-1">
-                                <div className="text-white">
-                                  {student.firstName} {student.lastName}
+                        {/* Scrollable student list */}
+                        <div className="overflow-y-auto max-h-48">
+                          {/* Filter students based on search query */}
+                          {(() => {
+                            const filteredStudents = students.filter(s =>
+                              `${s.firstName} ${s.lastName}`.toLowerCase().includes(studentSearchQuery.toLowerCase()) ||
+                              s.email.toLowerCase().includes(studentSearchQuery.toLowerCase())
+                            );
+
+                            if (filteredStudents.length === 0) {
+                              return (
+                                <div className="p-3 text-center text-gray-400 text-sm">
+                                  No students match your search
                                 </div>
-                                <div className="text-xs text-gray-400">
-                                  {student.email}
-                                  {student.studentInfo?.studentId && 
-                                    ` • ID: ${student.studentInfo.studentId}`
-                                  }
+                              );
+                            }
+
+                            return (
+                              <>
+                                {/* Select All Students Option */}
+                                <div className="p-2 border-b border-gray-700">
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      const allStudentIds = filteredStudents.map(s => s._id);
+                                      const allSelected = allStudentIds.every(id =>
+                                        formData.selectedStudents.includes(id)
+                                      );
+
+                                      if (allSelected) {
+                                        // Deselect filtered students
+                                        setFormData({
+                                          ...formData,
+                                          selectedStudents: formData.selectedStudents.filter(
+                                            id => !allStudentIds.includes(id)
+                                          )
+                                        });
+                                      } else {
+                                        // Select all filtered students
+                                        const newSelection = [
+                                          ...formData.selectedStudents.filter(id => !allStudentIds.includes(id)),
+                                          ...allStudentIds
+                                        ];
+                                        setFormData({ ...formData, selectedStudents: newSelection });
+                                      }
+                                    }}
+                                    className="w-full text-left px-3 py-2 hover:bg-gray-700 rounded-xl transition-colors flex items-center"
+                                  >
+                                    <input
+                                      type="checkbox"
+                                      checked={filteredStudents.length > 0 && filteredStudents.every(s =>
+                                        formData.selectedStudents.includes(s._id)
+                                      )}
+                                      onChange={() => { }} // Handled by button click
+                                      className="h-4 w-4 text-blue-500 border-gray-600 rounded mr-3"
+                                    />
+                                    <span className="font-medium text-blue-400">
+                                      {studentSearchQuery ? 'Select All Filtered' : 'Select All'}
+                                    </span>
+                                  </button>
                                 </div>
-                              </div>
-                            </button>
-                          </div>
-                        ))}
+
+                                {/* Individual Student Options */}
+                                {filteredStudents.map((student) => (
+                                  <div key={student._id} className="p-2">
+                                    <button
+                                      type="button"
+                                      onClick={() => handleStudentSelection(student._id)}
+                                      className="w-full text-left px-3 py-2 hover:bg-gray-700 rounded-xl transition-colors flex items-center"
+                                    >
+                                      <input
+                                        type="checkbox"
+                                        checked={formData.selectedStudents.includes(student._id)}
+                                        onChange={() => { }} // Handled by button click
+                                        className="h-4 w-4 text-blue-500 border-gray-600 rounded mr-3"
+                                      />
+                                      <div className="flex-1">
+                                        <div className="text-white">
+                                          {student.firstName} {student.lastName}
+                                        </div>
+                                        <div className="text-xs text-gray-400">
+                                          {student.email}
+                                          {student.studentInfo?.studentId &&
+                                            ` • ID: ${student.studentInfo.studentId}`
+                                          }
+                                        </div>
+                                      </div>
+                                    </button>
+                                  </div>
+                                ))}
+                              </>
+                            );
+                          })()}
+                        </div>
                       </>
                     )}
                   </div>
@@ -580,7 +628,7 @@ const CreateAssignmentModal = ({ isOpen, onClose, onSuccess }) => {
                 <span>{uploadProgress}%</span>
               </div>
               <div className="w-full bg-gray-700 rounded-full h-2">
-                <div 
+                <div
                   className="bg-blue-500 h-2 rounded-full transition-all duration-300 ease-out"
                   style={{ width: `${uploadProgress}%` }}
                 />
@@ -613,7 +661,7 @@ const CreateAssignmentModal = ({ isOpen, onClose, onSuccess }) => {
           </div>
         </form>
       </motion.div>
-    </div>
+    </div >
   );
 };
 

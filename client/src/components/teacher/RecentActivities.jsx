@@ -13,7 +13,7 @@ import {
   EyeIcon
 } from '@heroicons/react/24/outline';
 
-const RecentActivities = () => {
+const RecentActivities = ({ onStudentClick }) => {
   const [activities, setActivities] = useState([]);
   const [loading, setLoading] = useState(true);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -26,7 +26,7 @@ const RecentActivities = () => {
     try {
       const token = localStorage.getItem('token');
       console.log('🔍 Fetching activities from:', API_ENDPOINTS.TEACHER.ACTIVITIES);
-      
+
       const response = await fetch(API_ENDPOINTS.TEACHER.ACTIVITIES, {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -44,11 +44,11 @@ const RecentActivities = () => {
       } else {
         const errorData = await response.json().catch(() => ({}));
         console.error('❌ Failed to fetch activities:', response.status, errorData);
-        
+
         // Set empty data instead of showing error to prevent UI crashes
         setActivities([]);
         setUnreadCount(0);
-        
+
         // Only show error if it's not a 500 error (which we're handling gracefully)
         if (response.status !== 500) {
           showError(`Failed to fetch activities: ${errorData.message || 'Unknown error'}`);
@@ -56,11 +56,11 @@ const RecentActivities = () => {
       }
     } catch (error) {
       console.error('❌ Error fetching activities:', error);
-      
+
       // Set empty data for network errors too
       setActivities([]);
       setUnreadCount(0);
-      
+
       // Don't show error for network issues to prevent UI crashes
       console.log('🔄 Setting empty activities due to network error');
     } finally {
@@ -82,9 +82,9 @@ const RecentActivities = () => {
 
       if (response.ok) {
         // Update local state to mark activities as read
-        setActivities(prev => 
-          prev.map(activity => 
-            activityIds.includes(activity._id) 
+        setActivities(prev =>
+          prev.map(activity =>
+            activityIds.includes(activity._id)
               ? { ...activity, isRead: true }
               : activity
           )
@@ -95,6 +95,40 @@ const RecentActivities = () => {
     } catch (error) {
       console.error('Error marking activities as read:', error);
       showError('Failed to mark activities as read');
+    }
+  };
+
+  const handleActivityClick = (activity) => {
+    // Extract student ID from activity
+    const studentId = activity.student?._id || activity.student;
+
+    if (!studentId) {
+      console.warn('No student ID found in activity:', activity);
+      return;
+    }
+
+    // Determine which tab to open based on activity type
+    let targetTab = 'summary';
+    switch (activity.type) {
+      case 'assignment_submission':
+        targetTab = 'assignments';
+        break;
+      case 'quiz_submission':
+        targetTab = 'quizzes';
+        break;
+      case 'message':
+        // Could navigate to messages/chat in the future
+        targetTab = 'summary';
+        break;
+      default:
+        targetTab = 'summary';
+    }
+
+    // Call parent component's handler if provided
+    if (onStudentClick) {
+      onStudentClick(studentId, targetTab);
+    } else {
+      console.log('Opening student details:', studentId, 'Tab:', targetTab);
     }
   };
 
@@ -124,16 +158,16 @@ const RecentActivities = () => {
     const date = new Date(dateString);
     const now = new Date();
     const diffInMinutes = Math.floor((now - date) / (1000 * 60));
-    
+
     if (diffInMinutes < 1) return 'Just now';
     if (diffInMinutes < 60) return `${diffInMinutes} minute${diffInMinutes > 1 ? 's' : ''} ago`;
-    
+
     const diffInHours = Math.floor(diffInMinutes / 60);
     if (diffInHours < 24) return `${diffInHours} hour${diffInHours > 1 ? 's' : ''} ago`;
-    
+
     const diffInDays = Math.floor(diffInHours / 24);
     if (diffInDays < 7) return `${diffInDays} day${diffInDays > 1 ? 's' : ''} ago`;
-    
+
     return date.toLocaleDateString();
   };
 
@@ -186,7 +220,7 @@ const RecentActivities = () => {
           </div>
         )}
       </div>
-      
+
       <div className="space-y-4 lg:space-y-6">
         {activities.length === 0 ? (
           <div className="text-center py-8 text-gray-400">
@@ -201,16 +235,16 @@ const RecentActivities = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
-              className={`flex items-center space-x-4 lg:space-x-6 p-3 lg:p-4 rounded-xl transition-all duration-300 hover:bg-white/5 ${
-                !activity.isRead ? 'bg-blue-500/10 border border-blue-500/20' : ''
-              }`}
+              onClick={() => handleActivityClick(activity)}
+              className={`flex items-center space-x-4 lg:space-x-6 p-3 lg:p-4 rounded-xl transition-all duration-300 hover:bg-white/10 cursor-pointer ${!activity.isRead ? 'bg-blue-500/10 border border-blue-500/20' : ''
+                }`}
             >
               <div className="flex-shrink-0">
                 <div className={`h-10 w-10 lg:h-12 lg:w-12 rounded-xl flex items-center justify-center border ${getActivityColor(activity.type, activity.priority)}`}>
                   {activity.student?.profileImage ? (
-                    <img 
-                      src={activity.student.profileImage} 
-                      alt="Profile" 
+                    <img
+                      src={activity.student.profileImage}
+                      alt="Profile"
                       className="h-8 w-8 lg:h-10 lg:w-10 rounded-full object-cover"
                     />
                   ) : (
@@ -220,7 +254,7 @@ const RecentActivities = () => {
                   )}
                 </div>
               </div>
-              
+
               <div className="flex-1 min-w-0">
                 <div className="flex items-center space-x-2 mb-1">
                   <p className="text-sm lg:text-lg text-white truncate">
@@ -233,24 +267,24 @@ const RecentActivities = () => {
                     <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0"></div>
                   )}
                 </div>
-                
+
                 <div className="flex items-center space-x-3">
                   <p className="text-xs lg:text-base text-gray-400">
                     {formatTimeAgo(activity.createdAt)}
                   </p>
-                  
+
                   <div className="flex items-center space-x-1">
                     {getActivityIcon(activity.type)}
                     <span className="text-xs text-gray-500 capitalize">
                       {activity.type.replace('_', ' ')}
                     </span>
                   </div>
-                  
+
                   {activity.priority === 'urgent' && (
                     <ExclamationTriangleIcon className="h-4 w-4 text-red-400" />
                   )}
                 </div>
-                
+
                 {activity.metadata && Object.keys(activity.metadata).length > 0 && (
                   <div className="mt-2 text-xs text-gray-500">
                     {activity.metadata.isLate && (
@@ -262,10 +296,10 @@ const RecentActivities = () => {
                   </div>
                 )}
               </div>
-              
+
               {!activity.isRead && (
                 <button
-                  onClick={() => markAsRead([activity._id])}
+                  onClick={(e) => { e.stopPropagation(); markAsRead([activity._id]); }}
                   className="text-blue-400 hover:text-blue-300 p-1 rounded"
                   title="Mark as read"
                 >

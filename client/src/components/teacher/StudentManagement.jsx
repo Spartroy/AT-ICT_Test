@@ -104,7 +104,7 @@ const StudentManagement = () => {
       });
 
       const data = await response.json();
-      
+
       if (data.status === 'success') {
         setUnclassifiedStudents(data.data.students || []);
       }
@@ -117,7 +117,7 @@ const StudentManagement = () => {
     try {
       const token = localStorage.getItem('token');
       const params = new URLSearchParams();
-      
+
       if (filters.search) params.append('search', filters.search);
       if (filters.session) params.append('session', filters.session);
       if (filters.year) params.append('year', filters.year);
@@ -318,7 +318,7 @@ const StudentManagement = () => {
 
   const handleDeleteStudent = async () => {
     if (!studentToDelete) return;
-    
+
     setDeleting(true);
     try {
       const token = localStorage.getItem('token');
@@ -366,7 +366,7 @@ const StudentManagement = () => {
       });
 
       const data = await response.json();
-      
+
       if (data.status === 'success') {
         showOperationToast('Student classified successfully!');
         setShowLegacyModal(false);
@@ -407,7 +407,7 @@ const StudentManagement = () => {
   const handleAttendanceTabClick = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`${API_ENDPOINTS.TEACHER.STUDENTS}/${selectedStudent.student._id}/attendance`, { 
+      const res = await fetch(`${API_ENDPOINTS.TEACHER.STUDENTS}/${selectedStudent.student._id}/attendance`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -566,11 +566,10 @@ const StudentManagement = () => {
                         </span>
                         <span className="hidden sm:inline">ID: {student.studentId}</span>
                         {student.schoolType && (
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            student.schoolType === 'royal' 
-                              ? 'bg-purple-900/50 text-purple-300' 
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${student.schoolType === 'royal'
+                              ? 'bg-purple-900/50 text-purple-300'
                               : 'bg-blue-900/50 text-blue-300'
-                          }`}>
+                            }`}>
                             {student.schoolType === 'royal' ? 'Royal College' : 'Center/Other'}
                             {student.royalClass && ` • ${student.royalClass}`}
                           </span>
@@ -583,7 +582,7 @@ const StudentManagement = () => {
                     <div className="sm:hidden">
                       <span className="text-xs text-gray-400">ID: {student.studentId}</span>
                     </div>
-                      <div className="flex space-x-2">
+                    <div className="flex space-x-2">
                       <button
                         onClick={() => fetchStudentDetails(student._id)}
                         disabled={detailsLoading}
@@ -593,47 +592,47 @@ const StudentManagement = () => {
                         <span className="hidden sm:inline">View Details</span>
                         <span className="sm:hidden">View</span>
                       </button>
-                        {(student.hasParent) ? (
-                          <>
-                            <button
-                              onClick={() => {
-                                setParentCredentials({
-                                  email: student.parentEmail || 'parent@atict.com',
-                                  password: 'Hidden',
-                                  studentName: student.fullName
-                                });
-                                setShowParentModal(true);
-                              }}
-                              className="flex items-center space-x-2 px-3 sm:px-4 py-2 bg-amber-600 text-white rounded-xl hover:bg-amber-700 transition-colors text-sm"
-                              title="View Parent"
-                            >
-                              <span>View Parent</span>
-                            </button>
-                            <button
-                              onClick={() => setShowChatModal(true)}
-                              className="flex items-center space-x-2 px-3 sm:px-4 py-2 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors text-sm"
-                              title="Chat with Parent"
-                            >
-                              <span>Chat with Parent</span>
-                            </button>
-                          </>
-                        ) : (
+                      {(student.hasParent) ? (
+                        <>
                           <button
-                            onClick={() => createParentForStudent(student._id, student.firstName, student.lastName)}
-                            className="flex items-center space-x-2 px-3 sm:px-4 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors text-sm"
-                            title="Create Parent"
+                            onClick={() => {
+                              setParentCredentials({
+                                email: student.parentEmail || 'parent@atict.com',
+                                password: 'Hidden',
+                                studentName: student.fullName
+                              });
+                              setShowParentModal(true);
+                            }}
+                            className="flex items-center space-x-2 px-3 sm:px-4 py-2 bg-amber-600 text-white rounded-xl hover:bg-amber-700 transition-colors text-sm"
+                            title="View Parent"
                           >
-                            <span>Create Parent</span>
+                            <span>View Parent</span>
                           </button>
-                        )}
+                          <button
+                            onClick={() => setShowChatModal(true)}
+                            className="flex items-center space-x-2 px-3 sm:px-4 py-2 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors text-sm"
+                            title="Chat with Parent"
+                          >
+                            <span>Chat with Parent</span>
+                          </button>
+                        </>
+                      ) : (
                         <button
-                          onClick={() => confirmDeleteStudent(student)}
-                          className="flex items-center space-x-2 px-3 sm:px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors text-sm"
-                          title="Remove Student"
+                          onClick={() => createParentForStudent(student._id, student.firstName, student.lastName)}
+                          className="flex items-center space-x-2 px-3 sm:px-4 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors text-sm"
+                          title="Create Parent"
                         >
-                          <TrashIcon className="h-4 w-4 sm:h-5 sm:w-5" />
-                          <span className="hidden sm:inline">Remove</span>
+                          <span>Create Parent</span>
                         </button>
+                      )}
+                      <button
+                        onClick={() => confirmDeleteStudent(student)}
+                        className="flex items-center space-x-2 px-3 sm:px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors text-sm"
+                        title="Remove Student"
+                      >
+                        <TrashIcon className="h-4 w-4 sm:h-5 sm:w-5" />
+                        <span className="hidden sm:inline">Remove</span>
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -704,9 +703,8 @@ const StudentManagement = () => {
                       <p className="text-xs sm:text-sm text-gray-400 truncate">{selectedStudent.student.email}</p>
                       <div className="flex flex-wrap items-center gap-2 mt-1">
                         {getStatusBadge(selectedStudent.student.registrationStatus)}
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          selectedStudent.student.isActive ? 'bg-green-500/30 text-green-300' : 'bg-red-500/30 text-red-300'
-                        }`}>
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${selectedStudent.student.isActive ? 'bg-green-500/30 text-green-300' : 'bg-red-500/30 text-red-300'
+                          }`}>
                           {selectedStudent.student.isActive ? 'Active' : 'Inactive'}
                         </span>
                       </div>
@@ -740,11 +738,10 @@ const StudentManagement = () => {
                               handleAttendanceTabClick();
                             }
                           }}
-                          className={`flex-shrink-0 py-3 sm:py-4 px-2 sm:px-3 lg:px-4 border-b-2 font-medium text-xs sm:text-sm lg:text-base transition-colors ${
-                            activeTab === tab.id
+                          className={`flex-shrink-0 py-3 sm:py-4 px-2 sm:px-3 lg:px-4 border-b-2 font-medium text-xs sm:text-sm lg:text-base transition-colors ${activeTab === tab.id
                               ? 'border-blue-500 text-blue-400 bg-blue-500/10'
                               : 'border-transparent text-gray-400 hover:text-white hover:border-gray-500 hover:bg-gray-700/30'
-                          }`}
+                            }`}
                         >
                           <div className="flex items-center justify-center sm:justify-start space-x-1 sm:space-x-2">
                             <IconComponent className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
@@ -799,9 +796,8 @@ const StudentManagement = () => {
                                     handleAttendanceTabClick();
                                   }
                                 }}
-                                className={`w-full flex items-center space-x-3 px-4 py-3 text-left hover:bg-gray-700/50 transition-colors ${
-                                  activeTab === tab.id ? 'bg-blue-500/20 text-blue-400' : 'text-gray-300'
-                                }`}
+                                className={`w-full flex items-center space-x-3 px-4 py-3 text-left hover:bg-gray-700/50 transition-colors ${activeTab === tab.id ? 'bg-blue-500/20 text-blue-400' : 'text-gray-300'
+                                  }`}
                               >
                                 <IconComponent className="h-4 w-4 flex-shrink-0" />
                                 <span className="text-sm font-medium">
@@ -871,6 +867,31 @@ const StudentManagement = () => {
                               {selectedStudent.student.overallProgress || 0}%
                             </p>
                           </div>
+                        </div>
+                      </div>
+
+                      {/* Parent Information Card */}
+                      {selectedStudent.parentInfo && (
+                        <div className="bg-purple-900/40 rounded-xl sm:rounded-xl p-3 sm:p-4 border border-purple-700/50">
+                          <p className="text-xs sm:text-sm font-medium text-purple-400 mb-2">Parent Contact</p>
+                          <div className="space-y-1">
+                            <p className="text-sm text-white font-semibold">{selectedStudent.parentInfo.name}</p>
+                            <p className="text-xs text-gray-300">{selectedStudent.parentInfo.email}</p>
+                            <p className="text-xs text-gray-300">{selectedStudent.parentInfo.phone}</p>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Student Grade & Class Card */}
+                      <div className="bg-indigo-900/40 rounded-xl sm:rounded-xl p-3 sm:p-4 border border-indigo-700/50">
+                        <p className="text-xs sm:text-sm font-medium text-indigo-400 mb-2">Grade & Class</p>
+                        <div className="space-y-1">
+                          <p className="text-sm text-white">
+                            <span className="font-bold">{selectedStudent.student.currentGrade || 'N/A'}</span>
+                          </p>
+                          {selectedStudent.student.royalClass && selectedStudent.student.royalClass !== 'N/A' && (
+                            <p className="text-xs text-gray-300">Class: {selectedStudent.student.royalClass}</p>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -972,15 +993,15 @@ const StudentManagement = () => {
                         {selectedStudent.stats?.assignments?.completed || 0} of {selectedStudent.stats?.assignments?.total || 0} completed
                       </div>
                     </div>
-                    
+
                     {selectedStudent.assignments && Array.isArray(selectedStudent.assignments) && selectedStudent.assignments.length > 0 ? (
                       <div className="space-y-4">
                         {selectedStudent.assignments.map((assignment) => {
-                          const studentAssignment = assignment.assignedTo && Array.isArray(assignment.assignedTo) 
-                            ? assignment.assignedTo.find(at => 
-                            at.student?.toString() === selectedStudent.student._id || 
-                            at.user?.toString() === selectedStudent.student._id
-                              )
+                          const studentAssignment = assignment.assignedTo && Array.isArray(assignment.assignedTo)
+                            ? assignment.assignedTo.find(at =>
+                              at.student?.toString() === selectedStudent.student._id ||
+                              at.user?.toString() === selectedStudent.student._id
+                            )
                             : null;
                           return (
                             <div key={assignment._id} className="bg-gray-800/70 border border-gray-700/50 rounded-xl p-6">
@@ -994,12 +1015,11 @@ const StudentManagement = () => {
                                     <span>Type: {assignment.type}</span>
                                   </div>
                                 </div>
-                                <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                                  studentAssignment?.status === 'graded' ? 'bg-green-900/50 text-green-300' :
-                                  studentAssignment?.status === 'submitted' ? 'bg-blue-900/50 text-blue-300' :
-                                  studentAssignment?.status === 'in_progress' ? 'bg-yellow-900/50 text-yellow-300' :
-                                  'bg-gray-700 text-gray-300'
-                                }`}>
+                                <span className={`px-3 py-1 rounded-full text-sm font-medium ${studentAssignment?.status === 'graded' ? 'bg-green-900/50 text-green-300' :
+                                    studentAssignment?.status === 'submitted' ? 'bg-blue-900/50 text-blue-300' :
+                                      studentAssignment?.status === 'in_progress' ? 'bg-yellow-900/50 text-yellow-300' :
+                                        'bg-gray-700 text-gray-300'
+                                  }`}>
                                   {studentAssignment?.status || 'assigned'}
                                 </span>
                               </div>
@@ -1016,7 +1036,7 @@ const StudentManagement = () => {
                                       {studentAssignment.isLate && (
                                         <p className="text-xs sm:text-sm text-red-400 mt-1">⚠️ Late submission</p>
                                       )}
-                                      
+
                                       {/* Submitted Files */}
                                       {studentAssignment.submission?.attachments && Array.isArray(studentAssignment.submission.attachments) && studentAssignment.submission.attachments.length > 0 && (
                                         <div className="mt-3">
@@ -1044,7 +1064,7 @@ const StudentManagement = () => {
                                           </div>
                                         </div>
                                       )}
-                                      
+
                                       {studentAssignment.submission?.text && (
                                         <div className="mt-3">
                                           <p className="text-xs sm:text-sm text-gray-400 mb-1">Text Submission:</p>
@@ -1139,15 +1159,15 @@ const StudentManagement = () => {
                         {selectedStudent.stats?.quizzes?.completed || 0} of {selectedStudent.stats?.quizzes?.total || 0} completed
                       </div>
                     </div>
-                    
+
                     {selectedStudent.quizzes && Array.isArray(selectedStudent.quizzes) && selectedStudent.quizzes.length > 0 ? (
                       <div className="space-y-4">
                         {selectedStudent.quizzes.map((quiz) => {
                           const studentQuiz = quiz.assignedTo && Array.isArray(quiz.assignedTo)
-                            ? quiz.assignedTo.find(at => 
-                            at.student?.toString() === selectedStudent.student._id || 
-                            at.user?.toString() === selectedStudent.student._id
-                              )
+                            ? quiz.assignedTo.find(at =>
+                              at.student?.toString() === selectedStudent.student._id ||
+                              at.user?.toString() === selectedStudent.student._id
+                            )
                             : null;
                           return (
                             <div key={quiz._id} className="bg-gray-800/70 border border-gray-700/50 rounded-xl p-6">
@@ -1161,12 +1181,11 @@ const StudentManagement = () => {
                                     <span>Type: {quiz.type}</span>
                                   </div>
                                 </div>
-                                <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                                  studentQuiz?.status === 'graded' ? 'bg-green-900/50 text-green-300' :
-                                  studentQuiz?.status === 'submitted' ? 'bg-blue-900/50 text-blue-300' :
-                                  studentQuiz?.status === 'in_progress' ? 'bg-yellow-900/50 text-yellow-300' :
-                                  'bg-gray-700 text-gray-300'
-                                }`}>
+                                <span className={`px-3 py-1 rounded-full text-sm font-medium ${studentQuiz?.status === 'graded' ? 'bg-green-900/50 text-green-300' :
+                                    studentQuiz?.status === 'submitted' ? 'bg-blue-900/50 text-blue-300' :
+                                      studentQuiz?.status === 'in_progress' ? 'bg-yellow-900/50 text-yellow-300' :
+                                        'bg-gray-700 text-gray-300'
+                                  }`}>
                                   {studentQuiz?.status || 'assigned'}
                                 </span>
                               </div>
@@ -1188,7 +1207,7 @@ const StudentManagement = () => {
                                           Time spent: {studentQuiz.timeSpent} minutes
                                         </p>
                                       )}
-                                      
+
                                       {/* Submitted Files */}
                                       {studentQuiz.submission?.attachments && Array.isArray(studentQuiz.submission.attachments) && studentQuiz.submission.attachments.length > 0 && (
                                         <div className="mt-3">
@@ -1214,7 +1233,7 @@ const StudentManagement = () => {
                                           </div>
                                         </div>
                                       )}
-                                      
+
                                       {studentQuiz.submission?.text && (
                                         <div className="mt-3">
                                           <p className="text-sm text-gray-400">Text Submission:</p>
@@ -1304,7 +1323,7 @@ const StudentManagement = () => {
                                         <p className="text-sm bg-gray-800/70 p-2 rounded mt-1 text-gray-300">{studentQuiz.feedback}</p>
                                       </div>
                                     )}
-                                    
+
                                     {/* Show submitted files for graded quizzes too */}
                                     {studentQuiz.submission?.attachments && Array.isArray(studentQuiz.submission.attachments) && studentQuiz.submission.attachments.length > 0 && (
                                       <div className="mt-4">
@@ -1497,7 +1516,7 @@ const StudentManagement = () => {
                   Assign existing students to Royal College classes (9H or 9J)
                 </p>
               </div>
-              
+
               <form onSubmit={handleLegacyStudentSubmit} className="p-6 space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-2">Select Student *</label>

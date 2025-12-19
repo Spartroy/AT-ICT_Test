@@ -12,33 +12,33 @@ const crypto = require('crypto');
 // @access  Private (Teacher)
 const getDashboardStats = async (req, res) => {
   try {
-    const totalStudents = await User.countDocuments({ 
-      role: 'student', 
+    const totalStudents = await User.countDocuments({
+      role: 'student',
       isActive: true,
-      registrationStatus: 'approved'  
+      registrationStatus: 'approved'
     });
-    
+
     const pendingRegistrations = await User.countDocuments({
       role: 'student',
       registrationStatus: 'pending'
     });
-    
+
     const weekAgo = new Date();
     weekAgo.setDate(weekAgo.getDate() - 7);
-    
+
     const newStudentsThisWeek = await User.countDocuments({
       role: 'student',
       createdAt: { $gte: weekAgo }
     });
-    
+
     // Get performance stats from User studentInfo
     const performanceStats = await User.aggregate([
-      { 
-        $match: { 
-          role: 'student', 
+      {
+        $match: {
+          role: 'student',
           isActive: true,
           registrationStatus: 'approved'
-        } 
+        }
       },
       {
         $group: {
@@ -48,14 +48,14 @@ const getDashboardStats = async (req, res) => {
         }
       }
     ]);
-    
+
     // Get session distribution
     const sessionStats = await User.aggregate([
-      { 
-        $match: { 
-          role: 'student', 
+      {
+        $match: {
+          role: 'student',
           registrationStatus: 'approved'
-        } 
+        }
       },
       {
         $group: {
@@ -77,8 +77,8 @@ const getDashboardStats = async (req, res) => {
           totalStudents,
           pendingRegistrations,
           newStudentsThisWeek,
-          activeAnnouncements: await Announcement.countDocuments({ 
-            isPublished: true 
+          activeAnnouncements: await Announcement.countDocuments({
+            isPublished: true
           })
         },
         performance: performanceStats[0] || { avgProgress: 0, totalStudents: 0 },
@@ -99,29 +99,31 @@ const getDashboardStats = async (req, res) => {
 // @access  Private (Teacher)
 const getStudents = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-    const skip = (page - 1) * limit;
-    const { search, session, year, status, schoolType, royalClass, unclassified } = req.query;
+    const { all, search, session, year, status, schoolType, royalClass, unclassified } = req.query;
 
-    let query = { 
+    // Support for fetching all students without pagination (for dropdowns, selectors, etc.)
+    const page = all === 'true' ? 1 : parseInt(req.query.page) || 1;
+    const limit = all === 'true' ? 10000 : parseInt(req.query.limit) || 10; // High limit when all=true
+    const skip = (page - 1) * limit;
+
+    let query = {
       role: 'student',
-      isActive: true 
+      isActive: true
     };
-    
+
     // Filter by registration status if provided
     if (status) query.registrationStatus = status;
-    
+
     // Filter by session and year from studentInfo
     if (session) query['studentInfo.session'] = session;
     if (year) query['studentInfo.year'] = year;
-    
+
     // Filter by school type
     if (schoolType) query['studentInfo.schoolType'] = schoolType;
-    
+
     // Filter by royal class (only for Royal College students)
     if (royalClass) query['studentInfo.royalClass'] = royalClass;
-    
+
     // Build search conditions
     let searchConditions = [];
     if (search) {
@@ -133,7 +135,7 @@ const getStudents = async (req, res) => {
         { 'studentInfo.school': { $regex: search, $options: 'i' } }
       );
     }
-    
+
     // Filter for unclassified students (no schoolType set)
     if (unclassified === 'true') {
       searchConditions.push(
@@ -142,7 +144,7 @@ const getStudents = async (req, res) => {
         { 'studentInfo.schoolType': '' }
       );
     }
-    
+
     // Apply search conditions if any
     if (searchConditions.length > 0) {
       query.$or = searchConditions;
@@ -241,9 +243,9 @@ const getStudentDetails = async (req, res) => {
         { 'assignedTo.user': student._id }
       ]
     })
-    .populate('createdBy', 'firstName lastName')
-    .sort({ createdAt: -1 })
-    .limit(20);
+      .populate('createdBy', 'firstName lastName')
+      .sort({ createdAt: -1 })
+      .limit(20);
 
     // Get student's quizzes
     const quizzes = await Quiz.find({
@@ -252,23 +254,23 @@ const getStudentDetails = async (req, res) => {
         { 'assignedTo.user': student._id }
       ]
     })
-    .populate('createdBy', 'firstName lastName')
-    .sort({ createdAt: -1 })
-    .limit(20);
+      .populate('createdBy', 'firstName lastName')
+      .sort({ createdAt: -1 })
+      .limit(20);
 
     // Calculate assignment stats
     const assignmentStats = {
       total: assignments.length,
       completed: assignments.filter(a => {
-        const studentAssignment = a.assignedTo.find(at => 
-          at.student?.toString() === student._id.toString() || 
+        const studentAssignment = a.assignedTo.find(at =>
+          at.student?.toString() === student._id.toString() ||
           at.user?.toString() === student._id.toString()
         );
         return studentAssignment && ['submitted', 'graded'].includes(studentAssignment.status);
       }).length,
       pending: assignments.filter(a => {
-        const studentAssignment = a.assignedTo.find(at => 
-          at.student?.toString() === student._id.toString() || 
+        const studentAssignment = a.assignedTo.find(at =>
+          at.student?.toString() === student._id.toString() ||
           at.user?.toString() === student._id.toString()
         );
         return studentAssignment && ['assigned', 'in_progress'].includes(studentAssignment.status);
@@ -279,15 +281,15 @@ const getStudentDetails = async (req, res) => {
     const quizStats = {
       total: quizzes.length,
       completed: quizzes.filter(q => {
-        const studentQuiz = q.assignedTo.find(at => 
-          at.student?.toString() === student._id.toString() || 
+        const studentQuiz = q.assignedTo.find(at =>
+          at.student?.toString() === student._id.toString() ||
           at.user?.toString() === student._id.toString()
         );
         return studentQuiz && studentQuiz.status === 'completed';
       }).length,
       pending: quizzes.filter(q => {
-        const studentQuiz = q.assignedTo.find(at => 
-          at.student?.toString() === student._id.toString() || 
+        const studentQuiz = q.assignedTo.find(at =>
+          at.student?.toString() === student._id.toString() ||
           at.user?.toString() === student._id.toString()
         );
         return studentQuiz && studentQuiz.status === 'assigned';
@@ -303,13 +305,53 @@ const getStudentDetails = async (req, res) => {
           { recipient: student._id }
         ]
       })
-      .populate('sender', 'firstName lastName')
-      .populate('recipient', 'firstName lastName')
-      .sort({ createdAt: -1 })
-      .limit(10);
+        .populate('sender', 'firstName lastName')
+        .populate('recipient', 'firstName lastName')
+        .sort({ createdAt: -1 })
+        .limit(10);
     } catch (messageError) {
       console.log('Message retrieval not implemented:', messageError.message);
     }
+
+    // Get parent information
+    let parentInfo = null;
+    try {
+      const parent = await User.findOne({
+        role: 'parent',
+        'parentInfo.children.studentId': student._id
+      }).select('firstName lastName email contactNumber');
+
+      if (parent) {
+        parentInfo = {
+          name: `${parent.firstName} ${parent.lastName}`,
+          email: parent.email,
+          phone: parent.contactNumber || student.studentInfo?.parentContactNumber || 'N/A'
+        };
+      } else {
+        // If no parent account exists, use info from student record
+        parentInfo = {
+          name: 'Not set up',
+          email: 'No parent account',
+          phone: student.studentInfo?.parentContactNumber || 'N/A'
+        };
+      }
+    } catch (parentError) {
+      console.log('Error fetching parent info:', parentError.message);
+      parentInfo = {
+        name: 'Not available',
+        email: 'Not available',
+        phone: student.studentInfo?.parentContactNumber || 'N/A'
+      };
+    }
+
+    // Get attendance summary (placeholder for now - full attendance tracking not in scope)
+    const attendanceSummary = {
+      totalDays: 0,
+      present: 0,
+      absent: 0,
+      late: 0,
+      percentage: 0
+    };
 
     // Transform student data
     const studentDetails = {
@@ -323,6 +365,8 @@ const getStudentDetails = async (req, res) => {
       year: student.studentInfo?.year || 'N/A',
       session: student.studentInfo?.session || 'N/A',
       school: student.studentInfo?.school || 'N/A',
+      schoolType: student.studentInfo?.schoolType || 'N/A',
+      royalClass: student.studentInfo?.royalClass || 'N/A',
       nationality: student.studentInfo?.nationality || 'N/A',
       isRetaker: student.studentInfo?.isRetaker || false,
       techKnowledge: student.studentInfo?.techKnowledge || 'N/A',
@@ -344,6 +388,8 @@ const getStudentDetails = async (req, res) => {
       status: 'success',
       data: {
         student: studentDetails,
+        parentInfo,
+        attendanceSummary,
         assignments,
         quizzes,
         stats: {
@@ -404,7 +450,7 @@ const updateStudent = async (req, res) => {
     res.status(200).json({
       status: 'success',
       message: 'Student updated successfully',
-      data: { 
+      data: {
         student: {
           _id: student._id,
           firstName: student.firstName,
