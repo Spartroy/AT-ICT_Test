@@ -10,6 +10,7 @@ import {
   CreditCardIcon,
   ArrowPathIcon,
   LinkIcon,
+  PhotoIcon,
 } from '@heroicons/react/24/outline';
 import { API_ENDPOINTS } from '../../config/api';
 import { showError, showSuccess } from '../../utils/toast';
@@ -23,13 +24,18 @@ const STATUS_CFG = {
   cancelled:{ label: 'Cancelled',icon: XCircleIcon,              cls: 'bg-gray-700/50 text-gray-400 border border-gray-600/50'      },
 };
 
-const INSTAPAY_LINK = 'https://instapay.example.com/at-ict';
-
+const INSTAPAY_LINK = 'https://ipn.eg/S/spartroy/instapay/2BjJKk'
+ 
 const ParentPayments = () => {
   const [payments, setPayments]       = useState([]);
   const [loading, setLoading]         = useState(true);
   const [payingId, setPayingId]       = useState(null);
   const [showInstapay, setShowInstapay] = useState(null); // paymentId
+  const [instapayFile, setInstapayFile] = useState(null);
+
+  useEffect(() => {
+    setInstapayFile(null);
+  }, [showInstapay]);
 
   const fetchPayments = async () => {
     setLoading(true);
@@ -50,22 +56,29 @@ const ParentPayments = () => {
 
   useEffect(() => { fetchPayments(); }, []);
 
-  const handlePay = async (paymentId, method) => {
+  const submitInstapayWithProof = async (paymentId) => {
+    if (!instapayFile) {
+      showError('Please attach a screenshot of your InstaPay transfer.');
+      return;
+    }
     setPayingId(paymentId);
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(API_ENDPOINTS.PARENT.PAY(paymentId), {
-        method: 'PUT',
-        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ paymentMethod: method }),
+      const fd = new FormData();
+      fd.append('paymentProof', instapayFile);
+      const res = await fetch(API_ENDPOINTS.PARENT.PAY_INSTAPAY(paymentId), {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: fd,
       });
       const data = await res.json();
       if (data.status === 'success') {
-        showSuccess('Payment marked as paid!');
+        showSuccess('Payment submitted with proof. Thank you!');
         setShowInstapay(null);
+        setInstapayFile(null);
         fetchPayments();
       } else {
-        showError(data.message || 'Payment failed');
+        showError(data.message || 'Could not submit payment');
       }
     } catch {
       showError('Network error. Please try again.');
@@ -156,7 +169,22 @@ const ParentPayments = () => {
                   </div>
                   <div className="flex flex-wrap gap-4 text-sm text-gray-400">
                     <span className="text-white font-bold text-xl">{p.amount.toLocaleString()} <span className="text-sm font-normal text-gray-400">EGP</span></span>
-                    {p.sessions && <span>{p.sessions} sessions included</span>}
+                    {p.perSessionRate != null && p.sessions != null && (
+                      <span className="text-gray-300 text-sm self-center">
+                        {Number(p.perSessionRate).toLocaleString()} EGP × {p.sessions} sessions
+                      </span>
+                    )}
+                    {p.sessions && p.perSessionRate == null && <span>{p.sessions} sessions included</span>}
+                    {p.status === 'paid' && p.paymentProof?.path && (
+                      <a
+                        href={`${API_ENDPOINTS.BASE_URL}${p.paymentProof.path}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-emerald-400 hover:text-emerald-300 text-sm font-medium self-center"
+                      >
+                        View payment screenshot
+                      </a>
+                    )}
                     {p.dueDate && <span>Due: {new Date(p.dueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>}
                     {p.paidDate && <span className="text-green-400">Paid: {new Date(p.paidDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>}
                   </div>
@@ -207,7 +235,7 @@ const ParentPayments = () => {
                   >
                     <div className="bg-emerald-900/20 border border-emerald-500/30 rounded-xl p-4 space-y-3">
                       <p className="text-emerald-300 font-semibold text-sm">Pay via InstaPay</p>
-                      <p className="text-gray-300 text-xs">Send <strong className="text-white">{p.amount.toLocaleString()} EGP</strong> to the link below, then click "I've Paid" to confirm.</p>
+                      <p className="text-gray-300 text-xs">Send <strong className="text-white">{p.amount.toLocaleString()} EGP</strong> using the link below, then upload a screenshot of the InstaPay confirmation and submit.</p>
                       <div className="flex items-center gap-2 bg-gray-900/60 border border-emerald-700/40 rounded-xl px-3 py-2">
                         <LinkIcon className="h-4 w-4 text-emerald-400 flex-shrink-0" />
                         <a href={INSTAPAY_LINK} target="_blank" rel="noopener noreferrer" className="text-emerald-300 text-sm font-mono hover:underline truncate flex-1">
@@ -221,6 +249,26 @@ const ParentPayments = () => {
                           Copy
                         </button>
                       </div>
+                      <div>
+                        <span className="text-xs font-semibold text-emerald-200/90 uppercase tracking-wide block mb-2">InstaPay screenshot (required)</span>
+                        <label
+                          htmlFor={`instapay-proof-${p._id}`}
+                          className="flex items-center gap-3 px-4 py-3 bg-gray-900/70 border border-dashed border-emerald-600/50 rounded-xl text-sm text-gray-300 hover:border-emerald-500/70 transition-colors cursor-pointer"
+                        >
+                          <PhotoIcon className="h-6 w-6 text-emerald-400 flex-shrink-0" />
+                          <span className="flex-1 truncate">
+                            {instapayFile ? instapayFile.name : 'Tap to choose PNG, JPG, or WEBP'}
+                          </span>
+                        </label>
+                        <input
+                          id={`instapay-proof-${p._id}`}
+                          type="file"
+                          accept="image/*"
+                          className="sr-only"
+                          onChange={(e) => setInstapayFile(e.target.files?.[0] || null)}
+                        />
+                        <p className="text-gray-500 text-xs mt-1">A clear screenshot of the successful transfer helps verify your payment.</p>
+                      </div>
                       <div className="flex gap-2">
                         <button
                           type="button"
@@ -231,11 +279,11 @@ const ParentPayments = () => {
                         </button>
                         <button
                           type="button"
-                          onClick={() => handlePay(p._id, 'instapay')}
-                          disabled={payingId === p._id}
+                          onClick={() => submitInstapayWithProof(p._id)}
+                          disabled={payingId === p._id || !instapayFile}
                           className="flex-1 px-4 py-2 bg-emerald-700 hover:bg-emerald-600 text-white rounded-xl text-sm font-semibold transition-colors disabled:opacity-50"
                         >
-                          {payingId === p._id ? 'Confirming…' : "I've Paid — Confirm"}
+                          {payingId === p._id ? 'Uploading…' : 'Submit payment + proof'}
                         </button>
                       </div>
                     </div>

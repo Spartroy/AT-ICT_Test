@@ -108,7 +108,7 @@ function buildSched(missed, spd, start) {
 function SessionPill({ session }) {
   const c = TYPE_CFG[session.type] || TYPE_CFG.chapter;
   return (
-    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold ${c.pill}`}>
+    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-semibold ${c.pill}`}>
       <span className={`h-1.5 w-1.5 rounded-full flex-shrink-0 ${c.dot}`} />
       {session.label}
     </span>
@@ -175,7 +175,7 @@ const CatchupGenerator = () => {
           {['chapter', 'lab', 'quiz'].map(t => {
             const c = TYPE_CFG[t];
             return (
-              <span key={t} className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold ${c.pill}`}>
+              <span key={t} className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-semibold ${c.pill}`}>
                 <span className={`h-1.5 w-1.5 rounded-full ${c.dot}`} />
                 {c.label}
               </span>

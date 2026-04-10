@@ -35,6 +35,17 @@ const paymentSchema = new mongoose.Schema(
       type: Number,
       default: null,
     },
+    /** EGP per session when plan is per_session or package (used with sessions to derive amount) */
+    perSessionRate: {
+      type: Number,
+      default: null,
+    },
+    /** InstaPay screenshot uploaded by parent */
+    paymentProof: {
+      path: { type: String },
+      originalName: { type: String },
+      uploadedAt: { type: Date },
+    },
     status: {
       type: String,
       enum: ['pending', 'paid', 'overdue', 'cancelled'],

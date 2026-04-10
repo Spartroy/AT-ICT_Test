@@ -223,7 +223,7 @@ function DayEditor({ day, dayIndex, onAddSession, onRemoveSession, onUpdateSessi
         <button
           type="button"
           onClick={e => { e.stopPropagation(); onAddSession(); setExpanded(true); }}
-          className="flex items-center gap-1.5 bg-green-600 hover:bg-green-500 text-white px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors shadow"
+          className="flex items-center gap-1.5 bg-green-600 hover:bg-green-500 text-white px-3 py-1.5 rounded-xl text-sm font-semibold transition-colors shadow"
         >
           <PlusIcon className="h-4 w-4" /> Add Session
         </button>
@@ -261,7 +261,7 @@ function DayEditor({ day, dayIndex, onAddSession, onRemoveSession, onUpdateSessi
 
 function SessionRow({ session, onUpdate, onRemove }) {
   const colors = TYPE_COLORS[session.type] || TYPE_COLORS.theory;
-  const inputCls = "w-full px-3 py-2.5 bg-white/10 border border-white/25 rounded-lg text-white text-sm focus:border-[#CA133E] focus:outline-none placeholder-gray-400";
+  const inputCls = "w-full px-3 py-2.5 bg-white/10 border border-white/25 rounded-xl text-white text-sm focus:border-[#CA133E] focus:outline-none placeholder-gray-400";
   return (
     <div className={`grid grid-cols-2 lg:grid-cols-5 gap-3 lg:gap-4 p-4 sm:p-5 rounded-xl border-l-4 ${colors.border} bg-white/[0.06]`}>
       <div>
@@ -284,7 +284,7 @@ function SessionRow({ session, onUpdate, onRemove }) {
           placeholder="e.g. Chapter 4" className={inputCls} />
       </div>
       <div className="flex items-end col-span-2 lg:col-span-1">
-        <button onClick={onRemove} className="w-full py-2.5 bg-red-600/60 hover:bg-red-600 text-white rounded-lg text-sm font-bold transition-colors border border-red-500/40">
+        <button onClick={onRemove} className="w-full py-2.5 bg-red-600/60 hover:bg-red-600 text-white rounded-xl text-sm font-bold transition-colors border border-red-500/40">
           Remove
         </button>
       </div>

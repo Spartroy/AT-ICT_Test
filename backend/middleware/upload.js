@@ -31,6 +31,8 @@ const storage = multer.diskStorage({
       uploadPath += 'materials/';
     } else if (file.fieldname === 'thumbnail') {
       uploadPath += 'materials/thumbnails/';
+    } else if (file.fieldname === 'paymentProof') {
+      uploadPath += 'payments/';
     } else {
       uploadPath += 'general/';
     }
@@ -55,6 +57,7 @@ const fileFilter = (req, file, cb) => {
     'image/jpg': true,
     'image/png': true,
     'image/gif': true,
+    'image/webp': true,
     'application/pdf': true,
     'application/msword': true,
     'application/vnd.openxmlformats-officedocument.wordprocessingml.document': true,

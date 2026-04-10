@@ -54,6 +54,7 @@ export const API_ENDPOINTS = {
     BASE: `${API_BASE_URL}/api/parent`,
     PAYMENTS: `${API_BASE_URL}/api/parent/payments`,
     PAY: (paymentId) => `${API_BASE_URL}/api/parent/payments/${paymentId}/pay`,
+    PAY_INSTAPAY: (paymentId) => `${API_BASE_URL}/api/parent/payments/${paymentId}/instapay`,
   },
   CHAT: {
     BASE: `${API_BASE_URL}/api/chat`,

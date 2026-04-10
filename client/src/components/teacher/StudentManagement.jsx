@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { showOperationToast, showError } from '../../utils/toast';
 import { API_ENDPOINTS } from '../../config/api';
@@ -17,11 +17,9 @@ import {
   MapPinIcon,
   CalendarIcon,
   TrophyIcon,
-  QrCodeIcon,
-  ChevronDownIcon,
-  ChevronUpIcon,
   TrashIcon,
   CurrencyDollarIcon,
+  CreditCardIcon,
   KeyIcon,
   PlusCircleIcon,
   CheckCircleIcon,
@@ -64,7 +62,6 @@ const StudentManagement = () => {
   const [showParentModal, setShowParentModal] = useState(false);
   const [showChatModal, setShowChatModal] = useState(false);
   const [parentCredentials, setParentCredentials] = useState(null);
-  const [showTabDropdown, setShowTabDropdown] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [studentToDelete, setStudentToDelete] = useState(null);
   const [deleting, setDeleting] = useState(false);
@@ -72,21 +69,27 @@ const StudentManagement = () => {
   const [payments, setPayments] = useState([]);
   const [paymentsLoading, setPaymentsLoading] = useState(false);
   const [showPaymentForm, setShowPaymentForm] = useState(false);
-  const [paymentForm, setPaymentForm] = useState({ planType: 'monthly', amount: '', sessions: '', description: '', dueDate: '', notes: '' });
+  const [paymentForm, setPaymentForm] = useState({
+    planType: 'monthly',
+    amount: '',
+    perSessionRate: '',
+    sessions: '',
+    description: '',
+    dueDate: '',
+    notes: '',
+  });
   const [paymentSaving, setPaymentSaving] = useState(false);
   // Temp password state
   const [tempPasswordData, setTempPasswordData] = useState(null);
   const [showTempPasswordModal, setShowTempPasswordModal] = useState(false);
   const [resettingPassword, setResettingPassword] = useState(false);
-  const tabContainerRef = useRef(null);
-  const dropdownRef = useRef(null);
 
   // Tab configuration
   const tabs = [
     { id: 'summary', name: 'Summary', icon: ChartBarIcon, shortName: 'Summary' },
     { id: 'assignments', name: 'Assignments', icon: DocumentTextIcon, shortName: 'Assign.' },
     { id: 'quizzes', name: 'Quizzes', icon: QuestionMarkCircleIcon, shortName: 'Quizzes' },
-    { id: 'payments', name: 'Payments', icon: CurrencyDollarIcon, shortName: 'Payments' },
+    { id: 'payments', name: 'Payments', icon: CurrencyDollarIcon, shortName: 'Pay' },
   ];
 
   useEffect(() => {
@@ -98,18 +101,6 @@ const StudentManagement = () => {
       fetchUnclassifiedStudents();
     }
   }, [showLegacyModal]);
-
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setShowTabDropdown(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
 
   const fetchUnclassifiedStudents = async () => {
     try {
@@ -418,8 +409,29 @@ const StudentManagement = () => {
     }
   };
 
+  const emptyPaymentForm = () => ({
+    planType: 'monthly',
+    amount: '',
+    perSessionRate: '',
+    sessions: '',
+    description: '',
+    dueDate: '',
+    notes: '',
+  });
+
   const savePayment = async () => {
-    if (!paymentForm.amount) return;
+    const isPerBased = paymentForm.planType === 'per_session' || paymentForm.planType === 'package';
+    const rate = parseFloat(paymentForm.perSessionRate, 10);
+    const n = parseInt(paymentForm.sessions, 10);
+    if (isPerBased) {
+      if (Number.isNaN(rate) || rate < 0 || Number.isNaN(n) || n < 1) {
+        showError('Enter a valid rate per session and number of sessions.');
+        return;
+      }
+    } else if (!paymentForm.amount || Number.isNaN(parseFloat(paymentForm.amount, 10)) || parseFloat(paymentForm.amount, 10) < 0) {
+      showError('Enter a valid total amount.');
+      return;
+    }
     setPaymentSaving(true);
     try {
       const token = localStorage.getItem('token');
@@ -432,7 +444,7 @@ const StudentManagement = () => {
       if (data.status === 'success') {
         showOperationToast.saveSuccess('Payment plan');
         setShowPaymentForm(false);
-        setPaymentForm({ planType: 'monthly', amount: '', sessions: '', description: '', dueDate: '', notes: '' });
+        setPaymentForm(emptyPaymentForm());
         fetchStudentPayments(selectedStudent.student._id);
       } else {
         showError(data.message || 'Failed to save payment');
@@ -844,98 +856,41 @@ const StudentManagement = () => {
                 </div>
               </div>
 
-              {/* Tab Navigation - Responsive with Dropdown */}
+              {/* Tab Navigation — all tabs in one row (scroll on narrow screens) */}
               <div className="border-b border-gray-700/80 bg-gray-800/30 flex-shrink-0">
-                <nav className="flex justify-between items-center px-2 sm:px-4 lg:px-6">
-                  {/* Visible Tabs */}
-                  <div className="flex space-x-1 sm:space-x-2 lg:space-x-4 flex-1 overflow-hidden" ref={tabContainerRef}>
-                    {tabs.slice(0, 2).map((tab) => {
-                      const IconComponent = tab.icon;
-                      return (
-                        <button
-                          key={tab.id}
-                          onClick={() => {
-                            setActiveTab(tab.id);
-                            if (tab.id === 'attendance') handleAttendanceTabClick();
-                            if (tab.id === 'payments') fetchStudentPayments(selectedStudent.student._id);
-                          }}
-                          className={`flex-shrink-0 py-3 sm:py-4 px-2 sm:px-3 lg:px-4 border-b-2 font-medium text-xs sm:text-sm lg:text-base transition-colors ${activeTab === tab.id
-                              ? 'border-blue-500 text-blue-400 bg-blue-500/10'
-                              : 'border-transparent text-gray-400 hover:text-white hover:border-gray-500 hover:bg-gray-700/30'
-                            }`}
-                        >
-                          <div className="flex items-center justify-center sm:justify-start space-x-1 sm:space-x-2">
-                            <IconComponent className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
-                            <span className="truncate">
-                              <span className="hidden sm:inline">{tab.name}</span>
-                              <span className="sm:hidden">{tab.shortName}</span>
-                              {tab.id === 'assignments' && (
-                                <span className="ml-1">({selectedStudent.assignments?.length || 0})</span>
-                              )}
-                              {tab.id === 'quizzes' && (
-                                <span className="ml-1">({selectedStudent.quizzes?.length || 0})</span>
-                              )}
-                            </span>
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-
-                  {/* Dropdown for Additional Tabs */}
-                  <div className="relative flex-shrink-0" ref={dropdownRef}>
-                    <button
-                      onClick={() => setShowTabDropdown(!showTabDropdown)}
-                      className="flex items-center space-x-1 py-3 sm:py-4 px-2 sm:px-3 lg:px-4 border-b-2 border-transparent text-gray-400 hover:text-white hover:border-gray-500 hover:bg-gray-700/30 transition-colors"
-                    >
-                      <span className="text-xs sm:text-sm font-medium">More</span>
-                      {showTabDropdown ? (
-                        <ChevronUpIcon className="h-4 w-4" />
-                      ) : (
-                        <ChevronDownIcon className="h-4 w-4" />
-                      )}
-                    </button>
-
-                    {/* Dropdown Menu */}
-                    <AnimatePresence>
-                      {showTabDropdown && (
-                        <motion.div
-                          initial={{ opacity: 0, y: -10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -10 }}
-                          className="absolute right-0 top-full mt-1 bg-gray-800 border border-gray-700 rounded-xl shadow-xl z-50 min-w-[200px]"
-                        >
-                          {tabs.slice(2).map((tab) => {
-                            const IconComponent = tab.icon;
-                            return (
-                              <button
-                                key={tab.id}
-                                onClick={() => {
-                                  setActiveTab(tab.id);
-                                  setShowTabDropdown(false);
-                                  if (tab.id === 'attendance') handleAttendanceTabClick();
-                                  if (tab.id === 'payments') fetchStudentPayments(selectedStudent.student._id);
-                                }}
-                                className={`w-full flex items-center space-x-3 px-4 py-3 text-left hover:bg-gray-700/50 transition-colors ${activeTab === tab.id ? 'bg-blue-500/20 text-blue-400' : 'text-gray-300'
-                                  }`}
-                              >
-                                <IconComponent className="h-4 w-4 flex-shrink-0" />
-                                <span className="text-sm font-medium">
-                                  {tab.name}
-                                  {tab.id === 'assignments' && (
-                                    <span className="ml-1 text-gray-400">({selectedStudent.assignments?.length || 0})</span>
-                                  )}
-                                  {tab.id === 'quizzes' && (
-                                    <span className="ml-1 text-gray-400">({selectedStudent.quizzes?.length || 0})</span>
-                                  )}
-                                </span>
-                              </button>
-                            );
-                          })}
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
+                <nav className="flex overflow-x-auto gap-0 px-2 sm:px-4 lg:px-6 scrollbar-thin [-webkit-overflow-scrolling:touch]">
+                  {tabs.map((tab) => {
+                    const IconComponent = tab.icon;
+                    return (
+                      <button
+                        key={tab.id}
+                        type="button"
+                        onClick={() => {
+                          setActiveTab(tab.id);
+                          if (tab.id === 'attendance') handleAttendanceTabClick();
+                          if (tab.id === 'payments') fetchStudentPayments(selectedStudent.student._id);
+                        }}
+                        className={`flex-shrink-0 py-3 sm:py-4 px-2.5 sm:px-3 lg:px-4 border-b-2 font-medium text-xs sm:text-sm lg:text-base transition-colors whitespace-nowrap ${activeTab === tab.id
+                            ? 'border-blue-500 text-blue-400 bg-blue-500/10'
+                            : 'border-transparent text-gray-400 hover:text-white hover:border-gray-500 hover:bg-gray-700/30'
+                          }`}
+                      >
+                        <div className="flex items-center gap-1.5 sm:gap-2">
+                          <IconComponent className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
+                          <span className="truncate max-w-[9rem] sm:max-w-none">
+                            <span className="hidden md:inline">{tab.name}</span>
+                            <span className="md:hidden">{tab.shortName}</span>
+                            {tab.id === 'assignments' && (
+                              <span className="ml-0.5 sm:ml-1">({selectedStudent.assignments?.length || 0})</span>
+                            )}
+                            {tab.id === 'quizzes' && (
+                              <span className="ml-0.5 sm:ml-1">({selectedStudent.quizzes?.length || 0})</span>
+                            )}
+                          </span>
+                        </div>
+                      </button>
+                    );
+                  })}
                 </nav>
               </div>
 
@@ -1514,6 +1469,66 @@ const StudentManagement = () => {
                       </div>
                     </div>
 
+                    {/* Card payment — UI placeholder only (no gateway yet) */}
+                    <div className="bg-indigo-950/40 border border-indigo-500/25 rounded-xl p-4 sm:p-5 space-y-3">
+                      <div className="flex items-center gap-2">
+                        <CreditCardIcon className="h-5 w-5 text-indigo-400 flex-shrink-0" />
+                        <div>
+                          <p className="text-xs font-bold text-indigo-300 uppercase tracking-widest">Card payment (preview)</p>
+                          <p className="text-xs text-gray-500 mt-0.5">
+                            Dummy fields for a future gateway. Not connected — parents will use card checkout here later.
+                          </p>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pointer-events-none select-none opacity-90">
+                        <div className="sm:col-span-2">
+                          <label className="block text-xs text-gray-500 mb-1">Name on card</label>
+                          <input
+                            type="text"
+                            disabled
+                            placeholder="As shown on card"
+                            className="w-full px-3 py-2 bg-gray-900/80 border border-gray-600 rounded-xl text-gray-400 text-sm cursor-not-allowed"
+                          />
+                        </div>
+                        <div className="sm:col-span-2">
+                          <label className="block text-xs text-gray-500 mb-1">Card number</label>
+                          <input
+                            type="text"
+                            disabled
+                            placeholder="0000 0000 0000 0000"
+                            className="w-full px-3 py-2 bg-gray-900/80 border border-gray-600 rounded-xl text-gray-400 text-sm font-mono cursor-not-allowed"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-gray-500 mb-1">Expiry</label>
+                          <input
+                            type="text"
+                            disabled
+                            placeholder="MM / YY"
+                            className="w-full px-3 py-2 bg-gray-900/80 border border-gray-600 rounded-xl text-gray-400 text-sm cursor-not-allowed"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-gray-500 mb-1">CVC</label>
+                          <input
+                            type="text"
+                            disabled
+                            placeholder="•••"
+                            className="w-full px-3 py-2 bg-gray-900/80 border border-gray-600 rounded-xl text-gray-400 text-sm cursor-not-allowed"
+                          />
+                        </div>
+                        <div className="sm:col-span-2">
+                          <button
+                            type="button"
+                            disabled
+                            className="w-full py-2.5 rounded-xl bg-indigo-900/50 text-indigo-200/60 text-sm font-semibold border border-indigo-700/40 cursor-not-allowed"
+                          >
+                            Pay with card (coming soon)
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
                     {/* New payment form */}
                     <AnimatePresence>
                       {showPaymentForm && (
@@ -1529,35 +1544,85 @@ const StudentManagement = () => {
                               <label className="block text-xs text-gray-400 mb-1.5 font-medium uppercase tracking-wide">Plan Type</label>
                               <select
                                 value={paymentForm.planType}
-                                onChange={e => setPaymentForm(f => ({ ...f, planType: e.target.value }))}
+                                onChange={e => {
+                                  const planType = e.target.value;
+                                  setPaymentForm(f => ({
+                                    ...f,
+                                    planType,
+                                    amount: planType === 'per_session' || planType === 'package' ? '' : f.amount,
+                                    perSessionRate: planType === 'per_session' || planType === 'package' ? f.perSessionRate : '',
+                                    sessions: planType === 'per_session' || planType === 'package' ? f.sessions : '',
+                                  }));
+                                }}
                                 className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-xl text-white text-sm focus:border-[#CA133E] focus:outline-none"
                               >
                                 <option value="monthly">Monthly</option>
                                 <option value="weekly">Weekly</option>
-                                <option value="per_session">Per Session</option>
-                                <option value="package">Package</option>
+                                <option value="per_session">Per Session (rate × count)</option>
+                                <option value="package">Package (rate × sessions)</option>
                               </select>
                             </div>
-                            <div>
-                              <label className="block text-xs text-gray-400 mb-1.5 font-medium uppercase tracking-wide">Amount (EGP)</label>
-                              <input
-                                type="number"
-                                min="0"
-                                value={paymentForm.amount}
-                                onChange={e => setPaymentForm(f => ({ ...f, amount: e.target.value }))}
-                                placeholder="e.g. 500"
-                                className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-xl text-white text-sm focus:border-[#CA133E] focus:outline-none"
-                              />
-                            </div>
-                            {(paymentForm.planType === 'per_session' || paymentForm.planType === 'package') && (
+                            {(paymentForm.planType === 'per_session' || paymentForm.planType === 'package') ? (
+                              <>
+                                <div>
+                                  <label className="block text-xs text-gray-400 mb-1.5 font-medium uppercase tracking-wide">Rate per session (EGP)</label>
+                                  <input
+                                    type="number"
+                                    min="0"
+                                    step="0.01"
+                                    value={paymentForm.perSessionRate}
+                                    onChange={e => {
+                                      const perSessionRate = e.target.value;
+                                      const rate = parseFloat(perSessionRate, 10);
+                                      const count = parseInt(paymentForm.sessions, 10);
+                                      const total =
+                                        !Number.isNaN(rate) && !Number.isNaN(count) && count > 0
+                                          ? String(Math.round(rate * count * 100) / 100)
+                                          : '';
+                                      setPaymentForm(f => ({ ...f, perSessionRate, amount: total }));
+                                    }}
+                                    placeholder="e.g. 150"
+                                    className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-xl text-white text-sm focus:border-[#CA133E] focus:outline-none"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-xs text-gray-400 mb-1.5 font-medium uppercase tracking-wide">Number of sessions</label>
+                                  <input
+                                    type="number"
+                                    min="1"
+                                    value={paymentForm.sessions}
+                                    onChange={e => {
+                                      const sessions = e.target.value;
+                                      const rate = parseFloat(paymentForm.perSessionRate, 10);
+                                      const count = parseInt(sessions, 10);
+                                      const total =
+                                        !Number.isNaN(rate) && !Number.isNaN(count) && count > 0
+                                          ? String(Math.round(rate * count * 100) / 100)
+                                          : '';
+                                      setPaymentForm(f => ({ ...f, sessions, amount: total }));
+                                    }}
+                                    placeholder="e.g. 8"
+                                    className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-xl text-white text-sm focus:border-[#CA133E] focus:outline-none"
+                                  />
+                                </div>
+                                <div className="sm:col-span-2">
+                                  <label className="block text-xs text-gray-400 mb-1.5 font-medium uppercase tracking-wide">Total (calculated)</label>
+                                  <div className="w-full px-3 py-2 bg-gray-900/80 border border-[#CA133E]/40 rounded-xl text-white text-sm font-bold">
+                                    {paymentForm.amount ? `${paymentForm.amount} EGP` : '—'}
+                                  </div>
+                                  <p className="text-xs text-gray-500 mt-1">Total = rate per session × number of sessions (saved with the plan).</p>
+                                </div>
+                              </>
+                            ) : (
                               <div>
-                                <label className="block text-xs text-gray-400 mb-1.5 font-medium uppercase tracking-wide">Sessions Count</label>
+                                <label className="block text-xs text-gray-400 mb-1.5 font-medium uppercase tracking-wide">Amount (EGP)</label>
                                 <input
                                   type="number"
-                                  min="1"
-                                  value={paymentForm.sessions}
-                                  onChange={e => setPaymentForm(f => ({ ...f, sessions: e.target.value }))}
-                                  placeholder="e.g. 8"
+                                  min="0"
+                                  step="0.01"
+                                  value={paymentForm.amount}
+                                  onChange={e => setPaymentForm(f => ({ ...f, amount: e.target.value }))}
+                                  placeholder="e.g. 500"
                                   className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-xl text-white text-sm focus:border-[#CA133E] focus:outline-none"
                                 />
                               </div>
@@ -1594,7 +1659,17 @@ const StudentManagement = () => {
                           </div>
                           <div className="flex gap-2 justify-end">
                             <button type="button" onClick={() => setShowPaymentForm(false)} className="px-4 py-2 bg-gray-700 rounded-xl text-sm text-gray-300 hover:bg-gray-600 transition-colors">Cancel</button>
-                            <button type="button" onClick={savePayment} disabled={paymentSaving || !paymentForm.amount} className="px-4 py-2 bg-[#CA133E] hover:bg-[#A01030] text-white rounded-xl text-sm font-medium transition-colors disabled:opacity-50">
+                            <button
+                              type="button"
+                              onClick={savePayment}
+                              disabled={
+                                paymentSaving ||
+                                ((paymentForm.planType === 'per_session' || paymentForm.planType === 'package')
+                                  ? !paymentForm.perSessionRate || !paymentForm.sessions || !paymentForm.amount
+                                  : !paymentForm.amount)
+                              }
+                              className="px-4 py-2 bg-[#CA133E] hover:bg-[#A01030] text-white rounded-xl text-sm font-medium transition-colors disabled:opacity-50"
+                            >
                               {paymentSaving ? 'Saving…' : 'Save Plan'}
                             </button>
                           </div>
@@ -1622,7 +1697,22 @@ const StudentManagement = () => {
                               </div>
                               <div className="flex flex-wrap gap-3 text-xs text-gray-400">
                                 <span className="font-bold text-white text-base">{p.amount.toLocaleString()} EGP</span>
-                                {p.sessions && <span>{p.sessions} sessions</span>}
+                                {p.perSessionRate != null && p.sessions != null && (
+                                  <span className="text-gray-300">
+                                    {Number(p.perSessionRate).toLocaleString()} EGP × {p.sessions} sessions
+                                  </span>
+                                )}
+                                {p.sessions && p.perSessionRate == null && <span>{p.sessions} sessions</span>}
+                                {p.paymentProof?.path && (
+                                  <a
+                                    href={`${API_ENDPOINTS.BASE_URL}${p.paymentProof.path}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-blue-400 hover:text-blue-300 font-medium"
+                                  >
+                                    InstaPay proof
+                                  </a>
+                                )}
                                 {p.dueDate && <span>Due: {new Date(p.dueDate).toLocaleDateString()}</span>}
                                 {p.paidDate && <span className="text-green-400">Paid: {new Date(p.paidDate).toLocaleDateString()}</span>}
                               </div>
@@ -1630,11 +1720,11 @@ const StudentManagement = () => {
                             </div>
                             <div className="flex gap-2 flex-shrink-0">
                               {p.status === 'pending' && (
-                                <button type="button" onClick={() => markPaymentAsPaid(p._id)} className="flex items-center gap-1 px-3 py-1.5 bg-green-700/50 hover:bg-green-700/80 text-green-300 rounded-lg text-xs font-medium transition-colors">
+                                <button type="button" onClick={() => markPaymentAsPaid(p._id)} className="flex items-center gap-1 px-3 py-1.5 bg-green-700/50 hover:bg-green-700/80 text-green-300 rounded-xl text-xs font-medium transition-colors">
                                   <CheckCircleIcon className="h-3.5 w-3.5" />Mark Paid
                                 </button>
                               )}
-                              <button type="button" onClick={() => cancelPayment(p._id)} className="flex items-center gap-1 px-3 py-1.5 bg-red-900/30 hover:bg-red-900/60 text-red-400 rounded-lg text-xs font-medium transition-colors">
+                              <button type="button" onClick={() => cancelPayment(p._id)} className="flex items-center gap-1 px-3 py-1.5 bg-red-900/30 hover:bg-red-900/60 text-red-400 rounded-xl text-xs font-medium transition-colors">
                                 <XMarkIcon className="h-3.5 w-3.5" />Delete
                               </button>
                             </div>

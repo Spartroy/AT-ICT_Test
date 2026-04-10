@@ -5,7 +5,8 @@ const {
   getChildProgress,
   getChildReports
 } = require('../controllers/parentController');
-const { getParentPayments, payPayment } = require('../controllers/paymentController');
+const { upload } = require('../middleware/upload');
+const { getParentPayments, payPayment, submitInstapayWithProof } = require('../controllers/paymentController');
 
 const router = express.Router();
 
@@ -40,6 +41,7 @@ router.get('/children/:childId/progress', (req, res) => {
 
 // Payment routes
 router.get('/payments', getParentPayments);
+router.post('/payments/:paymentId/instapay', upload.single('paymentProof'), submitInstapayWithProof);
 router.put('/payments/:paymentId/pay', payPayment);
 
 module.exports = router; 
