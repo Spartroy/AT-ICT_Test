@@ -1,6 +1,31 @@
 const Payment = require('../models/Payment');
 const User = require('../models/User');
+const Parent = require('../models/Parent');
 const crypto = require('crypto');
+
+/**
+ * Resolve the linked student's User _id for a parent account.
+ * Matches logic in parentController.getDashboardData (Parent model + User.parentInfo.children).
+ */
+async function getLinkedStudentUserId(parentUserId) {
+  const parentDoc = await Parent.findOne({ user: parentUserId }).populate({
+    path: 'children.student',
+    select: 'user',
+  });
+  if (parentDoc?.children?.length) {
+    const primary = parentDoc.children.find((c) => c.isPrimary) || parentDoc.children[0];
+    const st = primary?.student;
+    const uid = st?.user?._id || st?.user;
+    if (uid) return uid;
+  }
+
+  const parentUser = await User.findById(parentUserId).select('parentInfo').lean();
+  const childLink =
+    parentUser?.parentInfo?.children?.find((c) => c.isPrimary) || parentUser?.parentInfo?.children?.[0];
+  if (childLink?.studentId) return childLink.studentId;
+
+  return null;
+}
 
 // ── Teacher: create a payment plan for a student ──────────────────────────────
 const createPayment = async (req, res) => {
@@ -109,12 +134,14 @@ const resetStudentPassword = async (req, res) => {
 // ── Parent: get all payments for their child ─────────────────────────────────
 const getParentPayments = async (req, res) => {
   try {
-    // Find the child linked to this parent
-    const parent = await User.findById(req.user.id).select('parentInfo').lean();
-    const childId = parent?.parentInfo?.studentId;
+    const childId = await getLinkedStudentUserId(req.user.id);
 
     if (!childId) {
-      return res.status(404).json({ status: 'error', message: 'No linked student found' });
+      return res.status(200).json({
+        status: 'success',
+        data: { payments: [] },
+        message: 'No linked student on this parent account',
+      });
     }
 
     const payments = await Payment.find({ student: childId })
@@ -136,15 +163,14 @@ const payPayment = async (req, res) => {
       return res.status(400).json({ status: 'error', message: 'Invalid payment method' });
     }
 
-    // Verify the payment belongs to this parent's child
-    const parent = await User.findById(req.user.id).select('parentInfo').lean();
-    const childId = parent?.parentInfo?.studentId?.toString();
+    const childUserId = await getLinkedStudentUserId(req.user.id);
+    const childId = childUserId?.toString();
 
     const payment = await Payment.findById(req.params.paymentId);
     if (!payment) {
       return res.status(404).json({ status: 'error', message: 'Payment not found' });
     }
-    if (payment.student.toString() !== childId) {
+    if (!childId || payment.student.toString() !== childId) {
       return res.status(403).json({ status: 'error', message: 'Access denied' });
     }
 
