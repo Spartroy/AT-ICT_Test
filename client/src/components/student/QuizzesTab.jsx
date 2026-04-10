@@ -33,7 +33,6 @@ const QuizzesTab = () => {
   useEffect(() => {
     fetchQuizzes();
     const interval = setInterval(() => {
-      console.log('🔄 Auto-refreshing quizzes...');
       fetchQuizzes(true); // Silent refresh
     }, 30000);
     return () => clearInterval(interval);
@@ -62,15 +61,6 @@ const QuizzesTab = () => {
 
       if (response.ok) {
         const data = await response.json();
-        console.log('📚 Quiz data received:', data.data.quizzes);
-        
-        // Log scores for debugging
-        data.data.quizzes.forEach(quiz => {
-          if (quiz.studentData?.score !== undefined) {
-            console.log(`📊 ${quiz.title}: Score ${quiz.studentData.score}/${quiz.maxScore}, Status: ${quiz.studentData.status}`);
-          }
-        });
-        
         setQuizzes(data.data.quizzes);
         setError('');
       } else {
@@ -91,7 +81,6 @@ const QuizzesTab = () => {
     quizzes.forEach(quiz => {
       // Safety check for required fields
       if (!quiz.startDate || !quiz.startTime || !quiz.duration) {
-        console.warn('Quiz missing date/time data:', quiz);
         return;
       }
       
@@ -142,7 +131,6 @@ const QuizzesTab = () => {
   };
 
   const manualRefresh = () => {
-    console.log('🔄 Manual refresh triggered');
     fetchQuizzes();
   };
 
@@ -179,10 +167,10 @@ const QuizzesTab = () => {
 
       if (response.ok) {
         showSuccess('Quiz started successfully!');
-        fetchQuizzes(); // Refresh quizzes
+        fetchQuizzes();
       } else {
         const errorData = await response.json();
-        alert(`❌ Error: ${errorData.message}`);
+        showError(errorData.message || 'Failed to start quiz');
       }
     } catch (error) {
       console.error('Error starting quiz:', error);
@@ -220,10 +208,10 @@ const QuizzesTab = () => {
       if (response.ok) {
         showSuccess('Quiz submitted successfully!');
         setSelectedFiles(prev => ({ ...prev, [quizId]: [] }));
-        fetchQuizzes(); // Refresh quizzes
+        fetchQuizzes();
       } else {
         const errorData = await response.json();
-        alert(`❌ Error: ${errorData.message}`);
+        showError(errorData.message || 'Failed to submit quiz');
       }
     } catch (error) {
       console.error('Error submitting quiz:', error);

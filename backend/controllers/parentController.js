@@ -48,8 +48,8 @@ const getDashboardData = async (req, res) => {
           $group: {
             _id: null,
             totalQuizzes: { $sum: 1 },
-            completedQuizzes: { $sum: { $cond: [{ $eq: ['$assignedTo.status', 'completed'] }, 1, 0] } },
-            avgScore: { $avg: '$assignedTo.percentage' }
+            completedQuizzes: { $sum: { $cond: [{ $in: ['$assignedTo.status', ['submitted', 'graded']] }, 1, 0] } },
+            avgScore: { $avg: '$assignedTo.score' }
           }
         }
       ]);
@@ -93,7 +93,7 @@ const getDashboardData = async (req, res) => {
     const quizStats = await Quiz.aggregate([
       { $unwind: '$assignedTo' },
       { $match: { 'assignedTo.student': studentUser._id } },
-      { $group: { _id: null, totalQuizzes: { $sum: 1 }, completedQuizzes: { $sum: { $cond: [{ $eq: ['$assignedTo.status', 'completed'] }, 1, 0] } }, avgScore: { $avg: '$assignedTo.percentage' } } }
+      { $group: { _id: null, totalQuizzes: { $sum: 1 }, completedQuizzes: { $sum: { $cond: [{ $in: ['$assignedTo.status', ['submitted', 'graded']] }, 1, 0] } }, avgScore: { $avg: '$assignedTo.score' } } }
     ]);
 
     return res.status(200).json({

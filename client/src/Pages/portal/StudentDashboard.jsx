@@ -10,15 +10,11 @@ import {
   DocumentTextIcon,
   PlayIcon,
   CalendarDaysIcon,
-  ClockIcon,
-  TrophyIcon,
-  CheckCircleIcon,
   ExclamationTriangleIcon,
   ArrowRightOnRectangleIcon,
   MegaphoneIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
-  QrCodeIcon,
   FolderIcon,
   BookmarkSquareIcon,
   Squares2X2Icon
@@ -284,38 +280,21 @@ const StudentDashboard = () => {
               </div>
             </div>
             
-            {/* Quick stats and logout */}
-            <div className="flex flex-wrap items-center gap-2 sm:gap-4 lg:gap-6">
-              <div className="flex items-center text-xs sm:text-sm lg:text-base text-green-400 bg-green-900/30 px-2 sm:px-4 py-1 sm:py-2 rounded-xl">
-                <TrophyIcon className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 mr-1 sm:mr-2" />
-                <span className="font-bold">
-                  <span className="hidden sm:inline">Current: </span>
-                  {studentData?.studentInfo?.currentGrade || 'N/A'}
-                </span>
-              </div>
-              <div className="flex items-center text-xs sm:text-sm lg:text-base text-blue-400 bg-blue-900/30 px-2 sm:px-4 py-1 sm:py-2 rounded-xl">
-                <CheckCircleIcon className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 mr-1 sm:mr-2" />
-                <span className="font-bold">
-                  {stats?.assignments?.completedAssignments || 0} 
-                  <span className="hidden sm:inline"> Tasks Done</span>
-                </span>
-              </div>
+            {/* Logout */}
+            <div className="flex items-center gap-3">
               {stats?.unreadMessages > 0 && (
-                <div className="flex items-center text-xs sm:text-sm lg:text-base text-red-400 bg-red-900/30 px-2 sm:px-4 py-1 sm:py-2 rounded-xl">
-                  <ExclamationTriangleIcon className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 mr-1 sm:mr-2" />
-                  <span className="font-bold">
-                    {stats.unreadMessages} 
-                    <span className="hidden sm:inline"> New Messages</span>
-                  </span>
+                <div className="flex items-center text-xs sm:text-sm text-red-400 bg-red-900/30 px-3 py-2 rounded-xl">
+                  <ExclamationTriangleIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-1.5" />
+                  <span className="font-bold">{stats.unreadMessages} <span className="hidden sm:inline">New Messages</span></span>
                 </div>
               )}
               <motion.button
                 onClick={handleLogout}
-                className="flex items-center space-x-2 sm:space-x-3 px-4 sm:px-6 lg:px-8 py-3 sm:py-4 lg:py-5 bg-red-600/80 hover:bg-red-600 text-white rounded-xl transition-all duration-300 font-bold text-sm sm:text-base lg:text-lg shadow-lg hover:shadow-xl"
+                className="flex items-center space-x-2 px-4 sm:px-6 py-2.5 sm:py-3 bg-red-600/80 hover:bg-red-600 text-white rounded-xl transition-all duration-300 font-bold text-sm sm:text-base shadow-lg hover:shadow-xl"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <ArrowRightOnRectangleIcon className="h-5 w-5 sm:h-6 sm:w-6 lg:h-7 lg:w-7" />
+                <ArrowRightOnRectangleIcon className="h-5 w-5 sm:h-6 sm:w-6" />
                 <span>Logout</span>
               </motion.button>
             </div>

@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import Logo from "../assets/logo.png";
 
 const Nav = () => {
   const [navOpen, setNavOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
   // Handle scroll effect
   useEffect(() => {
@@ -22,6 +24,15 @@ const Nav = () => {
   const toggleNav = () => {
     setNavOpen(!navOpen);
   };
+
+  // Close mobile menu on ESC key
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && navOpen) setNavOpen(false);
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [navOpen]);
 
   return (
     <nav className="fixed w-full left-0 right-0 z-50 px-4 sm:px-6 lg:px-8" style={{ top: '20px' }}>
@@ -60,105 +71,39 @@ const Nav = () => {
 
         {/* Center Section - Desktop Navigation Links */}
         <div className="hidden lg:flex items-center gap-[25px]">
-          <Link 
-            to="/about" 
-            className={`transition-all duration-300 relative group ${
-              scrolled ? 'text-gray-800 hover:text-[#CD143F]' : 'text-white hover:text-[#CD143F]'
-            }`}
-            style={{
-              fontFamily: 'Geist, system-ui, sans-serif',
-              fontWeight: '500',
-              fontSize: '20px',
-              lineHeight: '110%',
-              letterSpacing: '-0.05em',
-              textShadow: scrolled 
-                ? '0 1px 2px rgba(0, 0, 0, 0.1)' 
-                : '0 1px 3px rgba(0, 0, 0, 0.5)'
-            }}
-          >
-            About Us
-            <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-[#CD143F] to-white group-hover:w-full transition-all duration-300"></span>
-          </Link>
-          
-          <Link 
-            to="/hall-of-fame" 
-            className={`transition-all duration-300 relative group ${
-              scrolled ? 'text-gray-800 hover:text-[#CD143F]' : 'text-white hover:text-[#CD143F]'
-            }`}
-            style={{
-              fontFamily: 'Geist, system-ui, sans-serif',
-              fontWeight: '500',
-              fontSize: '20px',
-              lineHeight: '110%',
-              letterSpacing: '-0.05em',
-              textShadow: scrolled 
-                ? '0 1px 2px rgba(0, 0, 0, 0.1)' 
-                : '0 1px 3px rgba(0, 0, 0, 0.5)'
-            }}
-          >
-            Hall of Fame
-            <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-[#CD143F] to-white group-hover:w-full transition-all duration-300"></span>
-          </Link>
-          
-          <Link 
-            to="/samples" 
-            className={`transition-all duration-300 relative group ${
-              scrolled ? 'text-gray-800 hover:text-[#CD143F]' : 'text-white hover:text-[#CD143F]'
-            }`}
-            style={{
-              fontFamily: 'Geist, system-ui, sans-serif',
-              fontWeight: '500',
-              fontSize: '20px',
-              lineHeight: '110%',
-              letterSpacing: '-0.05em',
-              textShadow: scrolled 
-                ? '0 1px 2px rgba(0, 0, 0, 0.1)' 
-                : '0 1px 3px rgba(0, 0, 0, 0.5)'
-            }}
-          >
-            Free Samples
-            <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-[#CD143F] to-white group-hover:w-full transition-all duration-300"></span>
-          </Link>
-          
-          <Link 
-            to="/faq" 
-            className={`transition-all duration-300 relative group ${
-              scrolled ? 'text-gray-800 hover:text-[#CD143F]' : 'text-white hover:text-[#CD143F]'
-            }`}
-            style={{
-              fontFamily: 'Geist, system-ui, sans-serif',
-              fontWeight: '500',
-              fontSize: '20px',
-              lineHeight: '110%',
-              letterSpacing: '-0.05em',
-              textShadow: scrolled 
-                ? '0 1px 2px rgba(0, 0, 0, 0.1)' 
-                : '0 1px 3px rgba(0, 0, 0, 0.5)'
-            }}
-          >
-            FAQ
-            <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-[#CD143F] to-white group-hover:w-full transition-all duration-300"></span>
-          </Link>
-
-          <Link 
-            to="/contact" 
-            className={`transition-all duration-300 relative group ${
-              scrolled ? 'text-gray-800 hover:text-[#CD143F]' : 'text-white hover:text-[#CD143F]'
-            }`}
-            style={{
-              fontFamily: 'Geist, system-ui, sans-serif',
-              fontWeight: '500',
-              fontSize: '20px',
-              lineHeight: '110%',
-              letterSpacing: '-0.05em',
-              textShadow: scrolled 
-                ? '0 1px 2px rgba(0, 0, 0, 0.1)' 
-                : '0 1px 3px rgba(0, 0, 0, 0.5)'
-            }}
-          >
-            Contact
-            <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-[#CD143F] to-white group-hover:w-full transition-all duration-300"></span>
-          </Link>
+          {[
+            { to: '/about', label: 'About Us' },
+            { to: '/hall-of-fame', label: 'Hall of Fame' },
+            { to: '/samples', label: 'Free Samples' },
+            { to: '/faq', label: 'FAQ' },
+            { to: '/contact', label: 'Contact' },
+          ].map(({ to, label }) => {
+            const isActive = location.pathname === to;
+            return (
+              <Link
+                key={to}
+                to={to}
+                className={`transition-all duration-300 relative group ${
+                  isActive
+                    ? 'text-[#CD143F]'
+                    : scrolled ? 'text-gray-800 hover:text-[#CD143F]' : 'text-white hover:text-[#CD143F]'
+                }`}
+                style={{
+                  fontFamily: 'Geist, system-ui, sans-serif',
+                  fontWeight: isActive ? '600' : '500',
+                  fontSize: '20px',
+                  lineHeight: '110%',
+                  letterSpacing: '-0.05em',
+                  textShadow: scrolled
+                    ? '0 1px 2px rgba(0, 0, 0, 0.1)'
+                    : '0 1px 3px rgba(0, 0, 0, 0.5)'
+                }}
+              >
+                {label}
+                <span className={`absolute -bottom-1 left-0 h-0.5 bg-gradient-to-r from-[#CD143F] to-white transition-all duration-300 ${isActive ? 'w-full' : 'w-0 group-hover:w-full'}`}></span>
+              </Link>
+            );
+          })}
         </div>
 
         {/* Right Section - Desktop Login/Sign Up Buttons & Mobile Menu Button */}
@@ -166,23 +111,23 @@ const Nav = () => {
           {/* Desktop Login/Sign Up Buttons */}
           <div className="hidden lg:flex items-center gap-[7.15px]">
             {/* Login Button */}
-            <button 
-              onClick={() => navigate('/signin')}
+            <Link
+              to="/signin"
               className={`flex justify-center items-center transition-all duration-300 relative overflow-hidden group ${
-                scrolled 
-                  ? 'text-gray-700 hover:bg-gray-100' 
+                scrolled
+                  ? 'text-gray-700 hover:bg-gray-100'
                   : 'text-white hover:bg-white hover:bg-opacity-20'
               }`}
               style={{
                 width: '106px',
                 height: '42px',
-                background: scrolled 
-                  ? 'rgba(255, 255, 255, 0.8)' 
+                background: scrolled
+                  ? 'rgba(255, 255, 255, 0.8)'
                   : 'rgba(255, 255, 255, 0.15)',
                 backdropFilter: 'blur(8px)',
                 WebkitBackdropFilter: 'blur(8px)',
-                border: scrolled 
-                  ? '1px solid rgba(0, 0, 0, 0.1)' 
+                border: scrolled
+                  ? '1px solid rgba(0, 0, 0, 0.1)'
                   : '1px solid rgba(255, 255, 255, 0.3)',
                 borderRadius: '7.15164px',
                 padding: '10.7275px 14.3033px',
@@ -191,21 +136,19 @@ const Nav = () => {
                 fontSize: '18.5943px',
                 lineHeight: '110%',
                 letterSpacing: '-0.05em',
-                boxShadow: scrolled 
-                  ? '0 4px 16px rgba(0, 0, 0, 0.05)' 
+                boxShadow: scrolled
+                  ? '0 4px 16px rgba(0, 0, 0, 0.05)'
                   : '0 4px 16px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.2)',
-                textShadow: scrolled 
-                  ? 'none' 
-                  : '0 1px 2px rgba(0, 0, 0, 0.4)'
+                textShadow: scrolled ? 'none' : '0 1px 2px rgba(0, 0, 0, 0.4)'
               }}
             >
               <span className="relative z-10">Login</span>
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-20 transition-opacity duration-300 transform -skew-x-12"></div>
-            </button>
-            
+            </Link>
+
             {/* Sign Up Button */}
-            <button 
-              onClick={() => navigate('/register')}
+            <Link
+              to="/register"
               className="flex justify-center items-center text-white hover:shadow-xl transition-all duration-300 relative overflow-hidden group"
               style={{
                 width: '121px',
@@ -227,18 +170,18 @@ const Nav = () => {
             >
               <span className="relative z-10">Sign Up</span>
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-30 transition-opacity duration-300 transform -skew-x-12"></div>
-            </button>
+            </Link>
           </div>
 
           {/* Mobile Menu Button */}
-          <button 
-            className={`lg:hidden text-3xl sm:text-4xl p-2 hover:bg-opacity-10 rounded-xl transition-all duration-300 ${
-              scrolled ? 'text-gray-700 hover:bg-gray-200' : 'text-white hover:bg-white hover:bg-opacity-10'
+          <button
+            className={`lg:hidden p-2 rounded-xl transition-all duration-300 ${
+              scrolled ? 'text-gray-700 hover:bg-gray-200' : 'text-white hover:bg-white/10'
             }`}
             onClick={toggleNav}
             aria-label="Toggle navigation menu"
           >
-            ☰
+            <Bars3Icon className="h-7 w-7" />
           </button>
         </div>
       </div>
@@ -258,8 +201,12 @@ const Nav = () => {
               WebkitBackdropFilter: 'blur(15px)'
             }}
           >
-            <button className="absolute top-6 right-6 text-white text-3xl hover:bg-white hover:bg-opacity-10 rounded-xl p-2 transition-all duration-300" onClick={toggleNav}>
-              ✕
+            <button
+              className="absolute top-6 right-6 text-white hover:bg-white/10 rounded-xl p-2 transition-all duration-300"
+              onClick={toggleNav}
+              aria-label="Close navigation menu"
+            >
+              <XMarkIcon className="h-7 w-7" />
             </button>
 
             <Link to="/" onClick={toggleNav} className="text-white text-[22px] font-medium hover:text-[#CD143F] transition-colors">
@@ -283,9 +230,10 @@ const Nav = () => {
             </Link>
 
             <div className="flex flex-col space-y-4 mt-8">
-              <button 
-                onClick={() => { navigate('/signin'); toggleNav(); }}
-                className="text-white hover:bg-white hover:bg-opacity-20 px-8 py-3 rounded-xl font-medium text-[18px] transition-all"
+              <Link
+                to="/signin"
+                onClick={toggleNav}
+                className="text-white text-center hover:bg-white/20 px-8 py-3 rounded-xl font-medium text-[18px] transition-all"
                 style={{
                   background: 'rgba(255, 255, 255, 0.15)',
                   backdropFilter: 'blur(8px)',
@@ -295,11 +243,12 @@ const Nav = () => {
                 }}
               >
                 Login
-              </button>
-              
-              <button 
-                onClick={() => { navigate('/register'); toggleNav(); }}
-                className="text-white px-8 py-3 rounded-xl font-medium text-[18px] transition-colors"
+              </Link>
+
+              <Link
+                to="/register"
+                onClick={toggleNav}
+                className="text-white text-center px-8 py-3 rounded-xl font-medium text-[18px] transition-colors"
                 style={{
                   background: 'linear-gradient(135deg, #CD143F 0%, #A01030 100%)',
                   backdropFilter: 'blur(8px)',
@@ -309,7 +258,7 @@ const Nav = () => {
                 }}
               >
                 Sign Up
-              </button>
+              </Link>
             </div>
           </motion.div>
         )}

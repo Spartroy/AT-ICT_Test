@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
+import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 import Nav from '../../components/Nav';
-import { showOperationToast, showInfo } from '../../utils/toast';
+import { showOperationToast } from '../../utils/toast';
 import { API_ENDPOINTS } from '../../config/api';
 
 const SignIn = () => {
@@ -14,7 +15,7 @@ const SignIn = () => {
   });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
-  const [message, setMessage] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     // Check for messages in URL params
@@ -175,21 +176,6 @@ const SignIn = () => {
             </motion.p>
           </div>
 
-          {/* Messages */}
-          {message && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className={`p-4 rounded-xl border ${
-                message.includes('success') || message.includes('pending')
-                  ? 'bg-green-50 border-green-200 text-green-700'
-                  : 'bg-blue-50 border-blue-200 text-blue-700'
-              }`}
-            >
-              <p className="text-sm text-center">{message}</p>
-            </motion.div>
-          )}
-
           {/* Error Messages */}
           {errors.general && (
             <motion.div
@@ -258,36 +244,46 @@ const SignIn = () => {
                 <label htmlFor="password" className="block text-sm font-medium mb-3" style={{ color: '#D91743' }}>
                   Password
                 </label>
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  autoComplete="current-password"
-                  value={formData.password}
-                  onChange={handleInputChange}
-                  className={`w-full px-8 py-5 border-2 text-white placeholder-gray-400 transition-all duration-300 bg-black/30 backdrop-blur-md ${
-                    errors.password ? 'shadow-xl' : 'hover:border-gray-600'
-                  }`}
-                  style={{
-                    backgroundColor: 'rgba(10,10,10,0.35)',
-                    borderColor: errors.password ? '#D91743' : '#2a2a2a',
-                    borderRadius: '2rem',
-                    boxShadow: errors.password ? '0 0 20px rgba(217, 23, 67, 0.5)' : 'none',
-                    backdropFilter: 'blur(6px) saturate(1.2)',
-                    WebkitBackdropFilter: 'blur(6px) saturate(1.2)',
-                  }}
-                  onFocus={(e) => {
-                    e.target.style.borderColor = '#D91743';
-                    e.target.style.boxShadow = '0 0 0 4px rgba(217, 23, 67, 0.2), 0 0 20px rgba(217, 23, 67, 0.4)';
-                  }}
-                  onBlur={(e) => {
-                    if (!errors.password) {
-                      e.target.style.borderColor = '#2a2a2a';
-                      e.target.style.boxShadow = 'none';
-                    }
-                  }}
-                  placeholder="Enter your password"
-                />
+                <div className="relative">
+                  <input
+                    id="password"
+                    name="password"
+                    type={showPassword ? 'text' : 'password'}
+                    autoComplete="current-password"
+                    value={formData.password}
+                    onChange={handleInputChange}
+                    className={`w-full px-8 py-5 pr-14 border-2 text-white placeholder-gray-400 transition-all duration-300 bg-black/30 backdrop-blur-md ${
+                      errors.password ? 'shadow-xl' : 'hover:border-gray-600'
+                    }`}
+                    style={{
+                      backgroundColor: 'rgba(10,10,10,0.35)',
+                      borderColor: errors.password ? '#D91743' : '#2a2a2a',
+                      borderRadius: '2rem',
+                      boxShadow: errors.password ? '0 0 20px rgba(217, 23, 67, 0.5)' : 'none',
+                      backdropFilter: 'blur(6px) saturate(1.2)',
+                      WebkitBackdropFilter: 'blur(6px) saturate(1.2)',
+                    }}
+                    onFocus={(e) => {
+                      e.target.style.borderColor = '#D91743';
+                      e.target.style.boxShadow = '0 0 0 4px rgba(217, 23, 67, 0.2), 0 0 20px rgba(217, 23, 67, 0.4)';
+                    }}
+                    onBlur={(e) => {
+                      if (!errors.password) {
+                        e.target.style.borderColor = '#2a2a2a';
+                        e.target.style.boxShadow = 'none';
+                      }
+                    }}
+                    placeholder="Enter your password"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(prev => !prev)}
+                    className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {showPassword ? <EyeSlashIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
+                  </button>
+                </div>
                 {errors.password && <p className="text-sm mt-2" style={{ color: '#D91743' }}>{errors.password}</p>}
               </div>
 
@@ -297,9 +293,10 @@ const SignIn = () => {
                   disabled={loading}
                   className="w-full flex justify-center py-4 px-8 border-2 text-white rounded-full font-medium shadow-xl transition-all duration-300 disabled:cursor-not-allowed"
                   style={{
-                    background: loading ? 'linear-gradient(135deg, #059669, #10b981)' : 'linear-gradient(135deg, #D91743, #ff6b9d)',
-                    borderColor: loading ? '#059669' : '#D91743',
-                    boxShadow: loading ? '0 10px 25px rgba(5, 150, 105, 0.4)' : '0 10px 25px rgba(217, 23, 67, 0.4)',
+                    background: 'linear-gradient(135deg, #D91743, #ff6b9d)',
+                    borderColor: '#D91743',
+                    boxShadow: '0 10px 25px rgba(217, 23, 67, 0.4)',
+                    opacity: loading ? 0.7 : 1,
                     backdropFilter: 'blur(2px) saturate(1.2)',
                     WebkitBackdropFilter: 'blur(2px) saturate(1.2)',
                   }}
@@ -333,14 +330,13 @@ const SignIn = () => {
               <div className="text-center">
                 <p className="text-sm text-gray-300">
                   Don't have an account?{' '}
-                  <button
-                    type="button"
-                    onClick={() => navigate('/register')}
+                  <Link
+                    to="/register"
                     className="font-medium hover:underline transition-colors"
-                    style={{ color: '#D91743', background: 'transparent' }}
+                    style={{ color: '#D91743' }}
                   >
                     Register here
-                  </button>
+                  </Link>
                 </p>
               </div>
             </form>

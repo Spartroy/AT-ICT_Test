@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { API_ENDPOINTS } from '../../config/api';
+import { showError } from '../../utils/toast';
 import {
   BookOpenIcon,
   DocumentTextIcon,
@@ -77,11 +78,11 @@ const MaterialsTab = ({ studentData }) => {
         window.open(response.url, '_blank');
       } else {
         const errorData = await response.json();
-        alert(`❌ Error: ${errorData.message}`);
+        showError(errorData.message || 'Failed to download material');
       }
     } catch (error) {
       console.error('Error downloading material:', error);
-      alert('❌ Error downloading material');
+      showError('Failed to download material. Please try again.');
     }
   };
 

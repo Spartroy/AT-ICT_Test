@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { API_ENDPOINTS } from '../../config/api';
+import { showSuccess, showError, showWarning } from '../../utils/toast';
 import {
   MegaphoneIcon,
   PlusIcon,
@@ -113,10 +114,10 @@ const AnnouncementCenter = () => {
     }
     
     if (validationErrors.length > 0) {
-      alert(`❌ Please fix these validation errors:\n\n${validationErrors.map(err => `• ${err}`).join('\n')}`);
+      showWarning(validationErrors[0]);
       return;
     }
-    
+
     try {
       const token = localStorage.getItem('token');
       const payload = {
@@ -124,9 +125,7 @@ const AnnouncementCenter = () => {
         scheduledFor: formData.scheduledFor || new Date().toISOString(),
         expiresAt: formData.expiresAt || undefined
       };
-      
-      console.log('Sending announcement payload:', payload);
-      
+
       const response = await fetch(API_ENDPOINTS.ANNOUNCEMENTS.BASE, {
         method: 'POST',
         headers: {
@@ -137,10 +136,9 @@ const AnnouncementCenter = () => {
       });
 
       const responseData = await response.json();
-      console.log('Response:', responseData);
 
       if (response.ok) {
-        alert('✅ Announcement created successfully!');
+        showSuccess('Announcement created successfully!');
         setAnnouncements([responseData.data.announcement, ...announcements]);
         setShowCreateModal(false);
         setFormData({
@@ -155,19 +153,15 @@ const AnnouncementCenter = () => {
           tags: []
         });
       } else {
-        console.error('Validation errors:', responseData);
-        
-        // Handle validation errors more gracefully
         if (responseData.errors && Array.isArray(responseData.errors)) {
-          const errorMessages = responseData.errors.map(error => `• ${error.msg}`).join('\n');
-          alert(`❌ Please fix these validation errors:\n\n${errorMessages}`);
+          showError(responseData.errors.map(e => e.msg).join(', '));
         } else {
-          alert(`❌ Error: ${responseData.message || 'Unknown error'}`);
+          showError(responseData.message || 'Failed to create announcement');
         }
       }
     } catch (error) {
       console.error('Error creating announcement:', error);
-      alert('❌ Error creating announcement');
+      showError('Failed to create announcement. Please try again.');
     }
   };
 
@@ -184,15 +178,15 @@ const AnnouncementCenter = () => {
       });
 
       if (response.ok) {
-        alert('✅ Announcement deleted successfully!');
+        showSuccess('Announcement deleted successfully!');
         setAnnouncements(announcements.filter(ann => ann._id !== id));
       } else {
         const errorData = await response.json();
-        alert(`❌ Error: ${errorData.message}`);
+        showError(errorData.message || 'Failed to delete announcement');
       }
     } catch (error) {
       console.error('Error deleting announcement:', error);
-      alert('❌ Error deleting announcement');
+      showError('Failed to delete announcement. Please try again.');
     }
   };
 

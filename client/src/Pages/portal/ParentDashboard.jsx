@@ -6,7 +6,7 @@ import {
   UserIcon,
   ChartBarIcon,
   DocumentTextIcon,
-  ChatBubbleLeftRightIcon,
+  AcademicCapIcon,
   CalendarDaysIcon,
   CheckCircleIcon,
   ArrowPathIcon,
@@ -18,7 +18,6 @@ import ParentOverview from '../../components/parent/ParentOverview';
 import AssignmentsLikeStudent from '../../components/student/AssignmentsTab';
 import QuizTracking from '../../components/parent/QuizTracking';
 import WeeklyReports from '../../components/parent/WeeklyReports';
-import ParentChat from '../../components/parent/ParentChat';
 
 const ParentDashboard = () => {
   const navigate = useNavigate();
@@ -31,9 +30,8 @@ const ParentDashboard = () => {
   const tabs = [
     { id: 'overview', name: 'Overview', icon: ChartBarIcon, component: ParentOverview },
     { id: 'assignments', name: 'Homework', icon: DocumentTextIcon, component: AssignmentsLikeStudent },
-    { id: 'quiz', name: 'Quiz Tracking', icon: DocumentTextIcon, component: QuizTracking },
-    { id: 'reports', name: 'Weekly Reports', icon: DocumentTextIcon, component: WeeklyReports },
-    { id: 'chat', name: 'Chat with Teacher', icon: ChatBubbleLeftRightIcon, component: ParentChat }
+    { id: 'quiz', name: 'Quiz Tracking', icon: AcademicCapIcon, component: QuizTracking },
+    { id: 'reports', name: 'Reports & Marks', icon: CalendarDaysIcon, component: WeeklyReports }
   ];
 
   useEffect(() => {

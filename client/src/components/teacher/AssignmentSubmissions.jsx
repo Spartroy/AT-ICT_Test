@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { API_ENDPOINTS } from '../../config/api';
+import { showError } from '../../utils/toast';
 import {
   DocumentTextIcon,
   DownloadIcon,
@@ -43,11 +44,11 @@ const AssignmentSubmissions = ({ assignmentId, onClose }) => {
         setSubmissions(data.data.submissions);
         setStats(data.data.stats);
       } else {
-        alert('Failed to fetch submissions');
+        showError('Failed to fetch submissions');
       }
     } catch (error) {
       console.error('Error fetching submissions:', error);
-      alert('Error fetching submissions');
+      showError('Error fetching submissions. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -75,11 +76,11 @@ const AssignmentSubmissions = ({ assignmentId, onClose }) => {
         document.body.removeChild(a);
       } else {
         const errorData = await response.json();
-        alert(`Error downloading file: ${errorData.message}`);
+        showError(errorData.message || 'Failed to download file');
       }
     } catch (error) {
       console.error('Error downloading file:', error);
-      alert('Error downloading file');
+      showError('Failed to download file. Please try again.');
     }
   };
 

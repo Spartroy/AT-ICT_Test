@@ -14,7 +14,7 @@ const { createActivityFromEvent } = require('./activityController');
 const getDashboardStats = async (req, res) => {
   try {
     const student = await User.findById(req.user.id)
-      .select('firstName lastName email studentInfo parentInfo registrationStatus');
+      .select('firstName lastName email role studentInfo parentInfo registrationStatus');
 
     if (!student || student.role !== 'student') {
       return res.status(404).json({
@@ -51,12 +51,12 @@ const getDashboardStats = async (req, res) => {
           _id: null,
           totalQuizzes: { $sum: 1 },
           completedQuizzes: {
-            $sum: { $cond: [{ $eq: ['$assignedTo.status', 'completed'] }, 1, 0] }
+            $sum: { $cond: [{ $in: ['$assignedTo.status', ['submitted', 'graded']] }, 1, 0] }
           },
           pendingQuizzes: {
-            $sum: { $cond: [{ $eq: ['$assignedTo.status', 'assigned'] }, 1, 0] }
+            $sum: { $cond: [{ $in: ['$assignedTo.status', ['assigned', 'in_progress']] }, 1, 0] }
           },
-          avgScore: { $avg: '$assignedTo.percentage' }
+          avgScore: { $avg: '$assignedTo.score' }
         }
       }
     ]);
@@ -99,7 +99,7 @@ const getDashboardStats = async (req, res) => {
           },
           announcements: announcementStats,
           unreadMessages: unreadMessages || 0,
-          overallProgress: student.studentInfo?.currentGrade || 'Not Set'
+          overallProgress: student.studentInfo?.overallProgress || 0
         }
       }
     });
