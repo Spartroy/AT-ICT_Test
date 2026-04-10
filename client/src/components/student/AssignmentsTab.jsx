@@ -256,6 +256,7 @@ const AssignmentsTab = ({ studentData, stats, fetchUrl, readonly = false }) => {
   }
 
   return (
+    <>
     <div className="space-y-4 sm:space-y-6">
       {/* Header with Stats */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-gray-800/60 rounded-xl p-4 sm:p-6 shadow-2xl backdrop-blur-sm border-2 border-gray-600/50">
@@ -556,6 +557,7 @@ const AssignmentsTab = ({ studentData, stats, fetchUrl, readonly = false }) => {
 
     {/* Submission result modal */}
     <AnimatePresence>
+
       {successModal.open && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <motion.div
@@ -602,6 +604,7 @@ const AssignmentsTab = ({ studentData, stats, fetchUrl, readonly = false }) => {
         </div>
       )}
     </AnimatePresence>
+    </>
   );
 };
 
