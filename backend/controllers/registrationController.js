@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const Assignment = require('../models/Assignment');
 const Quiz = require('../models/Quiz');
+const Activity = require('../models/Activity');
 const { validationResult } = require('express-validator');
 const { createActivityFromEvent } = require('./activityController');
 
@@ -93,7 +94,8 @@ const submitRegistration = async (req, res) => {
       metadata: {
         year: year,
         session: session,
-        school: school
+        school: school,
+        registrationStatus: 'pending'
       },
       priority: 'high'
     });
@@ -451,6 +453,12 @@ const approveRegistration = async (req, res) => {
       // Don't fail the approval process if assignment assignment fails
     }
 
+    // Update activity metadata so the feed knows this registration is no longer pending
+    await Activity.updateOne(
+      { student: user._id, type: 'registration' },
+      { $set: { 'metadata.registrationStatus': 'approved' } }
+    ).catch(() => {});
+
     console.log(`✅ Registration approved for ${user.email}`);
     
     res.status(200).json({
@@ -505,6 +513,12 @@ const rejectRegistration = async (req, res) => {
     user.registrationStatus = 'rejected';
     
     await user.save();
+
+    // Update activity metadata so the feed knows this registration is no longer pending
+    await Activity.updateOne(
+      { student: user._id, type: 'registration' },
+      { $set: { 'metadata.registrationStatus': 'rejected' } }
+    ).catch(() => {});
 
     console.log(`❌ Registration rejected for ${user.email}`);
 

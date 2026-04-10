@@ -14,12 +14,11 @@ import {
   XMarkIcon,
   PhoneIcon,
   EnvelopeIcon,
-  AcademicCapIcon,
-  MapPinIcon,
   XCircleIcon,
   PaperClipIcon,
   CalendarIcon,
-  ChartBarIcon
+  ChartBarIcon,
+  ArrowDownTrayIcon
 } from '@heroicons/react/24/outline';
 
 // ─── Registration Action Modal ──────────────────────────────────────────────
@@ -37,15 +36,40 @@ const RegistrationActionModal = ({ activity, onClose, onApproved, onRejected }) 
   const fetchRegistration = async () => {
     try {
       const token = localStorage.getItem('token');
-      const registrationId = activity.relatedItem;
-      if (!registrationId) { setLoading(false); return; }
+      // The activity's relatedItem is the User _id — use the teacher/students endpoint
+      const studentId = activity.student?._id || activity.student || activity.relatedItem;
+      if (!studentId) { setLoading(false); return; }
 
-      const response = await fetch(`${API_ENDPOINTS.REGISTRATION.BASE}/${registrationId}`, {
+      const response = await fetch(`${API_ENDPOINTS.TEACHER.STUDENTS}/${studentId}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
+
       if (response.ok) {
         const data = await response.json();
-        setRegistration(data.data?.registration);
+        const user = data.data?.student;
+        if (user) {
+          // Map teacher/students response → registration shape
+          setRegistration({
+            _id: user._id,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            email: user.email,
+            contactNumber: user.contactNumber,
+            parentNumber: user.studentInfo?.parentContactNumber,
+            year: user.studentInfo?.year,
+            nationality: user.studentInfo?.nationality,
+            city: user.address?.city,
+            school: user.studentInfo?.school,
+            session: user.studentInfo?.session,
+            isRetaker: user.studentInfo?.isRetaker,
+            techKnowledge: user.studentInfo?.techKnowledge,
+            englishLevel: user.studentInfo?.englishLevel,
+            schoolType: user.studentInfo?.schoolType,
+            royalClass: user.studentInfo?.royalClass,
+            royalNationality: user.studentInfo?.royalNationality,
+            status: user.registrationStatus,
+          });
+        }
       }
     } catch (error) {
       console.error('Error fetching registration:', error);
@@ -54,11 +78,12 @@ const RegistrationActionModal = ({ activity, onClose, onApproved, onRejected }) 
     }
   };
 
+  const registrationId = activity.student?._id || activity.student || activity.relatedItem;
+
   const handleApprove = async () => {
     setActionLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const registrationId = activity.relatedItem;
       const response = await fetch(`${API_ENDPOINTS.REGISTRATION.BASE}/${registrationId}/approve`, {
         method: 'PUT',
         headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
@@ -87,7 +112,6 @@ const RegistrationActionModal = ({ activity, onClose, onApproved, onRejected }) 
     setActionLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const registrationId = activity.relatedItem;
       const response = await fetch(`${API_ENDPOINTS.REGISTRATION.BASE}/${registrationId}/reject`, {
         method: 'PUT',
         headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
@@ -108,7 +132,12 @@ const RegistrationActionModal = ({ activity, onClose, onApproved, onRejected }) 
     }
   };
 
-  const student = activity.student;
+  const isPending = registration?.status === 'pending';
+  const statusLabel = registration?.status === 'approved'
+    ? { text: 'Approved', cls: 'bg-green-500/20 text-green-300 border-green-500/30' }
+    : registration?.status === 'rejected'
+    ? { text: 'Rejected', cls: 'bg-red-500/20 text-red-300 border-red-500/30' }
+    : null;
 
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
@@ -141,9 +170,7 @@ const RegistrationActionModal = ({ activity, onClose, onApproved, onRejected }) 
         <div className="flex-1 overflow-y-auto p-5 space-y-5">
           {loading ? (
             <div className="space-y-3 animate-pulse">
-              {[...Array(5)].map((_, i) => (
-                <div key={i} className="h-12 bg-gray-700/50 rounded-xl" />
-              ))}
+              {[...Array(5)].map((_, i) => <div key={i} className="h-12 bg-gray-700/50 rounded-xl" />)}
             </div>
           ) : registration ? (
             <>
@@ -154,15 +181,22 @@ const RegistrationActionModal = ({ activity, onClose, onApproved, onRejected }) 
                     {registration.firstName?.[0]}{registration.lastName?.[0]}
                   </span>
                 </div>
-                <div>
-                  <h4 className="text-xl font-bold text-white">
-                    {registration.firstName} {registration.lastName}
-                  </h4>
-                  <p className="text-gray-400 text-sm">{registration.email}</p>
-                  <span className={`inline-block mt-1 px-2 py-0.5 rounded-full text-xs font-medium ${
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h4 className="text-xl font-bold text-white">
+                      {registration.firstName} {registration.lastName}
+                    </h4>
+                    {statusLabel && (
+                      <span className={`px-2 py-0.5 rounded-full text-xs font-semibold border ${statusLabel.cls}`}>
+                        {statusLabel.text}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-gray-400 text-sm mt-0.5">{registration.email}</p>
+                  <span className={`inline-block mt-1 px-2 py-0.5 rounded-full text-xs font-medium border ${
                     registration.schoolType === 'royal'
-                      ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30'
-                      : 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
+                      ? 'bg-purple-500/20 text-purple-300 border-purple-500/30'
+                      : 'bg-blue-500/20 text-blue-300 border-blue-500/30'
                   }`}>
                     {registration.schoolType === 'royal' ? '🏫 Royal College' : '🎓 Center Student'}
                   </span>
@@ -178,8 +212,8 @@ const RegistrationActionModal = ({ activity, onClose, onApproved, onRejected }) 
                   { label: 'School', value: registration.school || 'N/A' },
                   { label: 'Session', value: registration.session || 'N/A' },
                   { label: 'Retaker', value: registration.isRetaker ? 'Yes' : 'No' },
-                  { label: 'Tech Knowledge', value: `${registration.techKnowledge || 'N/A'}/10` },
-                  { label: 'English Level', value: `${registration.englishLevel || 'N/A'}/10` },
+                  { label: 'Tech Knowledge', value: registration.techKnowledge != null ? `${registration.techKnowledge}/10` : 'N/A' },
+                  { label: 'English Level', value: registration.englishLevel != null ? `${registration.englishLevel}/10` : 'N/A' },
                 ].map(({ label, value }) => (
                   <div key={label} className="bg-gray-800/60 rounded-xl p-3">
                     <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">{label}</p>
@@ -188,7 +222,7 @@ const RegistrationActionModal = ({ activity, onClose, onApproved, onRejected }) 
                 ))}
               </div>
 
-              {/* Contact Info */}
+              {/* Contact */}
               <div className="bg-gray-800/60 rounded-xl p-4 space-y-3">
                 <p className="text-xs text-gray-500 uppercase tracking-wide font-semibold">Contact Information</p>
                 <div className="flex items-center space-x-3">
@@ -207,7 +241,7 @@ const RegistrationActionModal = ({ activity, onClose, onApproved, onRejected }) 
                 )}
               </div>
 
-              {/* Reject reason form */}
+              {/* Reject form */}
               {showRejectForm && (
                 <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4 space-y-3">
                   <p className="text-sm font-semibold text-red-400">Rejection Reason</p>
@@ -224,7 +258,7 @@ const RegistrationActionModal = ({ activity, onClose, onApproved, onRejected }) 
             <div className="text-center py-8 text-gray-400">
               <UserIcon className="h-12 w-12 mx-auto mb-3 text-gray-600" />
               <p className="font-medium text-white">
-                {student ? `${student.firstName} ${student.lastName}` : 'Unknown Student'}
+                {activity.student ? `${activity.student.firstName} ${activity.student.lastName}` : 'Unknown Student'}
               </p>
               <p className="text-sm mt-1">{activity.description}</p>
               <p className="text-xs text-gray-500 mt-2">Could not load full registration details.</p>
@@ -259,7 +293,7 @@ const RegistrationActionModal = ({ activity, onClose, onApproved, onRejected }) 
               >
                 Close
               </button>
-              {registration && (
+              {isPending && (
                 <>
                   <button
                     onClick={() => setShowRejectForm(true)}
@@ -290,6 +324,7 @@ const RegistrationActionModal = ({ activity, onClose, onApproved, onRejected }) 
 const SubmissionModal = ({ activity, onClose }) => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [downloadingFile, setDownloadingFile] = useState(null);
 
   const isQuiz = activity.type === 'quiz_submission';
   const student = activity.student;
@@ -315,8 +350,8 @@ const SubmissionModal = ({ activity, onClose }) => {
         if (response.ok) {
           const result = await response.json();
           const quiz = result.data?.quiz || result.data;
-          const submission = quiz?.submissions?.find(
-            s => (s.student?._id || s.student) === studentId
+          const submission = quiz?.assignedTo?.find(
+            s => (s.student?._id || s.student)?.toString() === studentId?.toString()
           );
           setData({ item: quiz, submission });
         }
@@ -328,7 +363,7 @@ const SubmissionModal = ({ activity, onClose }) => {
           const result = await response.json();
           const submissions = result.data?.submissions || [];
           const submission = submissions.find(
-            s => (s.student?._id || s.student) === studentId
+            s => (s.student?._id || s.student)?.toString() === studentId?.toString()
           );
           setData({ item: result.data?.assignment, submission });
         }
@@ -340,9 +375,44 @@ const SubmissionModal = ({ activity, onClose }) => {
     }
   };
 
+  const handleDownload = async (filename) => {
+    setDownloadingFile(filename);
+    try {
+      const token = localStorage.getItem('token');
+      const assignmentId = activity.relatedItem;
+      const studentId = student?._id || student;
+      const url = `${API_ENDPOINTS.ASSIGNMENTS}/${assignmentId}/submissions/${studentId}/download/${encodeURIComponent(filename)}`;
+
+      const response = await fetch(url, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      if (!response.ok) {
+        showError('Failed to download file');
+        return;
+      }
+
+      const blob = await response.blob();
+      const objectUrl = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = objectUrl;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(objectUrl);
+    } catch {
+      showError('Failed to download file');
+    } finally {
+      setDownloadingFile(null);
+    }
+  };
+
   const accentColor = isQuiz ? 'purple' : 'blue';
   const Icon = isQuiz ? QuestionMarkCircleIcon : DocumentTextIcon;
   const title = isQuiz ? 'Quiz Submission' : 'Assignment Submission';
+
+  const attachments = data?.submission?.submission?.attachments || [];
 
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
@@ -355,8 +425,10 @@ const SubmissionModal = ({ activity, onClose }) => {
         {/* Header */}
         <div className="p-5 border-b border-gray-700 flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className={`h-10 w-10 rounded-xl bg-${accentColor}-500/20 border border-${accentColor}-500/30 flex items-center justify-center`}>
-              <Icon className={`h-5 w-5 text-${accentColor}-400`} />
+            <div className={`h-10 w-10 rounded-xl flex items-center justify-center border ${
+              isQuiz ? 'bg-purple-500/20 border-purple-500/30' : 'bg-blue-500/20 border-blue-500/30'
+            }`}>
+              <Icon className={`h-5 w-5 ${isQuiz ? 'text-purple-400' : 'text-blue-400'}`} />
             </div>
             <div>
               <h3 className="text-lg font-bold text-white">{title}</h3>
@@ -365,10 +437,7 @@ const SubmissionModal = ({ activity, onClose }) => {
               </p>
             </div>
           </div>
-          <button
-            onClick={onClose}
-            className="p-2 rounded-xl hover:bg-white/10 text-gray-400 hover:text-white transition-colors"
-          >
+          <button onClick={onClose} className="p-2 rounded-xl hover:bg-white/10 text-gray-400 hover:text-white transition-colors">
             <XMarkIcon className="h-5 w-5" />
           </button>
         </div>
@@ -377,7 +446,11 @@ const SubmissionModal = ({ activity, onClose }) => {
         <div className="flex-1 overflow-y-auto p-5 space-y-5">
           {/* Student Card */}
           <div className="flex items-center space-x-4 bg-gray-800/60 rounded-xl p-4">
-            <div className={`h-14 w-14 rounded-xl bg-gradient-to-br from-${accentColor}-500 to-${accentColor}-700 flex items-center justify-center ring-2 ring-${accentColor}-500/30 flex-shrink-0`}>
+            <div className={`h-14 w-14 rounded-xl flex items-center justify-center ring-2 flex-shrink-0 ${
+              isQuiz
+                ? 'bg-gradient-to-br from-purple-500 to-purple-700 ring-purple-500/30'
+                : 'bg-gradient-to-br from-blue-500 to-blue-700 ring-blue-500/30'
+            }`}>
               {student?.profileImage ? (
                 <img src={student.profileImage} alt="Profile" className="h-full w-full rounded-xl object-cover" />
               ) : (
@@ -394,7 +467,7 @@ const SubmissionModal = ({ activity, onClose }) => {
             </div>
           </div>
 
-          {/* Submission Metadata Badges */}
+          {/* Metadata Badges */}
           <div className="grid grid-cols-3 gap-3">
             <div className="bg-gray-800/60 rounded-xl p-3 text-center">
               <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Status</p>
@@ -406,7 +479,7 @@ const SubmissionModal = ({ activity, onClose }) => {
               <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">
                 {isQuiz ? 'Questions' : 'Attachments'}
               </p>
-              <p className={`text-sm font-bold text-${accentColor}-400`}>
+              <p className={`text-sm font-bold ${isQuiz ? 'text-purple-400' : 'text-blue-400'}`}>
                 {isQuiz ? (data?.item?.questions?.length ?? '—') : `${attachmentsCount} file(s)`}
               </p>
             </div>
@@ -418,81 +491,125 @@ const SubmissionModal = ({ activity, onClose }) => {
             </div>
           </div>
 
-          {/* Activity description pill */}
-          <div className={`bg-${accentColor}-500/10 border border-${accentColor}-500/20 rounded-xl p-4`}>
-            <p className={`text-sm text-${accentColor}-200`}>{activity.description}</p>
+          {/* Activity description */}
+          <div className={`rounded-xl p-4 border ${
+            isQuiz ? 'bg-purple-500/10 border-purple-500/20' : 'bg-blue-500/10 border-blue-500/20'
+          }`}>
+            <p className={`text-sm ${isQuiz ? 'text-purple-200' : 'text-blue-200'}`}>{activity.description}</p>
           </div>
 
-          {/* Item details */}
           {loading ? (
             <div className="space-y-3 animate-pulse">
               <div className="h-32 bg-gray-700/50 rounded-xl" />
             </div>
           ) : data?.item ? (
-            <div className="bg-gray-800/60 rounded-xl p-4 space-y-4">
-              <p className="text-xs text-gray-500 uppercase tracking-wide font-semibold">
-                {isQuiz ? 'Quiz Details' : 'Assignment Details'}
-              </p>
-              <p className="text-xl font-bold text-white">{data.item.title}</p>
-              {data.item.description && (
-                <p className="text-sm text-gray-400">{data.item.description}</p>
-              )}
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-2">
-                {!isQuiz && data.item.dueDate && (
-                  <div className="flex items-start space-x-2">
-                    <CalendarIcon className="h-4 w-4 text-gray-400 mt-0.5 flex-shrink-0" />
-                    <div>
-                      <p className="text-xs text-gray-500">Due Date</p>
-                      <p className="text-sm text-white font-medium">
-                        {new Date(data.item.dueDate).toLocaleDateString()}
+            <>
+              {/* Assignment / Quiz details */}
+              <div className="bg-gray-800/60 rounded-xl p-4 space-y-4">
+                <p className="text-xs text-gray-500 uppercase tracking-wide font-semibold">
+                  {isQuiz ? 'Quiz Details' : 'Assignment Details'}
+                </p>
+                <p className="text-xl font-bold text-white">{data.item.title}</p>
+                {data.item.description && (
+                  <p className="text-sm text-gray-400">{data.item.description}</p>
+                )}
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-1">
+                  {!isQuiz && data.item.dueDate && (
+                    <div className="flex items-start space-x-2">
+                      <CalendarIcon className="h-4 w-4 text-gray-400 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="text-xs text-gray-500">Due Date</p>
+                        <p className="text-sm text-white font-medium">
+                          {new Date(data.item.dueDate).toLocaleDateString()}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                  {data.item.maxScore !== undefined && (
+                    <div className="flex items-start space-x-2">
+                      <ChartBarIcon className="h-4 w-4 text-gray-400 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="text-xs text-gray-500">Max Score</p>
+                        <p className="text-sm text-white font-medium">{data.item.maxScore}</p>
+                      </div>
+                    </div>
+                  )}
+                  {!isQuiz && data.item.type && (
+                    <div className="flex items-start space-x-2">
+                      <DocumentTextIcon className="h-4 w-4 text-gray-400 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="text-xs text-gray-500">Type</p>
+                        <p className="text-sm text-white font-medium capitalize">{data.item.type}</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Student result */}
+                {data.submission && (
+                  <div className="pt-3 border-t border-gray-700 space-y-2">
+                    <p className="text-xs text-gray-500 uppercase tracking-wide font-semibold">Student's Result</p>
+                    {data.submission.score !== undefined && (
+                      <div className="flex items-center space-x-2">
+                        <span className="text-sm text-gray-300">Score:</span>
+                        <span className="text-lg font-bold text-green-400">
+                          {data.submission.score}
+                          {data.item.maxScore ? `/${data.item.maxScore}` : ''}
+                        </span>
+                      </div>
+                    )}
+                    {data.submission.feedback && (
+                      <p className="text-sm text-gray-400 italic">"{data.submission.feedback}"</p>
+                    )}
+                    {data.submission.submissionDate && (
+                      <p className="text-xs text-gray-500">
+                        Submitted: {new Date(data.submission.submissionDate).toLocaleString()}
                       </p>
-                    </div>
-                  </div>
-                )}
-                {data.item.maxScore !== undefined && (
-                  <div className="flex items-start space-x-2">
-                    <ChartBarIcon className="h-4 w-4 text-gray-400 mt-0.5 flex-shrink-0" />
-                    <div>
-                      <p className="text-xs text-gray-500">Max Score</p>
-                      <p className="text-sm text-white font-medium">{data.item.maxScore}</p>
-                    </div>
-                  </div>
-                )}
-                {!isQuiz && data.item.type && (
-                  <div className="flex items-start space-x-2">
-                    <DocumentTextIcon className="h-4 w-4 text-gray-400 mt-0.5 flex-shrink-0" />
-                    <div>
-                      <p className="text-xs text-gray-500">Type</p>
-                      <p className="text-sm text-white font-medium capitalize">{data.item.type}</p>
-                    </div>
+                    )}
                   </div>
                 )}
               </div>
 
-              {/* Student's submission result */}
-              {data.submission && (
-                <div className="mt-2 pt-4 border-t border-gray-700 space-y-2">
-                  <p className="text-xs text-gray-500 uppercase tracking-wide font-semibold">Student's Result</p>
-                  {data.submission.score !== undefined && (
-                    <div className="flex items-center space-x-2">
-                      <span className="text-sm text-gray-300">Score:</span>
-                      <span className="text-lg font-bold text-green-400">
-                        {data.submission.score}
-                        {data.item.maxScore ? `/${data.item.maxScore}` : ''}
-                      </span>
-                    </div>
-                  )}
-                  {data.submission.feedback && (
-                    <p className="text-sm text-gray-400 italic">"{data.submission.feedback}"</p>
-                  )}
-                  {data.submission.submittedAt && (
-                    <p className="text-xs text-gray-500">
-                      Submitted: {new Date(data.submission.submittedAt).toLocaleString()}
-                    </p>
-                  )}
+              {/* Attachments */}
+              {!isQuiz && attachments.length > 0 && (
+                <div className="bg-gray-800/60 rounded-xl p-4 space-y-3">
+                  <p className="text-xs text-gray-500 uppercase tracking-wide font-semibold flex items-center gap-2">
+                    <PaperClipIcon className="h-4 w-4" />
+                    Submitted Files ({attachments.length})
+                  </p>
+                  <div className="space-y-2">
+                    {attachments.map((file, idx) => (
+                      <div
+                        key={idx}
+                        className="flex items-center justify-between bg-gray-900/60 rounded-xl px-4 py-3 border border-gray-700/50"
+                      >
+                        <div className="flex items-center gap-3 min-w-0">
+                          <PaperClipIcon className="h-4 w-4 text-blue-400 flex-shrink-0" />
+                          <div className="min-w-0">
+                            <p className="text-sm text-white truncate font-medium">
+                              {file.originalName || file.filename}
+                            </p>
+                            {file.size && (
+                              <p className="text-xs text-gray-500">
+                                {(file.size / 1024).toFixed(1)} KB
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => handleDownload(file.filename)}
+                          disabled={downloadingFile === file.filename}
+                          className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 rounded-lg text-xs font-semibold border border-blue-500/30 transition-all disabled:opacity-50 flex-shrink-0 ml-3"
+                        >
+                          <ArrowDownTrayIcon className="h-3.5 w-3.5" />
+                          <span>{downloadingFile === file.filename ? 'Downloading...' : 'Download'}</span>
+                        </button>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
-            </div>
+            </>
           ) : null}
         </div>
 
@@ -510,14 +627,19 @@ const SubmissionModal = ({ activity, onClose }) => {
   );
 };
 
-// ─── Action Button per Activity Type ────────────────────────────────────────
+// ─── Activity action button (type-specific) ──────────────────────────────────
 const ActivityActionButton = ({ activity, onOpenRegistration, onOpenSubmission }) => {
-  if (activity.type === 'registration' && activity.relatedItem) {
+  if (activity.type === 'registration') {
+    // Only show Review for pending registrations
+    // metadata.registrationStatus is set by backend; undefined = old activity (show anyway)
+    const status = activity.metadata?.registrationStatus;
+    if (status === 'approved' || status === 'rejected') return null;
+
     return (
       <button
         onClick={(e) => { e.stopPropagation(); onOpenRegistration(activity); }}
-        className="flex-shrink-0 flex items-center space-x-1.5 px-3 py-1.5 bg-orange-500/20 hover:bg-orange-500/30 text-orange-300 hover:text-orange-200 rounded-lg transition-all duration-200 text-xs font-semibold border border-orange-500/30 hover:border-orange-500/50"
-        title="View application details and decide"
+        className="flex-shrink-0 flex items-center space-x-1.5 px-3 py-1.5 bg-orange-500/20 hover:bg-orange-500/30 text-orange-300 hover:text-orange-200 rounded-lg transition-all text-xs font-semibold border border-orange-500/30 hover:border-orange-500/50"
+        title="Review application"
       >
         <UserIcon className="h-3.5 w-3.5" />
         <span className="hidden sm:inline">Review</span>
@@ -530,10 +652,10 @@ const ActivityActionButton = ({ activity, onOpenRegistration, onOpenSubmission }
     return (
       <button
         onClick={(e) => { e.stopPropagation(); onOpenSubmission(activity); }}
-        className={`flex-shrink-0 flex items-center space-x-1.5 px-3 py-1.5 rounded-lg transition-all duration-200 text-xs font-semibold border ${
+        className={`flex-shrink-0 flex items-center space-x-1.5 px-3 py-1.5 rounded-lg transition-all text-xs font-semibold border ${
           isQuiz
-            ? 'bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 hover:text-purple-200 border-purple-500/30 hover:border-purple-500/50'
-            : 'bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 hover:text-blue-200 border-blue-500/30 hover:border-blue-500/50'
+            ? 'bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 hover:text-purple-200 border-purple-500/30'
+            : 'bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 hover:text-blue-200 border-blue-500/30'
         }`}
         title={isQuiz ? 'View quiz submission' : 'View assignment submission'}
       >
@@ -552,9 +674,8 @@ const RecentActivities = ({ onStudentClick, onRegistrationUpdate }) => {
   const [loading, setLoading] = useState(true);
   const [unreadCount, setUnreadCount] = useState(0);
 
-  // Modal state
-  const [registrationModal, setRegistrationModal] = useState(null); // holds activity object
-  const [submissionModal, setSubmissionModal] = useState(null);     // holds activity object
+  const [registrationModal, setRegistrationModal] = useState(null);
+  const [submissionModal, setSubmissionModal] = useState(null);
 
   useEffect(() => {
     fetchActivities();
@@ -572,15 +693,10 @@ const RecentActivities = ({ onStudentClick, onRegistrationUpdate }) => {
         setActivities(data.data.activities || []);
         setUnreadCount(data.data.unreadCount || 0);
       } else {
-        const errorData = await response.json().catch(() => ({}));
         setActivities([]);
         setUnreadCount(0);
-        if (response.status !== 500) {
-          showError(`Failed to fetch activities: ${errorData.message || 'Unknown error'}`);
-        }
       }
-    } catch (error) {
-      console.error('Error fetching activities:', error);
+    } catch {
       setActivities([]);
       setUnreadCount(0);
     } finally {
@@ -596,42 +712,25 @@ const RecentActivities = ({ onStudentClick, onRegistrationUpdate }) => {
         headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({ activityIds })
       });
-
       if (response.ok) {
         setActivities(prev =>
-          prev.map(activity =>
-            activityIds.includes(activity._id) ? { ...activity, isRead: true } : activity
-          )
+          prev.map(a => activityIds.includes(a._id) ? { ...a, isRead: true } : a)
         );
         setUnreadCount(prev => Math.max(0, prev - activityIds.length));
         showSuccess('Activities marked as read');
       }
-    } catch (error) {
-      console.error('Error marking activities as read:', error);
+    } catch {
       showError('Failed to mark activities as read');
-    }
-  };
-
-  const handleActivityClick = (activity) => {
-    const studentId = activity.student?._id || activity.student;
-    if (!studentId) return;
-
-    let targetTab = 'summary';
-    if (activity.type === 'assignment_submission') targetTab = 'assignments';
-    else if (activity.type === 'quiz_submission') targetTab = 'quizzes';
-
-    if (onStudentClick) {
-      onStudentClick(studentId, targetTab);
     }
   };
 
   const getActivityIcon = (type) => {
     switch (type) {
-      case 'registration':       return <UserIcon className="h-5 w-5" />;
+      case 'registration':          return <UserIcon className="h-5 w-5" />;
       case 'assignment_submission': return <DocumentTextIcon className="h-5 w-5" />;
-      case 'quiz_submission':    return <QuestionMarkCircleIcon className="h-5 w-5" />;
-      case 'message':            return <ChatBubbleLeftRightIcon className="h-5 w-5" />;
-      default:                   return <ClockIcon className="h-5 w-5" />;
+      case 'quiz_submission':       return <QuestionMarkCircleIcon className="h-5 w-5" />;
+      case 'message':               return <ChatBubbleLeftRightIcon className="h-5 w-5" />;
+      default:                      return <ClockIcon className="h-5 w-5" />;
     }
   };
 
@@ -644,18 +743,13 @@ const RecentActivities = ({ onStudentClick, onRegistrationUpdate }) => {
 
   const formatTimeAgo = (dateString) => {
     const date = new Date(dateString);
-    const now = new Date();
-    const diffInMinutes = Math.floor((now - date) / (1000 * 60));
-
+    const diffInMinutes = Math.floor((Date.now() - date) / 60000);
     if (diffInMinutes < 1)  return 'Just now';
     if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
-
-    const diffInHours = Math.floor(diffInMinutes / 60);
-    if (diffInHours < 24)   return `${diffInHours}h ago`;
-
-    const diffInDays = Math.floor(diffInHours / 24);
-    if (diffInDays < 7)     return `${diffInDays}d ago`;
-
+    const h = Math.floor(diffInMinutes / 60);
+    if (h < 24) return `${h}h ago`;
+    const d = Math.floor(h / 24);
+    if (d < 7)  return `${d}d ago`;
     return date.toLocaleDateString();
   };
 
@@ -696,8 +790,8 @@ const RecentActivities = ({ onStudentClick, onRegistrationUpdate }) => {
               </span>
               <button
                 onClick={() => {
-                  const unreadIds = activities.filter(a => !a.isRead).map(a => a._id);
-                  if (unreadIds.length > 0) markAsRead(unreadIds);
+                  const ids = activities.filter(a => !a.isRead).map(a => a._id);
+                  if (ids.length > 0) markAsRead(ids);
                 }}
                 className="text-blue-400 hover:text-blue-300 text-sm font-medium transition-colors"
               >
@@ -707,7 +801,7 @@ const RecentActivities = ({ onStudentClick, onRegistrationUpdate }) => {
           )}
         </div>
 
-        {/* Activity List */}
+        {/* List */}
         <div className="space-y-3 lg:space-y-4">
           {activities.length === 0 ? (
             <div className="text-center py-10 text-gray-400">
@@ -726,7 +820,7 @@ const RecentActivities = ({ onStudentClick, onRegistrationUpdate }) => {
                   !activity.isRead ? 'bg-blue-500/10 border border-blue-500/20' : ''
                 }`}
               >
-                {/* Avatar / Icon */}
+                {/* Avatar */}
                 <div className="flex-shrink-0">
                   <div className={`h-10 w-10 lg:h-12 lg:w-12 rounded-xl flex items-center justify-center border ${getActivityColor(activity.type, activity.priority)}`}>
                     {activity.student?.profileImage ? (
@@ -746,26 +840,22 @@ const RecentActivities = ({ onStudentClick, onRegistrationUpdate }) => {
                 {/* Content */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
-                    <p className="text-sm lg:text-base text-white truncate">
-                      {activity.description}
-                    </p>
+                    <p className="text-sm lg:text-base text-white truncate">{activity.description}</p>
                     {!activity.isRead && (
                       <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0" />
                     )}
                   </div>
                   <div className="flex items-center gap-3 flex-wrap">
                     <span className="text-xs text-gray-400">{formatTimeAgo(activity.createdAt)}</span>
-                    <div className="flex items-center gap-1">
-                      <span className="text-gray-500">{getActivityIcon(activity.type)}</span>
-                      <span className="text-xs text-gray-500 capitalize">
-                        {activity.type.replace(/_/g, ' ')}
-                      </span>
+                    <div className="flex items-center gap-1 text-gray-500">
+                      {getActivityIcon(activity.type)}
+                      <span className="text-xs capitalize">{activity.type.replace(/_/g, ' ')}</span>
                     </div>
                     {activity.priority === 'urgent' && (
                       <ExclamationTriangleIcon className="h-4 w-4 text-red-400 flex-shrink-0" />
                     )}
                   </div>
-                  {activity.metadata && Object.keys(activity.metadata).length > 0 && (
+                  {activity.metadata && (activity.metadata.isLate || activity.metadata.attachmentsCount > 0) && (
                     <div className="mt-1.5 flex items-center gap-3 flex-wrap">
                       {activity.metadata.isLate && (
                         <span className="text-xs text-red-400">⚠️ Late submission</span>
@@ -780,16 +870,13 @@ const RecentActivities = ({ onStudentClick, onRegistrationUpdate }) => {
                   )}
                 </div>
 
-                {/* Action buttons area */}
+                {/* Actions */}
                 <div className="flex items-center gap-2 flex-shrink-0">
-                  {/* Type-specific action button */}
                   <ActivityActionButton
                     activity={activity}
                     onOpenRegistration={setRegistrationModal}
                     onOpenSubmission={setSubmissionModal}
                   />
-
-                  {/* Mark as read */}
                   {!activity.isRead && (
                     <button
                       onClick={(e) => { e.stopPropagation(); markAsRead([activity._id]); }}
@@ -814,10 +901,21 @@ const RecentActivities = ({ onStudentClick, onRegistrationUpdate }) => {
             activity={registrationModal}
             onClose={() => setRegistrationModal(null)}
             onApproved={() => {
+              // Optimistically hide the Review button for this activity
+              setActivities(prev => prev.map(a =>
+                a._id === registrationModal._id
+                  ? { ...a, metadata: { ...a.metadata, registrationStatus: 'approved' } }
+                  : a
+              ));
               fetchActivities();
               if (onRegistrationUpdate) onRegistrationUpdate();
             }}
             onRejected={() => {
+              setActivities(prev => prev.map(a =>
+                a._id === registrationModal._id
+                  ? { ...a, metadata: { ...a.metadata, registrationStatus: 'rejected' } }
+                  : a
+              ));
               fetchActivities();
               if (onRegistrationUpdate) onRegistrationUpdate();
             }}

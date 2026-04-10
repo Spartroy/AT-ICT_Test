@@ -26,6 +26,7 @@ const AssignmentsTab = ({ studentData, stats, fetchUrl, readonly = false }) => {
   const [expandedAssignments, setExpandedAssignments] = useState(new Set());
   const [selectedFiles, setSelectedFiles] = useState({});
   const [submitting, setSubmitting] = useState(false);
+  const [successModal, setSuccessModal] = useState({ open: false, title: '', message: '' });
 
   useEffect(() => {
     fetchAssignments();
@@ -139,11 +140,16 @@ const AssignmentsTab = ({ studentData, stats, fetchUrl, readonly = false }) => {
   };
 
   const submitAssignment = async (assignmentId) => {
-    if (readonly) return; // disabled in read-only mode (parent)
+    if (readonly) return;
     const files = selectedFiles[assignmentId] || [];
 
     if (files.length === 0) {
-      alert('Please select files to submit');
+      setSuccessModal({
+        open: true,
+        isError: true,
+        title: 'No Files Selected',
+        message: 'Please select at least one file before submitting.'
+      });
       return;
     }
 
@@ -151,30 +157,43 @@ const AssignmentsTab = ({ studentData, stats, fetchUrl, readonly = false }) => {
     try {
       const token = localStorage.getItem('token');
       const formData = new FormData();
-
-      files.forEach(file => {
-        formData.append('files', file);
-      });
+      files.forEach(file => formData.append('files', file));
 
       const response = await fetch(`${API_ENDPOINTS.STUDENT.ASSIGNMENTS}/${assignmentId}/submit`, {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
+        headers: { 'Authorization': `Bearer ${token}` },
         body: formData
       });
 
       if (response.ok) {
-        alert('✅ Assignment submitted successfully!');
+        const assignment = assignments.find(a => a._id === assignmentId);
         setSelectedFiles(prev => ({ ...prev, [assignmentId]: [] }));
-        fetchAssignments(); // Refresh assignments
+        setExpandedAssignments(prev => { const s = new Set(prev); s.delete(assignmentId); return s; });
+        fetchAssignments();
+        setSuccessModal({
+          open: true,
+          isError: false,
+          title: 'Assignment Submitted!',
+          message: `"${assignment?.title || 'Your assignment'}" has been submitted successfully. Your teacher will review and grade it shortly.`,
+          filesCount: files.length
+        });
       } else {
         const errorData = await response.json();
-        alert(`❌ Error: ${errorData.message}`);
+        setSuccessModal({
+          open: true,
+          isError: true,
+          title: 'Submission Failed',
+          message: errorData.message || 'An unexpected error occurred. Please try again.'
+        });
       }
     } catch (error) {
       console.error('Error submitting assignment:', error);
-      alert('❌ Error submitting assignment');
+      setSuccessModal({
+        open: true,
+        isError: true,
+        title: 'Submission Failed',
+        message: 'Could not connect to the server. Please check your connection and try again.'
+      });
     } finally {
       setSubmitting(false);
     }
@@ -534,6 +553,55 @@ const AssignmentsTab = ({ studentData, stats, fetchUrl, readonly = false }) => {
         )}
       </div>
     </div>
+
+    {/* Submission result modal */}
+    <AnimatePresence>
+      {successModal.open && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            className="bg-gray-900/95 border border-gray-700 rounded-2xl shadow-2xl max-w-md w-full p-6 text-center"
+          >
+            <div className={`mx-auto h-16 w-16 rounded-full flex items-center justify-center mb-4 ${
+              successModal.isError ? 'bg-red-500/20' : 'bg-green-500/20'
+            }`}>
+              {successModal.isError ? (
+                <XCircleIcon className="h-9 w-9 text-red-400" />
+              ) : (
+                <CheckCircleIcon className="h-9 w-9 text-green-400" />
+              )}
+            </div>
+
+            <h3 className={`text-xl font-bold mb-2 ${successModal.isError ? 'text-red-300' : 'text-green-300'}`}>
+              {successModal.title}
+            </h3>
+
+            <p className="text-gray-300 text-sm leading-relaxed mb-1">
+              {successModal.message}
+            </p>
+
+            {!successModal.isError && successModal.filesCount > 0 && (
+              <p className="text-gray-500 text-xs mt-2">
+                {successModal.filesCount} file{successModal.filesCount > 1 ? 's' : ''} uploaded successfully
+              </p>
+            )}
+
+            <button
+              onClick={() => setSuccessModal({ open: false, title: '', message: '' })}
+              className={`mt-6 w-full py-3 rounded-xl font-semibold text-white transition-colors ${
+                successModal.isError
+                  ? 'bg-red-600 hover:bg-red-700'
+                  : 'bg-green-600 hover:bg-green-700'
+              }`}
+            >
+              {successModal.isError ? 'Try Again' : 'Done'}
+            </button>
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
   );
 };
 
