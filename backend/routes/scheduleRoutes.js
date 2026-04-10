@@ -15,7 +15,11 @@ const {
   createSchedule,
   getStudentsByClassification,
   assignStudentsToSpecificSchedule,
-  getSpecificSchedule
+  getSpecificSchedule,
+  getTeacherWeeklyOverview,
+  deleteSchedule,
+  updateSpecificSchedule,
+  removeStudentFromSpecificSchedule
 } = require('../controllers/scheduleController');
 
 // Validation middleware for schedule
@@ -66,11 +70,17 @@ router.post('/assign-students', assignStudentsToSchedule);
 router.get('/assigned-students', getAssignedStudents);
 router.delete('/students/:studentId', removeStudentFromSchedule);
 
+// Teacher weekly overview (all schedules combined)
+router.get('/weekly-overview', getTeacherWeeklyOverview);
+
 // Multiple schedules management routes
 router.get('/schedules', getAllSchedules);
 router.post('/schedules', createSchedule);
 router.get('/schedules/students', getStudentsByClassification);
 router.get('/schedules/:scheduleId', getSpecificSchedule);
+router.put('/schedules/:scheduleId', updateSpecificSchedule);
+router.delete('/schedules/:scheduleId', deleteSchedule);
 router.post('/schedules/:scheduleId/assign-students', assignStudentsToSpecificSchedule);
+router.delete('/schedules/:scheduleId/students/:studentId', removeStudentFromSpecificSchedule);
 
 module.exports = router; 

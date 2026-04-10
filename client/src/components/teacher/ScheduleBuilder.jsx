@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { API_ENDPOINTS } from '../../config/api';
 import QRCode from 'react-qr-code';
@@ -14,941 +14,930 @@ import {
   DocumentTextIcon,
   BookOpenIcon,
   ComputerDesktopIcon,
-  QrCodeIcon
+  QrCodeIcon,
+  UserGroupIcon,
+  TableCellsIcon,
+  ListBulletIcon,
+  MagnifyingGlassIcon,
+  CheckIcon,
+  ChevronDownIcon,
+  ChevronUpIcon,
+  UserIcon,
+  ClockIcon,
+  GlobeAltIcon
 } from '@heroicons/react/24/outline';
 
-const ScheduleBuilder = () => {
-  // Constants first
-  const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-  
-  const sessionTypes = [
-    { value: 'theory', label: 'Theory', icon: BookOpenIcon, color: 'blue' },
-    { value: 'practical', label: 'Practical', icon: ComputerDesktopIcon, color: 'green' },
-    { value: 'revision', label: 'Revision', icon: AcademicCapIcon, color: 'purple' },
-    { value: 'quiz', label: 'Quiz', icon: DocumentTextIcon, color: 'red' }
-  ];
+const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+const SHORT_DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
-  // Helper functions
-  function initializeWeekSchedule() {
-    return days.map(day => ({
-      day,
-      sessions: []
-    }));
-  }
+const SESSION_TYPES = [
+  { value: 'theory',    label: 'Theory',    icon: BookOpenIcon,       color: 'blue'   },
+  { value: 'practical', label: 'Practical', icon: ComputerDesktopIcon, color: 'green' },
+  { value: 'revision',  label: 'Revision',  icon: AcademicCapIcon,    color: 'purple' },
+  { value: 'quiz',      label: 'Quiz',      icon: DocumentTextIcon,   color: 'red'    },
+];
 
-  // State declarations
-  const [schedule, setSchedule] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [qrToken, setQrToken] = useState('');
-  const [showQr, setShowQr] = useState(false);
-  const [showStudentModal, setShowStudentModal] = useState(false);
-  const [students, setStudents] = useState([]);
-  const [selectedStudents, setSelectedStudents] = useState([]);
-  const [assignedStudents, setAssignedStudents] = useState([]);
-  const [loadingStudents, setLoadingStudents] = useState(false);
+const TYPE_COLORS = {
+  theory:    { bg: 'bg-blue-600',   light: 'bg-blue-900/30',   border: 'border-blue-500',   text: 'text-blue-300'   },
+  practical: { bg: 'bg-green-600',  light: 'bg-green-900/30',  border: 'border-green-500',  text: 'text-green-300'  },
+  revision:  { bg: 'bg-purple-600', light: 'bg-purple-900/30', border: 'border-purple-500', text: 'text-purple-300' },
+  quiz:      { bg: 'bg-red-600',    light: 'bg-red-900/30',    border: 'border-red-500',    text: 'text-red-300'    },
+};
 
+function initWeek() {
+  return DAYS.map(day => ({ day, sessions: [] }));
+}
+
+function formatTime(t) {
+  try {
+    return new Date(`2000-01-01T${t}`).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+  } catch { return t; }
+}
+
+// ─── Session Editor Modal ──────────────────────────────────────────────────
+function SessionEditorModal({ schedule, onSave, onClose, saving }) {
   const [formData, setFormData] = useState({
-    title: 'Class Schedule',
-    notes: '',
-    schedule: initializeWeekSchedule()
+    title: schedule?.title || 'New Schedule',
+    notes: schedule?.notes || '',
+    schedule: schedule?.schedule || initWeek(),
   });
 
-  useEffect(() => {
-    fetchSchedule();
-    fetchStudents();
-    fetchAssignedStudents();
-  }, []);
-
-  const fetchSchedule = async () => {
-    try {
-      setLoading(true);
-      const token = getValidToken();
-      
-      if (!token) {
-        console.error('Authentication token is missing or invalid');
-        setLoading(false);
-        clearAuth();
-        setTimeout(() => {
-          redirectToLogin('invalid_token');
-        }, 100);
-        return;
-      }
-      
-      const response = await fetch(API_ENDPOINTS.TEACHER.SCHEDULE, {
-        headers: setAuthHeaders({
-          'Content-Type': 'application/json'
-        })
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        console.log('Schedule API response:', data);
-        const scheduleData = data.data.schedule;
-        console.log('Schedule data:', scheduleData);
-        setSchedule(scheduleData);
-        
-        // Ensure the schedule data is properly structured
-        if (scheduleData) {
-          console.log('Schedule days:', scheduleData.schedule?.length);
-          setFormData({
-            title: scheduleData.title || 'Class Schedule',
-            notes: scheduleData.notes || '',
-            schedule: scheduleData.schedule || initializeWeekSchedule()
-          });
-        } else {
-          // If no schedule exists, initialize with empty schedule
-          setFormData({
-            title: 'Class Schedule',
-            notes: '',
-            schedule: initializeWeekSchedule()
-          });
-        }
-      } else {
-        console.error('Failed to fetch schedule');
-      }
-    } catch (error) {
-      console.error('Error fetching schedule:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleSaveSchedule = async () => {
-    try {
-      setSaving(true);
-      const token = getValidToken();
-      
-      if (!token) {
-        showWarning('Authentication token is missing or invalid. Please log in again.');
-        clearAuth();
-        redirectToLogin('invalid_token');
-        return;
-      }
-      
-      // Debug the data being sent
-      console.log('Sending schedule data:', formData);
-      
-      // Validate each day's sessions have the required fields and fix any missing/invalid data
-      const validatedFormData = {
-        title: formData.title || "Class Schedule",
-        notes: formData.notes || "",
-        schedule: formData.schedule.map(day => {
-          // Ensure day is one of the valid days
-          if (!['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].includes(day.day)) {
-            console.error(`Invalid day found: ${day.day}, defaulting to Monday`);
-            day.day = 'Monday';
-          }
-          
-          return {
-            day: day.day,
-            sessions: Array.isArray(day.sessions) ? day.sessions.map(session => {
-              // Ensure all required fields are present
-              if (!session.topic || session.topic.trim() === '') {
-                console.warn('Empty topic found, setting to "Untitled Session"');
-              }
-              
-              return {
-                startTime: session.startTime || "09:00", 
-                endTime: session.endTime || "10:30",
-                type: ['theory', 'practical', 'revision', 'quiz'].includes(session.type) 
-                  ? session.type 
-                  : "theory",
-                topic: session.topic?.trim() || "Untitled Session",
-                isActive: session.isActive !== false // default to true if not explicitly false
-              };
-            }) : [] // If sessions is not an array, use empty array
-          };
-        })
-      };
-      
-
-      
-      // Log the validated form data
-      console.log('Sending validated form data:', JSON.stringify(validatedFormData));
-      
-      // Send the actual validated form data
-      try {
-        const response = await fetch(API_ENDPOINTS.TEACHER.SCHEDULE, {
-          method: 'POST',
-          headers: setAuthHeaders({
-            'Content-Type': 'application/json'
-          }),
-          body: JSON.stringify(validatedFormData)
-        });
-        
-        // Log the complete response for debugging
-        console.log('Response status:', response.status);
-        console.log('Response headers:', [...response.headers.entries()]);
-        
-        if (response.ok) {
-          const data = await response.json();
-          console.log('Schedule saved successfully:', data);
-          showSuccess('Schedule saved successfully!');
-          setSchedule(data.data.schedule);
-          setShowEditModal(false);
-          await fetchSchedule(); // Refresh the schedule data
-        } else {
-          const errorData = await response.json();
-          console.error('Server error response:', errorData);
-          showError(errorData.message || 'Failed to save schedule');
-        }
-      } catch (fetchError) {
-        console.error('Fetch error:', fetchError);
-        showError(`Network error: ${fetchError.message}`);
-      }
-    } catch (error) {
-      console.error('Error saving schedule:', error);
-      showError(`Error saving schedule: ${error.message}`);
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleResetSchedule = async () => {
-    if (!window.confirm('Are you sure you want to reset the entire schedule? This will remove all sessions.')) return;
-
-    try {
-      setSaving(true);
-      const token = getValidToken();
-      
-      if (!token) {
-        showWarning('Authentication token is missing or invalid. Please log in again.');
-        clearAuth();
-        redirectToLogin('invalid_token');
-        return;
-      }
-      
-      const response = await fetch(API_ENDPOINTS.TEACHER.SCHEDULE, {
-        method: 'DELETE',
-        headers: setAuthHeaders()
-      });
-
-      if (response.ok) {
-        showSuccess('Schedule reset successfully!');
-        await fetchSchedule();
-      } else {
-        const errorData = await response.json();
-        showError(`Error: ${errorData.message}`);
-      }
-    } catch (error) {
-      console.error('Error resetting schedule:', error);
-      showError('Error resetting schedule');
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const fetchStudents = async () => {
-    try {
-      setLoadingStudents(true);
-      const token = getValidToken();
-      
-      if (!token) {
-        console.error('Authentication token is missing or invalid');
-        return;
-      }
-      
-      const response = await fetch(API_ENDPOINTS.TEACHER.STUDENTS, {
-        headers: setAuthHeaders({
-          'Content-Type': 'application/json'
-        })
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setStudents(data.data.students || []);
-      } else {
-        console.error('Failed to fetch students');
-      }
-    } catch (error) {
-      console.error('Error fetching students:', error);
-    } finally {
-      setLoadingStudents(false);
-    }
-  };
-
-  const fetchAssignedStudents = async () => {
-    try {
-      const token = getValidToken();
-      
-      if (!token) {
-        console.error('Authentication token is missing or invalid');
-        return;
-      }
-      
-      const response = await fetch(API_ENDPOINTS.SCHEDULE.ASSIGNED_STUDENTS, {
-        headers: setAuthHeaders({
-          'Content-Type': 'application/json'
-        })
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setAssignedStudents(data.data.assignedStudents || []);
-      } else {
-        console.error('Failed to fetch assigned students');
-      }
-    } catch (error) {
-      console.error('Error fetching assigned students:', error);
-    }
-  };
-
-  const handleAssignStudents = async () => {
-    try {
-      setSaving(true);
-      const token = getValidToken();
-      
-      if (!token) {
-        showWarning('Authentication token is missing or invalid. Please log in again.');
-        clearAuth();
-        redirectToLogin('invalid_token');
-        return;
-      }
-      
-      const response = await fetch(API_ENDPOINTS.SCHEDULE.ASSIGN_STUDENTS, {
-        method: 'POST',
-        headers: setAuthHeaders({
-          'Content-Type': 'application/json'
-        }),
-        body: JSON.stringify({ studentIds: selectedStudents })
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        showSuccess(data.message);
-        setShowStudentModal(false);
-        setSelectedStudents([]);
-        await fetchAssignedStudents();
-      } else {
-        const errorData = await response.json();
-        showError(errorData.message || 'Failed to assign students');
-      }
-    } catch (error) {
-      console.error('Error assigning students:', error);
-      showError('Error assigning students');
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleRemoveStudent = async (studentId) => {
-    try {
-      const token = getValidToken();
-      
-      if (!token) {
-        showWarning('Authentication token is missing or invalid. Please log in again.');
-        clearAuth();
-        redirectToLogin('invalid_token');
-        return;
-      }
-      
-      const response = await fetch(`${API_ENDPOINTS.SCHEDULE.REMOVE_STUDENT}/${studentId}`, {
-        method: 'DELETE',
-        headers: setAuthHeaders()
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        showSuccess(data.message);
-        await fetchAssignedStudents();
-      } else {
-        const errorData = await response.json();
-        showError(errorData.message || 'Failed to remove student');
-      }
-    } catch (error) {
-      console.error('Error removing student:', error);
-      showError('Error removing student');
-    }
-  };
-
   const addSession = (dayIndex) => {
-    const newSchedule = [...formData.schedule];
-    
-    // Find the last session of the day to suggest a better start time
-    const daySessions = newSchedule[dayIndex].sessions;
-    let suggestedStartTime = '09:00';
-    let suggestedEndTime = '10:30';
-    
+    const daySessions = formData.schedule[dayIndex].sessions;
+    let start = '09:00', end = '10:30';
     if (daySessions.length > 0) {
-      // Get the end time of the last session and add 30 minutes
-      const lastSession = daySessions[daySessions.length - 1];
-      const lastEndTime = new Date(`2000-01-01T${lastSession.endTime}`);
-      const suggestedStart = new Date(lastEndTime.getTime() + 30 * 60000); // Add 30 minutes
-      suggestedStartTime = suggestedStart.toTimeString().slice(0, 5);
-      
-      // Set end time to 1.5 hours after start time
-      const suggestedEnd = new Date(suggestedStart.getTime() + 90 * 60000); // Add 1.5 hours
-      suggestedEndTime = suggestedEnd.toTimeString().slice(0, 5);
+      const last = daySessions[daySessions.length - 1];
+      const s = new Date(new Date(`2000-01-01T${last.endTime}`).getTime() + 30 * 60000);
+      start = s.toTimeString().slice(0, 5);
+      end = new Date(s.getTime() + 90 * 60000).toTimeString().slice(0, 5);
     }
-    
-    newSchedule[dayIndex].sessions.push({
-      startTime: suggestedStartTime,
-      endTime: suggestedEndTime,
-      type: 'theory',
-      topic: '',
-      isActive: true
-    });
-    setFormData({ ...formData, schedule: newSchedule });
+    const updated = [...formData.schedule];
+    updated[dayIndex].sessions.push({ startTime: start, endTime: end, type: 'theory', topic: '', isActive: true });
+    setFormData(f => ({ ...f, schedule: updated }));
   };
 
-  const removeSession = (dayIndex, sessionIndex) => {
-    const newSchedule = [...formData.schedule];
-    newSchedule[dayIndex].sessions.splice(sessionIndex, 1);
-    setFormData({ ...formData, schedule: newSchedule });
+  const removeSession = (di, si) => {
+    const updated = [...formData.schedule];
+    updated[di].sessions.splice(si, 1);
+    setFormData(f => ({ ...f, schedule: updated }));
   };
 
-  const updateSession = (dayIndex, sessionIndex, field, value) => {
-    const newSchedule = [...formData.schedule];
-    const session = newSchedule[dayIndex].sessions[sessionIndex];
-    
-    // Update the field
+  const updateSession = (di, si, field, value) => {
+    const updated = [...formData.schedule];
+    const session = updated[di].sessions[si];
     session[field] = value;
-    
-    // If updating start time, ensure end time is after start time
-    if (field === 'startTime' && session.endTime) {
-      const startTime = new Date(`2000-01-01T${value}`);
-      const endTime = new Date(`2000-01-01T${session.endTime}`);
-      
-      if (endTime <= startTime) {
-        // Set end time to 1.5 hours after start time
-        const newEndTime = new Date(startTime.getTime() + 90 * 60000);
-        session.endTime = newEndTime.toTimeString().slice(0, 5);
-      }
+    if (field === 'startTime') {
+      const s = new Date(`2000-01-01T${value}`);
+      const e = new Date(`2000-01-01T${session.endTime}`);
+      if (e <= s) session.endTime = new Date(s.getTime() + 90 * 60000).toTimeString().slice(0, 5);
     }
-    
-    // If updating end time, ensure it's after start time
-    if (field === 'endTime' && session.startTime) {
-      const startTime = new Date(`2000-01-01T${session.startTime}`);
-      const endTime = new Date(`2000-01-01T${value}`);
-      
-      if (endTime <= startTime) {
-        // Set end time to 1.5 hours after start time
-        const newEndTime = new Date(startTime.getTime() + 90 * 60000);
-        session.endTime = newEndTime.toTimeString().slice(0, 5);
-        return; // Don't update with invalid time
-      }
+    if (field === 'endTime') {
+      const s = new Date(`2000-01-01T${session.startTime}`);
+      const e = new Date(`2000-01-01T${value}`);
+      if (e <= s) return;
     }
-    
-    setFormData({ ...formData, schedule: newSchedule });
+    setFormData(f => ({ ...f, schedule: updated }));
   };
 
-  const getSessionTypeConfig = (type) => {
-    return sessionTypes.find(t => t.value === type) || sessionTypes[0];
+  const handleSubmit = () => {
+    const validated = {
+      title: formData.title.trim() || 'Schedule',
+      notes: formData.notes,
+      schedule: formData.schedule.map(day => ({
+        day: day.day,
+        sessions: day.sessions.map(s => ({
+          startTime: s.startTime || '09:00',
+          endTime: s.endTime || '10:30',
+          type: ['theory','practical','revision','quiz'].includes(s.type) ? s.type : 'theory',
+          topic: s.topic?.trim() || 'Untitled Session',
+          isActive: s.isActive !== false,
+        }))
+      }))
+    };
+    onSave(validated);
   };
 
-  const viewAttendanceQr = async (dayName, session) => {
-    try {
-      const url = `${API_ENDPOINTS.SCHEDULE.QR}?day=${encodeURIComponent(dayName)}&start=${encodeURIComponent(session.startTime)}&end=${encodeURIComponent(session.endTime)}`;
-      const res = await fetch(url, { headers: setAuthHeaders() });
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        showError(err.message || 'Failed to get QR');
-        return;
-      }
-      const data = await res.json();
-      setQrToken(data?.data?.token || '');
-      setShowQr(true);
-    } catch (e) {
-      showError('Failed to get QR');
-    }
-  };
+  const totalSessions = formData.schedule.reduce((sum, d) => sum + d.sessions.length, 0);
 
-  const openEditModal = () => {
-    // Ensure formData is synchronized with current schedule
-    if (schedule) {
-      setFormData({
-        title: schedule.title || 'Class Schedule',
-        notes: schedule.notes || '',
-        schedule: schedule.schedule || initializeWeekSchedule()
-      });
-    } else {
-      // If no schedule exists, initialize with empty schedule
-      setFormData({
-        title: 'Class Schedule',
-        notes: '',
-        schedule: initializeWeekSchedule()
-      });
-    }
-    setShowEditModal(true);
-  };
-
-  if (loading) {
-    return (
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div className="h-10 bg-gray-300/20 rounded-xl w-64 animate-pulse"></div>
-          <div className="h-12 bg-gray-300/20 rounded-xl w-32 animate-pulse"></div>
-        </div>
-        {[...Array(3)].map((_, i) => (
-          <div key={i} className="bg-white/10 rounded-xl shadow-xl p-8 animate-pulse">
-            <div className="h-6 bg-gray-300/20 rounded-xl w-3/4 mb-6"></div>
-            <div className="h-24 bg-gray-300/20 rounded-xl"></div>
+  return (
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-start justify-center z-50 p-4 overflow-y-auto">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95, y: 40 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 40 }}
+        className="bg-[#1a0a0a] rounded-2xl shadow-2xl max-w-5xl w-full border border-[#CA133E]/30 my-4"
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between p-5 border-b border-white/10">
+          <div className="flex items-center gap-3">
+            <CalendarDaysIcon className="h-6 w-6 text-[#CA133E]" />
+            <h3 className="text-xl font-bold text-white">
+              {schedule?._id ? 'Edit Schedule' : 'Create Schedule'}
+            </h3>
+            <span className="text-sm text-gray-400 bg-white/10 px-2 py-0.5 rounded-lg">{totalSessions} session{totalSessions !== 1 ? 's' : ''}</span>
           </div>
+          <button onClick={onClose} className="text-gray-400 hover:text-white p-1 rounded-lg hover:bg-white/10 transition-colors">
+            <XMarkIcon className="h-6 w-6" />
+          </button>
+        </div>
+
+        <div className="p-5 space-y-5">
+          {/* Meta */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-semibold text-white mb-1.5">Schedule Name</label>
+              <input
+                type="text"
+                value={formData.title}
+                onChange={e => setFormData(f => ({ ...f, title: e.target.value }))}
+                className="w-full px-4 py-2.5 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-500 focus:border-[#CA133E] focus:outline-none"
+                placeholder="e.g. Monday/Wednesday Group"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-white mb-1.5">Notes (optional)</label>
+              <input
+                type="text"
+                value={formData.notes}
+                onChange={e => setFormData(f => ({ ...f, notes: e.target.value }))}
+                className="w-full px-4 py-2.5 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-500 focus:border-[#CA133E] focus:outline-none"
+                placeholder="Additional notes"
+              />
+            </div>
+          </div>
+
+          {/* Day Editors */}
+          <div className="space-y-3">
+            {formData.schedule.map((day, di) => (
+              <DayEditor
+                key={day.day}
+                day={day}
+                dayIndex={di}
+                onAddSession={() => addSession(di)}
+                onRemoveSession={(si) => removeSession(di, si)}
+                onUpdateSession={(si, field, val) => updateSession(di, si, field, val)}
+              />
+            ))}
+          </div>
+
+          {/* Footer */}
+          <div className="flex justify-end gap-3 pt-4 border-t border-white/10">
+            <button onClick={onClose} className="px-5 py-2.5 text-gray-300 hover:text-white bg-white/10 rounded-xl hover:bg-white/20 font-semibold transition-colors">
+              Cancel
+            </button>
+            <button
+              onClick={handleSubmit}
+              disabled={saving}
+              className="px-6 py-2.5 bg-[#CA133E] hover:bg-[#A01030] text-white rounded-xl font-bold shadow-lg transition-colors disabled:opacity-50"
+            >
+              {saving ? 'Saving…' : schedule?._id ? 'Save Changes' : 'Create Schedule'}
+            </button>
+          </div>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
+function DayEditor({ day, dayIndex, onAddSession, onRemoveSession, onUpdateSession }) {
+  const [expanded, setExpanded] = useState(day.sessions.length > 0);
+  const hasSessions = day.sessions.length > 0;
+
+  return (
+    <div className={`border rounded-xl transition-colors ${hasSessions ? 'border-white/20 bg-white/5' : 'border-white/10 bg-white/[0.02]'}`}>
+      <div
+        className="flex items-center justify-between p-3 cursor-pointer select-none"
+        onClick={() => setExpanded(e => !e)}
+      >
+        <div className="flex items-center gap-3">
+          {expanded ? <ChevronUpIcon className="h-4 w-4 text-gray-400" /> : <ChevronDownIcon className="h-4 w-4 text-gray-400" />}
+          <span className="font-semibold text-white">{day.day}</span>
+          {hasSessions && (
+            <span className="text-xs bg-[#CA133E]/30 text-red-300 px-2 py-0.5 rounded-full">
+              {day.sessions.length} session{day.sessions.length !== 1 ? 's' : ''}
+            </span>
+          )}
+        </div>
+        <button
+          type="button"
+          onClick={e => { e.stopPropagation(); onAddSession(); setExpanded(true); }}
+          className="flex items-center gap-1.5 bg-green-700/50 hover:bg-green-600 text-green-200 px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors"
+        >
+          <PlusIcon className="h-4 w-4" /> Add Session
+        </button>
+      </div>
+
+      <AnimatePresence initial={false}>
+        {expanded && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="overflow-hidden"
+          >
+            <div className="px-3 pb-3 space-y-2">
+              {day.sessions.length === 0 ? (
+                <p className="text-gray-500 text-sm text-center py-4">No sessions — click "Add Session" above</p>
+              ) : (
+                day.sessions.map((session, si) => (
+                  <SessionRow
+                    key={si}
+                    session={session}
+                    onUpdate={(field, val) => onUpdateSession(si, field, val)}
+                    onRemove={() => onRemoveSession(si)}
+                  />
+                ))
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+function SessionRow({ session, onUpdate, onRemove }) {
+  const colors = TYPE_COLORS[session.type] || TYPE_COLORS.theory;
+  return (
+    <div className={`grid grid-cols-2 md:grid-cols-5 gap-2 p-3 rounded-xl border-l-4 ${colors.border} ${colors.light}`}>
+      <div>
+        <label className="block text-xs font-semibold text-gray-400 mb-1">Start</label>
+        <input type="time" value={session.startTime} onChange={e => onUpdate('startTime', e.target.value)}
+          className="w-full px-2 py-1.5 bg-black/30 border border-white/20 rounded-lg text-white text-sm focus:border-[#CA133E] focus:outline-none" />
+      </div>
+      <div>
+        <label className="block text-xs font-semibold text-gray-400 mb-1">End</label>
+        <input type="time" value={session.endTime} onChange={e => onUpdate('endTime', e.target.value)}
+          className="w-full px-2 py-1.5 bg-black/30 border border-white/20 rounded-lg text-white text-sm focus:border-[#CA133E] focus:outline-none" />
+      </div>
+      <div>
+        <label className="block text-xs font-semibold text-gray-400 mb-1">Type</label>
+        <select value={session.type} onChange={e => onUpdate('type', e.target.value)}
+          className="w-full px-2 py-1.5 bg-black/30 border border-white/20 rounded-lg text-white text-sm focus:border-[#CA133E] focus:outline-none">
+          {SESSION_TYPES.map(t => <option key={t.value} value={t.value} className="bg-[#1a0a0a]">{t.label}</option>)}
+        </select>
+      </div>
+      <div>
+        <label className="block text-xs font-semibold text-gray-400 mb-1">Topic</label>
+        <input type="text" value={session.topic} onChange={e => onUpdate('topic', e.target.value)}
+          placeholder="Topic" className="w-full px-2 py-1.5 bg-black/30 border border-white/20 rounded-lg text-white placeholder-gray-600 text-sm focus:border-[#CA133E] focus:outline-none" />
+      </div>
+      <div className="flex items-end">
+        <button onClick={onRemove} className="w-full py-1.5 bg-red-700/50 hover:bg-red-600 text-red-200 rounded-lg text-sm font-semibold transition-colors">
+          Remove
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ─── Assign Students Modal ──────────────────────────────────────────────────
+function AssignStudentsModal({ schedule, allStudents, onSave, onClose, saving }) {
+  const assignedIds = new Set((schedule.assignedStudents || []).map(a => a.student?._id || a.student));
+  const [selected, setSelected] = useState(new Set(assignedIds));
+  const [search, setSearch] = useState('');
+
+  const filtered = allStudents.filter(s => {
+    const name = `${s.firstName} ${s.lastName}`.toLowerCase();
+    return name.includes(search.toLowerCase()) || (s.studentInfo?.studentId || '').toLowerCase().includes(search.toLowerCase());
+  });
+
+  const toggle = (id) => {
+    setSelected(prev => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  };
+
+  const toggleAll = () => {
+    if (selected.size === filtered.length) {
+      setSelected(new Set());
+    } else {
+      setSelected(new Set(filtered.map(s => s._id)));
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.95 }}
+        className="bg-[#1a0a0a] rounded-2xl shadow-2xl max-w-2xl w-full border border-[#CA133E]/30 max-h-[85vh] flex flex-col"
+      >
+        <div className="flex items-center justify-between p-5 border-b border-white/10">
+          <div>
+            <h3 className="text-xl font-bold text-white">Assign Students</h3>
+            <p className="text-sm text-gray-400 mt-0.5">Schedule: <span className="text-white font-medium">{schedule.title}</span></p>
+          </div>
+          <button onClick={onClose} className="text-gray-400 hover:text-white p-1 rounded-lg hover:bg-white/10">
+            <XMarkIcon className="h-6 w-6" />
+          </button>
+        </div>
+
+        <div className="p-4 border-b border-white/10">
+          <div className="relative">
+            <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <input
+              type="text"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              placeholder="Search students…"
+              className="w-full pl-9 pr-4 py-2.5 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-500 focus:border-[#CA133E] focus:outline-none text-sm"
+            />
+          </div>
+          <div className="flex items-center justify-between mt-2">
+            <span className="text-sm text-gray-400">{selected.size} selected out of {filtered.length}</span>
+            <button onClick={toggleAll} className="text-sm text-[#CA133E] hover:text-red-400 font-semibold">
+              {selected.size === filtered.length ? 'Deselect all' : 'Select all'}
+            </button>
+          </div>
+        </div>
+
+        <div className="flex-1 overflow-y-auto p-4 space-y-2">
+          {filtered.length === 0 ? (
+            <p className="text-gray-500 text-center py-8">No students found</p>
+          ) : filtered.map(student => {
+            const isSelected = selected.has(student._id);
+            return (
+              <label
+                key={student._id}
+                className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all ${
+                  isSelected ? 'border-[#CA133E] bg-[#CA133E]/15' : 'border-white/15 bg-white/5 hover:bg-white/10'
+                }`}
+              >
+                <div className={`h-5 w-5 rounded flex items-center justify-center border-2 flex-shrink-0 transition-colors ${
+                  isSelected ? 'bg-[#CA133E] border-[#CA133E]' : 'border-gray-500'
+                }`}>
+                  {isSelected && <CheckIcon className="h-3 w-3 text-white" />}
+                </div>
+                <input type="checkbox" checked={isSelected} onChange={() => toggle(student._id)} className="sr-only" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-white font-semibold truncate">{student.firstName} {student.lastName}</p>
+                  <p className="text-gray-400 text-xs">
+                    {student.studentInfo?.studentId ? `ID: ${student.studentInfo.studentId}` : 'No ID'}
+                    {student.studentInfo?.timezone ? ` · ${student.studentInfo.timezone}` : ''}
+                  </p>
+                </div>
+                {assignedIds.has(student._id) && (
+                  <span className="text-xs bg-green-800/50 text-green-300 px-2 py-0.5 rounded-full flex-shrink-0">assigned</span>
+                )}
+              </label>
+            );
+          })}
+        </div>
+
+        <div className="flex justify-end gap-3 p-4 border-t border-white/10">
+          <button onClick={onClose} className="px-5 py-2.5 text-gray-300 bg-white/10 rounded-xl hover:bg-white/20 font-semibold">Cancel</button>
+          <button
+            onClick={() => onSave(Array.from(selected))}
+            disabled={saving}
+            className="px-6 py-2.5 bg-[#CA133E] hover:bg-[#A01030] text-white rounded-xl font-bold shadow-lg transition-colors disabled:opacity-50"
+          >
+            {saving ? 'Saving…' : `Assign ${selected.size} Student${selected.size !== 1 ? 's' : ''}`}
+          </button>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
+// ─── Schedule Card ──────────────────────────────────────────────────────────
+function ScheduleCard({ schedule, onEdit, onDelete, onAssign, onQr }) {
+  const totalSessions = (schedule.schedule || []).reduce((s, d) => s + d.sessions.length, 0);
+  const activeDays = (schedule.schedule || []).filter(d => d.sessions.length > 0).map(d => d.day.slice(0, 3));
+  const assignedCount = (schedule.assignedStudents || []).length;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="bg-white/8 border border-white/15 rounded-2xl p-5 hover:border-[#CA133E]/40 transition-all group"
+    >
+      <div className="flex items-start justify-between gap-3 mb-4">
+        <div className="flex-1 min-w-0">
+          <h3 className="text-lg font-bold text-white truncate group-hover:text-red-300 transition-colors">{schedule.title}</h3>
+          {schedule.notes && <p className="text-sm text-gray-400 mt-0.5 truncate">{schedule.notes}</p>}
+        </div>
+        <div className="flex items-center gap-1.5 flex-shrink-0">
+          <button onClick={() => onEdit(schedule)} title="Edit sessions"
+            className="p-2 text-gray-400 hover:text-white hover:bg-white/15 rounded-lg transition-colors">
+            <PencilIcon className="h-4 w-4" />
+          </button>
+          <button onClick={() => onDelete(schedule._id)} title="Delete schedule"
+            className="p-2 text-gray-400 hover:text-red-400 hover:bg-red-900/20 rounded-lg transition-colors">
+            <TrashIcon className="h-4 w-4" />
+          </button>
+        </div>
+      </div>
+
+      {/* Stats */}
+      <div className="flex flex-wrap gap-2 mb-4">
+        <span className="flex items-center gap-1.5 text-xs bg-white/10 px-2.5 py-1 rounded-full text-gray-300">
+          <ClockIcon className="h-3.5 w-3.5" /> {totalSessions} session{totalSessions !== 1 ? 's' : ''}
+        </span>
+        <span className="flex items-center gap-1.5 text-xs bg-white/10 px-2.5 py-1 rounded-full text-gray-300">
+          <UserGroupIcon className="h-3.5 w-3.5" /> {assignedCount} student{assignedCount !== 1 ? 's' : ''}
+        </span>
+        {activeDays.length > 0 && activeDays.map(d => (
+          <span key={d} className="text-xs bg-[#CA133E]/20 text-red-300 px-2.5 py-1 rounded-full">{d}</span>
         ))}
+      </div>
+
+      {/* Assigned students preview */}
+      {assignedCount > 0 && (
+        <div className="flex flex-wrap gap-1.5 mb-4">
+          {(schedule.assignedStudents || []).slice(0, 5).map(a => {
+            const s = a.student;
+            if (!s) return null;
+            return (
+              <span key={s._id} className="flex items-center gap-1 text-xs bg-white/10 text-gray-300 px-2 py-0.5 rounded-full">
+                <UserIcon className="h-3 w-3" />{s.firstName} {s.lastName}
+              </span>
+            );
+          })}
+          {assignedCount > 5 && <span className="text-xs text-gray-500 px-2 py-0.5">+{assignedCount - 5} more</span>}
+        </div>
+      )}
+
+      {/* Actions */}
+      <div className="flex gap-2 pt-3 border-t border-white/10">
+        <button
+          onClick={() => onAssign(schedule)}
+          className="flex-1 flex items-center justify-center gap-2 py-2 bg-[#CA133E]/20 hover:bg-[#CA133E]/40 text-red-300 rounded-xl text-sm font-semibold transition-colors border border-[#CA133E]/30"
+        >
+          <UserGroupIcon className="h-4 w-4" /> Assign Students
+        </button>
+        <button
+          onClick={() => onQr(schedule)}
+          className="flex items-center gap-1.5 px-3 py-2 bg-white/10 hover:bg-white/20 text-gray-300 rounded-xl text-sm font-semibold transition-colors"
+        >
+          <QrCodeIcon className="h-4 w-4" />
+        </button>
+      </div>
+    </motion.div>
+  );
+}
+
+// ─── Weekly Overview (combined all-schedules view) ─────────────────────────
+function WeeklyOverview({ overview, loading }) {
+  const [hoveredSession, setHoveredSession] = useState(null);
+
+  if (loading) return (
+    <div className="grid grid-cols-7 gap-2">
+      {DAYS.map(d => (
+        <div key={d} className="bg-white/5 rounded-xl p-3 animate-pulse">
+          <div className="h-4 bg-white/10 rounded mb-3 w-3/4 mx-auto" />
+          {[...Array(2)].map((_, i) => <div key={i} className="h-16 bg-white/10 rounded mb-2" />)}
+        </div>
+      ))}
+    </div>
+  );
+
+  if (!overview || overview.every(d => d.sessions.length === 0)) {
+    return (
+      <div className="text-center py-16">
+        <CalendarDaysIcon className="h-16 w-16 text-gray-600 mx-auto mb-4" />
+        <p className="text-gray-400 text-lg font-semibold">No sessions across any schedule yet</p>
+        <p className="text-gray-600 text-sm mt-1">Create schedules and add sessions to see them here</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 lg:gap-6">
-        <div className="flex-1">
-          <h2 className="text-lg sm:text-xl lg:text-[20pt] font-bold text-white flex items-center">
-            <CalendarDaysIcon className="h-6 w-6 sm:h-8 sm:w-8 lg:h-10 lg:w-10 mr-2 sm:mr-4 text-[#CA133E]" />
-            Schedule Builder
-          </h2>
-          <p className="text-sm lg:text-[14pt] text-gray-300 mt-2">Create and manage the class schedule for all students</p>
-        </div>
-
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 lg:gap-6">
-          <button
-            onClick={openEditModal}
-            className="flex items-center justify-center space-x-2 lg:space-x-3 bg-white text-black px-4 lg:px-6 py-2 lg:py-3 rounded-xl hover:bg-[#4A3D3D] transition-colors font-bold text-sm lg:text-lg shadow-lg"
-          >
-            <PencilIcon className="h-5 w-5 lg:h-6 lg:w-6" />
-            <span>Edit Schedule</span>
-          </button>
-          
-          <button
-            onClick={handleResetSchedule}
-            disabled={saving}
-            className="flex items-center justify-center space-x-2 lg:space-x-3 bg-red-600 text-white px-4 lg:px-6 py-2 lg:py-3 rounded-xl hover:bg-red-700 transition-colors disabled:opacity-50 font-bold text-sm lg:text-lg shadow-lg"
-          >
-            <TrashIcon className="h-5 w-5 lg:h-6 lg:w-6" />
-            <span>Reset</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Current Schedule Display */}
-      {schedule ? (
-        <div className="bg-white/10 backdrop-blur-sm rounded-xl shadow-xl border border-white/20 p-4 sm:p-6 lg:p-8">
-          <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4 lg:gap-0 mb-6 lg:mb-8">
-            <div className="flex-1">
-              <h3 className="text-xl lg:text-2xl font-bold text-white">{schedule.title}</h3>
-              {schedule.notes && (
-                <p className="text-sm lg:text-lg text-gray-300 mt-2">{schedule.notes}</p>
-              )}
-            </div>
-            <div className="text-sm lg:text-base text-gray-300">
-              <div className="font-bold">Last updated: {new Date(schedule.updatedAt).toLocaleDateString()}</div>
-              {schedule.lastUpdatedBy && (
-                <div className="mt-1">
-                  by {schedule.lastUpdatedBy.firstName} {schedule.lastUpdatedBy.lastName}
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Weekly Schedule Grid */}
-          <div className="space-y-4 lg:space-y-6">
-            {schedule.schedule.map((day, dayIndex) => (
-              <div key={day.day} className="border border-white/20 rounded-xl p-4 sm:p-6 bg-white/5">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 mb-4 lg:mb-6">
-                  <h4 className="text-lg lg:text-xl font-bold text-white">{day.day}</h4>
-                  <span className="text-sm lg:text-base text-gray-300 bg-white/10 px-3 lg:px-4 py-1 lg:py-2 rounded-xl">
-                    {day.sessions.length} session{day.sessions.length !== 1 ? 's' : ''}
-                  </span>
-                </div>
-
-                {day.sessions.length === 0 ? (
-                  <p className="text-gray-400 text-center py-6 lg:py-8 text-base lg:text-lg">No sessions scheduled</p>
-                ) : (
-                  <div className="space-y-3 lg:space-y-4">
-                    {day.sessions.map((session, sessionIndex) => {
-                      const config = getSessionTypeConfig(session.type);
-                      return (
-                        <div
-                          key={sessionIndex}
-                          className={`p-4 sm:p-6 rounded-xl border-l-4 border-${config.color}-500 bg-${config.color}-900/20 backdrop-blur-sm`}
-                        >
-                          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
-                            <div className="flex-1">
-                              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
-                                <span className="font-bold text-white text-base lg:text-lg">
-                                  {session.startTime} - {session.endTime}
-                                </span>
-                                <span className={`px-3 lg:px-4 py-1 lg:py-2 rounded-xl text-sm lg:text-base font-bold bg-${config.color}-600 text-white`}>
-                                  {config.label}
-                                </span>
-                              </div>
-                              <p className="text-white font-bold mt-2 text-base sm:text-lg lg:text-xl">{session.topic}</p>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <button
-                                type="button"
-                                onClick={() => viewAttendanceQr(day.day, session)}
-                                className="flex items-center space-x-2 px-3 py-2 bg-white/15 text-white rounded-xl hover:bg-white/25 transition-colors text-sm"
-                                title="View Attendance QR Code"
-                              >
-                                <QrCodeIcon className="h-5 w-5" />
-                                <span className="hidden sm:inline">Attendance QR</span>
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
+    <div className="overflow-x-auto">
+      <div className="min-w-[900px] grid grid-cols-7 gap-2">
+        {(overview || []).map((dayObj, di) => {
+          const colors = TYPE_COLORS;
+          return (
+            <div key={dayObj.day} className="flex flex-col gap-1">
+              {/* Day header */}
+              <div className={`text-center py-2 rounded-xl text-sm font-bold ${
+                dayObj.sessions.length > 0
+                  ? 'bg-[#CA133E]/20 text-red-300 border border-[#CA133E]/30'
+                  : 'bg-white/5 text-gray-500'
+              }`}>
+                {SHORT_DAYS[di]}
+                {dayObj.sessions.length > 0 && (
+                  <span className="block text-xs font-normal text-gray-400">{dayObj.sessions.length} session{dayObj.sessions.length !== 1 ? 's' : ''}</span>
                 )}
               </div>
-            ))}
-          </div>
-        </div>
-      ) : (
-        <div className="bg-white/10 backdrop-blur-sm rounded-xl shadow-xl p-8 sm:p-12 lg:p-16 text-center border border-white/20">
-          <CalendarDaysIcon className="h-12 w-12 sm:h-16 sm:w-16 text-gray-400 mx-auto mb-4 lg:mb-6" />
-          <h3 className="text-xl lg:text-2xl font-bold text-white mb-3 lg:mb-4">No Schedule Created</h3>
-          <p className="text-sm lg:text-lg text-gray-300 mb-4 lg:mb-6">Create your first class schedule to get started.</p>
-          <button
-            onClick={openEditModal}
-            className="bg-[#CA133E] text-white px-4 lg:px-6 py-2 lg:py-3 rounded-xl hover:bg-[#A01030] font-bold text-sm lg:text-lg shadow-lg"
-          >
-            Create Schedule
-          </button>
-        </div>
-      )}
 
-      {/* Edit Schedule Modal */}
-      <AnimatePresence>
-        {showEditModal && (
-          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-start justify-center z-50 p-4">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 50 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 50 }}
-              transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              className="bg-[#2a1a1a] rounded-xl shadow-2xl max-w-7xl w-full max-h-[95vh] overflow-y-auto border border-[#CA133E]/30 mt-4 lg:mt-8"
-            >
-              <div className="p-4 sm:p-6 border-b border-[#CA133E]/30">
-                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-                  <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-white">
-                    Edit Class Schedule
-                  </h3>
-                  <button
-                    onClick={() => setShowEditModal(false)}
-                    className="text-gray-400 hover:text-white p-2 rounded-xl hover:bg-white/10 self-end sm:self-auto"
-                  >
-                    <XMarkIcon className="h-6 w-6 sm:h-8 sm:w-8" />
-                  </button>
+              {/* Sessions */}
+              {dayObj.sessions.length === 0 ? (
+                <div className="flex-1 border border-dashed border-white/10 rounded-xl min-h-[80px] flex items-center justify-center">
+                  <span className="text-gray-700 text-xs">—</span>
                 </div>
-              </div>
-
-              <div className="p-4 sm:p-6">
-                {/* Basic Info */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
-                  <div>
-                    <label className="block text-sm sm:text-base lg:text-lg font-bold text-white mb-2">Schedule Title</label>
-                    <input
-                      type="text"
-                      value={formData.title}
-                      onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                      className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-white/20 rounded-xl focus:ring-2 focus:ring-[#CA133E] focus:border-transparent bg-white/10 text-white placeholder-gray-400 text-sm sm:text-base lg:text-lg"
-                      placeholder="Class Schedule"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm sm:text-base lg:text-lg font-bold text-white mb-2">Notes (Optional)</label>
-                    <input
-                      type="text"
-                      value={formData.notes}
-                      onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                      className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-white/20 rounded-xl focus:ring-2 focus:ring-[#CA133E] focus:border-transparent bg-white/10 text-white placeholder-gray-400 text-sm sm:text-base lg:text-lg"
-                      placeholder="Additional notes about the schedule"
-                    />
-                  </div>
-                </div>
-
-                {/* Schedule Builder */}
-                <div className="space-y-4 lg:space-y-6">
-                  {formData.schedule.map((day, dayIndex) => (
-                    <div key={day.day} className="border border-white/20 rounded-xl p-3 sm:p-4 bg-white/5">
-                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0 mb-4">
-                        <h4 className="text-base sm:text-lg lg:text-xl font-bold text-white">{day.day}</h4>
-                        <button
-                          type="button"
-                          onClick={() => addSession(dayIndex)}
-                          className="flex items-center justify-center space-x-2 bg-green-600 text-white px-3 sm:px-4 py-2 rounded-xl hover:bg-green-700 transition-colors font-bold text-sm sm:text-base"
-                        >
-                          <PlusIcon className="h-4 w-4 sm:h-5 sm:w-5" />
-                          <span>Add Session</span>
-                        </button>
+              ) : (
+                dayObj.sessions.map((session, si) => {
+                  const c = colors[session.type] || colors.theory;
+                  const key = `${di}-${si}`;
+                  return (
+                    <div
+                      key={si}
+                      className={`relative p-2.5 rounded-xl border-l-4 ${c.border} ${c.light} cursor-pointer hover:brightness-125 transition-all`}
+                      onMouseEnter={() => setHoveredSession(key)}
+                      onMouseLeave={() => setHoveredSession(null)}
+                    >
+                      <div className={`text-xs font-bold ${c.text} mb-0.5`}>
+                        {formatTime(session.startTime)}
                       </div>
+                      <div className="text-white text-xs font-semibold leading-tight truncate">{session.topic}</div>
+                      <div className="text-gray-400 text-xs mt-1 truncate">{session.scheduleTitle}</div>
+                      {session.students.length > 0 && (
+                        <div className="flex items-center gap-1 mt-1.5">
+                          <UserGroupIcon className="h-3 w-3 text-gray-500" />
+                          <span className="text-gray-500 text-xs">{session.students.length}</span>
+                        </div>
+                      )}
 
-                      <div className="space-y-3">
-                        {day.sessions.map((session, sessionIndex) => (
-                          <div key={sessionIndex} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 p-3 bg-white/10 rounded-xl">
-                            <div>
-                              <label className="block text-xs sm:text-sm font-bold text-white mb-1">Start Time</label>
-                              <input
-                                type="time"
-                                value={session.startTime}
-                                onChange={(e) => updateSession(dayIndex, sessionIndex, 'startTime', e.target.value)}
-                                className="w-full px-2 sm:px-3 py-1 sm:py-2 border border-white/20 rounded-xl focus:ring-1 focus:ring-[#CA133E] bg-white/10 text-white text-sm sm:text-base"
-                                required
-                              />
-                            </div>
-
-                            <div>
-                              <label className="block text-xs sm:text-sm font-bold text-white mb-1">End Time</label>
-                              <input
-                                type="time"
-                                value={session.endTime}
-                                onChange={(e) => updateSession(dayIndex, sessionIndex, 'endTime', e.target.value)}
-                                className="w-full px-2 sm:px-3 py-1 sm:py-2 border border-white/20 rounded-xl focus:ring-1 focus:ring-[#CA133E] bg-white/10 text-white text-sm sm:text-base"
-                                required
-                              />
-                            </div>
-
-                            <div>
-                              <label className="block text-xs sm:text-sm font-bold text-white mb-1">Type</label>
-                              <select
-                                value={session.type}
-                                onChange={(e) => updateSession(dayIndex, sessionIndex, 'type', e.target.value)}
-                                className="w-full px-2 sm:px-3 py-1 sm:py-2 border border-white/20 rounded-xl focus:ring-1 focus:ring-[#CA133E] bg-white/10 text-white text-sm sm:text-base"
-                                required
-                              >
-                                {sessionTypes.map(type => (
-                                  <option key={type.value} value={type.value} className="bg-[#2a1a1a] text-white">{type.label}</option>
+                      {/* Hover tooltip */}
+                      {hoveredSession === key && (
+                        <div className="absolute z-20 left-full top-0 ml-2 w-52 bg-[#1a0a0a] border border-white/20 rounded-xl p-3 shadow-2xl pointer-events-none">
+                          <p className="text-white font-bold text-sm mb-1">{session.topic}</p>
+                          <p className="text-gray-400 text-xs mb-0.5">{formatTime(session.startTime)} – {formatTime(session.endTime)}</p>
+                          <p className="text-gray-400 text-xs mb-2 italic">{session.scheduleTitle}</p>
+                          {session.students.length > 0 && (
+                            <>
+                              <p className="text-gray-500 text-xs font-semibold mb-1">Students:</p>
+                              <div className="space-y-0.5 max-h-28 overflow-y-auto">
+                                {session.students.map(st => (
+                                  <div key={st._id} className="text-white text-xs flex items-center gap-1">
+                                    <span className="h-1.5 w-1.5 bg-[#CA133E] rounded-full flex-shrink-0" />
+                                    {st.name}
+                                    {st.timezone && <span className="text-gray-500 text-[10px] ml-auto">{st.timezone}</span>}
+                                  </div>
                                 ))}
-                              </select>
-                            </div>
-
-                            <div>
-                              <label className="block text-xs sm:text-sm font-bold text-white mb-1">Topic</label>
-                              <input
-                                type="text"
-                                value={session.topic}
-                                onChange={(e) => updateSession(dayIndex, sessionIndex, 'topic', e.target.value)}
-                                className="w-full px-2 sm:px-3 py-1 sm:py-2 border border-white/20 rounded-xl focus:ring-1 focus:ring-[#CA133E] bg-white/10 text-white placeholder-gray-400 text-sm sm:text-base"
-                                placeholder="Topic"
-                                required
-                              />
-                            </div>
-
-                            <div className="flex items-end">
-                              <button
-                                type="button"
-                                onClick={() => removeSession(dayIndex, sessionIndex)}
-                                className="w-full px-2 sm:px-3 py-1 sm:py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors font-bold text-sm sm:text-base"
-                              >
-                                Remove
-                              </button>
-                            </div>
-                          </div>
-                        ))}
-
-                        {day.sessions.length === 0 && (
-                          <p className="text-gray-400 text-center py-4 lg:py-6 text-sm lg:text-lg">No sessions for {day.day}</p>
-                        )}
-                      </div>
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      )}
                     </div>
-                  ))}
-                </div>
-
-                {/* Action Buttons */}
-                <div className="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4 mt-6 pt-6 border-t border-white/20">
-                  <button
-                    type="button"
-                    onClick={() => setShowEditModal(false)}
-                    className="w-full sm:w-auto px-4 lg:px-6 py-2 lg:py-3 text-white bg-white/10 rounded-xl hover:bg-white/20 transition-colors font-bold text-sm lg:text-lg"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleSaveSchedule}
-                    disabled={saving}
-                    className="w-full sm:w-auto px-6 lg:px-8 py-2 lg:py-3 bg-[#CA133E] text-white rounded-xl hover:bg-[#A01030] transition-colors disabled:opacity-50 font-bold text-sm lg:text-lg shadow-lg"
-                  >
-                    {saving ? 'Saving...' : 'Save Schedule'}
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
-      {/* Student Management Section */}
-      {schedule && (
-        <div className="mt-8 bg-white/10 backdrop-blur-sm rounded-xl shadow-xl p-6 border border-white/20">
-          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
-            <div>
-              <h3 className="text-xl font-bold text-white mb-2">Assigned Students</h3>
-              <p className="text-gray-300 text-sm">
-                {assignedStudents.length} student{assignedStudents.length !== 1 ? 's' : ''} assigned to this schedule
-              </p>
+                  );
+                })
+              )}
             </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ─── Main ScheduleBuilder Component ────────────────────────────────────────
+const ScheduleBuilder = () => {
+  const [view, setView] = useState('schedules'); // 'schedules' | 'weekly'
+  const [schedules, setSchedules] = useState([]);
+  const [overview, setOverview] = useState([]);
+  const [allStudents, setAllStudents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [overviewLoading, setOverviewLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  // Modals
+  const [editingSchedule, setEditingSchedule] = useState(null); // null = no modal, {} = new, { ...sched } = edit
+  const [assigningSchedule, setAssigningSchedule] = useState(null);
+  const [qrModal, setQrModal] = useState({ open: false, token: '', schedule: null });
+  const [deleteConfirm, setDeleteConfirm] = useState(null); // scheduleId to delete
+
+  const token = () => {
+    const t = getValidToken();
+    if (!t) { clearAuth(); redirectToLogin('invalid_token'); }
+    return t;
+  };
+
+  const loadSchedules = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(API_ENDPOINTS.SCHEDULE.SCHEDULES, { headers: setAuthHeaders() });
+      if (res.ok) {
+        const data = await res.json();
+        setSchedules(data.data.schedules || []);
+      }
+    } catch (e) {
+      showError('Failed to load schedules');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const loadOverview = useCallback(async () => {
+    setOverviewLoading(true);
+    try {
+      const res = await fetch(API_ENDPOINTS.SCHEDULE.WEEKLY_OVERVIEW, { headers: setAuthHeaders() });
+      if (res.ok) {
+        const data = await res.json();
+        setOverview(data.data.overview || []);
+      }
+    } catch (e) {
+      showError('Failed to load weekly overview');
+    } finally {
+      setOverviewLoading(false);
+    }
+  }, []);
+
+  const loadStudents = useCallback(async () => {
+    try {
+      const res = await fetch(`${API_ENDPOINTS.TEACHER.STUDENTS}?all=true`, { headers: setAuthHeaders() });
+      if (res.ok) {
+        const data = await res.json();
+        setAllStudents(data.data.students || []);
+      }
+    } catch (e) {
+      // non-critical
+    }
+  }, []);
+
+  useEffect(() => {
+    loadSchedules();
+    loadStudents();
+  }, [loadSchedules, loadStudents]);
+
+  useEffect(() => {
+    if (view === 'weekly') loadOverview();
+  }, [view, loadOverview]);
+
+  // ── Create / Update schedule ──
+  const handleSaveSchedule = async (formData) => {
+    if (!token()) return;
+    setSaving(true);
+    try {
+      let res;
+      if (editingSchedule?._id) {
+        res = await fetch(`${API_ENDPOINTS.SCHEDULE.SCHEDULES}/${editingSchedule._id}`, {
+          method: 'PUT',
+          headers: setAuthHeaders({ 'Content-Type': 'application/json' }),
+          body: JSON.stringify(formData),
+        });
+      } else {
+        res = await fetch(API_ENDPOINTS.SCHEDULE.SCHEDULES, {
+          method: 'POST',
+          headers: setAuthHeaders({ 'Content-Type': 'application/json' }),
+          body: JSON.stringify(formData),
+        });
+      }
+      if (res.ok) {
+        showSuccess(editingSchedule?._id ? 'Schedule updated!' : 'Schedule created!');
+        setEditingSchedule(null);
+        await loadSchedules();
+      } else {
+        const err = await res.json();
+        showError(err.message || 'Failed to save schedule');
+      }
+    } catch {
+      showError('Failed to save schedule');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // ── Delete schedule ──
+  const handleDeleteSchedule = async (scheduleId) => {
+    if (!token()) return;
+    setSaving(true);
+    try {
+      const res = await fetch(`${API_ENDPOINTS.SCHEDULE.SCHEDULES}/${scheduleId}`, {
+        method: 'DELETE',
+        headers: setAuthHeaders(),
+      });
+      if (res.ok) {
+        showSuccess('Schedule deleted');
+        setDeleteConfirm(null);
+        await loadSchedules();
+      } else {
+        const err = await res.json();
+        showError(err.message || 'Failed to delete schedule');
+      }
+    } catch {
+      showError('Failed to delete schedule');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // ── Assign students ──
+  const handleAssignStudents = async (studentIds) => {
+    if (!token()) return;
+    setSaving(true);
+    try {
+      const res = await fetch(`${API_ENDPOINTS.SCHEDULE.SCHEDULES}/${assigningSchedule._id}/assign-students`, {
+        method: 'POST',
+        headers: setAuthHeaders({ 'Content-Type': 'application/json' }),
+        body: JSON.stringify({ studentIds }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        showSuccess(`Assigned ${studentIds.length} student${studentIds.length !== 1 ? 's' : ''} successfully`);
+        setAssigningSchedule(null);
+        await loadSchedules();
+      } else {
+        const err = await res.json();
+        showError(err.message || 'Failed to assign students');
+      }
+    } catch {
+      showError('Failed to assign students');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // ── QR ──
+  const openQr = async (schedule) => {
+    // Find first session with times to generate QR
+    const firstSession = (schedule.schedule || [])
+      .flatMap(d => d.sessions.map(s => ({ day: d.day, ...s })))
+      .find(s => s.startTime && s.endTime);
+
+    if (!firstSession) {
+      showWarning('No sessions in this schedule to generate a QR code for');
+      return;
+    }
+    try {
+      const url = `${API_ENDPOINTS.SCHEDULE.QR}?day=${encodeURIComponent(firstSession.day)}&start=${encodeURIComponent(firstSession.startTime)}&end=${encodeURIComponent(firstSession.endTime)}`;
+      const res = await fetch(url, { headers: setAuthHeaders() });
+      if (res.ok) {
+        const data = await res.json();
+        setQrModal({ open: true, token: data?.data?.token || '', schedule });
+      } else {
+        showError('Failed to generate QR code');
+      }
+    } catch {
+      showError('Failed to generate QR code');
+    }
+  };
+
+  // ─── Render ───────────────────────────────────────────────────────────────
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h2 className="text-xl font-bold text-white flex items-center gap-3">
+            <CalendarDaysIcon className="h-7 w-7 text-[#CA133E]" />
+            Schedule Builder
+          </h2>
+          <p className="text-gray-400 text-sm mt-1">Create per-student schedules and view a combined weekly overview</p>
+        </div>
+
+        {/* View toggle + New Schedule button */}
+        <div className="flex items-center gap-3">
+          <div className="flex bg-white/10 rounded-xl p-1 gap-1">
             <button
-              onClick={() => setShowStudentModal(true)}
-              className="bg-[#CA133E] text-white px-4 py-2 rounded-xl hover:bg-[#A01030] font-bold text-sm shadow-lg transition-colors"
+              onClick={() => setView('schedules')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors ${view === 'schedules' ? 'bg-[#CA133E] text-white' : 'text-gray-400 hover:text-white'}`}
             >
-              Manage Students
+              <ListBulletIcon className="h-4 w-4" /> Schedules
+            </button>
+            <button
+              onClick={() => setView('weekly')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors ${view === 'weekly' ? 'bg-[#CA133E] text-white' : 'text-gray-400 hover:text-white'}`}
+            >
+              <TableCellsIcon className="h-4 w-4" /> Weekly View
             </button>
           </div>
 
-          {assignedStudents.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              {assignedStudents.map((assignment) => (
-                <div key={assignment.student._id} className="bg-white/10 rounded-xl p-4 flex items-center justify-between">
-                  <div>
-                    <p className="text-white font-semibold">
-                      {assignment.student.firstName} {assignment.student.lastName}
-                    </p>
-                    <p className="text-gray-300 text-sm">
-                      ID: {assignment.student.studentInfo?.studentId || 'N/A'}
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => handleRemoveStudent(assignment.student._id)}
-                    className="text-red-400 hover:text-red-300 p-1 rounded-lg hover:bg-red-900/20 transition-colors"
-                    title="Remove student"
-                  >
-                    <TrashIcon className="h-4 w-4" />
-                  </button>
-                </div>
+          {view === 'schedules' && (
+            <button
+              onClick={() => setEditingSchedule({})}
+              className="flex items-center gap-2 bg-[#CA133E] hover:bg-[#A01030] text-white px-4 py-2 rounded-xl font-bold text-sm shadow-lg transition-colors"
+            >
+              <PlusIcon className="h-4 w-4" /> New Schedule
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* ── Schedules View ── */}
+      {view === 'schedules' && (
+        <>
+          {loading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="bg-white/5 rounded-2xl p-5 animate-pulse border border-white/10 h-44" />
               ))}
             </div>
-          ) : (
-            <div className="text-center py-8">
-              <p className="text-gray-300 mb-4">No students assigned to this schedule</p>
+          ) : schedules.length === 0 ? (
+            <div className="text-center py-16 bg-white/5 rounded-2xl border border-dashed border-white/20">
+              <CalendarDaysIcon className="h-16 w-16 text-gray-600 mx-auto mb-4" />
+              <h3 className="text-xl font-bold text-white mb-2">No schedules yet</h3>
+              <p className="text-gray-400 mb-6">Create your first schedule and assign students to it</p>
               <button
-                onClick={() => setShowStudentModal(true)}
-                className="bg-[#CA133E] text-white px-4 py-2 rounded-xl hover:bg-[#A01030] font-bold text-sm shadow-lg transition-colors"
+                onClick={() => setEditingSchedule({})}
+                className="bg-[#CA133E] hover:bg-[#A01030] text-white px-6 py-2.5 rounded-xl font-bold shadow-lg"
               >
-                Assign Students
+                Create First Schedule
               </button>
             </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {schedules.map(sched => (
+                <ScheduleCard
+                  key={sched._id}
+                  schedule={sched}
+                  onEdit={s => setEditingSchedule(s)}
+                  onDelete={id => setDeleteConfirm(id)}
+                  onAssign={s => setAssigningSchedule(s)}
+                  onQr={openQr}
+                />
+              ))}
+            </div>
           )}
+        </>
+      )}
+
+      {/* ── Weekly Overview ── */}
+      {view === 'weekly' && (
+        <div className="bg-white/5 rounded-2xl border border-white/15 p-5">
+          <div className="flex items-center justify-between mb-5">
+            <div>
+              <h3 className="text-lg font-bold text-white">Combined Weekly View</h3>
+              <p className="text-gray-400 text-sm">All sessions from all schedules in one place</p>
+            </div>
+            <button onClick={loadOverview} className="text-sm text-gray-400 hover:text-white flex items-center gap-1.5 px-3 py-1.5 bg-white/10 rounded-lg hover:bg-white/20 transition-colors">
+              Refresh
+            </button>
+          </div>
+          <WeeklyOverview overview={overview} loading={overviewLoading} />
         </div>
       )}
 
-      {/* Student Selection Modal */}
+      {/* ── Modals ── */}
       <AnimatePresence>
-        {showStudentModal && (
-          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        {editingSchedule !== null && (
+          <SessionEditorModal
+            key="editor"
+            schedule={editingSchedule._id ? editingSchedule : null}
+            onSave={handleSaveSchedule}
+            onClose={() => setEditingSchedule(null)}
+            saving={saving}
+          />
+        )}
+
+        {assigningSchedule && (
+          <AssignStudentsModal
+            key="assign"
+            schedule={assigningSchedule}
+            allStudents={allStudents}
+            onSave={handleAssignStudents}
+            onClose={() => setAssigningSchedule(null)}
+            saving={saving}
+          />
+        )}
+
+        {deleteConfirm && (
+          <div key="delete" className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-[#2a1a1a] rounded-xl shadow-2xl p-6 max-w-4xl w-full max-h-[80vh] overflow-y-auto border border-[#CA133E]/30"
+              className="bg-[#1a0a0a] rounded-2xl p-6 border border-red-800/40 max-w-sm w-full text-center"
             >
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-xl font-bold text-white">Assign Students to Schedule</h3>
+              <TrashIcon className="h-12 w-12 text-red-500 mx-auto mb-3" />
+              <h3 className="text-xl font-bold text-white mb-2">Delete Schedule?</h3>
+              <p className="text-gray-400 text-sm mb-6">This will permanently delete the schedule and remove all student assignments.</p>
+              <div className="flex gap-3">
+                <button onClick={() => setDeleteConfirm(null)} className="flex-1 py-2.5 bg-white/10 text-white rounded-xl hover:bg-white/20 font-semibold">Cancel</button>
                 <button
-                  onClick={() => {
-                    setShowStudentModal(false);
-                    setSelectedStudents([]);
-                  }}
-                  className="text-gray-400 hover:text-white"
+                  onClick={() => handleDeleteSchedule(deleteConfirm)}
+                  disabled={saving}
+                  className="flex-1 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold disabled:opacity-50"
                 >
-                  <XMarkIcon className="h-6 w-6" />
+                  {saving ? 'Deleting…' : 'Delete'}
                 </button>
               </div>
-
-              {loadingStudents ? (
-                <div className="text-center py-8">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#CA133E] mx-auto mb-4"></div>
-                  <p className="text-gray-300">Loading students...</p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 max-h-60 overflow-y-auto">
-                    {students.map((student) => (
-                      <label
-                        key={student._id}
-                        className={`flex items-center p-3 rounded-xl border-2 cursor-pointer transition-colors ${
-                          selectedStudents.includes(student._id)
-                            ? 'border-[#CA133E] bg-[#CA133E]/20'
-                            : 'border-white/20 bg-white/10 hover:bg-white/20'
-                        }`}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={selectedStudents.includes(student._id)}
-                          onChange={(e) => {
-                            if (e.target.checked) {
-                              setSelectedStudents([...selectedStudents, student._id]);
-                            } else {
-                              setSelectedStudents(selectedStudents.filter(id => id !== student._id));
-                            }
-                          }}
-                          className="sr-only"
-                        />
-                        <div className="flex-1">
-                          <p className="text-white font-semibold">
-                            {student.firstName} {student.lastName}
-                          </p>
-                          <p className="text-gray-300 text-sm">
-                            ID: {student.studentInfo?.studentId || 'N/A'}
-                          </p>
-                        </div>
-                      </label>
-                    ))}
-                  </div>
-
-                  <div className="flex justify-between items-center pt-4 border-t border-white/20">
-                    <p className="text-gray-300 text-sm">
-                      {selectedStudents.length} student{selectedStudents.length !== 1 ? 's' : ''} selected
-                    </p>
-                    <div className="flex gap-3">
-                      <button
-                        onClick={() => {
-                          setShowStudentModal(false);
-                          setSelectedStudents([]);
-                        }}
-                        className="px-4 py-2 text-gray-300 hover:text-white transition-colors"
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        onClick={handleAssignStudents}
-                        disabled={selectedStudents.length === 0 || saving}
-                        className="bg-[#CA133E] text-white px-4 py-2 rounded-xl hover:bg-[#A01030] font-bold text-sm shadow-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        {saving ? 'Assigning...' : 'Assign Students'}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              )}
             </motion.div>
           </div>
         )}
-      </AnimatePresence>
 
-      {/* QR Modal */}
-      <AnimatePresence>
-        {showQr && (
-          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        {qrModal.open && (
+          <div key="qr" className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-[#2a1a1a] rounded-xl p-6 border border-white/20 max-w-lg w-full"
+              className="bg-[#1a0a0a] rounded-2xl p-6 border border-white/20 max-w-md w-full"
             >
               <div className="flex justify-between items-center mb-4">
-                <h3 className="text-white font-bold text-lg">Attendance QR Code</h3>
-                <button onClick={() => setShowQr(false)} className="text-gray-300 hover:text-white">
+                <div>
+                  <h3 className="text-white font-bold text-lg">Attendance QR</h3>
+                  <p className="text-gray-400 text-sm">{qrModal.schedule?.title}</p>
+                </div>
+                <button onClick={() => setQrModal({ open: false, token: '', schedule: null })} className="text-gray-400 hover:text-white">
                   <XMarkIcon className="h-6 w-6" />
                 </button>
               </div>
-              {qrToken ? (
+              {qrModal.token ? (
                 <div className="space-y-4">
-                  <div className="bg-white/5 rounded-xl p-4 flex items-center justify-center">
-                    <div className="bg-white p-3 rounded">
-                      <QRCode value={qrToken} size={220} bgColor="#ffffff" fgColor="#000000" />
-                    </div>
+                  <div className="flex justify-center bg-white p-4 rounded-xl">
+                    <QRCode value={qrModal.token} size={200} bgColor="#ffffff" fgColor="#000000" />
                   </div>
-                  <div className="bg-white rounded-xl p-3 text-black text-xs break-all select-all">{qrToken}</div>
-                  <p className="text-gray-300 text-sm">Students can scan this code from their Attendance tab to check in.</p>
+                  <p className="text-gray-400 text-sm text-center">Students scan this to check in for the first session</p>
                 </div>
               ) : (
-                <p className="text-gray-300">No token</p>
+                <p className="text-gray-400 text-center py-4">No token generated</p>
               )}
             </motion.div>
           </div>
@@ -958,4 +947,4 @@ const ScheduleBuilder = () => {
   );
 };
 
-export default ScheduleBuilder; 
+export default ScheduleBuilder;
