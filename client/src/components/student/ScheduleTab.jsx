@@ -183,7 +183,7 @@ const ScheduleTab = ({ studentData }) => {
 
     // NEW COMPACT CARD FOR WEEK VIEW
     return (
-      <div className={`${config.lightBg} rounded-3xl p-5 shadow-lg border-l-4 ${config.borderColor} flex flex-col text-center space-y-3 min-h-[180px] justify-center transition-all hover:shadow-2xl hover:scale-105`}>
+      <div className={`${config.lightBg} rounded-xl p-5 shadow-lg border-l-4 ${config.borderColor} flex flex-col text-center space-y-3 min-h-[180px] justify-center transition-all hover:shadow-2xl hover:scale-105`}>
         <span className={`${config.bgColor} ${config.textColor} px-4 py-1 rounded-xl text-sm font-bold self-center`}>
             {config.color}
         </span>

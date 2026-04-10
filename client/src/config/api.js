@@ -7,6 +7,9 @@ export const API_ENDPOINTS = {
     LOGIN: `${API_BASE_URL}/api/auth/login`,
     REGISTER: `${API_BASE_URL}/api/auth/register`,
     LOGOUT: `${API_BASE_URL}/api/auth/logout`,
+    ME: `${API_BASE_URL}/api/auth/me`,
+    CHANGE_PASSWORD: `${API_BASE_URL}/api/auth/change-password`,
+    UPDATE_PROFILE: `${API_BASE_URL}/api/auth/profile`,
   },
   STUDENT: {
     DASHBOARD: `${API_BASE_URL}/api/student/dashboard`,
@@ -29,6 +32,9 @@ export const API_ENDPOINTS = {
     ACTIVITIES: `${API_BASE_URL}/api/teacher/activities`,
     ADD_LEGACY_STUDENT: `${API_BASE_URL}/api/teacher/legacy-students`,
     RESET_SESSION_POINTS: `${API_BASE_URL}/api/teacher/reset-session-points`,
+    STUDENT_PAYMENTS: (studentId) => `${API_BASE_URL}/api/teacher/students/${studentId}/payments`,
+    PAYMENT: (paymentId) => `${API_BASE_URL}/api/teacher/payments/${paymentId}`,
+    RESET_STUDENT_PASSWORD: (studentId) => `${API_BASE_URL}/api/teacher/students/${studentId}/reset-password`,
   },
   LEADERBOARD: {
     BASE: `${API_BASE_URL}/api/leaderboard`,
@@ -45,7 +51,9 @@ export const API_ENDPOINTS = {
   },
   PARENT: {
     DASHBOARD: `${API_BASE_URL}/api/parent/dashboard`,
-    BASE: `${API_BASE_URL}/api/parent`
+    BASE: `${API_BASE_URL}/api/parent`,
+    PAYMENTS: `${API_BASE_URL}/api/parent/payments`,
+    PAY: (paymentId) => `${API_BASE_URL}/api/parent/payments/${paymentId}/pay`,
   },
   CHAT: {
     BASE: `${API_BASE_URL}/api/chat`,

@@ -10,19 +10,23 @@ import {
   CalendarDaysIcon,
   CheckCircleIcon,
   ArrowPathIcon,
-  ArrowRightOnRectangleIcon
+  ArrowRightOnRectangleIcon,
+  CurrencyDollarIcon,
 } from '@heroicons/react/24/outline';
 
 // Import parent components
+import ProfileModal from '../../components/shared/ProfileModal';
 import ParentOverview from '../../components/parent/ParentOverview';
 import AssignmentsLikeStudent from '../../components/student/AssignmentsTab';
 import QuizTracking from '../../components/parent/QuizTracking';
 import WeeklyReports from '../../components/parent/WeeklyReports';
+import ParentPayments from '../../components/parent/ParentPayments';
 
 const ParentDashboard = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('overview');
   const [parentData, setParentData] = useState(null);
+  const [showProfile, setShowProfile] = useState(false);
   const [selectedChild, setSelectedChild] = useState(null);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({});
@@ -31,7 +35,8 @@ const ParentDashboard = () => {
     { id: 'overview', name: 'Overview', icon: ChartBarIcon, component: ParentOverview },
     { id: 'assignments', name: 'Homework', icon: DocumentTextIcon, component: AssignmentsLikeStudent },
     { id: 'quiz', name: 'Quiz Tracking', icon: AcademicCapIcon, component: QuizTracking },
-    { id: 'reports', name: 'Reports & Marks', icon: CalendarDaysIcon, component: WeeklyReports }
+    { id: 'reports', name: 'Reports & Marks', icon: CalendarDaysIcon, component: WeeklyReports },
+    { id: 'payments', name: 'Payments', icon: CurrencyDollarIcon, component: ParentPayments },
   ];
 
   useEffect(() => {
@@ -82,7 +87,6 @@ const ParentDashboard = () => {
     const currentTab = tabs.find(tab => tab.id === activeTab);
     if (currentTab && currentTab.component) {
       const Component = currentTab.component;
-      // For the reused student Assignments component, pass compatible props
       if (currentTab.id === 'assignments') {
         const studentId = selectedChild?.student?._id;
         const fetchUrl = studentId ? `${API_ENDPOINTS.PARENT.BASE}/child/${studentId}/progress` : '';
@@ -94,6 +98,9 @@ const ParentDashboard = () => {
             readonly={true}
           />
         );
+      }
+      if (currentTab.id === 'payments') {
+        return <Component />;
       }
       return (
         <Component 
@@ -178,6 +185,17 @@ const ParentDashboard = () => {
               >
                 <ArrowPathIcon className="h-5 w-5" />
               </button>
+
+              {parentData && (
+                <button
+                  type="button"
+                  onClick={() => setShowProfile(true)}
+                  className="h-9 w-9 rounded-xl bg-[#CA133E] flex items-center justify-center text-white font-bold text-sm hover:bg-[#A01030] transition-colors shadow-md"
+                  title="View Profile"
+                >
+                  {parentData.user.firstName?.[0]}{parentData.user.lastName?.[0]}
+                </button>
+              )}
               
               <motion.button
                 onClick={handleLogout}
@@ -271,6 +289,23 @@ const ParentDashboard = () => {
           {getCurrentTabComponent()}
         </motion.div>
       </div>
+
+      {/* Profile Modal */}
+      <AnimatePresence>
+        {showProfile && parentData && (
+          <ProfileModal
+            user={{
+              firstName: parentData.user.firstName,
+              lastName: parentData.user.lastName,
+              email: parentData.user.email,
+              role: 'parent',
+              lastLogin: parentData.user.lastLogin,
+              roleData: { studentName: selectedChild?.student?.user ? `${selectedChild.student.user.firstName} ${selectedChild.student.user.lastName}` : '' },
+            }}
+            onClose={() => setShowProfile(false)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 };

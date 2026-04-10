@@ -21,6 +21,7 @@ import {
 } from '@heroicons/react/24/outline';
 
 // Import student components
+import ProfileModal from '../../components/shared/ProfileModal';
 import DashboardOverview from '../../components/student/DashboardOverview';
 import AssignmentsTab from '../../components/student/AssignmentsTab';
 import QuizzesTab from '../../components/student/QuizzesTab';
@@ -42,6 +43,7 @@ const StudentDashboard = () => {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [tabsPerPage, setTabsPerPage] = useState(4);
   const socketRef = useRef(null);
+  const [showProfile, setShowProfile] = useState(false);
 
   // Update tabs per page based on screen size
   useEffect(() => {
@@ -280,13 +282,23 @@ const StudentDashboard = () => {
               </div>
             </div>
             
-            {/* Logout */}
+            {/* Logout & Profile */}
             <div className="flex items-center gap-3">
               {stats?.unreadMessages > 0 && (
                 <div className="flex items-center text-xs sm:text-sm text-red-400 bg-red-900/30 px-3 py-2 rounded-xl">
                   <ExclamationTriangleIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-1.5" />
                   <span className="font-bold">{stats.unreadMessages} <span className="hidden sm:inline">New Messages</span></span>
                 </div>
+              )}
+              {studentData && (
+                <button
+                  type="button"
+                  onClick={() => setShowProfile(true)}
+                  className="h-10 w-10 rounded-xl bg-[#CA133E] flex items-center justify-center text-white font-bold text-sm hover:bg-[#A01030] transition-colors shadow-lg"
+                  title="View Profile"
+                >
+                  {studentData.firstName?.[0]}{studentData.lastName?.[0]}
+                </button>
               )}
               <motion.button
                 onClick={handleLogout}
@@ -502,6 +514,16 @@ const StudentDashboard = () => {
           {getCurrentTabComponent()}
         </motion.div>
       </div>
+
+      {/* Profile Modal */}
+      <AnimatePresence>
+        {showProfile && studentData && (
+          <ProfileModal
+            user={{ ...studentData, role: 'student', roleData: studentData.studentInfo }}
+            onClose={() => setShowProfile(false)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 };

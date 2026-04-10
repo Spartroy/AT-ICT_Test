@@ -5,6 +5,7 @@ const {
   getChildProgress,
   getChildReports
 } = require('../controllers/parentController');
+const { getParentPayments, payPayment } = require('../controllers/paymentController');
 
 const router = express.Router();
 
@@ -37,11 +38,8 @@ router.get('/children/:childId/progress', (req, res) => {
 });
 
 
-router.get('/fees', (req, res) => {
-  res.json({
-    status: 'success',
-    message: 'Fee management - Coming soon!'
-  });
-});
+// Payment routes
+router.get('/payments', getParentPayments);
+router.put('/payments/:paymentId/pay', payPayment);
 
 module.exports = router; 

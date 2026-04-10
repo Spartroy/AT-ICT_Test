@@ -145,7 +145,7 @@ const RegistrationActionModal = ({ activity, onClose, onApproved, onRejected }) 
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
-        className="bg-gray-900/95 border border-gray-700 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col"
+        className="bg-gray-900/95 border border-gray-700 rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col"
       >
         {/* Header */}
         <div className="p-5 border-b border-gray-700 flex items-center justify-between">
@@ -176,7 +176,7 @@ const RegistrationActionModal = ({ activity, onClose, onApproved, onRejected }) 
             <>
               {/* Identity */}
               <div className="flex items-center space-x-4">
-                <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center ring-2 ring-orange-500/30 flex-shrink-0">
+                <div className="h-16 w-16 rounded-xl bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center ring-2 ring-orange-500/30 flex-shrink-0">
                   <span className="text-white font-bold text-xl">
                     {registration.firstName?.[0]}{registration.lastName?.[0]}
                   </span>
@@ -420,7 +420,7 @@ const SubmissionModal = ({ activity, onClose }) => {
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
-        className="bg-gray-900/95 border border-gray-700 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col"
+        className="bg-gray-900/95 border border-gray-700 rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col"
       >
         {/* Header */}
         <div className="p-5 border-b border-gray-700 flex items-center justify-between">

@@ -120,18 +120,18 @@ function SessionEditorModal({ schedule, onSave, onClose, saving }) {
   const totalSessions = formData.schedule.reduce((sum, d) => sum + d.sessions.length, 0);
 
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-start justify-center z-50 p-4 overflow-y-auto">
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-start justify-center z-50 px-2 py-4 sm:px-4 md:px-6 lg:px-8 overflow-y-auto">
       <motion.div
-        initial={{ opacity: 0, scale: 0.95, y: 40 }}
+        initial={{ opacity: 0, scale: 0.98, y: 24 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.95, y: 40 }}
-        className="bg-[#2a1010] rounded-2xl shadow-2xl max-w-5xl w-full border border-[#CA133E]/50 my-4"
+        exit={{ opacity: 0, scale: 0.98, y: 24 }}
+        className="bg-[#2a1010] rounded-xl shadow-2xl w-full max-w-[min(98vw,1680px)] border border-[#CA133E]/50 my-2 sm:my-4 min-h-0"
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-5 border-b border-white/20">
+        <div className="flex items-center justify-between px-5 py-4 sm:px-8 sm:py-5 border-b border-white/20">
           <div className="flex items-center gap-3">
             <CalendarDaysIcon className="h-6 w-6 text-[#CA133E]" />
-            <h3 className="text-xl font-bold text-white">
+            <h3 className="text-xl sm:text-2xl font-bold text-white">
               {schedule?._id ? 'Edit Schedule' : 'Create Schedule'}
             </h3>
             <span className="text-sm text-gray-400 bg-white/10 px-2 py-0.5 rounded-xl">{totalSessions} session{totalSessions !== 1 ? 's' : ''}</span>
@@ -141,9 +141,9 @@ function SessionEditorModal({ schedule, onSave, onClose, saving }) {
           </button>
         </div>
 
-        <div className="p-5 space-y-5">
+        <div className="px-5 py-5 sm:px-8 sm:py-6 lg:px-10 lg:py-8 space-y-6">
           {/* Meta */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 lg:gap-8">
             <div>
               <label className="block text-sm font-semibold text-white mb-1.5">Schedule Name</label>
               <input
@@ -181,7 +181,7 @@ function SessionEditorModal({ schedule, onSave, onClose, saving }) {
           </div>
 
           {/* Footer */}
-          <div className="flex justify-end gap-3 pt-4 border-t border-white/20">
+          <div className="flex justify-end gap-3 pt-6 border-t border-white/20">
             <button onClick={onClose} className="px-5 py-2.5 text-gray-300 hover:text-white bg-white/10 rounded-xl hover:bg-white/20 font-semibold transition-colors">
               Cancel
             </button>
@@ -206,7 +206,7 @@ function DayEditor({ day, dayIndex, onAddSession, onRemoveSession, onUpdateSessi
   return (
     <div className={`border rounded-xl transition-all ${hasSessions ? 'border-white/30 bg-white/[0.07]' : 'border-white/20 bg-white/[0.04]'}`}>
       <div
-        className="flex items-center justify-between p-3 cursor-pointer select-none"
+        className="flex flex-wrap items-center justify-between gap-3 p-4 sm:px-6 cursor-pointer select-none"
         onClick={() => setExpanded(e => !e)}
       >
         <div className="flex items-center gap-3">
@@ -261,9 +261,9 @@ function DayEditor({ day, dayIndex, onAddSession, onRemoveSession, onUpdateSessi
 
 function SessionRow({ session, onUpdate, onRemove }) {
   const colors = TYPE_COLORS[session.type] || TYPE_COLORS.theory;
-  const inputCls = "w-full px-2 py-2 bg-white/10 border border-white/25 rounded-lg text-white text-sm focus:border-[#CA133E] focus:outline-none placeholder-gray-400";
+  const inputCls = "w-full px-3 py-2.5 bg-white/10 border border-white/25 rounded-lg text-white text-sm focus:border-[#CA133E] focus:outline-none placeholder-gray-400";
   return (
-    <div className={`grid grid-cols-2 md:grid-cols-5 gap-2 p-3 rounded-xl border-l-4 ${colors.border} bg-white/[0.06]`}>
+    <div className={`grid grid-cols-2 lg:grid-cols-5 gap-3 lg:gap-4 p-4 sm:p-5 rounded-xl border-l-4 ${colors.border} bg-white/[0.06]`}>
       <div>
         <label className="block text-xs font-bold text-gray-300 mb-1.5">Start</label>
         <input type="time" value={session.startTime} onChange={e => onUpdate('startTime', e.target.value)} className={inputCls} />
@@ -283,8 +283,8 @@ function SessionRow({ session, onUpdate, onRemove }) {
         <input type="text" value={session.topic} onChange={e => onUpdate('topic', e.target.value)}
           placeholder="e.g. Chapter 4" className={inputCls} />
       </div>
-      <div className="flex items-end">
-        <button onClick={onRemove} className="w-full py-2 bg-red-600/60 hover:bg-red-600 text-white rounded-lg text-sm font-bold transition-colors border border-red-500/40">
+      <div className="flex items-end col-span-2 lg:col-span-1">
+        <button onClick={onRemove} className="w-full py-2.5 bg-red-600/60 hover:bg-red-600 text-white rounded-lg text-sm font-bold transition-colors border border-red-500/40">
           Remove
         </button>
       </div>
@@ -325,7 +325,7 @@ function AssignStudentsModal({ schedule, allStudents, onSave, onClose, saving })
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
-        className="bg-[#2a1010] rounded-2xl shadow-2xl max-w-2xl w-full border border-[#CA133E]/50 max-h-[85vh] flex flex-col"
+        className="bg-[#2a1010] rounded-xl shadow-2xl max-w-2xl w-full border border-[#CA133E]/50 max-h-[85vh] flex flex-col"
       >
         <div className="flex items-center justify-between p-5 border-b border-white/20">
           <div>
@@ -414,7 +414,7 @@ function ScheduleCard({ schedule, onEdit, onDelete, onAssign, onQr }) {
     <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white/[0.07] border border-white/20 rounded-2xl p-5 hover:border-[#CA133E]/60 transition-all group"
+      className="bg-white/[0.07] border border-white/20 rounded-xl p-5 hover:border-[#CA133E]/60 transition-all group"
     >
       <div className="flex items-start justify-between gap-3 mb-4">
         <div className="flex-1 min-w-0">
@@ -816,11 +816,11 @@ const ScheduleBuilder = () => {
           {loading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {[...Array(3)].map((_, i) => (
-                <div key={i} className="bg-white/10 rounded-2xl p-5 animate-pulse border border-white/20 h-44" />
+                <div key={i} className="bg-white/10 rounded-xl p-5 animate-pulse border border-white/20 h-44" />
               ))}
             </div>
           ) : schedules.length === 0 ? (
-            <div className="text-center py-16 bg-white/5 rounded-2xl border border-dashed border-white/20">
+            <div className="text-center py-16 bg-white/5 rounded-xl border border-dashed border-white/20">
               <CalendarDaysIcon className="h-16 w-16 text-gray-600 mx-auto mb-4" />
               <h3 className="text-xl font-bold text-white mb-2">No schedules yet</h3>
               <p className="text-gray-400 mb-6">Create your first schedule and assign students to it</p>
@@ -850,7 +850,7 @@ const ScheduleBuilder = () => {
 
       {/* ── Weekly Overview ── */}
       {view === 'weekly' && (
-        <div className="bg-white/5 rounded-2xl border border-white/15 p-5">
+        <div className="bg-white/5 rounded-xl border border-white/15 p-5">
           <div className="flex items-center justify-between mb-5">
             <div>
               <h3 className="text-lg font-bold text-white">Combined Weekly View</h3>
@@ -893,7 +893,7 @@ const ScheduleBuilder = () => {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-[#2a1010] rounded-2xl p-6 border border-red-600/50 max-w-sm w-full text-center"
+              className="bg-[#2a1010] rounded-xl p-6 border border-red-600/50 max-w-sm w-full text-center"
             >
               <TrashIcon className="h-12 w-12 text-red-500 mx-auto mb-3" />
               <h3 className="text-xl font-bold text-white mb-2">Delete Schedule?</h3>
@@ -918,7 +918,7 @@ const ScheduleBuilder = () => {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-[#2a1010] rounded-2xl p-6 border border-white/30 max-w-md w-full"
+              className="bg-[#2a1010] rounded-xl p-6 border border-white/30 max-w-md w-full"
             >
               <div className="flex justify-between items-center mb-4">
                 <div>

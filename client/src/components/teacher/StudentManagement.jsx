@@ -20,7 +20,13 @@ import {
   QrCodeIcon,
   ChevronDownIcon,
   ChevronUpIcon,
-  TrashIcon
+  TrashIcon,
+  CurrencyDollarIcon,
+  KeyIcon,
+  PlusCircleIcon,
+  CheckCircleIcon,
+  ClockIcon,
+  XMarkIcon,
 } from '@heroicons/react/24/outline';
 
 const StudentManagement = () => {
@@ -62,6 +68,16 @@ const StudentManagement = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [studentToDelete, setStudentToDelete] = useState(null);
   const [deleting, setDeleting] = useState(false);
+  // Payments state
+  const [payments, setPayments] = useState([]);
+  const [paymentsLoading, setPaymentsLoading] = useState(false);
+  const [showPaymentForm, setShowPaymentForm] = useState(false);
+  const [paymentForm, setPaymentForm] = useState({ planType: 'monthly', amount: '', sessions: '', description: '', dueDate: '', notes: '' });
+  const [paymentSaving, setPaymentSaving] = useState(false);
+  // Temp password state
+  const [tempPasswordData, setTempPasswordData] = useState(null);
+  const [showTempPasswordModal, setShowTempPasswordModal] = useState(false);
+  const [resettingPassword, setResettingPassword] = useState(false);
   const tabContainerRef = useRef(null);
   const dropdownRef = useRef(null);
 
@@ -70,6 +86,7 @@ const StudentManagement = () => {
     { id: 'summary', name: 'Summary', icon: ChartBarIcon, shortName: 'Summary' },
     { id: 'assignments', name: 'Assignments', icon: DocumentTextIcon, shortName: 'Assign.' },
     { id: 'quizzes', name: 'Quizzes', icon: QuestionMarkCircleIcon, shortName: 'Quizzes' },
+    { id: 'payments', name: 'Payments', icon: CurrencyDollarIcon, shortName: 'Payments' },
   ];
 
   useEffect(() => {
@@ -383,6 +400,111 @@ const StudentManagement = () => {
       console.error('Classify student error:', error);
       showError('Failed to classify student');
     }
+  };
+
+  const fetchStudentPayments = async (studentId) => {
+    setPaymentsLoading(true);
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(API_ENDPOINTS.TEACHER.STUDENT_PAYMENTS(studentId), {
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (data.status === 'success') setPayments(data.data.payments || []);
+    } catch (e) {
+      console.error('fetchStudentPayments error:', e);
+    } finally {
+      setPaymentsLoading(false);
+    }
+  };
+
+  const savePayment = async () => {
+    if (!paymentForm.amount) return;
+    setPaymentSaving(true);
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(API_ENDPOINTS.TEACHER.STUDENT_PAYMENTS(selectedStudent.student._id), {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify(paymentForm),
+      });
+      const data = await res.json();
+      if (data.status === 'success') {
+        showOperationToast.saveSuccess('Payment plan');
+        setShowPaymentForm(false);
+        setPaymentForm({ planType: 'monthly', amount: '', sessions: '', description: '', dueDate: '', notes: '' });
+        fetchStudentPayments(selectedStudent.student._id);
+      } else {
+        showError(data.message || 'Failed to save payment');
+      }
+    } catch (e) {
+      showOperationToast.networkError();
+    } finally {
+      setPaymentSaving(false);
+    }
+  };
+
+  const markPaymentAsPaid = async (paymentId) => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(API_ENDPOINTS.TEACHER.PAYMENT(paymentId), {
+        method: 'PUT',
+        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'paid' }),
+      });
+      const data = await res.json();
+      if (data.status === 'success') {
+        showOperationToast.saveSuccess('Payment status');
+        fetchStudentPayments(selectedStudent.student._id);
+      }
+    } catch (e) {
+      showOperationToast.networkError();
+    }
+  };
+
+  const cancelPayment = async (paymentId) => {
+    try {
+      const token = localStorage.getItem('token');
+      await fetch(API_ENDPOINTS.TEACHER.PAYMENT(paymentId), {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
+      showOperationToast.saveSuccess('Payment cancelled');
+      fetchStudentPayments(selectedStudent.student._id);
+    } catch (e) {
+      showOperationToast.networkError();
+    }
+  };
+
+  const handleResetStudentPassword = async () => {
+    if (!selectedStudent) return;
+    setResettingPassword(true);
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(API_ENDPOINTS.TEACHER.RESET_STUDENT_PASSWORD(selectedStudent.student._id), {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (data.status === 'success') {
+        setTempPasswordData({ tempPassword: data.data.tempPassword, studentName: selectedStudent.student.fullName });
+        setShowTempPasswordModal(true);
+      } else {
+        showError(data.message || 'Failed to reset password');
+      }
+    } catch (e) {
+      showOperationToast.networkError();
+    } finally {
+      setResettingPassword(false);
+    }
+  };
+
+  const PLAN_LABELS = { monthly: 'Monthly', weekly: 'Weekly', per_session: 'Per Session', package: 'Package' };
+  const STATUS_COLORS = {
+    pending: 'bg-yellow-900/30 text-yellow-300 border border-yellow-700/50',
+    paid: 'bg-green-900/30 text-green-300 border border-green-700/50',
+    overdue: 'bg-red-900/30 text-red-300 border border-red-700/50',
+    cancelled: 'bg-gray-700/50 text-gray-400 border border-gray-600/50',
   };
 
   const getStatusBadge = (status) => {
@@ -734,9 +856,8 @@ const StudentManagement = () => {
                           key={tab.id}
                           onClick={() => {
                             setActiveTab(tab.id);
-                            if (tab.id === 'attendance') {
-                              handleAttendanceTabClick();
-                            }
+                            if (tab.id === 'attendance') handleAttendanceTabClick();
+                            if (tab.id === 'payments') fetchStudentPayments(selectedStudent.student._id);
                           }}
                           className={`flex-shrink-0 py-3 sm:py-4 px-2 sm:px-3 lg:px-4 border-b-2 font-medium text-xs sm:text-sm lg:text-base transition-colors ${activeTab === tab.id
                               ? 'border-blue-500 text-blue-400 bg-blue-500/10'
@@ -792,9 +913,8 @@ const StudentManagement = () => {
                                 onClick={() => {
                                   setActiveTab(tab.id);
                                   setShowTabDropdown(false);
-                                  if (tab.id === 'attendance') {
-                                    handleAttendanceTabClick();
-                                  }
+                                  if (tab.id === 'attendance') handleAttendanceTabClick();
+                                  if (tab.id === 'payments') fetchStudentPayments(selectedStudent.student._id);
                                 }}
                                 className={`w-full flex items-center space-x-3 px-4 py-3 text-left hover:bg-gray-700/50 transition-colors ${activeTab === tab.id ? 'bg-blue-500/20 text-blue-400' : 'text-gray-300'
                                   }`}
@@ -1366,6 +1486,167 @@ const StudentManagement = () => {
                 )}
               </div>
 
+                {/* Payments Tab */}
+                {activeTab === 'payments' && (
+                  <div className="space-y-5">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                        <CurrencyDollarIcon className="h-5 w-5 text-[#CA133E]" />
+                        Payment Plans
+                      </h3>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={handleResetStudentPassword}
+                          disabled={resettingPassword}
+                          className="flex items-center gap-2 px-3 py-2 bg-gray-700/80 hover:bg-gray-700 text-gray-300 rounded-xl text-sm font-medium transition-colors border border-gray-600/50"
+                        >
+                          <KeyIcon className="h-4 w-4" />
+                          {resettingPassword ? 'Resetting…' : 'Reset Password'}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setShowPaymentForm(s => !s)}
+                          className="flex items-center gap-2 px-3 py-2 bg-[#CA133E] hover:bg-[#A01030] text-white rounded-xl text-sm font-medium transition-colors"
+                        >
+                          <PlusCircleIcon className="h-4 w-4" />
+                          Add Plan
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* New payment form */}
+                    <AnimatePresence>
+                      {showPaymentForm && (
+                        <motion.div
+                          initial={{ opacity: 0, y: -8 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -8 }}
+                          className="bg-white/5 border border-white/15 rounded-xl p-5 space-y-4"
+                        >
+                          <p className="text-xs font-bold text-[#CA133E] uppercase tracking-widest">New Payment Plan</p>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                              <label className="block text-xs text-gray-400 mb-1.5 font-medium uppercase tracking-wide">Plan Type</label>
+                              <select
+                                value={paymentForm.planType}
+                                onChange={e => setPaymentForm(f => ({ ...f, planType: e.target.value }))}
+                                className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-xl text-white text-sm focus:border-[#CA133E] focus:outline-none"
+                              >
+                                <option value="monthly">Monthly</option>
+                                <option value="weekly">Weekly</option>
+                                <option value="per_session">Per Session</option>
+                                <option value="package">Package</option>
+                              </select>
+                            </div>
+                            <div>
+                              <label className="block text-xs text-gray-400 mb-1.5 font-medium uppercase tracking-wide">Amount (EGP)</label>
+                              <input
+                                type="number"
+                                min="0"
+                                value={paymentForm.amount}
+                                onChange={e => setPaymentForm(f => ({ ...f, amount: e.target.value }))}
+                                placeholder="e.g. 500"
+                                className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-xl text-white text-sm focus:border-[#CA133E] focus:outline-none"
+                              />
+                            </div>
+                            {(paymentForm.planType === 'per_session' || paymentForm.planType === 'package') && (
+                              <div>
+                                <label className="block text-xs text-gray-400 mb-1.5 font-medium uppercase tracking-wide">Sessions Count</label>
+                                <input
+                                  type="number"
+                                  min="1"
+                                  value={paymentForm.sessions}
+                                  onChange={e => setPaymentForm(f => ({ ...f, sessions: e.target.value }))}
+                                  placeholder="e.g. 8"
+                                  className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-xl text-white text-sm focus:border-[#CA133E] focus:outline-none"
+                                />
+                              </div>
+                            )}
+                            <div>
+                              <label className="block text-xs text-gray-400 mb-1.5 font-medium uppercase tracking-wide">Due Date</label>
+                              <input
+                                type="date"
+                                value={paymentForm.dueDate}
+                                onChange={e => setPaymentForm(f => ({ ...f, dueDate: e.target.value }))}
+                                className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-xl text-white text-sm focus:border-[#CA133E] focus:outline-none"
+                              />
+                            </div>
+                            <div className="sm:col-span-2">
+                              <label className="block text-xs text-gray-400 mb-1.5 font-medium uppercase tracking-wide">Description</label>
+                              <input
+                                type="text"
+                                value={paymentForm.description}
+                                onChange={e => setPaymentForm(f => ({ ...f, description: e.target.value }))}
+                                placeholder="e.g. November package"
+                                className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-xl text-white text-sm focus:border-[#CA133E] focus:outline-none"
+                              />
+                            </div>
+                            <div className="sm:col-span-2">
+                              <label className="block text-xs text-gray-400 mb-1.5 font-medium uppercase tracking-wide">Notes</label>
+                              <input
+                                type="text"
+                                value={paymentForm.notes}
+                                onChange={e => setPaymentForm(f => ({ ...f, notes: e.target.value }))}
+                                placeholder="Optional notes"
+                                className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-xl text-white text-sm focus:border-[#CA133E] focus:outline-none"
+                              />
+                            </div>
+                          </div>
+                          <div className="flex gap-2 justify-end">
+                            <button type="button" onClick={() => setShowPaymentForm(false)} className="px-4 py-2 bg-gray-700 rounded-xl text-sm text-gray-300 hover:bg-gray-600 transition-colors">Cancel</button>
+                            <button type="button" onClick={savePayment} disabled={paymentSaving || !paymentForm.amount} className="px-4 py-2 bg-[#CA133E] hover:bg-[#A01030] text-white rounded-xl text-sm font-medium transition-colors disabled:opacity-50">
+                              {paymentSaving ? 'Saving…' : 'Save Plan'}
+                            </button>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+
+                    {/* Payments list */}
+                    {paymentsLoading ? (
+                      <div className="space-y-3">{[...Array(3)].map((_, i) => <div key={i} className="h-20 bg-white/5 rounded-xl animate-pulse" />)}</div>
+                    ) : payments.length === 0 ? (
+                      <div className="text-center py-12 bg-white/5 border border-dashed border-white/15 rounded-xl">
+                        <CurrencyDollarIcon className="h-10 w-10 text-gray-600 mx-auto mb-3" />
+                        <p className="text-gray-400 text-sm">No payment plans yet. Add one above.</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {payments.map(p => (
+                          <div key={p._id} className="bg-white/5 border border-white/10 rounded-xl p-4 flex flex-wrap items-center gap-3">
+                            <div className="flex-1 min-w-0">
+                              <div className="flex flex-wrap items-center gap-2 mb-1">
+                                <span className="text-white font-semibold text-sm">{p.description || PLAN_LABELS[p.planType]}</span>
+                                <span className="text-xs px-2 py-0.5 rounded-full bg-white/10 text-gray-300 border border-white/15">{PLAN_LABELS[p.planType]}</span>
+                                <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${STATUS_COLORS[p.status]}`}>{p.status}</span>
+                              </div>
+                              <div className="flex flex-wrap gap-3 text-xs text-gray-400">
+                                <span className="font-bold text-white text-base">{p.amount.toLocaleString()} EGP</span>
+                                {p.sessions && <span>{p.sessions} sessions</span>}
+                                {p.dueDate && <span>Due: {new Date(p.dueDate).toLocaleDateString()}</span>}
+                                {p.paidDate && <span className="text-green-400">Paid: {new Date(p.paidDate).toLocaleDateString()}</span>}
+                              </div>
+                              {p.notes && <p className="text-xs text-gray-500 mt-1">{p.notes}</p>}
+                            </div>
+                            <div className="flex gap-2 flex-shrink-0">
+                              {p.status === 'pending' && (
+                                <button type="button" onClick={() => markPaymentAsPaid(p._id)} className="flex items-center gap-1 px-3 py-1.5 bg-green-700/50 hover:bg-green-700/80 text-green-300 rounded-lg text-xs font-medium transition-colors">
+                                  <CheckCircleIcon className="h-3.5 w-3.5" />Mark Paid
+                                </button>
+                              )}
+                              <button type="button" onClick={() => cancelPayment(p._id)} className="flex items-center gap-1 px-3 py-1.5 bg-red-900/30 hover:bg-red-900/60 text-red-400 rounded-lg text-xs font-medium transition-colors">
+                                <XMarkIcon className="h-3.5 w-3.5" />Delete
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
               <div className="p-3 sm:p-4 lg:p-6 border-t border-gray-700/80 flex justify-end space-x-3 mt-auto">
                 <button
                   onClick={() => setShowModal(false)}
@@ -1485,6 +1766,54 @@ const StudentManagement = () => {
                       <span>Remove Student</span>
                     </>
                   )}
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Temp Password Modal */}
+      <AnimatePresence>
+        {showTempPasswordModal && tempPasswordData && (
+          <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-[60] p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-gray-900 text-white rounded-xl shadow-2xl w-full max-w-md border border-gray-700"
+            >
+              <div className="p-5 border-b border-gray-800 flex items-center gap-3">
+                <KeyIcon className="h-6 w-6 text-yellow-400" />
+                <div>
+                  <h3 className="text-lg font-semibold">Password Reset</h3>
+                  <p className="text-gray-400 text-sm">{tempPasswordData.studentName}</p>
+                </div>
+              </div>
+              <div className="p-5 space-y-4">
+                <p className="text-sm text-gray-300">Hand this temporary password to the student. They should change it immediately from their profile.</p>
+                <div>
+                  <label className="block text-xs text-gray-400 mb-1.5 uppercase font-bold tracking-wide">Temporary Password</label>
+                  <div className="flex items-center bg-gray-800 rounded-xl px-4 py-3 border border-yellow-700/40">
+                    <span className="font-mono text-yellow-300 font-bold text-lg tracking-widest flex-1">{tempPasswordData.tempPassword}</span>
+                    <button
+                      type="button"
+                      onClick={() => navigator.clipboard?.writeText(tempPasswordData.tempPassword)}
+                      className="ml-3 text-yellow-400 hover:text-yellow-300 text-sm font-medium"
+                    >
+                      Copy
+                    </button>
+                  </div>
+                </div>
+                <p className="text-xs text-gray-500">⚠️ This password is shown only once and will not be stored.</p>
+              </div>
+              <div className="p-4 border-t border-gray-800 flex justify-end">
+                <button
+                  type="button"
+                  className="px-4 py-2 bg-gray-700 rounded-xl hover:bg-gray-600 transition-colors"
+                  onClick={() => { setShowTempPasswordModal(false); setTempPasswordData(null); }}
+                >
+                  Done
                 </button>
               </div>
             </motion.div>

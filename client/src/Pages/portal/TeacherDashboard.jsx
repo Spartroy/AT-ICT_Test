@@ -4,6 +4,7 @@ import { API_ENDPOINTS } from '../../config/api';
 import { useNavigate } from 'react-router-dom';
 import { showOperationToast } from '../../utils/toast';
 import Leaderboard from '../../components/shared/Leaderboard';
+import ProfileModal from '../../components/shared/ProfileModal';
 import {
   AcademicCapIcon,
   UserGroupIcon,
@@ -24,7 +25,8 @@ import {
   ChevronRightIcon,
   PlayIcon,
   TrophyIcon,
-  ArrowPathIcon
+  ArrowPathIcon,
+  SparklesIcon
 } from '@heroicons/react/24/outline';
 
 // Import tab components
@@ -33,6 +35,7 @@ import StudentManagement from '../../components/teacher/StudentManagement';
 import AnnouncementCenter from '../../components/teacher/AnnouncementCenter';
 import ChatCenter from '../../components/teacher/ChatCenter';
 import ScheduleBuilder from '../../components/teacher/ScheduleBuilder';
+import CatchupGenerator from '../../components/teacher/CatchupGenerator';
 import MaterialsCenter from '../../components/teacher/MaterialsCenter';
 import CreateAssignmentModal from '../../components/teacher/CreateAssignmentModal';
 import CreateQuizModal from '../../components/teacher/CreateQuizModal';
@@ -63,6 +66,7 @@ const TeacherDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [showCreateAssignment, setShowCreateAssignment] = useState(false);
   const [showCreateQuiz, setShowCreateQuiz] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
   const [currentTabPage, setCurrentTabPage] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
 
@@ -114,6 +118,13 @@ const TeacherDashboard = () => {
       shortName: 'Schedule',
       icon: CalendarDaysIcon,
       color: 'bg-indigo-600'
+    },
+    {
+      id: 'catchup',
+      name: 'Catchup generator',
+      shortName: 'Catch-Up',
+      icon: SparklesIcon,
+      color: 'bg-rose-600'
     },
     {
       id: 'materials',
@@ -294,6 +305,8 @@ const TeacherDashboard = () => {
         return <StudentManagement />;
       case 'schedule':
         return <ScheduleBuilder />;
+      case 'catchup':
+        return <CatchupGenerator />;
       case 'materials':
         return <MaterialsCenter />;
       case 'videos':
@@ -334,9 +347,16 @@ const TeacherDashboard = () => {
             
             {/* Desktop user info and logout */}
             <div className="hidden sm:flex items-center space-x-4 lg:space-x-6">
-              <div className="h-12 w-12 lg:h-16 lg:w-16 rounded-xl bg-[#CA133E] flex items-center justify-center shadow-lg">
-                <span className="text-white font-bold text-lg lg:text-2xl">AT</span>
-              </div>
+              <button
+                type="button"
+                onClick={() => setShowProfile(true)}
+                className="h-12 w-12 lg:h-16 lg:w-16 rounded-xl bg-[#CA133E] flex items-center justify-center shadow-lg hover:bg-[#A01030] transition-colors cursor-pointer"
+                title="View Profile"
+              >
+                <span className="text-white font-bold text-lg lg:text-2xl">
+                  {currentUser.firstName?.[0] || 'T'}{currentUser.lastName?.[0] || ''}
+                </span>
+              </button>
               <motion.button
                 onClick={handleLogout}
                 className="flex items-center space-x-2 sm:space-x-3 px-4 sm:px-6 lg:px-8 py-3 sm:py-4 lg:py-5 bg-red-600/80 hover:bg-red-600 text-white rounded-xl transition-all duration-300 font-bold text-sm sm:text-base lg:text-lg shadow-lg hover:shadow-xl"
@@ -726,7 +746,7 @@ const DashboardOverview = ({ stats, loading, setActiveTab, setShowCreateAssignme
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-gray-800 rounded-2xl p-6 w-full max-w-md border border-gray-600 shadow-2xl"
+              className="bg-gray-800 rounded-xl p-6 w-full max-w-md border border-gray-600 shadow-2xl"
             >
               <div className="flex items-center gap-3 mb-4">
                 <div className="p-2 rounded-xl bg-[#CA133E]/20">
@@ -780,6 +800,13 @@ const DashboardOverview = ({ stats, loading, setActiveTab, setShowCreateAssignme
               </div>
             </motion.div>
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Profile Modal */}
+      <AnimatePresence>
+        {showProfile && (
+          <ProfileModal user={currentUser} onClose={() => setShowProfile(false)} />
         )}
       </AnimatePresence>
     </div>

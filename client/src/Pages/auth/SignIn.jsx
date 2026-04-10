@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
-import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
+import { EyeIcon, EyeSlashIcon, XMarkIcon, KeyIcon, InformationCircleIcon } from '@heroicons/react/24/outline';
 import Nav from '../../components/Nav';
 import { showOperationToast } from '../../utils/toast';
 import { API_ENDPOINTS } from '../../config/api';
@@ -16,6 +16,7 @@ const SignIn = () => {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
+  const [showForgotModal, setShowForgotModal] = useState(false);
 
   useEffect(() => {
     // Check for messages in URL params
@@ -192,7 +193,7 @@ const SignIn = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            className="py-8 px-8 shadow-2xl border-2 rounded-3xl glassify-signin-form"
+            className="py-8 px-8 shadow-2xl border-2 rounded-xl glassify-signin-form"
             style={{
               background: 'linear-gradient(135deg, rgba(10,10,10,0.55) 0%, rgba(0,0,0,0.75) 100%)',
               borderColor: '#D91743',
@@ -327,15 +328,22 @@ const SignIn = () => {
                 </motion.button>
               </div>
 
-              <div className="text-center">
-                <p className="text-sm text-gray-300">
-                  Don't have an account?{' '}
+              <div className="flex items-center justify-between text-sm">
+                <button
+                  type="button"
+                  onClick={() => setShowForgotModal(true)}
+                  className="text-gray-400 hover:text-gray-200 transition-colors underline underline-offset-2"
+                >
+                  Forgot password?
+                </button>
+                <p className="text-gray-300">
+                  No account?{' '}
                   <Link
                     to="/register"
                     className="font-medium hover:underline transition-colors"
                     style={{ color: '#D91743' }}
                   >
-                    Register here
+                    Register
                   </Link>
                 </p>
               </div>
@@ -343,6 +351,49 @@ const SignIn = () => {
           </motion.div>
         </motion.div>
       </div>
+
+      {/* Forgot Password Modal */}
+      <AnimatePresence>
+        {showForgotModal && (
+          <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: -12 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: -12 }}
+              className="bg-gray-900 border border-[#D91743]/40 rounded-2xl shadow-2xl w-full max-w-sm p-6 space-y-4"
+            >
+              <div className="flex items-start justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-xl bg-[#D91743]/20 flex items-center justify-center">
+                    <KeyIcon className="h-5 w-5 text-[#D91743]" />
+                  </div>
+                  <h3 className="text-white font-bold text-lg">Forgot Password?</h3>
+                </div>
+                <button type="button" onClick={() => setShowForgotModal(false)} className="text-gray-400 hover:text-white">
+                  <XMarkIcon className="h-5 w-5" />
+                </button>
+              </div>
+
+              <div className="bg-blue-900/20 border border-blue-500/30 rounded-xl p-4 flex gap-3">
+                <InformationCircleIcon className="h-5 w-5 text-blue-400 flex-shrink-0 mt-0.5" />
+                <div className="text-sm text-gray-300 space-y-2">
+                  <p>Password resets are handled by your <strong className="text-white">teacher / administrator</strong>.</p>
+                  <p>Contact your teacher and ask them to generate a temporary password for you.</p>
+                  <p className="text-gray-400 text-xs">Once you receive it, log in with the temporary password and then change it immediately from your <strong>Profile</strong> (click your avatar in the dashboard header).</p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setShowForgotModal(false)}
+                className="w-full py-2.5 bg-[#D91743] hover:bg-[#b5102e] text-white font-semibold rounded-xl transition-colors"
+              >
+                Got it
+              </button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

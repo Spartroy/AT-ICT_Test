@@ -10,6 +10,13 @@ const {
   addLegacyStudent
 } = require('../controllers/teacherController');
 const { resetSessionPoints } = require('../controllers/leaderboardController');
+const {
+  createPayment,
+  getStudentPayments,
+  updatePayment,
+  deletePayment,
+  resetStudentPassword,
+} = require('../controllers/paymentController');
 const { protect, teacherOnly } = require('../middleware/auth');
 
 // Import new route modules
@@ -69,5 +76,14 @@ router.use('/notes', noteRoutes);
 
 // Session points reset
 router.post('/reset-session-points', resetSessionPoints);
+
+// Payment management
+router.get('/students/:studentId/payments', getStudentPayments);
+router.post('/students/:studentId/payments', createPayment);
+router.put('/payments/:paymentId', updatePayment);
+router.delete('/payments/:paymentId', deletePayment);
+
+// Force-reset student password
+router.post('/students/:studentId/reset-password', resetStudentPassword);
 
 module.exports = router; 

@@ -583,7 +583,7 @@ const AssignmentsTab = ({ studentData, stats, fetchUrl, readonly = false }) => {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
-            className="bg-gray-900/95 border border-gray-700 rounded-2xl shadow-2xl max-w-md w-full p-6 text-center"
+            className="bg-gray-900/95 border border-gray-700 rounded-xl shadow-2xl max-w-md w-full p-6 text-center"
           >
             <div className={`mx-auto h-16 w-16 rounded-full flex items-center justify-center mb-4 ${
               successModal.isError ? 'bg-red-500/20' : 'bg-green-500/20'

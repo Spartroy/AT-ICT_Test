@@ -280,7 +280,7 @@ const PendingRegistrations = ({ onRegistrationUpdate }) => {
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-gray-900/90 border border-gray-700 text-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col"
+            className="bg-gray-900/90 border border-gray-700 text-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col"
           >
             {/* Modal Header */}
             <div className="p-5 border-b border-gray-700 flex items-center justify-between">
@@ -307,7 +307,7 @@ const PendingRegistrations = ({ onRegistrationUpdate }) => {
             <div className="p-5 space-y-5 overflow-y-auto">
               {/* Identity */}
               <div className="flex items-center space-x-4">
-                <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-red-500 to-red-700 flex items-center justify-center ring-2 ring-red-500/30 flex-shrink-0">
+                <div className="h-16 w-16 rounded-xl bg-gradient-to-br from-red-500 to-red-700 flex items-center justify-center ring-2 ring-red-500/30 flex-shrink-0">
                   <span className="text-white font-bold text-xl">
                     {selectedRegistration.firstName[0]}{selectedRegistration.lastName[0]}
                   </span>
