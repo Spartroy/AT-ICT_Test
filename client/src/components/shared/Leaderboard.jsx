@@ -101,7 +101,7 @@ const Leaderboard = ({ currentUserId, session, className = '' }) => {
         </h3>
         <button
           onClick={fetchLeaderboard}
-          className="text-gray-400 hover:text-white transition-colors p-1 rounded-lg hover:bg-gray-700"
+          className="text-gray-400 hover:text-white transition-colors p-1 rounded-xl hover:bg-gray-700"
           title="Refresh leaderboard"
         >
           <ArrowPathIcon className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />

@@ -500,7 +500,7 @@ const CreateAssignmentModal = ({ isOpen, onClose, onSuccess }) => {
                             placeholder="Search by name..."
                             value={studentSearchQuery}
                             onChange={(e) => setStudentSearchQuery(e.target.value)}
-                            className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-xl text-white text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                             onClick={(e) => e.stopPropagation()}
                           />
                         </div>

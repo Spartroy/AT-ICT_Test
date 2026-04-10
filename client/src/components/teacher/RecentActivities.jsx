@@ -599,7 +599,7 @@ const SubmissionModal = ({ activity, onClose }) => {
                         <button
                           onClick={() => handleDownload(file.filename)}
                           disabled={downloadingFile === file.filename}
-                          className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 rounded-lg text-xs font-semibold border border-blue-500/30 transition-all disabled:opacity-50 flex-shrink-0 ml-3"
+                          className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 rounded-xl text-xs font-semibold border border-blue-500/30 transition-all disabled:opacity-50 flex-shrink-0 ml-3"
                         >
                           <ArrowDownTrayIcon className="h-3.5 w-3.5" />
                           <span>{downloadingFile === file.filename ? 'Downloading...' : 'Download'}</span>
@@ -638,7 +638,7 @@ const ActivityActionButton = ({ activity, onOpenRegistration, onOpenSubmission }
     return (
       <button
         onClick={(e) => { e.stopPropagation(); onOpenRegistration(activity); }}
-        className="flex-shrink-0 flex items-center space-x-1.5 px-3 py-1.5 bg-orange-500/20 hover:bg-orange-500/30 text-orange-300 hover:text-orange-200 rounded-lg transition-all text-xs font-semibold border border-orange-500/30 hover:border-orange-500/50"
+        className="flex-shrink-0 flex items-center space-x-1.5 px-3 py-1.5 bg-orange-500/20 hover:bg-orange-500/30 text-orange-300 hover:text-orange-200 rounded-xl transition-all text-xs font-semibold border border-orange-500/30 hover:border-orange-500/50"
         title="Review application"
       >
         <UserIcon className="h-3.5 w-3.5" />
@@ -652,7 +652,7 @@ const ActivityActionButton = ({ activity, onOpenRegistration, onOpenSubmission }
     return (
       <button
         onClick={(e) => { e.stopPropagation(); onOpenSubmission(activity); }}
-        className={`flex-shrink-0 flex items-center space-x-1.5 px-3 py-1.5 rounded-lg transition-all text-xs font-semibold border ${
+        className={`flex-shrink-0 flex items-center space-x-1.5 px-3 py-1.5 rounded-xl transition-all text-xs font-semibold border ${
           isQuiz
             ? 'bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 hover:text-purple-200 border-purple-500/30'
             : 'bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 hover:text-blue-200 border-blue-500/30'
@@ -880,7 +880,7 @@ const RecentActivities = ({ onStudentClick, onRegistrationUpdate }) => {
                   {!activity.isRead && (
                     <button
                       onClick={(e) => { e.stopPropagation(); markAsRead([activity._id]); }}
-                      className="p-1.5 rounded-lg hover:bg-white/10 text-gray-500 hover:text-blue-400 transition-colors"
+                      className="p-1.5 rounded-xl hover:bg-white/10 text-gray-500 hover:text-blue-400 transition-colors"
                       title="Mark as read"
                     >
                       <EyeIcon className="h-4 w-4" />

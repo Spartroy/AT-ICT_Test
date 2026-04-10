@@ -1082,7 +1082,7 @@ const Registration = () => {
                       max="10"
                       value={formData.techKnowledge}
                       onChange={handleInputChange}
-                      className="w-full h-3 bg-gray-700 rounded-lg appearance-none cursor-pointer"
+                      className="w-full h-3 bg-gray-700 rounded-xl appearance-none cursor-pointer"
                       style={{ accentColor: '#D91743' }}
                     />
                     <div className="flex justify-between text-sm text-gray-400 mt-2">
@@ -1107,7 +1107,7 @@ const Registration = () => {
                       max="10"
                       value={formData.englishLevel}
                       onChange={handleInputChange}
-                      className="w-full h-3 bg-gray-700 rounded-lg appearance-none cursor-pointer"
+                      className="w-full h-3 bg-gray-700 rounded-xl appearance-none cursor-pointer"
                       style={{ accentColor: '#D91743' }}
                     />
                     <div className="flex justify-between text-sm text-gray-400 mt-2">

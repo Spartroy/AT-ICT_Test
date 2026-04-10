@@ -454,7 +454,7 @@ const StudentManagement = () => {
         <div className="flex items-center gap-4">
           <button
             onClick={() => setShowLegacyModal(true)}
-            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center gap-2"
+            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-xl text-sm font-medium transition-colors duration-200 flex items-center gap-2"
           >
             <UserIcon className="h-4 w-4" />
             Add Legacy Student
@@ -1522,7 +1522,7 @@ const StudentManagement = () => {
                   <label className="block text-sm font-medium text-gray-300 mb-2">Select Student *</label>
                   <select
                     required
-                    className="w-full px-3 py-2 border border-gray-600 rounded-lg bg-gray-900 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-600 rounded-xl bg-gray-900 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     value={legacyStudent.studentId}
                     onChange={(e) => setLegacyStudent({ ...legacyStudent, studentId: e.target.value })}
                   >
@@ -1542,7 +1542,7 @@ const StudentManagement = () => {
                   <label className="block text-sm font-medium text-gray-300 mb-2">Assign to Royal Class *</label>
                   <select
                     required
-                    className="w-full px-3 py-2 border border-gray-600 rounded-lg bg-gray-900 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-600 rounded-xl bg-gray-900 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     value={legacyStudent.royalClass}
                     onChange={(e) => setLegacyStudent({ ...legacyStudent, royalClass: e.target.value })}
                   >
@@ -1556,14 +1556,14 @@ const StudentManagement = () => {
                   <button
                     type="button"
                     onClick={() => setShowLegacyModal(false)}
-                    className="px-4 py-2 bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors"
+                    className="px-4 py-2 bg-gray-700 rounded-xl hover:bg-gray-600 transition-colors"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={!legacyStudent.studentId || !legacyStudent.royalClass}
-                    className="px-4 py-2 bg-green-600 rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-2"
+                    className="px-4 py-2 bg-green-600 rounded-xl hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-2"
                   >
                     <UserIcon className="h-4 w-4" />
                     <span>Classify Student</span>
