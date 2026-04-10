@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   CurrencyDollarIcon,
@@ -24,18 +24,28 @@ const STATUS_CFG = {
   cancelled:{ label: 'Cancelled',icon: XCircleIcon,              cls: 'bg-gray-700/50 text-gray-400 border border-gray-600/50'      },
 };
 
-const INSTAPAY_LINK = 'https://ipn.eg/S/spartroy/instapay/2BjJKk'
- 
+const INSTAPAY_LINK = 'https://ipn.eg/S/spartroy/instapay/2BjJKk';
+
 const ParentPayments = () => {
   const [payments, setPayments]       = useState([]);
   const [loading, setLoading]         = useState(true);
   const [payingId, setPayingId]       = useState(null);
-  const [showInstapay, setShowInstapay] = useState(null); // paymentId
+  const [payPanel, setPayPanel]       = useState(null); // { id, type: 'instapay' | 'card' } | null
   const [instapayFile, setInstapayFile] = useState(null);
+  const [cardForm, setCardForm]       = useState({ name: '', number: '', expiry: '', cvc: '' });
+  const prevPayPanelRef = useRef(null);
 
   useEffect(() => {
-    setInstapayFile(null);
-  }, [showInstapay]);
+    const prev = prevPayPanelRef.current;
+    prevPayPanelRef.current = payPanel;
+
+    if (payPanel?.type !== 'instapay') setInstapayFile(null);
+    if (payPanel?.type !== 'card') {
+      setCardForm({ name: '', number: '', expiry: '', cvc: '' });
+    } else if (payPanel.id !== prev?.id || prev?.type !== 'card') {
+      setCardForm({ name: '', number: '', expiry: '', cvc: '' });
+    }
+  }, [payPanel]);
 
   const fetchPayments = async () => {
     setLoading(true);
@@ -74,11 +84,43 @@ const ParentPayments = () => {
       const data = await res.json();
       if (data.status === 'success') {
         showSuccess('Payment submitted with proof. Thank you!');
-        setShowInstapay(null);
+        setPayPanel(null);
         setInstapayFile(null);
         fetchPayments();
       } else {
         showError(data.message || 'Could not submit payment');
+      }
+    } catch {
+      showError('Network error. Please try again.');
+    } finally {
+      setPayingId(null);
+    }
+  };
+
+  const submitCardPayment = async (paymentId) => {
+    const { name, number, expiry, cvc } = cardForm;
+    if (!name.trim() || !number.trim() || !expiry.trim() || !cvc.trim()) {
+      showError('Please fill in all card fields to continue (demo checkout — no real charge).');
+      return;
+    }
+    setPayingId(paymentId);
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(API_ENDPOINTS.PARENT.PAY(paymentId), {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ paymentMethod: 'card' }),
+      });
+      const data = await res.json();
+      if (data.status === 'success') {
+        showSuccess('Payment recorded. Card gateway is not live yet — this only marks the plan as paid in the app.');
+        setPayPanel(null);
+        fetchPayments();
+      } else {
+        showError(data.message || 'Could not record payment');
       }
     } catch {
       showError('Network error. Please try again.');
@@ -197,22 +239,33 @@ const ParentPayments = () => {
                     {/* InstaPay */}
                     <button
                       type="button"
-                      onClick={() => setShowInstapay(showInstapay === p._id ? null : p._id)}
-                      className="flex items-center gap-1.5 px-3 py-2 bg-emerald-900/40 hover:bg-emerald-900/60 text-emerald-300 rounded-xl text-sm font-medium transition-colors border border-emerald-700/50"
+                      onClick={() =>
+                        setPayPanel(
+                          payPanel?.id === p._id && payPanel?.type === 'instapay' ? null : { id: p._id, type: 'instapay' },
+                        )
+                      }
+                      className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium transition-colors border ${
+                        payPanel?.id === p._id && payPanel?.type === 'instapay'
+                          ? 'bg-emerald-800/50 text-emerald-200 border-emerald-500/60 ring-1 ring-emerald-500/30'
+                          : 'bg-emerald-900/40 hover:bg-emerald-900/60 text-emerald-300 border-emerald-700/50'
+                      }`}
                     >
                       <QrCodeIcon className="h-4 w-4" />
                       InstaPay
                     </button>
-                    {/* Card */}
                     <button
                       type="button"
-                      disabled
-                      className="flex items-center gap-1.5 px-3 py-2 bg-gray-700/40 text-gray-500 rounded-xl text-sm font-medium border border-gray-600/50 cursor-not-allowed"
-                      title="Card payments coming soon"
+                      onClick={() =>
+                        setPayPanel(payPanel?.id === p._id && payPanel?.type === 'card' ? null : { id: p._id, type: 'card' })
+                      }
+                      className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium transition-colors border ${
+                        payPanel?.id === p._id && payPanel?.type === 'card'
+                          ? 'bg-indigo-800/50 text-indigo-200 border-indigo-500/60 ring-1 ring-indigo-500/30'
+                          : 'bg-indigo-900/40 hover:bg-indigo-900/60 text-indigo-300 border-indigo-700/50'
+                      }`}
                     >
                       <CreditCardIcon className="h-4 w-4" />
                       Card
-                      <span className="text-xs bg-gray-600/50 px-1.5 py-0.5 rounded-full">Soon</span>
                     </button>
                   </div>
                 )}
@@ -224,9 +277,8 @@ const ParentPayments = () => {
                 )}
               </div>
 
-              {/* InstaPay panel */}
               <AnimatePresence>
-                {showInstapay === p._id && (
+                {payPanel?.id === p._id && payPanel?.type === 'instapay' && (
                   <motion.div
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: 'auto' }}
@@ -272,7 +324,7 @@ const ParentPayments = () => {
                       <div className="flex gap-2">
                         <button
                           type="button"
-                          onClick={() => setShowInstapay(null)}
+                          onClick={() => setPayPanel(null)}
                           className="px-4 py-2 bg-gray-700/50 text-gray-300 rounded-xl text-sm hover:bg-gray-700/80 transition-colors"
                         >
                           Cancel
@@ -284,6 +336,89 @@ const ParentPayments = () => {
                           className="flex-1 px-4 py-2 bg-emerald-700 hover:bg-emerald-600 text-white rounded-xl text-sm font-semibold transition-colors disabled:opacity-50"
                         >
                           {payingId === p._id ? 'Uploading…' : 'Submit payment + proof'}
+                        </button>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              <AnimatePresence>
+                {payPanel?.id === p._id && payPanel?.type === 'card' && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="bg-indigo-950/40 border border-indigo-500/30 rounded-xl p-4 space-y-3">
+                      <p className="text-indigo-300 font-semibold text-sm">Pay with card (demo)</p>
+                      <p className="text-gray-400 text-xs">
+                        Enter details for a future checkout. No real charge — submitting marks this plan as paid for your records.
+                      </p>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div className="sm:col-span-2">
+                          <label className="block text-xs text-gray-500 mb-1">Name on card</label>
+                          <input
+                            type="text"
+                            autoComplete="cc-name"
+                            value={cardForm.name}
+                            onChange={e => setCardForm(f => ({ ...f, name: e.target.value }))}
+                            placeholder="As shown on card"
+                            className="w-full px-3 py-2 bg-gray-900/80 border border-gray-600 rounded-xl text-gray-200 text-sm focus:border-indigo-500/60 focus:outline-none focus:ring-1 focus:ring-indigo-500/40"
+                          />
+                        </div>
+                        <div className="sm:col-span-2">
+                          <label className="block text-xs text-gray-500 mb-1">Card number</label>
+                          <input
+                            type="text"
+                            inputMode="numeric"
+                            autoComplete="cc-number"
+                            value={cardForm.number}
+                            onChange={e => setCardForm(f => ({ ...f, number: e.target.value }))}
+                            placeholder="0000 0000 0000 0000"
+                            className="w-full px-3 py-2 bg-gray-900/80 border border-gray-600 rounded-xl text-gray-200 text-sm font-mono focus:border-indigo-500/60 focus:outline-none focus:ring-1 focus:ring-indigo-500/40"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-gray-500 mb-1">Expiry</label>
+                          <input
+                            type="text"
+                            autoComplete="cc-exp"
+                            value={cardForm.expiry}
+                            onChange={e => setCardForm(f => ({ ...f, expiry: e.target.value }))}
+                            placeholder="MM / YY"
+                            className="w-full px-3 py-2 bg-gray-900/80 border border-gray-600 rounded-xl text-gray-200 text-sm focus:border-indigo-500/60 focus:outline-none focus:ring-1 focus:ring-indigo-500/40"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-gray-500 mb-1">CVC</label>
+                          <input
+                            type="text"
+                            inputMode="numeric"
+                            autoComplete="cc-csc"
+                            value={cardForm.cvc}
+                            onChange={e => setCardForm(f => ({ ...f, cvc: e.target.value }))}
+                            placeholder="•••"
+                            className="w-full px-3 py-2 bg-gray-900/80 border border-gray-600 rounded-xl text-gray-200 text-sm focus:border-indigo-500/60 focus:outline-none focus:ring-1 focus:ring-indigo-500/40"
+                          />
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setPayPanel(null)}
+                          className="px-4 py-2 bg-gray-700/50 text-gray-300 rounded-xl text-sm hover:bg-gray-700/80 transition-colors"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => submitCardPayment(p._id)}
+                          disabled={payingId === p._id}
+                          className="flex-1 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-sm font-semibold transition-colors disabled:opacity-50 border border-indigo-500/50"
+                        >
+                          {payingId === p._id ? 'Recording…' : 'Submit payment'}
                         </button>
                       </div>
                     </div>

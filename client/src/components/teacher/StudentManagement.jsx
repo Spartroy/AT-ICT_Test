@@ -19,7 +19,6 @@ import {
   TrophyIcon,
   TrashIcon,
   CurrencyDollarIcon,
-  CreditCardIcon,
   KeyIcon,
   PlusCircleIcon,
   CheckCircleIcon,
@@ -1466,66 +1465,6 @@ const StudentManagement = () => {
                           <PlusCircleIcon className="h-4 w-4" />
                           Add Plan
                         </button>
-                      </div>
-                    </div>
-
-                    {/* Card payment — UI placeholder only (no gateway yet) */}
-                    <div className="bg-indigo-950/40 border border-indigo-500/25 rounded-xl p-4 sm:p-5 space-y-3">
-                      <div className="flex items-center gap-2">
-                        <CreditCardIcon className="h-5 w-5 text-indigo-400 flex-shrink-0" />
-                        <div>
-                          <p className="text-xs font-bold text-indigo-300 uppercase tracking-widest">Card payment (preview)</p>
-                          <p className="text-xs text-gray-500 mt-0.5">
-                            Dummy fields for a future gateway. Not connected — parents will use card checkout here later.
-                          </p>
-                        </div>
-                      </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pointer-events-none select-none opacity-90">
-                        <div className="sm:col-span-2">
-                          <label className="block text-xs text-gray-500 mb-1">Name on card</label>
-                          <input
-                            type="text"
-                            disabled
-                            placeholder="As shown on card"
-                            className="w-full px-3 py-2 bg-gray-900/80 border border-gray-600 rounded-xl text-gray-400 text-sm cursor-not-allowed"
-                          />
-                        </div>
-                        <div className="sm:col-span-2">
-                          <label className="block text-xs text-gray-500 mb-1">Card number</label>
-                          <input
-                            type="text"
-                            disabled
-                            placeholder="0000 0000 0000 0000"
-                            className="w-full px-3 py-2 bg-gray-900/80 border border-gray-600 rounded-xl text-gray-400 text-sm font-mono cursor-not-allowed"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-xs text-gray-500 mb-1">Expiry</label>
-                          <input
-                            type="text"
-                            disabled
-                            placeholder="MM / YY"
-                            className="w-full px-3 py-2 bg-gray-900/80 border border-gray-600 rounded-xl text-gray-400 text-sm cursor-not-allowed"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-xs text-gray-500 mb-1">CVC</label>
-                          <input
-                            type="text"
-                            disabled
-                            placeholder="•••"
-                            className="w-full px-3 py-2 bg-gray-900/80 border border-gray-600 rounded-xl text-gray-400 text-sm cursor-not-allowed"
-                          />
-                        </div>
-                        <div className="sm:col-span-2">
-                          <button
-                            type="button"
-                            disabled
-                            className="w-full py-2.5 rounded-xl bg-indigo-900/50 text-indigo-200/60 text-sm font-semibold border border-indigo-700/40 cursor-not-allowed"
-                          >
-                            Pay with card (coming soon)
-                          </button>
-                        </div>
                       </div>
                     </div>
 
