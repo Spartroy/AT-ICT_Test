@@ -351,6 +351,17 @@ const AssignmentsTab = ({ studentData, stats, fetchUrl, readonly = false }) => {
                             <span className="text-gray-500">Section:</span>
                             <span className="ml-1 text-gray-300">{assignment.section}</span>
                           </span>
+                          {assignment.difficulty && (
+                            <span className={`hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold ${
+                              assignment.difficulty === 'easy'
+                                ? 'bg-green-500/20 text-green-400'
+                                : assignment.difficulty === 'medium'
+                                ? 'bg-yellow-500/20 text-yellow-400'
+                                : 'bg-red-500/20 text-red-400'
+                            }`}>
+                              {assignment.difficulty.charAt(0).toUpperCase() + assignment.difficulty.slice(1)}
+                            </span>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -417,9 +428,17 @@ const AssignmentsTab = ({ studentData, stats, fetchUrl, readonly = false }) => {
                             <span className="ml-1 text-gray-300">{assignment.section}</span>
                           </div>
                           {assignment.difficulty && (
-                            <div>
+                            <div className="flex items-center gap-1.5">
                               <span className="text-gray-500">Difficulty:</span>
-                              <span className="ml-1 text-gray-300">{assignment.difficulty}</span>
+                              <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
+                                assignment.difficulty === 'easy'
+                                  ? 'bg-green-500/20 text-green-400 border border-green-500/30'
+                                  : assignment.difficulty === 'medium'
+                                  ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30'
+                                  : 'bg-red-500/20 text-red-400 border border-red-500/30'
+                              }`}>
+                                {assignment.difficulty.charAt(0).toUpperCase() + assignment.difficulty.slice(1)}
+                              </span>
                             </div>
                           )}
                           <div>

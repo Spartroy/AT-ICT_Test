@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { API_ENDPOINTS } from '../../config/api';
 import { useNavigate } from 'react-router-dom';
 import { showOperationToast } from '../../utils/toast';
+import Leaderboard from '../../components/shared/Leaderboard';
 import {
   AcademicCapIcon,
   UserGroupIcon,
@@ -21,7 +22,9 @@ import {
   FolderIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
-  PlayIcon
+  PlayIcon,
+  TrophyIcon,
+  ArrowPathIcon
 } from '@heroicons/react/24/outline';
 
 // Import tab components
@@ -570,6 +573,39 @@ const TeacherDashboard = () => {
 
 // Dashboard Overview Component
 const DashboardOverview = ({ stats, loading, setActiveTab, setShowCreateAssignment, setShowCreateQuiz, onRegistrationUpdate }) => {
+  const [showResetModal, setShowResetModal] = useState(false);
+  const [newSessionLabel, setNewSessionLabel] = useState('');
+  const [resetLoading, setResetLoading] = useState(false);
+  const [resetMsg, setResetMsg] = useState('');
+
+  const handleResetSession = async () => {
+    if (!newSessionLabel.trim()) return;
+    try {
+      setResetLoading(true);
+      setResetMsg('');
+      const token = localStorage.getItem('token');
+      const res = await fetch(API_ENDPOINTS.TEACHER.RESET_SESSION_POINTS, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ newSessionLabel: newSessionLabel.trim() })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setResetMsg(data.message);
+        setTimeout(() => { setShowResetModal(false); setResetMsg(''); setNewSessionLabel(''); }, 2000);
+      } else {
+        setResetMsg(data.message || 'Reset failed');
+      }
+    } catch {
+      setResetMsg('Network error');
+    } finally {
+      setResetLoading(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
@@ -589,7 +625,6 @@ const DashboardOverview = ({ stats, loading, setActiveTab, setShowCreateAssignme
       value: stats.overview.totalStudents,
       icon: UserGroupIcon,
       color: 'bg-blue-600',
-
     }
   ];
 
@@ -611,9 +646,6 @@ const DashboardOverview = ({ stats, loading, setActiveTab, setShowCreateAssignme
                 <div>
                   <p className="text-sm sm:text-base lg:text-[16pt] font-bold text-white">{card.title}</p>
                   <p className="text-lg sm:text-xl lg:text-[20pt] font-bold text-white mt-2">{card.value}</p>
-                  <div className="flex items-center mt-4">
-
-                  </div>
                 </div>
                 <div className={`p-3 lg:p-4 rounded-xl ${card.color} shadow-lg`}>
                   <Icon className="h-6 w-6 lg:h-8 lg:w-8 text-white" />
@@ -627,7 +659,7 @@ const DashboardOverview = ({ stats, loading, setActiveTab, setShowCreateAssignme
       {/* Quick Actions */}
       <div className="bg-white/10 backdrop-blur-sm rounded-xl shadow-xl p-6 lg:p-8 border border-white/20">
         <h3 className="text-xl lg:text-2xl font-bold text-white mb-6 lg:mb-8">Quick Actions</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
           <button
             onClick={() => setShowCreateAssignment(true)}
             className="flex items-center p-4 lg:p-6 bg-blue-600/20 backdrop-blur-sm rounded-xl hover:bg-blue-600/30 transition-all duration-300 group border border-blue-500/30"
@@ -657,11 +689,99 @@ const DashboardOverview = ({ stats, loading, setActiveTab, setShowCreateAssignme
               <p className="text-base lg:text-[18pt] font-bold text-white">Send Announcement</p>
             </div>
           </button>
+
+          <button
+            onClick={() => setShowResetModal(true)}
+            className="flex items-center p-4 lg:p-6 bg-[#CA133E]/20 backdrop-blur-sm rounded-xl hover:bg-[#CA133E]/30 transition-all duration-300 group border border-[#CA133E]/30"
+          >
+            <ArrowPathIcon className="h-8 w-8 lg:h-10 lg:w-10 text-[#CA133E] group-hover:text-red-400" />
+            <div className="ml-3 lg:ml-4 text-left">
+              <p className="text-base lg:text-[18pt] font-bold text-white">Reset Season</p>
+              <p className="text-xs text-gray-400 mt-0.5">New session points</p>
+            </div>
+          </button>
         </div>
       </div>
 
-      {/* Recent Activity */}
-      <RecentActivities onRegistrationUpdate={onRegistrationUpdate} />
+      {/* Leaderboard */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-1">
+          <Leaderboard className="h-full" />
+        </div>
+        <div className="lg:col-span-2">
+          <RecentActivities onRegistrationUpdate={onRegistrationUpdate} />
+        </div>
+      </div>
+
+      {/* Reset Session Modal */}
+      <AnimatePresence>
+        {showResetModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-gray-800 rounded-2xl p-6 w-full max-w-md border border-gray-600 shadow-2xl"
+            >
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-2 rounded-xl bg-[#CA133E]/20">
+                  <ArrowPathIcon className="h-6 w-6 text-[#CA133E]" />
+                </div>
+                <h3 className="text-lg font-bold text-white">Reset Session Points</h3>
+              </div>
+
+              <p className="text-gray-400 text-sm mb-4">
+                This will reset all students' current-session points to 0 and start a new season. All-time totals are preserved.
+              </p>
+
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  New Session Label (e.g. "NOV 26", "JUN 27")
+                </label>
+                <input
+                  type="text"
+                  value={newSessionLabel}
+                  onChange={(e) => setNewSessionLabel(e.target.value)}
+                  placeholder="NOV 26"
+                  className="w-full bg-gray-700 border border-gray-600 rounded-xl px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-[#CA133E] transition-colors"
+                />
+              </div>
+
+              {resetMsg && (
+                <p className={`text-sm mb-4 ${resetMsg.includes('error') || resetMsg.includes('fail') ? 'text-red-400' : 'text-green-400'}`}>
+                  {resetMsg}
+                </p>
+              )}
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => { setShowResetModal(false); setResetMsg(''); setNewSessionLabel(''); }}
+                  className="flex-1 py-2.5 px-4 rounded-xl border border-gray-600 text-gray-300 hover:bg-gray-700 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleResetSession}
+                  disabled={resetLoading || !newSessionLabel.trim()}
+                  className="flex-1 py-2.5 px-4 rounded-xl bg-[#CA133E] text-white font-semibold hover:bg-[#A01030] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  {resetLoading ? (
+                    <ArrowPathIcon className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <TrophyIcon className="h-4 w-4" />
+                  )}
+                  {resetLoading ? 'Resetting...' : 'Confirm Reset'}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

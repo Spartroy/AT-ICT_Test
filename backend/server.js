@@ -49,6 +49,7 @@ const flashcardRoutes = require('./routes/flashcardRoutes');
 const activityRoutes = require('./routes/activityRoutes');
 const sessionRoutes = require('./routes/sessionRoutes');
 const teacherSessionRoutes = require('./routes/teacherSessionRoutes');
+const leaderboardRoutes = require('./routes/leaderboardRoutes');
 
 // ===================================================================
 // SERVER INITIALIZATION
@@ -215,6 +216,15 @@ io.on('connection', (socket) => {
   });
 
   /**
+   * Join Personal User Room
+   * Allows the server to emit targeted events (e.g. points_awarded) to a specific user
+   */
+  socket.on('join_user_room', (userId) => {
+    if (!userId || typeof userId !== 'string') return;
+    socket.join(`user_${userId}`);
+  });
+
+  /**
    * Send Message
    * Relay messages to other users in the same room
    */
@@ -357,6 +367,12 @@ app.use('/api/sessions', sessionRoutes);
  * Teacher monitoring of student device sessions
  */
 app.use('/api/teacher/sessions', teacherSessionRoutes);
+
+/**
+ * Leaderboard Routes
+ * Session-scoped points leaderboard and Hall of Fame
+ */
+app.use('/api/leaderboard', leaderboardRoutes);
 
 // ===================================================================
 // ERROR HANDLING

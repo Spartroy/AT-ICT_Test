@@ -28,6 +28,11 @@ export const API_ENDPOINTS = {
     NOTES: `${API_BASE_URL}/api/teacher/notes`,
     ACTIVITIES: `${API_BASE_URL}/api/teacher/activities`,
     ADD_LEGACY_STUDENT: `${API_BASE_URL}/api/teacher/legacy-students`,
+    RESET_SESSION_POINTS: `${API_BASE_URL}/api/teacher/reset-session-points`,
+  },
+  LEADERBOARD: {
+    BASE: `${API_BASE_URL}/api/leaderboard`,
+    HALL_OF_FAME: `${API_BASE_URL}/api/leaderboard/hall-of-fame`,
   },
   SCHEDULE: {
     QR: `${API_BASE_URL}/api/schedule/qr`,

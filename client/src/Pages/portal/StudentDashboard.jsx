@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { API_ENDPOINTS } from '../../config/api';
+import io from 'socket.io-client';
 import {
   AcademicCapIcon,
   ChartBarIcon,
@@ -44,6 +45,7 @@ const StudentDashboard = () => {
   const [currentTabPage, setCurrentTabPage] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [tabsPerPage, setTabsPerPage] = useState(4);
+  const socketRef = useRef(null);
 
   // Update tabs per page based on screen size
   useEffect(() => {
@@ -153,6 +155,14 @@ const StudentDashboard = () => {
 
   useEffect(() => {
     fetchDashboardData();
+
+    // Create a shared socket for the dashboard (used by DashboardOverview for points notifications)
+    const socket = io(API_ENDPOINTS.BASE_URL);
+    socketRef.current = socket;
+
+    return () => {
+      socket.disconnect();
+    };
   }, []);
 
   // Auto-navigate to page containing active tab when activeTab changes
@@ -204,7 +214,8 @@ const StudentDashboard = () => {
     const currentTab = tabs.find(tab => tab.id === activeTab);
     if (currentTab && currentTab.component) {
       const Component = currentTab.component;
-      return <Component studentData={studentData} stats={stats} />;
+      const extraProps = currentTab.id === 'dashboard' ? { socket: socketRef.current } : {};
+      return <Component studentData={studentData} stats={stats} {...extraProps} />;
     }
     return <div>Tab not found</div>;
   };

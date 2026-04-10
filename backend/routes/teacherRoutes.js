@@ -9,6 +9,7 @@ const {
   deleteStudent,
   addLegacyStudent
 } = require('../controllers/teacherController');
+const { resetSessionPoints } = require('../controllers/leaderboardController');
 const { protect, teacherOnly } = require('../middleware/auth');
 
 // Import new route modules
@@ -65,5 +66,8 @@ router.use('/videos', videoRoutes);
 
 // Notes management routes
 router.use('/notes', noteRoutes);
+
+// Session points reset
+router.post('/reset-session-points', resetSessionPoints);
 
 module.exports = router; 

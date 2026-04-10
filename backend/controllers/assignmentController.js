@@ -2,6 +2,7 @@ const Assignment = require('../models/Assignment');
 const User = require('../models/User');
 const { validationResult } = require('express-validator');
 const path = require('path');
+const { calculateAssignmentPoints, awardPoints } = require('../utils/pointsHelper');
 
 // @desc    Create new assignment (Teacher only)
 // @route   POST /api/assignments
@@ -630,6 +631,38 @@ const gradeAssignment = async (req, res) => {
     studentAssignment.gradedDate = new Date();
 
     await assignment.save();
+
+    // Award points to the student
+    try {
+      const pts = calculateAssignmentPoints(
+        parseInt(score),
+        assignment.maxScore,
+        studentAssignment.submissionDate || new Date(),
+        assignment.dueDate,
+        assignment.publishDate || assignment.createdAt
+      );
+
+      await awardPoints(studentId, {
+        source: 'assignment',
+        sourceId: assignment._id,
+        title: assignment.title,
+        basePoints: pts.base,
+        bonusPoints: pts.bonusPoints,
+        total: pts.total
+      });
+
+      if (req.io) {
+        req.io.to(`user_${studentId}`).emit('points_awarded', {
+          type: 'assignment',
+          title: assignment.title,
+          basePoints: pts.base,
+          bonusPoints: pts.bonusPoints,
+          total: pts.total
+        });
+      }
+    } catch (pointsErr) {
+      console.warn('Non-fatal: points award failed:', pointsErr.message);
+    }
 
     // Return the updated assignment with populated data
     await assignment.populate('assignedTo.student', 'firstName lastName email');

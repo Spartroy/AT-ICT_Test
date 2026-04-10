@@ -2,6 +2,7 @@ const Quiz = require('../models/Quiz');
 const User = require('../models/User');
 const { validationResult } = require('express-validator');
 const path = require('path');
+const { calculateQuizPoints, awardPoints } = require('../utils/pointsHelper');
 
 // @desc    Create new quiz (Teacher only)
 // @route   POST /api/quizzes
@@ -655,6 +656,32 @@ const gradeQuiz = async (req, res) => {
     studentQuiz.gradedDate = new Date();
 
     await quiz.save();
+
+    // Award points to the student
+    try {
+      const pts = calculateQuizPoints(parseInt(score), quiz.maxScore);
+
+      await awardPoints(studentId, {
+        source: 'quiz',
+        sourceId: quiz._id,
+        title: quiz.title,
+        basePoints: pts.base,
+        bonusPoints: 0,
+        total: pts.total
+      });
+
+      if (req.io) {
+        req.io.to(`user_${studentId}`).emit('points_awarded', {
+          type: 'quiz',
+          title: quiz.title,
+          basePoints: pts.base,
+          bonusPoints: 0,
+          total: pts.total
+        });
+      }
+    } catch (pointsErr) {
+      console.warn('Non-fatal: points award failed:', pointsErr.message);
+    }
 
     // Return the updated quiz with populated data
     await quiz.populate('assignedTo.student', 'firstName lastName email');

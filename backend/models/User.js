@@ -450,6 +450,47 @@ const userSchema = new mongoose.Schema({
     isActive: {
       type: Boolean,
       default: true
+    },
+
+    /**
+     * Gamification points for student
+     * total: all-time accumulated points
+     * currentSession: points for the current session (resetable)
+     * sessionLabel: e.g. "NOV 25", "JUN 26"
+     * history: log of every point transaction
+     */
+    points: {
+      total: {
+        type: Number,
+        default: 0
+      },
+      currentSession: {
+        type: Number,
+        default: 0
+      },
+      sessionLabel: {
+        type: String,
+        default: ''
+      },
+      history: [
+        {
+          source: {
+            type: String,
+            enum: ['assignment', 'quiz']
+          },
+          sourceId: {
+            type: mongoose.Schema.ObjectId
+          },
+          title: String,
+          basePoints: Number,
+          bonusPoints: Number,
+          total: Number,
+          awardedAt: {
+            type: Date,
+            default: Date.now
+          }
+        }
+      ]
     }
   },
   

@@ -6,6 +6,7 @@ const Announcement = require('../models/Announcement');
 const Message = require('../models/Message');
 const User = require('../models/User');
 const crypto = require('crypto');
+const { calculateAssignmentPoints, calculateQuizPoints, awardPoints } = require('../utils/pointsHelper');
 
 // @desc    Get teacher dashboard stats
 // @route   GET /api/teacher/dashboard
@@ -508,6 +509,40 @@ const updateAssignmentFeedback = async (req, res) => {
 
     await assignment.save();
 
+    // Award points to the student
+    try {
+      const studentEntry = assignment.assignedTo[studentAssignmentIndex];
+      const pts = calculateAssignmentPoints(
+        score,
+        assignment.maxScore,
+        studentEntry.submissionDate || new Date(),
+        assignment.dueDate,
+        assignment.publishDate || assignment.createdAt
+      );
+
+      await awardPoints(studentId, {
+        source: 'assignment',
+        sourceId: assignment._id,
+        title: assignment.title,
+        basePoints: pts.base,
+        bonusPoints: pts.bonusPoints,
+        total: pts.total
+      });
+
+      // Notify the student via Socket.IO if available
+      if (req.io) {
+        req.io.to(`user_${studentId}`).emit('points_awarded', {
+          type: 'assignment',
+          title: assignment.title,
+          basePoints: pts.base,
+          bonusPoints: pts.bonusPoints,
+          total: pts.total
+        });
+      }
+    } catch (pointsErr) {
+      console.warn('Non-fatal: points award failed for assignment:', pointsErr.message);
+    }
+
     res.status(200).json({
       status: 'success',
       message: 'Assignment feedback updated successfully',
@@ -555,7 +590,48 @@ const updateQuizFeedback = async (req, res) => {
     // Update the quiz feedback
     quiz.assignedTo[studentQuizIndex].feedback = feedback;
 
+    // If a score is provided in the body, apply it and mark as graded
+    const { score: quizScore } = req.body;
+    if (quizScore !== undefined) {
+      quiz.assignedTo[studentQuizIndex].score = quizScore;
+      quiz.assignedTo[studentQuizIndex].status = 'graded';
+      quiz.assignedTo[studentQuizIndex].gradedDate = new Date();
+    }
+
     await quiz.save();
+
+    // Award points if a score was provided or already exists
+    const scoreToUse = quizScore !== undefined
+      ? quizScore
+      : quiz.assignedTo[studentQuizIndex].score;
+
+    if (scoreToUse != null) {
+      try {
+        const pts = calculateQuizPoints(scoreToUse, quiz.maxScore);
+
+        await awardPoints(studentId, {
+          source: 'quiz',
+          sourceId: quiz._id,
+          title: quiz.title,
+          basePoints: pts.base,
+          bonusPoints: 0,
+          total: pts.total
+        });
+
+        // Notify the student via Socket.IO if available
+        if (req.io) {
+          req.io.to(`user_${studentId}`).emit('points_awarded', {
+            type: 'quiz',
+            title: quiz.title,
+            basePoints: pts.base,
+            bonusPoints: 0,
+            total: pts.total
+          });
+        }
+      } catch (pointsErr) {
+        console.warn('Non-fatal: points award failed for quiz:', pointsErr.message);
+      }
+    }
 
     res.status(200).json({
       status: 'success',
