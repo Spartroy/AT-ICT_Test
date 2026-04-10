@@ -42,6 +42,9 @@ import RecentActivities from '../../components/teacher/RecentActivities';
 const TeacherDashboard = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('overview');
+  const [currentUser] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('user')) || {}; } catch { return {}; }
+  });
   const [pendingRegistrationsCount, setPendingRegistrationsCount] = useState(0);
   const [stats, setStats] = useState({
     overview: {
@@ -281,7 +284,7 @@ const TeacherDashboard = () => {
   const renderTabContent = () => {
     switch (activeTab) {
       case 'overview':
-        return <DashboardOverview stats={stats} loading={loading} setActiveTab={setActiveTab} setShowCreateAssignment={setShowCreateAssignment} setShowCreateQuiz={setShowCreateQuiz} />;
+        return <DashboardOverview stats={stats} loading={loading} setActiveTab={setActiveTab} setShowCreateAssignment={setShowCreateAssignment} setShowCreateQuiz={setShowCreateQuiz} onRegistrationUpdate={fetchPendingRegistrationsCount} />;
       case 'registrations':
         return <PendingRegistrations onRegistrationUpdate={fetchPendingRegistrationsCount} />;
       case 'students':
@@ -303,7 +306,7 @@ const TeacherDashboard = () => {
       case 'chat':
         return <ChatCenter />;
       default:
-        return <DashboardOverview stats={stats} loading={loading} setActiveTab={setActiveTab} setShowCreateAssignment={setShowCreateAssignment} setShowCreateQuiz={setShowCreateQuiz} />;
+        return <DashboardOverview stats={stats} loading={loading} setActiveTab={setActiveTab} setShowCreateAssignment={setShowCreateAssignment} setShowCreateQuiz={setShowCreateQuiz} onRegistrationUpdate={fetchPendingRegistrationsCount} />;
     }
   };
 
@@ -322,7 +325,7 @@ const TeacherDashboard = () => {
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center py-4 sm:py-6 gap-4">
             <div className="flex-1">
               <h2 className="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-bold text-white">
-                Welcome back, El Gran Maestro !
+                Welcome back, {currentUser.firstName ? `${currentUser.firstName} ${currentUser.lastName || ''}`.trim() : 'Teacher'} !
               </h2>
             </div>
             
@@ -350,8 +353,10 @@ const TeacherDashboard = () => {
                     <span className="text-white font-bold text-sm">AT</span>
                   </div>
                   <div>
-                    <p className="text-sm font-bold text-white">Ahmad Teacher</p>
-                    <p className="text-xs text-gray-300">ICT Instructor</p>
+                    <p className="text-sm font-bold text-white">
+                      {currentUser.firstName ? `${currentUser.firstName} ${currentUser.lastName || ''}`.trim() : 'Teacher'}
+                    </p>
+                    <p className="text-xs text-gray-300 capitalize">{currentUser.role || 'ICT Instructor'}</p>
                   </div>
                 </div>
                 <motion.button
@@ -564,7 +569,7 @@ const TeacherDashboard = () => {
 };
 
 // Dashboard Overview Component
-const DashboardOverview = ({ stats, loading, setActiveTab, setShowCreateAssignment, setShowCreateQuiz }) => {
+const DashboardOverview = ({ stats, loading, setActiveTab, setShowCreateAssignment, setShowCreateQuiz, onRegistrationUpdate }) => {
   if (loading) {
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
@@ -656,7 +661,7 @@ const DashboardOverview = ({ stats, loading, setActiveTab, setShowCreateAssignme
       </div>
 
       {/* Recent Activity */}
-      <RecentActivities />
+      <RecentActivities onRegistrationUpdate={onRegistrationUpdate} />
     </div>
   );
 };
