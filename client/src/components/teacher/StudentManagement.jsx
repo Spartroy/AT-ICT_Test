@@ -1484,7 +1484,6 @@ const StudentManagement = () => {
                     )}
                   </div>
                 )}
-              </div>
 
                 {/* Payments Tab */}
                 {activeTab === 'payments' && (
@@ -1656,6 +1655,7 @@ const StudentManagement = () => {
                 </button>
               </div>
             </motion.div>
+            
           </div>
         )}
       </AnimatePresence>
@@ -1716,6 +1716,8 @@ const StudentManagement = () => {
           </div>
         )}
       </AnimatePresence>
+      
+      
 
       {/* Delete Confirmation Modal */}
       <AnimatePresence>

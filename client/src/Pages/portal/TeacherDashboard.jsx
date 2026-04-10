@@ -587,6 +587,12 @@ const TeacherDashboard = () => {
           showOperationToast.operationSuccess('Quiz creation');
         }}
       />
+
+      <AnimatePresence>
+        {showProfile && (
+          <ProfileModal user={currentUser} onClose={() => setShowProfile(false)} />
+        )}
+      </AnimatePresence>
     </div>
   );
 };
@@ -800,13 +806,6 @@ const DashboardOverview = ({ stats, loading, setActiveTab, setShowCreateAssignme
               </div>
             </motion.div>
           </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Profile Modal */}
-      <AnimatePresence>
-        {showProfile && (
-          <ProfileModal user={currentUser} onClose={() => setShowProfile(false)} />
         )}
       </AnimatePresence>
     </div>
