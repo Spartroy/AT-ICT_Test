@@ -837,48 +837,67 @@ userSchema.pre('save', async function(next) {
 
 /**
  * Generate student ID for new student accounts
- * Format: AT{YEAR}{4-digit-sequential-number}
- * Uses atomic operations to prevent duplicate IDs
+ * Format: AT{YEAR}{4-digit-sequential-number} (e.g. AT20260042)
+ * Picks the next free sequence; on collision (concurrent registrations), increments until free.
  */
 userSchema.pre('save', async function(next) {
   if (this.role === 'student' && this.isNew && !this.studentInfo.studentId) {
     try {
       const currentYear = new Date().getFullYear();
+      const yearPrefix = `AT${currentYear}`;
+      const idPattern = new RegExp(`^${yearPrefix}\\d{4}$`);
+
+      // Highest numeric suffix for this year (only strict AT{year}#### IDs)
+      let nextNumber = 1;
+      const maxAgg = await this.constructor.aggregate([
+        {
+          $match: {
+            role: 'student',
+            'studentInfo.studentId': { $regex: idPattern },
+          },
+        },
+        {
+          $project: {
+            seq: {
+              $toInt: {
+                $substrCP: ['$studentInfo.studentId', yearPrefix.length, 4],
+              },
+            },
+          },
+        },
+        { $group: { _id: null, maxSeq: { $max: '$seq' } } },
+      ]);
+      const maxSeq = maxAgg[0]?.maxSeq;
+      if (typeof maxSeq === 'number' && Number.isFinite(maxSeq) && maxSeq >= 0) {
+        nextNumber = maxSeq + 1;
+      }
+
+      const maxAttempts = 500;
       let attempts = 0;
-      const maxAttempts = 10;
-      
+      const excludeId = this._id;
+
       while (attempts < maxAttempts) {
-        // Get the highest existing student ID for this year
-        const lastStudent = await this.constructor.findOne({
-          role: 'student',
-          'studentInfo.studentId': { $regex: `^AT${currentYear}` }
-        }).sort({ 'studentInfo.studentId': -1 });
-        
-        let nextNumber = 1;
-        if (lastStudent && lastStudent.studentInfo.studentId) {
-          const lastId = lastStudent.studentInfo.studentId;
-          const lastNumber = parseInt(lastId.slice(-4));
-          nextNumber = lastNumber + 1;
+        if (nextNumber > 9999) {
+          return next(new Error('Student ID sequence exhausted for this year (max 9999)'));
         }
-        
-        const candidateId = `AT${currentYear}${String(nextNumber).padStart(4, '0')}`;
-        
-        // Check if this ID already exists
+
+        const candidateId = `${yearPrefix}${String(nextNumber).padStart(4, '0')}`;
+
         const existingStudent = await this.constructor.findOne({
-          'studentInfo.studentId': candidateId
+          'studentInfo.studentId': candidateId,
+          ...(excludeId ? { _id: { $ne: excludeId } } : {}),
         });
-        
+
         if (!existingStudent) {
           this.studentInfo.studentId = candidateId;
-          break;
+          return next();
         }
-        
-        attempts++;
+
+        nextNumber += 1;
+        attempts += 1;
       }
-      
-      if (attempts >= maxAttempts) {
-        return next(new Error('Unable to generate unique student ID after multiple attempts'));
-      }
+
+      return next(new Error('Unable to generate unique student ID after multiple attempts'));
     } catch (error) {
       return next(error);
     }
