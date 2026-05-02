@@ -21,15 +21,13 @@ const pricingPlans = [
   {
     id: 'basic',
     name: 'Basic Package',
-    price: 'EGP 4,500',
+    price: 'EGP 6,500',
     period: 'per term',
     description: 'Perfect for getting started with ICT fundamentals',
     features: [
       'Interactive study notes',
       'Core IGCSE ICT curriculum coverage',
-      'Email & WhatsApp support',
       'Progress tracking on the student portal',
-      'Access to the student community'
     ],
     recommended: false,
     color: 'border-gray-200'
@@ -37,17 +35,15 @@ const pricingPlans = [
   {
     id: 'standard',
     name: 'Standard Package',
-    price: 'EGP 6,500',
-    period: 'per term',
+    price: 'EGP 16,000',
     description: 'Most popular choice for comprehensive learning',
     features: [
-      'Everything in Basic',
       'Recorded video sessions',
       'Live Q&A sessions',
-      'Priority support',
       'Practice assignments & quizzes',
       'Mock exam papers',
-      'Personalised feedback'
+      'Examiner-style marking',
+      '24/7 WhatsApp support',
     ],
     recommended: true,
     color: 'border-[#CA133E]'
@@ -55,18 +51,21 @@ const pricingPlans = [
   {
     id: 'premium',
     name: 'Premium Package',
-    price: 'EGP 9,500',
-    period: 'per term',
+    price: 'EGP 20,000',
     description: 'Complete package with personalised attention',
     features: [
-      'Everything in Standard',
-      '1-on-1 tutoring sessions',
       '24/7 WhatsApp support',
-      'Personalised study plan',
-      'Extra practice materials',
-      'Exam strategy sessions',
+      'Examiner-style marking',
+      'Recorded video sessions',
+      'Live Q&A sessions',
+      'Practice assignments & quizzes',
+      'Mock papers',
+      'Final revision sprints',
+      'Personalised feedback',
       'Post-exam analysis',
-      'University guidance'
+      'University guidance',
+      'Priority support',
+      'Access to the student community'
     ],
     recommended: false,
     color: 'border-gray-200'

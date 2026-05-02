@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Mail, Phone, MapPin, MessageCircle, Instagram, Youtube } from 'lucide-react';
+import Logo from '../assets/logo.png';
 
 const navLinks = [
   { to: '/', label: 'Home' },
@@ -39,9 +40,13 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           <div>
-            <h2 className="text-2xl font-bold text-white mb-3">
-              AT-<span className="text-[#CA133E]">ICT</span>
-            </h2>
+            <Link to="/" className="inline-block mb-3">
+              <img
+                src={Logo}
+                alt="AT-ICT logo"
+                className="h-10 w-auto"
+              />
+            </Link>
             <p className="text-sm leading-relaxed mb-4">
               IGCSE ICT mastery built for ambitious students. Interactive notes, live sessions,
               and personalised guidance — all in one platform.

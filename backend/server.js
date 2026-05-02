@@ -38,7 +38,6 @@ const errorHandler = require('./middleware/errorHandler');
 const authRoutes = require('./routes/authRoutes');
 const studentRoutes = require('./routes/studentRoutes');
 const teacherRoutes = require('./routes/teacherRoutes');
-const scheduleRoutes = require('./routes/scheduleRoutes');
 const parentRoutes = require('./routes/parentRoutes');
 const announcementRoutes = require('./routes/announcementRoutes');
 const chatRoutes = require('./routes/chatRoutes');
@@ -306,7 +305,6 @@ app.use('/api/student', studentRoutes);
  * Teacher dashboard, student management, grading
  */
 app.use('/api/teacher', teacherRoutes);
-app.use('/api/schedule', scheduleRoutes);
 
 /**
  * Parent-specific Routes

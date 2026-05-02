@@ -12,6 +12,8 @@ import FAQ from "./Pages/info/FAQ";
 import Fees from "./Pages/info/Fees";
 import Samples from "./Pages/info/Samples";
 import HallOfFame from "./Pages/info/HallOfFame";
+import Privacy from "./Pages/info/Privacy";
+import Terms from "./Pages/info/Terms";
 
 // Auth pages
 import SignIn from "./Pages/auth/SignIn";
@@ -23,11 +25,15 @@ import StudentDashboard from "./Pages/portal/StudentDashboard";
 import ParentDashboard from "./Pages/portal/ParentDashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 import WhatsAppFab from "./components/WhatsAppFab";
+import ErrorBoundary from "./components/ErrorBoundary";
+import AnalyticsTracker from "./components/AnalyticsTracker";
 
 function App() {
   return (
     <Router>
+      <ErrorBoundary>
       <div className="App">
+        <AnalyticsTracker />
         <Routes>
           {/* Info Routes */}
           <Route path="/" element={<Home />} />
@@ -38,6 +44,8 @@ function App() {
           <Route path="/faq" element={<FAQ />} />
           <Route path="/fees" element={<Fees />} />
           <Route path="/samples" element={<Samples />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/terms" element={<Terms />} />
 
           {/* Auth Routes */}
           <Route path="/signin" element={<SignIn />} />
@@ -89,6 +97,7 @@ function App() {
           progressClassName="bg-[#CA133E]"
         />
       </div>
+      </ErrorBoundary>
     </Router>
   );
 }

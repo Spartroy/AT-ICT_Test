@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { showOperationToast, showError } from '../../utils/toast';
 import { API_ENDPOINTS } from '../../config/api';
+import { Link } from 'react-router-dom';
 import {
   UserIcon,
   MagnifyingGlassIcon,
@@ -585,6 +586,13 @@ const StudentManagement = () => {
           <p className="text-sm lg:text-[14pt] text-gray-300 mt-1">Manage and monitor student progress and information</p>
         </div>
         <div className="flex items-center gap-4">
+          <Link
+            to="/register?source=teacher-portal"
+            className="bg-[#CA133E] hover:bg-[#A01030] text-white px-4 py-2 rounded-xl text-sm font-medium transition-colors duration-200 flex items-center gap-2"
+          >
+            <PlusCircleIcon className="h-4 w-4" />
+            Add New Student
+          </Link>
           <button
             onClick={() => setShowLegacyModal(true)}
             className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-xl text-sm font-medium transition-colors duration-200 flex items-center gap-2"

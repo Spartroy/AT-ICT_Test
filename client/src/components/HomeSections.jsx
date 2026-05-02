@@ -8,9 +8,12 @@ import {
   ChevronRight,
   Quote,
   Sparkles,
-  CheckCircle
+  CheckCircle,
+  ChevronLeft,
+  ChevronRightCircle
 } from 'lucide-react';
 import API_ENDPOINTS from '../config/api';
+import { studentStories } from '../data/studentStories';
 
 const curriculumTeasers = [
   {
@@ -36,26 +39,7 @@ const curriculumTeasers = [
   }
 ];
 
-const testimonials = [
-  {
-    name: 'Nuria A.',
-    grade: 'A* in IGCSE ICT',
-    quote:
-      'Everything finally clicked once I joined AT-ICT. The notes, the live sessions, the constant feedback — it just works.'
-  },
-  {
-    name: 'Abdelrahman B.',
-    grade: 'A* in IGCSE ICT',
-    quote:
-      'I came in late and was terrified about the practicals. The personalised catch-up plan got me from panic to confident.'
-  },
-  {
-    name: 'Joud E.',
-    grade: 'A in IGCSE ICT',
-    quote:
-      "The platform is unreal. I can re-watch lessons anytime, ask questions instantly, and track exactly where I'm weak."
-  }
-];
+const carouselStories = studentStories.slice(0, 6);
 
 export const CurriculumTeaser = () => (
   <section className="py-20 bg-[#0F0F0F] text-white">
@@ -111,46 +95,82 @@ export const CurriculumTeaser = () => (
   </section>
 );
 
-export const TestimonialsStrip = () => (
-  <section className="py-20 bg-[#1a1a1a] text-white">
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.6 }}
-        className="text-center mb-12"
-      >
-        <span className="inline-block bg-[#CA133E]/15 text-[#CA133E] text-xs font-semibold uppercase tracking-wider px-3 py-1 rounded-full mb-4">
-          Student stories
-        </span>
-        <h2 className="text-3xl md:text-4xl font-bold mb-3">
-          Real students. <span className="text-[#CA133E]">Real grades.</span>
-        </h2>
-      </motion.div>
+export const TestimonialsStrip = () => {
+  const [activeIndex, setActiveIndex] = useState(0);
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {testimonials.map((t, idx) => (
-          <motion.div
-            key={t.name}
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: idx * 0.1 }}
-            className="bg-gradient-to-br from-gray-800/60 to-gray-900/60 border border-gray-800 rounded-xl p-6"
+  const goPrev = () => {
+    setActiveIndex((prev) => (prev === 0 ? carouselStories.length - 1 : prev - 1));
+  };
+
+  const goNext = () => {
+    setActiveIndex((prev) => (prev === carouselStories.length - 1 ? 0 : prev + 1));
+  };
+
+  return (
+    <section className="py-20 bg-[#1a1a1a] text-white">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-12"
+        >
+          <span className="inline-block bg-[#CA133E]/15 text-[#CA133E] text-xs font-semibold uppercase tracking-wider px-3 py-1 rounded-full mb-4">
+            Student stories
+          </span>
+          <h2 className="text-3xl md:text-4xl font-bold mb-3">
+            6 stories from <span className="text-[#CA133E]">our students</span>
+          </h2>
+          <p className="text-gray-400 max-w-2xl mx-auto">
+            Same stories shown in the About page, now in a swipeable carousel.
+          </p>
+        </motion.div>
+
+        <div className="flex items-center justify-between mb-4">
+          <button
+            onClick={goPrev}
+            className="p-2 rounded-xl border border-gray-700 hover:border-[#CA133E] transition-colors"
+            aria-label="Previous story"
           >
-            <Quote className="text-[#CA133E] mb-3" size={24} />
-            <p className="text-gray-200 leading-relaxed mb-4 text-sm">"{t.quote}"</p>
-            <div>
-              <p className="font-semibold">{t.name}</p>
-              <p className="text-xs text-[#CA133E]">{t.grade}</p>
-            </div>
-          </motion.div>
-        ))}
+            <ChevronLeft size={18} />
+          </button>
+          <span className="text-sm text-gray-400">
+            {activeIndex + 1} / {carouselStories.length}
+          </span>
+          <button
+            onClick={goNext}
+            className="p-2 rounded-xl border border-gray-700 hover:border-[#CA133E] transition-colors"
+            aria-label="Next story"
+          >
+            <ChevronRightCircle size={18} />
+          </button>
+        </div>
+
+        <div className="overflow-hidden">
+          <div
+            className="flex transition-transform duration-300"
+            style={{ transform: `translateX(-${activeIndex * 100}%)` }}
+          >
+            {carouselStories.map((story) => (
+              <div
+                key={story.name}
+                className="min-w-full snap-center bg-gradient-to-br from-gray-800/60 to-gray-900/60 border border-gray-800 rounded-xl p-6"
+              >
+                <Quote className="text-[#CA133E] mb-3" size={24} />
+                <p className="text-gray-200 leading-relaxed mb-4 text-sm">"{story.text}"</p>
+                <div>
+                  <p className="font-semibold">{story.name}</p>
+                  <p className="text-xs text-[#CA133E]">{story.country}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
-    </div>
-  </section>
-);
+    </section>
+  );
+};
 
 export const HallOfFameStrip = () => {
   const [students, setStudents] = useState([]);
