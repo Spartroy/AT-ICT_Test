@@ -22,6 +22,7 @@ import TeacherDashboard from "./Pages/portal/TeacherDashboard";
 import StudentDashboard from "./Pages/portal/StudentDashboard";
 import ParentDashboard from "./Pages/portal/ParentDashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
+import WhatsAppFab from "./components/WhatsAppFab";
 
 function App() {
   return (
@@ -68,6 +69,9 @@ function App() {
             }
           />
         </Routes>
+
+        {/* Floating WhatsApp button (hidden on dashboards) */}
+        <WhatsAppFab />
 
         {/* Toast Container for notifications */}
         <ToastContainer

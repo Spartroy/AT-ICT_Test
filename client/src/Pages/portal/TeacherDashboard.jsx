@@ -341,7 +341,7 @@ const TeacherDashboard = () => {
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center py-4 sm:py-6 gap-4">
             <div className="flex-1">
               <h2 className="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-bold text-white">
-                Welcome back, {currentUser.firstName ? `${currentUser.firstName} ${currentUser.lastName || ''}`.trim() : 'Teacher'} !
+                Welcome back, El Grande Maestro Del Mundo!
               </h2>
             </div>
             

@@ -1,7 +1,21 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import Nav from '../../components/Nav';
+import Footer from '../../components/Footer';
+import Seo from '../../components/Seo';
 import { BookOpen, Clock, CheckCircle, Star, Users, Target, Zap, Award } from 'lucide-react';
+
+const curriculumJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Course',
+  name: 'AT-ICT IGCSE ICT Mastery',
+  description: 'A 10-week IGCSE ICT curriculum covering hardware, software, networks, databases, and exam mastery.',
+  provider: {
+    '@type': 'EducationalOrganization',
+    name: 'AT-ICT',
+    sameAs: 'https://at-ict-test.vercel.app'
+  }
+};
 
 const Curriculum = () => {
   const courseModules = [
@@ -182,8 +196,14 @@ const Curriculum = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <Seo
+        title="Curriculum"
+        description="Explore the full 10-week AT-ICT curriculum: hardware, software, networks, databases, web authoring, and exam-ready practice."
+        path="/curriculum"
+        jsonLd={curriculumJsonLd}
+      />
       <Nav />
-      
+
       <div className="pt-24 pb-12">
         {/* Hero Section */}
         <section className="bg-gradient-to-r from-[#0F0F0F] via-[#4A0D0D] to-[#C70039] text-white py-16">
@@ -396,6 +416,7 @@ const Curriculum = () => {
           </div>
         </section>
       </div>
+      <Footer />
     </div>
   );
 };

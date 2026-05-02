@@ -1,22 +1,12 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import Nav from '../../components/Nav';
-import { ChevronDown, ChevronUp, HelpCircle, MessageCircle, Phone, Mail } from 'lucide-react';
+import Footer from '../../components/Footer';
+import Seo from '../../components/Seo';
+import { ChevronDown, ChevronUp, HelpCircle, MessageCircle, Phone, Mail, Search } from 'lucide-react';
 
-const FAQ = () => {
-  const [openQuestions, setOpenQuestions] = useState(new Set([0])); // First question open by default
-
-  const toggleQuestion = (index) => {
-    const newOpenQuestions = new Set(openQuestions);
-    if (newOpenQuestions.has(index)) {
-      newOpenQuestions.delete(index);
-    } else {
-      newOpenQuestions.add(index);
-    }
-    setOpenQuestions(newOpenQuestions);
-  };
-
-  const faqCategories = [
+const faqCategories = [
     {
       title: "Getting Started",
       questions: [
@@ -104,10 +94,59 @@ const FAQ = () => {
     }
   ];
 
+const faqJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqCategories.flatMap((category) =>
+    category.questions.map((q) => ({
+      '@type': 'Question',
+      name: q.question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: q.answer
+      }
+    }))
+  )
+};
+
+const FAQ = () => {
+  const [openQuestions, setOpenQuestions] = useState(new Set(['Getting Started-0']));
+  const [search, setSearch] = useState('');
+
+  const toggleQuestion = (key) => {
+    setOpenQuestions((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  };
+
+  const filteredCategories = useMemo(() => {
+    const term = search.trim().toLowerCase();
+    if (!term) return faqCategories;
+    return faqCategories
+      .map((category) => ({
+        ...category,
+        questions: category.questions.filter(
+          (q) =>
+            q.question.toLowerCase().includes(term) ||
+            q.answer.toLowerCase().includes(term)
+        )
+      }))
+      .filter((c) => c.questions.length > 0);
+  }, [search]);
+
   return (
     <div className="min-h-screen bg-gray-50">
+      <Seo
+        title="Frequently Asked Questions"
+        description="Answers to common questions about AT-ICT — pricing, support, technology requirements, the curriculum, and more."
+        path="/faq"
+        jsonLd={faqJsonLd}
+      />
       <Nav />
-      
+
       <div className="pt-24 pb-12">
         {/* Hero Section */}
         {/* bg-gradient-to-r from-[#CA133E] to-[#A01030] */}
@@ -136,45 +175,82 @@ const FAQ = () => {
         <section className="py-16">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto">
-              {faqCategories.map((category, categoryIndex) => (
+              <div className="relative mb-10">
+                <Search
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+                  size={18}
+                  aria-hidden="true"
+                />
+                <input
+                  type="search"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Search the FAQ…"
+                  aria-label="Search frequently asked questions"
+                  className="w-full bg-white border border-gray-200 rounded-xl pl-12 pr-4 py-3 text-base focus:outline-none focus:border-[#CA133E] focus:ring-2 focus:ring-[#CA133E]/20 shadow-sm"
+                />
+              </div>
+
+              {filteredCategories.length === 0 && (
+                <p className="text-center text-gray-600 py-12">
+                  No results for "{search}". Try different keywords or{' '}
+                  <Link to="/contact" className="text-[#CA133E] font-semibold hover:underline">
+                    ask us directly
+                  </Link>
+                  .
+                </p>
+              )}
+
+              {filteredCategories.map((category, categoryIndex) => (
                 <motion.div
-                  key={categoryIndex}
+                  key={category.title}
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: categoryIndex * 0.1 }}
                   className="mb-12"
+                  role="region"
+                  aria-label={category.title}
                 >
                   <h2 className="text-[20pt] font-bold text-gray-800 mb-6 mt-8 text-center">
                     <span className="text-[#CA133E]">{category.title}</span>
                   </h2>
-                  
+
                   <div className="space-y-4">
                     {category.questions.map((faq, questionIndex) => {
-                      const globalIndex = categoryIndex * 10 + questionIndex;
-                      const isOpen = openQuestions.has(globalIndex);
-                      
+                      const key = `${category.title}-${questionIndex}`;
+                      const isOpen = openQuestions.has(key);
+                      const buttonId = `faq-q-${categoryIndex}-${questionIndex}`;
+                      const panelId = `faq-a-${categoryIndex}-${questionIndex}`;
+
                       return (
                         <div
-                          key={questionIndex}
+                          key={key}
                           className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-all"
                         >
                           <button
-                            onClick={() => toggleQuestion(globalIndex)}
-                            className="w-full p-6 text-left flex items-center justify-between hover:bg-gray-50 transition-colors"
+                            id={buttonId}
+                            type="button"
+                            aria-expanded={isOpen}
+                            aria-controls={panelId}
+                            onClick={() => toggleQuestion(key)}
+                            className="w-full p-6 text-left flex items-center justify-between hover:bg-gray-50 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#CA133E]"
                           >
                             <h3 className="text-lg font-semibold text-gray-800 pr-4">
                               {faq.question}
                             </h3>
                             {isOpen ? (
-                              <ChevronUp className="text-[#CA133E] flex-shrink-0" size={24} />
+                              <ChevronUp className="text-[#CA133E] flex-shrink-0" size={24} aria-hidden="true" />
                             ) : (
-                              <ChevronDown className="text-[#CA133E] flex-shrink-0" size={24} />
+                              <ChevronDown className="text-[#CA133E] flex-shrink-0" size={24} aria-hidden="true" />
                             )}
                           </button>
-                          
-                          <AnimatePresence>
+
+                          <AnimatePresence initial={false}>
                             {isOpen && (
                               <motion.div
+                                id={panelId}
+                                role="region"
+                                aria-labelledby={buttonId}
                                 initial={{ height: 0, opacity: 0 }}
                                 animate={{ height: 'auto', opacity: 1 }}
                                 exit={{ height: 0, opacity: 0 }}
@@ -182,9 +258,7 @@ const FAQ = () => {
                                 className="overflow-hidden"
                               >
                                 <div className="px-6 pb-6">
-                                  <p className="text-gray-700 leading-relaxed">
-                                    {faq.answer}
-                                  </p>
+                                  <p className="text-gray-700 leading-relaxed">{faq.answer}</p>
                                 </div>
                               </motion.div>
                             )}
@@ -236,12 +310,12 @@ const FAQ = () => {
                   <p className="text-gray-600 mb-4">
                     Send us any questions you have anytime
                   </p>
-                  <a 
-                    href="/contact-us" 
+                  <Link
+                    to="/contact"
                     className="bg-[#CA133E] text-white px-6 py-3 rounded-xl font-semibold hover:bg-[#A01030] transition-all inline-block"
                   >
                     Send Email
-                  </a>
+                  </Link>
                 </div>
                 
                 <div className="bg-gray-50 p-8 rounded-xl hover:bg-gray-100 transition-colors">
@@ -279,19 +353,20 @@ const FAQ = () => {
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <a href="/samples" className="bg-white text-[#CA133E] px-8 py-4 rounded-xl font-bold text-lg hover:bg-gray-100 transition-all">
-                  Try Free Samples 
-                </a>
-                <a href="/register" className="bg-transparent border-2 border-white text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-white hover:text-[#CA133E] transition-all">
+                <Link to="/samples" className="bg-white text-[#CA133E] px-8 py-4 rounded-xl font-bold text-lg hover:bg-gray-100 transition-all">
+                  Try Free Samples
+                </Link>
+                <Link to="/register" className="bg-transparent border-2 border-white text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-white hover:text-[#CA133E] transition-all">
                   Enroll Now
-                </a>
+                </Link>
               </div>
             </motion.div>
           </div>
         </section>
       </div>
+      <Footer />
     </div>
   );
 };
 
-export default FAQ; 
+export default FAQ;

@@ -38,7 +38,7 @@ export const clearAuth = () => {
  * @param {string} errorType - Type of error to pass as URL parameter
  */
 export const redirectToLogin = (errorType = null) => {
-  const url = errorType ? `/login?error=${errorType}` : '/login';
+  const url = errorType ? `/signin?error=${errorType}` : '/signin';
   window.location.href = url;
 };
 

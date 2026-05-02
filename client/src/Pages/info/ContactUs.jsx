@@ -1,7 +1,19 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import Nav from '../../components/Nav';
-import { Mail, Phone, MapPin, Clock, School } from 'lucide-react';
+import Footer from '../../components/Footer';
+import Seo from '../../components/Seo';
+import { Mail, Phone, MapPin, School, HelpCircle } from 'lucide-react';
+import { showError, showSuccess } from '../../utils/toast';
+
+// Primary WhatsApp number (Egypt). Stripped to international format for wa.me.
+const WHATSAPP_NUMBER = '201274584000';
+const SUPPORT_EMAIL = 'at.ictofficial@gmail.com';
+
+// Egyptian numbers: 01X XXXXXXXX (11 digits) or +20 1X XXXXXXXX.
+const EG_PHONE_REGEX = /^(?:\+?20|0)?1[0125]\d{8}$/;
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const ContactUs = () => {
   const [formData, setFormData] = useState({
@@ -11,6 +23,7 @@ const ContactUs = () => {
     message: '',
     phone: ''
   });
+  const [submitting, setSubmitting] = useState(false);
 
   const handleChange = (e) => {
     setFormData({
@@ -19,10 +32,59 @@ const ContactUs = () => {
     });
   };
 
+  const validate = () => {
+    const { name, email, subject, message, phone } = formData;
+    if (!name.trim() || name.trim().length < 2) return 'Please enter your full name.';
+    if (!EMAIL_REGEX.test(email.trim())) return 'Please enter a valid email address.';
+    if (!subject.trim()) return 'Please enter a subject.';
+    if (!message.trim() || message.trim().length < 10) return 'Please write a message of at least 10 characters.';
+    const phoneClean = phone.replace(/[\s-]/g, '');
+    if (!EG_PHONE_REGEX.test(phoneClean)) return 'Please enter a valid Egyptian phone number.';
+    return null;
+  };
+
+  const buildMessage = () => {
+    const { name, email, subject, message, phone } = formData;
+    return (
+      `New contact request from AT-ICT website%0A` +
+      `------------------------------%0A` +
+      `Name: ${encodeURIComponent(name)}%0A` +
+      `Email: ${encodeURIComponent(email)}%0A` +
+      `Phone: ${encodeURIComponent(phone)}%0A` +
+      `Subject: ${encodeURIComponent(subject)}%0A%0A` +
+      `${encodeURIComponent(message)}`
+    );
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Handle form submission logic here
-    console.log('Contact form submitted:', formData);
+    const error = validate();
+    if (error) {
+      showError(error);
+      return;
+    }
+    setSubmitting(true);
+    const text = buildMessage();
+    const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${text}`;
+    window.open(url, '_blank', 'noopener,noreferrer');
+    showSuccess('Opening WhatsApp to send your message…');
+    setTimeout(() => setSubmitting(false), 600);
+  };
+
+  const handleEmailFallback = () => {
+    const error = validate();
+    if (error) {
+      showError(error);
+      return;
+    }
+    const subject = encodeURIComponent(formData.subject || 'Inquiry from AT-ICT website');
+    const body = encodeURIComponent(
+      `Name: ${formData.name}\n` +
+      `Email: ${formData.email}\n` +
+      `Phone: ${formData.phone}\n\n` +
+      `${formData.message}`
+    );
+    window.location.href = `mailto:${SUPPORT_EMAIL}?subject=${subject}&body=${body}`;
   };
 
   const contactInfo = [
@@ -56,6 +118,11 @@ const ContactUs = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#1a1a1a] via-[#2a1a1a] to-[#3a1a1a]">
+      <Seo
+        title="Contact Us"
+        description="Reach AT-ICT for enrolment, course questions, or a free trial — via WhatsApp, email, or phone."
+        path="/contact"
+      />
       <Nav />
       
       <div className="pt-20 px-4 pb-8">
@@ -135,18 +202,21 @@ const ContactUs = () => {
                 </div>
 
                 <div>
-                  <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
                     Phone Number
                   </label>
                   <input
-                    type="text"
+                    type="tel"
                     id="phone"
                     name="phone"
                     value={formData.phone}
                     onChange={handleChange}
                     required
+                    inputMode="tel"
+                    autoComplete="tel"
+                    pattern="^(?:\+?20|0)?1[0125]\d{8}$"
                     className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#CA133E] focus:border-transparent"
-                    placeholder="Your phone number"
+                    placeholder="01X XXXXXXXX"
                   />
                 </div>
 
@@ -167,12 +237,22 @@ const ContactUs = () => {
                   />
                 </div>
                 
-                <button
-                  type="submit"
-                  className="w-full bg-[#CA133E] text-white py-2.5 rounded-xl font-semibold hover:bg-[#A01030] transition-all duration-300 mt-auto"
-                >
-                  Send Message
-                </button>
+                <div className="mt-auto space-y-2">
+                  <button
+                    type="submit"
+                    disabled={submitting}
+                    className="w-full bg-[#CA133E] text-white py-2.5 rounded-xl font-semibold hover:bg-[#A01030] transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
+                    {submitting ? 'Sending…' : 'Send via WhatsApp'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleEmailFallback}
+                    className="w-full bg-gray-100 text-gray-800 py-2.5 rounded-xl font-semibold hover:bg-gray-200 transition-all duration-300 border border-gray-200"
+                  >
+                    Send via Email instead
+                  </button>
+                </div>
               </form>
             </motion.div>
             
@@ -214,35 +294,36 @@ const ContactUs = () => {
             </motion.div>
           </div>
           
-          {/* FAQ Section - Centered below the two cards */}
+          {/* FAQ link - keeps a single source of truth */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
             className="max-w-2xl mx-auto"
           >
-            <div className="bg-white p-6 rounded-xl shadow-lg">
-              <h3 className="text-lg font-bold text-gray-800 mb-3 text-center">Quick Questions?</h3>
-              <div className="space-y-3">
-                <div className="border-l-4 border-[#CA133E] pl-3">
-                  <h4 className="font-semibold text-gray-800 text-sm">How do I enroll?</h4>
-                  <p className="text-gray-600 text-xs">Contact us via email or phone to discuss enrollment options.</p>
-                </div>
-                <div className="border-l-4 border-[#CA133E] pl-3">
-                  <h4 className="font-semibold text-gray-800 text-sm">What's included in the course?</h4>
-                  <p className="text-gray-600 text-xs">Interactive notes, recorded sessions, and continuous support.</p>
-                </div>
-                <div className="border-l-4 border-[#CA133E] pl-3">
-                  <h4 className="font-semibold text-gray-800 text-sm">Do you offer trial sessions?</h4>
-                  <p className="text-gray-600 text-xs">Yes ofcourse ! Contact us to arrange a free trial session.</p>
-                </div>
+            <div className="bg-white p-6 rounded-xl shadow-lg flex items-center gap-4">
+              <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                <HelpCircle className="text-[#CA133E]" size={20} />
               </div>
+              <div className="flex-1">
+                <h3 className="text-base font-bold text-gray-800 mb-1">Have a quick question?</h3>
+                <p className="text-sm text-gray-600">
+                  Most answers — enrolment, payment, technology, and support — are already in the FAQ.
+                </p>
+              </div>
+              <Link
+                to="/faq"
+                className="bg-[#CA133E] text-white text-sm font-semibold px-4 py-2 rounded-xl hover:bg-[#A01030] transition-colors whitespace-nowrap"
+              >
+                See full FAQ
+              </Link>
             </div>
           </motion.div>
         </motion.div>
       </div>
+      <Footer />
     </div>
   );
 };
 
-export default ContactUs; 
+export default ContactUs;

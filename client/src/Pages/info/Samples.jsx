@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import Nav from '../../components/Nav';
-import { Download, FileText, Play, Eye, BookOpen, Star, CheckCircle, ArrowRight, Gift, Zap } from 'lucide-react';
+import Footer from '../../components/Footer';
+import Seo from '../../components/Seo';
+import { FileText, Play, BookOpen, CheckCircle } from 'lucide-react';
 
 const Samples = () => {
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const [emailSubmitted, setEmailSubmitted] = useState(false);
-  const [email, setEmail] = useState('');
 
   const categories = [
     { id: 'all', name: 'All Samples', icon: BookOpen },
@@ -66,21 +67,17 @@ const Samples = () => {
 
   ];
 
-  const filteredMaterials = selectedCategory === 'all' 
-    ? sampleMaterials 
+  const filteredMaterials = selectedCategory === 'all'
+    ? sampleMaterials
     : sampleMaterials.filter(material => material.category === selectedCategory);
-
-  const handleEmailSubmit = (e) => {
-    e.preventDefault();
-    if (email.trim()) {
-      setEmailSubmitted(true);
-      console.log('Email submitted:', email);
-    }
-  };
-
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <Seo
+        title="Free Samples"
+        description="Try AT-ICT before you enrol — free interactive notes, video lessons, and practice exercises across the IGCSE ICT curriculum."
+        path="/samples"
+      />
       <Nav />
       
       <div className="pt-24 pb-12">
@@ -104,9 +101,9 @@ const Samples = () => {
                 <a href="#samples" className="bg-white text-[#CA133E] px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-bold text-base sm:text-lg hover:bg-gray-100 transition-all">
                   Browse Free Samples
                 </a>
-                <a href="/register" className="bg-transparent border-2 border-white text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-bold text-base sm:text-lg hover:bg-white hover:text-[#CA133E] transition-all">
+                <Link to="/register" className="bg-transparent border-2 border-white text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-bold text-base sm:text-lg hover:bg-white hover:text-[#CA133E] transition-all">
                   Start Full Course
-                </a>
+                </Link>
               </div>
             </motion.div>
           </div>
@@ -198,11 +195,12 @@ const Samples = () => {
                         </div>
                         
                         <div className="flex gap-2">
-                          <button className="flex-1 bg-[#CA133E] text-white py-2 px-3 rounded-[15px] font-medium hover:bg-[#A01030] transition-colors text-sm sm:text-base">
-                            <a href="/register" className="block w-full h-full flex items-center justify-center">
-                              Access Now
-                            </a>
-                          </button>
+                          <Link
+                            to="/register"
+                            className="flex-1 bg-[#CA133E] text-white py-2 px-3 rounded-[15px] font-medium hover:bg-[#A01030] transition-colors text-sm sm:text-base flex items-center justify-center"
+                          >
+                            Access Now
+                          </Link>
                         </div>
                       </div>
                     </motion.div>
@@ -229,17 +227,17 @@ const Samples = () => {
            
               
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <a href="/register" className="bg-white text-[#CA133E] px-6 py-3 rounded-xl font-bold hover:bg-gray-100 transition-colors text-base sm:text-lg">
-                  Enroll Now 
-                </a>
-            
+                <Link to="/register" className="bg-white text-[#CA133E] px-6 py-3 rounded-xl font-bold hover:bg-gray-100 transition-colors text-base sm:text-lg">
+                  Enroll Now
+                </Link>
               </div>
             </motion.div>
           </div>
         </section>
       </div>
+      <Footer />
     </div>
   );
 };
 
-export default Samples; 
+export default Samples;

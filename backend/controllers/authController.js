@@ -592,17 +592,20 @@ const logout = async (req, res) => {
 };
 
 /**
- * Forgot Password (Placeholder)
- * @desc    Initiate password reset process
+ * Hash a raw reset token to compare against the value stored on the User.
+ * We never store the raw token — only its SHA-256 hash.
+ */
+const hashResetToken = (rawToken) =>
+  crypto.createHash('sha256').update(rawToken).digest('hex');
+
+/**
+ * Forgot Password
+ * @desc    Generate a reset token, persist its hash, and send the user a reset email.
  * @route   POST /api/auth/forgot-password
  * @access  Public
- * @param   {Object} req - Express request object
- * @param   {Object} res - Express response object
- * @todo    Implement email functionality with reset tokens
  */
 const forgotPassword = async (req, res) => {
   try {
-    // Check for validation errors
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({
@@ -613,35 +616,77 @@ const forgotPassword = async (req, res) => {
     }
 
     const { email } = req.body;
-
     if (!email) {
       return res.status(400).json({
         status: 'error',
-        message: 'Please provide email address'
+        message: 'Please provide an email address'
       });
     }
 
     const user = await User.findOne({ email: email.toLowerCase() });
 
+    // Always return success to avoid revealing which emails are registered.
+    const genericResponse = {
+      status: 'success',
+      message:
+        'If an account with this email exists, password reset instructions have been sent.'
+    };
+
     if (!user) {
-      // Return success even if user not found (security best practice)
-      return res.status(200).json({
-        status: 'success',
-        message: 'If an account with this email exists, password reset instructions have been sent'
+      logAuthEvent('password_reset_request', email, req.ip, 'No user found');
+      return res.status(200).json(genericResponse);
+    }
+
+    // Generate a 32-byte token, store its hash + expiry, return the raw token via email.
+    const rawToken = crypto.randomBytes(32).toString('hex');
+    user.resetPasswordToken = hashResetToken(rawToken);
+    user.resetPasswordExpire = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+    await user.save({ validateBeforeSave: false });
+
+    const clientUrl =
+      process.env.CLIENT_URL ||
+      (process.env.NODE_ENV === 'production'
+        ? 'https://at-ict-test.vercel.app'
+        : 'http://localhost:3000');
+    const resetUrl = `${clientUrl.replace(/\/$/, '')}/reset-password/${rawToken}`;
+
+    try {
+      const sendEmail = require('../utils/sendEmail');
+      await sendEmail({
+        to: user.email,
+        subject: 'AT-ICT — Reset your password',
+        text:
+          `Hello ${user.firstName || ''},\n\n` +
+          `We received a request to reset your AT-ICT password.\n\n` +
+          `Click the link below to set a new password (valid for 1 hour):\n${resetUrl}\n\n` +
+          `If you didn't request this, you can safely ignore this email.\n\n` +
+          `— AT-ICT Team`,
+        html:
+          `<p>Hello ${user.firstName || ''},</p>` +
+          `<p>We received a request to reset your AT-ICT password.</p>` +
+          `<p><a href="${resetUrl}" style="background:#CA133E;color:#fff;padding:10px 18px;border-radius:8px;text-decoration:none;display:inline-block;">Reset password</a></p>` +
+          `<p>This link is valid for 1 hour. If you didn't request a reset, you can ignore this email.</p>` +
+          `<p>— AT-ICT Team</p>`
+      });
+      logAuthEvent('password_reset_request', email, req.ip, 'Reset email sent');
+    } catch (mailErr) {
+      console.error('Failed to send reset email:', mailErr.message);
+      // Roll back the token so the user can retry cleanly.
+      user.resetPasswordToken = undefined;
+      user.resetPasswordExpire = undefined;
+      await user.save({ validateBeforeSave: false });
+
+      return res.status(500).json({
+        status: 'error',
+        message:
+          'We could not send the reset email right now. Please try again in a moment.'
       });
     }
 
-    logAuthEvent('password_reset_request', email, req.ip, 'Reset requested');
-
-    // TODO: Implement email functionality with reset tokens
-    res.status(200).json({
-      status: 'success',
-      message: 'If an account with this email exists, password reset instructions have been sent'
-    });
-
+    return res.status(200).json(genericResponse);
   } catch (error) {
     console.error('Forgot password error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       status: 'error',
       message: 'Server error processing forgot password request'
     });
@@ -649,17 +694,13 @@ const forgotPassword = async (req, res) => {
 };
 
 /**
- * Reset Password (Placeholder)
- * @desc    Reset password using reset token
+ * Reset Password
+ * @desc    Validate a reset token and update the user's password.
  * @route   PUT /api/auth/reset-password/:resettoken
  * @access  Public
- * @param   {Object} req - Express request object
- * @param   {Object} res - Express response object
- * @todo    Implement token validation and password reset
  */
 const resetPassword = async (req, res) => {
   try {
-    // Check for validation errors
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({
@@ -672,22 +713,49 @@ const resetPassword = async (req, res) => {
     const { password } = req.body;
     const { resettoken } = req.params;
 
-    if (!password) {
+    if (!password || !resettoken) {
       return res.status(400).json({
         status: 'error',
-        message: 'Please provide new password'
+        message: 'Please provide a new password and reset token'
       });
     }
 
-    // TODO: Implement token validation and password reset
-    res.status(200).json({
-      status: 'success',
-      message: 'Password has been reset successfully'
-    });
+    const hashedToken = hashResetToken(resettoken);
+    const user = await User.findOne({
+      resetPasswordToken: hashedToken,
+      resetPasswordExpire: { $gt: Date.now() }
+    }).select('+password');
 
+    if (!user) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Reset link is invalid or has expired. Please request a new one.'
+      });
+    }
+
+    user.password = password;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpire = undefined;
+    user.loginAttempts = 0;
+    user.lockUntil = undefined;
+    await user.save();
+
+    // Invalidate any active sessions so the old credential can't continue to be used.
+    try {
+      await user.deactivateAllSessions();
+    } catch (sessionErr) {
+      console.error('Failed to deactivate sessions after reset:', sessionErr.message);
+    }
+
+    logAuthEvent('password_reset_success', user.email, req.ip, 'Password reset complete');
+
+    return res.status(200).json({
+      status: 'success',
+      message: 'Password has been reset successfully. Please sign in with your new password.'
+    });
   } catch (error) {
     console.error('Reset password error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       status: 'error',
       message: 'Server error resetting password'
     });

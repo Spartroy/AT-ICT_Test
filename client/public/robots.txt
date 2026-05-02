@@ -1,3 +1,10 @@
 # https://www.robotstxt.org/robotstxt.html
 User-agent: *
-Disallow:
+Allow: /
+Disallow: /signin
+Disallow: /register
+Disallow: /teacher-dashboard
+Disallow: /student-dashboard
+Disallow: /parent-dashboard
+
+Sitemap: https://at-ict-test.vercel.app/sitemap.xml

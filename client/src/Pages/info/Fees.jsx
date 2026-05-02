@@ -1,197 +1,147 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import Nav from '../../components/Nav';
-import { Check, Star, BookOpen, Video, Users, Clock, CreditCard, Building, Smartphone, X, ArrowLeft, CheckCircle } from 'lucide-react';
+import Footer from '../../components/Footer';
+import Seo from '../../components/Seo';
+import {
+  Check,
+  Star,
+  BookOpen,
+  Users,
+  Clock,
+  X,
+  MessageCircle,
+  ClipboardCheck,
+  ShieldCheck
+} from 'lucide-react';
+
+// Pricing is shown in EGP. Update here once finalised with admin.
+const pricingPlans = [
+  {
+    id: 'basic',
+    name: 'Basic Package',
+    price: 'EGP 4,500',
+    period: 'per term',
+    description: 'Perfect for getting started with ICT fundamentals',
+    features: [
+      'Interactive study notes',
+      'Core IGCSE ICT curriculum coverage',
+      'Email & WhatsApp support',
+      'Progress tracking on the student portal',
+      'Access to the student community'
+    ],
+    recommended: false,
+    color: 'border-gray-200'
+  },
+  {
+    id: 'standard',
+    name: 'Standard Package',
+    price: 'EGP 6,500',
+    period: 'per term',
+    description: 'Most popular choice for comprehensive learning',
+    features: [
+      'Everything in Basic',
+      'Recorded video sessions',
+      'Live Q&A sessions',
+      'Priority support',
+      'Practice assignments & quizzes',
+      'Mock exam papers',
+      'Personalised feedback'
+    ],
+    recommended: true,
+    color: 'border-[#CA133E]'
+  },
+  {
+    id: 'premium',
+    name: 'Premium Package',
+    price: 'EGP 9,500',
+    period: 'per term',
+    description: 'Complete package with personalised attention',
+    features: [
+      'Everything in Standard',
+      '1-on-1 tutoring sessions',
+      '24/7 WhatsApp support',
+      'Personalised study plan',
+      'Extra practice materials',
+      'Exam strategy sessions',
+      'Post-exam analysis',
+      'University guidance'
+    ],
+    recommended: false,
+    color: 'border-gray-200'
+  }
+];
+
+const paymentBenefits = [
+  {
+    icon: BookOpen,
+    title: 'Flexible Payment Plans',
+    description: 'Split payments available over 2 or 3 instalments'
+  },
+  {
+    icon: Users,
+    title: 'Group Discounts',
+    description: '15% discount for 3+ students from the same school'
+  },
+  {
+    icon: Clock,
+    title: 'Early Bird Discount',
+    description: '10% off when you register at least 1 month in advance'
+  }
+];
+
+const reserveSteps = [
+  {
+    icon: ClipboardCheck,
+    title: 'Pick a plan',
+    description: 'Choose the package that fits your goals.'
+  },
+  {
+    icon: MessageCircle,
+    title: 'Reserve your seat',
+    description: 'Send us a quick WhatsApp or register online — no card details needed.'
+  },
+  {
+    icon: ShieldCheck,
+    title: 'Pay securely',
+    description: 'After approval you pay via InstaPay or in-person and we activate your account.'
+  }
+];
+
+const WHATSAPP_NUMBER = '201274584000';
 
 const Fees = () => {
   const [selectedPlan, setSelectedPlan] = useState(null);
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [paymentStep, setPaymentStep] = useState(1); // 1: method selection, 2: form, 3: success
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('');
-  const [paymentData, setPaymentData] = useState({
-    fullName: '',
-    email: '',
-    phone: '',
-    address: '',
-    city: '',
-    postalCode: '',
-    cardNumber: '',
-    expiryDate: '',
-    cvv: '',
-    cardHolderName: '',
-    bankAccount: '',
-    routingNumber: '',
-    mobileNumber: '',
-    paymentPlan: 'full' // full, installment2, installment3
-  });
-
-  const pricingPlans = [
-    {
-      name: 'Basic Package',
-      price: '$299',
-      period: 'per term',
-      description: 'Perfect for getting started with ICT fundamentals',
-      features: [
-        'Interactive study notes',
-        'Basic course materials',
-        'Email support',
-        'Progress tracking',
-        'Access to community forum'
-      ],
-      recommended: false,
-      color: 'border-gray-200'
-    },
-    {
-      name: 'Standard Package',
-      price: '$499',
-      period: 'per term',
-      description: 'Most popular choice for comprehensive learning',
-      features: [
-        'All Basic Package features',
-        'Recorded video sessions',
-        'Live Q&A sessions',
-        'Priority email support',
-        'Practice assignments',
-        'Mock exam papers',
-        'Individual feedback'
-      ],
-      recommended: true,
-      color: 'border-[#CA133E]'
-    },
-    {
-      name: 'Premium Package',
-      price: '$699',
-      period: 'per term',
-      description: 'Complete package with personalized attention',
-      features: [
-        'All Standard Package features',
-        'One-on-one tutoring sessions',
-        '24/7 WhatsApp support',
-        'Personalized study plan',
-        'Extra practice materials',
-        'Exam strategy sessions',
-        'Post-exam analysis',
-        'University guidance'
-      ],
-      recommended: false,
-      color: 'border-gray-200'
-    }
-  ];
-
-  const paymentMethods = [
-    {
-      id: 'card',
-      name: 'Credit/Debit Card',
-      icon: CreditCard,
-      description: 'Pay securely with your card',
-      available: true
-    },
-    {
-      id: 'bank',
-      name: 'Bank Transfer',
-      icon: Building,
-      description: 'Direct bank transfer',
-      available: true
-    },
-    {
-      id: 'mobile',
-      name: 'Mobile Payment',
-      icon: Smartphone,
-      description: 'Pay with mobile wallet',
-      available: true
-    }
-  ];
-
-  const paymentOptions = [
-    {
-      icon: BookOpen,
-      title: 'Flexible Payment Plans',
-      description: 'Split payments available over 2-3 installments'
-    },
-    // {
-    //   icon: Video,
-    //   title: 'Money-Back Guarantee',
-    //   description: '30-day money-back guarantee if not satisfied'
-    // },
-    {
-      icon: Users,
-      title: 'Group Discounts',
-      description: '15% discount for 3+ students from same school'
-    },
-    {
-      icon: Clock,
-      title: 'Early Bird Discount',
-      description: '10% off when you register 1 month in advance'
-    }
-  ];
+  const [showReserveModal, setShowReserveModal] = useState(false);
 
   const handleChoosePlan = (plan) => {
     setSelectedPlan(plan);
-    setShowPaymentModal(true);
-    setPaymentStep(1);
+    setShowReserveModal(true);
   };
 
-  const handlePaymentMethodSelect = (method) => {
-    setSelectedPaymentMethod(method);
-    setPaymentStep(2);
-  };
-
-  const handleInputChange = (field, value) => {
-    setPaymentData(prev => ({
-      ...prev,
-      [field]: value
-    }));
-  };
-
-  const calculateAmount = () => {
-    if (!selectedPlan) return 0;
-    const baseAmount = parseInt(selectedPlan.price.replace('$', ''));
-    
-    switch (paymentData.paymentPlan) {
-      case 'installment2':
-        return baseAmount / 2;
-      case 'installment3':
-        return baseAmount / 3;
-      default:
-        return baseAmount;
-    }
-  };
-
-  const handlePaymentSubmit = (e) => {
-    e.preventDefault();
-    // Simulate payment processing
-    setTimeout(() => {
-      setPaymentStep(3);
-    }, 2000);
-  };
-
-  const resetPaymentModal = () => {
-    setShowPaymentModal(false);
-    setPaymentStep(1);
-    setSelectedPaymentMethod('');
+  const closeReserveModal = () => {
+    setShowReserveModal(false);
     setSelectedPlan(null);
-    setPaymentData({
-      fullName: '',
-      email: '',
-      phone: '',
-      address: '',
-      city: '',
-      postalCode: '',
-      cardNumber: '',
-      expiryDate: '',
-      cvv: '',
-      cardHolderName: '',
-      bankAccount: '',
-      routingNumber: '',
-      mobileNumber: '',
-      paymentPlan: 'full'
-    });
+  };
+
+  const buildWhatsappUrl = (plan) => {
+    const text = encodeURIComponent(
+      `Hello AT-ICT! I'd like to reserve a seat in the ${plan.name} (${plan.price} ${plan.period}). ` +
+      `Please send me the next steps for enrolment and payment.`
+    );
+    return `https://wa.me/${WHATSAPP_NUMBER}?text=${text}`;
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#1a1a1a] via-[#2a1a1a] to-[#3a1a1a]">
+      <Seo
+        title="Fees & Plans"
+        description="Transparent IGCSE ICT pricing in EGP with flexible instalments, group discounts, and an early-bird offer. Reserve your seat without entering card details."
+        path="/fees"
+      />
       <Nav />
-      
+
       <div className="pt-32 px-4">
         <motion.div
           initial={{ opacity: 0, y: 50 }}
@@ -202,16 +152,15 @@ const Fees = () => {
           <h1 className="text-4xl md:text-5xl font-bold text-white text-center mb-4">
             Course <span className="text-[#CA133E]">Fees</span>
           </h1>
-          
+
           <p className="text-xl text-gray-300 text-center mb-12">
             Choose the perfect plan for your ICT learning journey
           </p>
-          
-          {/* Pricing Cards */}
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
             {pricingPlans.map((plan, index) => (
               <motion.div
-                key={index}
+                key={plan.id}
                 initial={{ opacity: 0, y: 50 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
@@ -227,7 +176,7 @@ const Fees = () => {
                     </span>
                   </div>
                 )}
-                
+
                 <div className="text-center mb-6">
                   <h3 className="text-2xl font-bold text-gray-800 mb-2">{plan.name}</h3>
                   <div className="mb-2">
@@ -236,7 +185,7 @@ const Fees = () => {
                   </div>
                   <p className="text-gray-600">{plan.description}</p>
                 </div>
-                
+
                 <ul className="space-y-3 mb-8">
                   {plan.features.map((feature, featureIndex) => (
                     <li key={featureIndex} className="flex items-start">
@@ -245,7 +194,7 @@ const Fees = () => {
                     </li>
                   ))}
                 </ul>
-                
+
                 <button
                   onClick={() => handleChoosePlan(plan)}
                   className={`w-full py-3 rounded-xl font-semibold transition-all duration-300 ${
@@ -254,13 +203,12 @@ const Fees = () => {
                       : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
                   }`}
                 >
-                  Choose {plan.name}
+                  Reserve {plan.name}
                 </button>
               </motion.div>
             ))}
           </div>
-          
-          {/* Payment Options */}
+
           <motion.div
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
@@ -270,9 +218,9 @@ const Fees = () => {
             <h2 className="text-3xl font-bold text-center text-gray-800 mb-8">
               Payment Options & <span className="text-[#CA133E]">Benefits</span>
             </h2>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {paymentOptions.map((option, index) => (
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {paymentBenefits.map((option, index) => (
                 <motion.div
                   key={index}
                   initial={{ opacity: 0, y: 30 }}
@@ -289,13 +237,38 @@ const Fees = () => {
               ))}
             </div>
           </motion.div>
-          
-          {/* Additional Information */}
+
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.5 }}
+            className="bg-white rounded-xl shadow-lg p-8 mb-12"
+          >
+            <h2 className="text-3xl font-bold text-center text-gray-800 mb-2">
+              How <span className="text-[#CA133E]">Reserving</span> Works
+            </h2>
+            <p className="text-center text-gray-600 mb-8">
+              We don't take card details on this site. You reserve here, then pay through a secure channel.
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {reserveSteps.map((step, index) => (
+                <div key={index} className="text-center p-6 bg-gray-50 rounded-xl">
+                  <div className="w-12 h-12 bg-[#CA133E] text-white rounded-full flex items-center justify-center mx-auto mb-4 font-bold text-lg">
+                    {index + 1}
+                  </div>
+                  <step.icon className="mx-auto mb-3 text-[#CA133E]" size={28} />
+                  <h3 className="text-lg font-semibold text-gray-800 mb-2">{step.title}</h3>
+                  <p className="text-gray-600 text-sm">{step.description}</p>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+
           <motion.div
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.6 }}
-            className="grid grid-cols-1 lg:grid-cols-2 gap-8"
+            className="grid grid-cols-1 lg:grid-cols-2 gap-8 pb-12"
           >
             <div className="bg-white rounded-xl shadow-lg p-8">
               <h3 className="text-2xl font-bold text-gray-800 mb-4">What's Included</h3>
@@ -310,7 +283,7 @@ const Fees = () => {
                 </li>
                 <li className="flex items-start">
                   <Check size={20} className="text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                  <span>Access to recorded lesson library</span>
+                  <span>Access to the recorded lesson library</span>
                 </li>
                 <li className="flex items-start">
                   <Check size={20} className="text-green-500 mr-3 mt-0.5 flex-shrink-0" />
@@ -322,328 +295,99 @@ const Fees = () => {
                 </li>
               </ul>
             </div>
-            
+
             <div className="bg-white rounded-xl shadow-lg p-8">
               <h3 className="text-2xl font-bold text-gray-800 mb-4">Need Help Choosing?</h3>
               <p className="text-gray-700 mb-6">
-                Not sure which package is right for you? We're here to help! Contact us for 
+                Not sure which package is right for you? We're here to help! Contact us for
                 a free consultation to discuss your learning goals and find the perfect plan.
               </p>
               <div className="space-y-4">
-                <a href="/contact-us">
+                <Link to="/contact" className="block">
                   <button className="w-full bg-[#CA133E] text-white py-3 rounded-xl font-semibold hover:bg-[#A01030] transition-all duration-300">
                     Contact Us for Guidance
                   </button>
-                </a>
-                <a href="/contact-us">
+                </Link>
+                <Link to="/samples" className="block">
                   <button className="w-full bg-gray-100 text-gray-800 py-3 rounded-xl font-semibold hover:bg-gray-200 transition-all duration-300">
                     Request Free Sample Materials
                   </button>
-                </a>
+                </Link>
               </div>
             </div>
           </motion.div>
         </motion.div>
       </div>
 
-      {/* Payment Modal */}
       <AnimatePresence>
-        {showPaymentModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        {showReserveModal && selectedPlan && (
+          <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
-              className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+              className="bg-white rounded-xl shadow-2xl max-w-lg w-full overflow-hidden"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="reserve-modal-title"
             >
-              {/* Payment Step 1: Method Selection */}
-              {paymentStep === 1 && (
-                <div className="p-6">
-                  <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-2xl font-bold text-gray-800">Choose Payment Method</h2>
-                    <button
-                      onClick={resetPaymentModal}
-                      className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-                    >
-                      <X size={24} className="text-gray-600" />
-                    </button>
-                  </div>
-
-                  {selectedPlan && (
-                    <div className="bg-gray-50 rounded-xl p-4 mb-6">
-                      <h3 className="font-semibold text-gray-800 mb-2">Selected Plan</h3>
-                      <div className="flex justify-between items-center">
-                        <span className="text-lg font-bold text-[#CA133E]">{selectedPlan.name}</span>
-                        <span className="text-xl font-bold text-gray-800">{selectedPlan.price}</span>
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="space-y-4">
-                    {paymentMethods.map((method) => (
-                      <button
-                        key={method.id}
-                        onClick={() => handlePaymentMethodSelect(method.id)}
-                        className="w-full p-4 border-2 border-gray-200 rounded-xl hover:border-[#CA133E] transition-colors flex items-center"
-                      >
-                        <method.icon className="text-[#CA133E] mr-4" size={32} />
-                        <div className="text-left">
-                          <h3 className="font-semibold text-gray-800">{method.name}</h3>
-                          <p className="text-gray-600 text-sm">{method.description}</p>
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Payment Step 2: Payment Form */}
-              {paymentStep === 2 && (
-                <div className="p-6">
-                  <div className="flex items-center justify-between mb-6">
-                    <div className="flex items-center">
-                      <button
-                        onClick={() => setPaymentStep(1)}
-                        className="p-2 hover:bg-gray-100 rounded-full transition-colors mr-2"
-                      >
-                        <ArrowLeft size={20} className="text-gray-600" />
-                      </button>
-                      <h2 className="text-2xl font-bold text-gray-800">Payment Details</h2>
-                    </div>
-                    <button
-                      onClick={resetPaymentModal}
-                      className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-                    >
-                      <X size={24} className="text-gray-600" />
-                    </button>
-                  </div>
-
-                  <form onSubmit={handlePaymentSubmit} className="space-y-6">
-                    {/* Payment Plan Selection */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Payment Plan
-                      </label>
-                      <select
-                        value={paymentData.paymentPlan}
-                        onChange={(e) => handleInputChange('paymentPlan', e.target.value)}
-                        className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#CA133E] focus:border-transparent"
-                      >
-                        <option value="full">Pay in Full - {selectedPlan?.price}</option>
-                        <option value="installment2">2 Installments - ${calculateAmount()}/month</option>
-                        <option value="installment3">3 Installments - ${calculateAmount()}/month</option>
-                      </select>
-                    </div>
-
-                    {/* Personal Information */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Full Name *
-                        </label>
-                        <input
-                          type="text"
-                          required
-                          value={paymentData.fullName}
-                          onChange={(e) => handleInputChange('fullName', e.target.value)}
-                          className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#CA133E] focus:border-transparent"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Email *
-                        </label>
-                        <input
-                          type="email"
-                          required
-                          value={paymentData.email}
-                          onChange={(e) => handleInputChange('email', e.target.value)}
-                          className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#CA133E] focus:border-transparent"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Phone *
-                        </label>
-                        <input
-                          type="tel"
-                          required
-                          value={paymentData.phone}
-                          onChange={(e) => handleInputChange('phone', e.target.value)}
-                          className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#CA133E] focus:border-transparent"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          City *
-                        </label>
-                        <input
-                          type="text"
-                          required
-                          value={paymentData.city}
-                          onChange={(e) => handleInputChange('city', e.target.value)}
-                          className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#CA133E] focus:border-transparent"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Payment Method Specific Fields */}
-                    {selectedPaymentMethod === 'card' && (
-                      <div className="space-y-4">
-                        <h3 className="text-lg font-semibold text-gray-800">Card Information</h3>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Card Number *
-                          </label>
-                          <input
-                            type="text"
-                            required
-                            placeholder="1234 5678 9012 3456"
-                            value={paymentData.cardNumber}
-                            onChange={(e) => handleInputChange('cardNumber', e.target.value)}
-                            className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#CA133E] focus:border-transparent"
-                          />
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                              Expiry Date *
-                            </label>
-                            <input
-                              type="text"
-                              required
-                              placeholder="MM/YY"
-                              value={paymentData.expiryDate}
-                              onChange={(e) => handleInputChange('expiryDate', e.target.value)}
-                              className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#CA133E] focus:border-transparent"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                              CVV *
-                            </label>
-                            <input
-                              type="text"
-                              required
-                              placeholder="123"
-                              value={paymentData.cvv}
-                              onChange={(e) => handleInputChange('cvv', e.target.value)}
-                              className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#CA133E] focus:border-transparent"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    {selectedPaymentMethod === 'bank' && (
-                      <div className="space-y-4">
-                        <h3 className="text-lg font-semibold text-gray-800">Bank Information</h3>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Account Number *
-                          </label>
-                          <input
-                            type="text"
-                            required
-                            value={paymentData.bankAccount}
-                            onChange={(e) => handleInputChange('bankAccount', e.target.value)}
-                            className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#CA133E] focus:border-transparent"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Routing Number *
-                          </label>
-                          <input
-                            type="text"
-                            required
-                            value={paymentData.routingNumber}
-                            onChange={(e) => handleInputChange('routingNumber', e.target.value)}
-                            className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#CA133E] focus:border-transparent"
-                          />
-                        </div>
-                      </div>
-                    )}
-
-                    {selectedPaymentMethod === 'mobile' && (
-                      <div className="space-y-4">
-                        <h3 className="text-lg font-semibold text-gray-800">Mobile Payment</h3>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Mobile Number *
-                          </label>
-                          <input
-                            type="tel"
-                            required
-                            value={paymentData.mobileNumber}
-                            onChange={(e) => handleInputChange('mobileNumber', e.target.value)}
-                            className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#CA133E] focus:border-transparent"
-                          />
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Payment Summary */}
-                    <div className="bg-gray-50 rounded-xl p-4">
-                      <h3 className="font-semibold text-gray-800 mb-2">Payment Summary</h3>
-                      <div className="flex justify-between items-center text-lg font-bold">
-                        <span>Amount to Pay:</span>
-                        <span className="text-[#CA133E]">${calculateAmount()}</span>
-                      </div>
-                      {paymentData.paymentPlan !== 'full' && (
-                        <p className="text-sm text-gray-600 mt-1">
-                          {paymentData.paymentPlan === 'installment2' ? 'First of 2 payments' : 'First of 3 payments'}
-                        </p>
-                      )}
-                    </div>
-
-                    <button
-                      type="submit"
-                      className="w-full bg-[#CA133E] text-white py-3 rounded-xl font-semibold hover:bg-[#A01030] transition-colors"
-                    >
-                      Complete Payment
-                    </button>
-                  </form>
-                </div>
-              )}
-
-              {/* Payment Step 3: Success */}
-              {paymentStep === 3 && (
-                <div className="p-6 text-center">
-                  <CheckCircle className="text-green-500 mx-auto mb-4" size={64} />
-                  <h2 className="text-2xl font-bold text-gray-800 mb-2">Payment Successful!</h2>
-                  <p className="text-gray-600 mb-6">
-                    Thank you for your payment. You will receive a confirmation email shortly.
-                  </p>
-                  <div className="bg-gray-50 rounded-xl p-4 mb-6">
-                    <h3 className="font-semibold text-gray-800 mb-2">Payment Details</h3>
-                    <div className="text-left space-y-1">
-                      <p><span className="font-medium">Plan:</span> {selectedPlan?.name}</p>
-                      <p><span className="font-medium">Amount:</span> ${calculateAmount()}</p>
-                      <p><span className="font-medium">Payment Method:</span> {
-                        selectedPaymentMethod === 'card' ? 'Credit/Debit Card' :
-                        selectedPaymentMethod === 'bank' ? 'Bank Transfer' : 'Mobile Payment'
-                      }</p>
-                      <p><span className="font-medium">Transaction ID:</span> TXN{Math.random().toString(36).substr(2, 9).toUpperCase()}</p>
-                    </div>
-                  </div>
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 id="reserve-modal-title" className="text-xl font-bold text-gray-800">Reserve your seat</h2>
                   <button
-                    onClick={resetPaymentModal}
-                    className="bg-[#CA133E] text-white px-6 py-3 rounded-xl font-semibold hover:bg-[#A01030] transition-colors"
+                    onClick={closeReserveModal}
+                    className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                    aria-label="Close"
                   >
-                    Close
+                    <X size={20} className="text-gray-600" />
                   </button>
                 </div>
-              )}
+
+                <div className="bg-gray-50 rounded-xl p-4 mb-5">
+                  <h3 className="font-semibold text-gray-800 mb-1">Selected plan</h3>
+                  <div className="flex justify-between items-center">
+                    <span className="text-lg font-bold text-[#CA133E]">{selectedPlan.name}</span>
+                    <span className="text-lg font-bold text-gray-800">{selectedPlan.price}</span>
+                  </div>
+                  <p className="text-sm text-gray-600 mt-1">{selectedPlan.description}</p>
+                </div>
+
+                <p className="text-sm text-gray-600 mb-5">
+                  Pick how you'd like to reserve. We'll confirm availability and send payment instructions
+                  through InstaPay or in-person — no card details are entered on this site.
+                </p>
+
+                <div className="space-y-3">
+                  <a
+                    href={buildWhatsappUrl(selectedPlan)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block w-full bg-[#25D366] text-white py-3 rounded-xl font-semibold hover:bg-[#1DA851] transition-colors text-center"
+                  >
+                    Reserve via WhatsApp
+                  </a>
+                  <Link
+                    to={`/register?plan=${selectedPlan.id}`}
+                    className="block w-full bg-[#CA133E] text-white py-3 rounded-xl font-semibold hover:bg-[#A01030] transition-colors text-center"
+                  >
+                    Register Online
+                  </Link>
+                  <Link
+                    to="/contact"
+                    className="block w-full bg-gray-100 text-gray-800 py-3 rounded-xl font-semibold hover:bg-gray-200 transition-colors text-center"
+                  >
+                    Ask a question first
+                  </Link>
+                </div>
+              </div>
             </motion.div>
           </div>
         )}
       </AnimatePresence>
+
+      <Footer />
     </div>
   );
 };
 
-export default Fees; 
+export default Fees;
