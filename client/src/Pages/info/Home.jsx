@@ -24,10 +24,7 @@ const Home = () => {
       <main className="flex-1">
         <Hero />
         <WhyChooseATICT />
-        <CurriculumTeaser />
         <TestimonialsStrip />
-        <HallOfFameStrip />
-        <FeesTeaser />
         <FinalCTA />
       </main>
       <Footer />

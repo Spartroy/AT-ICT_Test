@@ -103,16 +103,15 @@ const ContactUs = () => {
     {
       icon: MapPin,
       title: 'Centers',
-      content: 'Apex Academy - EzScience - IG Cubs - IG Stars - Bright Minds',
-      subContent: 'Future Stars Center - IG Guide Academy',
+      content: 'Apex Academy - EzScience - IG Cubs - IG Stars',
+      subContent: 'Bright Minds - Future Stars Center - IG Guide Academy',
      
     },
 
     {
       icon: School,
       title: 'Schools',
-      content: 'Gateway Montessori International School'
-     
+      content: 'Royal College International School'
     },
   ];
 
@@ -164,7 +163,6 @@ const ContactUs = () => {
                       onChange={handleChange}
                       required
                       className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#CA133E] focus:border-transparent"
-                      placeholder="Your full name"
                     />
                   </div>
                   
@@ -180,7 +178,6 @@ const ContactUs = () => {
                       onChange={handleChange}
                       required
                       className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#CA133E] focus:border-transparent"
-                      placeholder="your.email@example.com"
                     />
                   </div>
                 </div>
@@ -216,7 +213,6 @@ const ContactUs = () => {
                     autoComplete="tel"
                     pattern="^(?:\+?20|0)?1[0125]\d{8}$"
                     className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#CA133E] focus:border-transparent"
-                    placeholder="01X XXXXXXXX"
                   />
                 </div>
 
@@ -232,7 +228,7 @@ const ContactUs = () => {
                     onChange={handleChange}
                     required
                     rows={4}
-                    className="w-full h-full min-h-[100px] px-3 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#CA133E] focus:border-transparent resize-none"
+                    className="w-full h-full min-h-[100px] px-3 py-2 mb-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#CA133E] focus:border-transparent resize-none"
                     placeholder="Tell us how we can help you..."
                   />
                 </div>

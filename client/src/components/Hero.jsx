@@ -53,7 +53,9 @@ const Hero = () => {
               className="text-gray-300 text-[14pt] sm:text-[16pt] max-w-lg leading-relaxed"
               variants={itemVariants}
             >
-              The only ICT tutoring course built on interactive sessions. No boring sessions. No memorizing.
+              The only ICT tutoring course built on interactive sessions.
+              <br /> No boring sessions.
+              <br /> No memorizing.
             </motion.p>
 
             {/* Buttons */}
@@ -116,7 +118,7 @@ const Hero = () => {
                   </svg>
                 ))}
               </div>
-              <span className="text-[#CA133E] text-[12pt] sm:text-[14pt] font-semibold">100+</span>
+              <span className="text-[#CA133E] text-[12pt] sm:text-[14pt] font-semibold">400+</span>
               <span className="text-gray-300 text-[12pt] sm:text-[14pt]">Satisfied Students</span>
             </motion.div>
           </motion.div>

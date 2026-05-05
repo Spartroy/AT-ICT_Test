@@ -6,7 +6,6 @@ import Logo from '../assets/logo.png';
 const navLinks = [
   { to: '/', label: 'Home' },
   { to: '/about', label: 'About' },
-  { to: '/curriculum', label: 'Curriculum' },
   { to: '/fees', label: 'Fees' },
   { to: '/samples', label: 'Free Samples' },
   { to: '/hall-of-fame', label: 'Hall of Fame' },
@@ -29,7 +28,7 @@ const centers = [
   'Bright Minds',
   'Future Stars Center',
   'IG Guide Academy',
-  'Gateway Montessori International School'
+  'Royal College International School'
 ];
 
 const Footer = () => {
@@ -131,10 +130,13 @@ const Footer = () => {
 
             <div className="mt-4">
               <h4 className="text-white text-sm font-semibold mb-2">Centers</h4>
-              <p className="text-xs text-gray-400 leading-relaxed">
-                {centers.join(' • ')}
-              </p>
+              <ul className="text-xs text-gray-400 leading-relaxed list-disc pl-4 space-y-1">
+                {centers.map((center, idx) => (
+                  <li key={idx}>{center}</li>
+                ))}
+              </ul>
             </div>
+       
           </div>
         </div>
 

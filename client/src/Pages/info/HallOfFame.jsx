@@ -1,49 +1,33 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import Nav from '../../components/Nav';
 import Footer from '../../components/Footer';
 import Seo from '../../components/Seo';
+import { API_ENDPOINTS } from '../../config/api';
 
 const HallOfFame = () => {
-  const students = [
-  { name: 'Nuria Amr', year: '2024' },
-  { name: 'Jana Ahmad', year: '2024' },
-  { name: 'Abdelrahman Bassem', year: '2024' },
-  { name: 'Andrew', year: '2024' },
-  { name: 'Hussain', year: '2024' },
-  { name: 'Razan Mohamed', year: '2024' },
-  { name: 'Mohamed Tamer', year: '2023' },
-  { name: 'Haitham', year: '2023' },
-  { name: 'Kenzy', year: '2024' },
-  { name: 'Ahmad Qayem', year: '2024' },
-  { name: 'Abdelrahman Drogham', year: '2023' },
-  { name: 'Malak', year: '2024' },
-  { name: 'Shaikha', year: '2024' },
-  { name: 'Abdelrahman (Boda)', year: '2023' },
-  { name: 'Nouran Mohamed', year: '2024' },
-  { name: 'Mohannad', year: '2023' },
-  { name: 'Ahmad Hatem', year: '2024' },
-  { name: 'Fahmy', year: '2024' },
-  { name: 'Dina', year: '2023' },
-  { name: 'Joud El Daher', year: '2024' },
-  { name: 'Karam Al Jararah', year: '2024' },
-  { name: 'Omar Tarek', year: '2024' },
-  { name: 'Omar Badawy', year: '2023' },
-  { name: 'Shahd', year: '2024' },
-  { name: 'Abdelrahman', year: '2024' },
-  { name: 'Ali Jamal', year: '2023' },
-  { name: 'Basel El Dawakhly', year: '2024' },
-  { name: 'Joury', year: '2024' },
-  { name: 'Yassin', year: '2023' },
-  { name: 'Muntaha', year: '2024' },
-  { name: 'Jad', year: '2024' },
-  { name: 'Ahmad', year: '2023' },
-  { name: 'Tala', year: '2024' },
-  { name: 'Natalie', year: '2024' },
-  { name: 'Shady El Trawneh', year: '2024' },
-  { name: 'Omar Amer', year: '2024' }
-  ];
+  const [students, setStudents] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchHallOfFame = async () => {
+      try {
+        const response = await fetch(API_ENDPOINTS.LEADERBOARD.HALL_OF_FAME);
+        const data = await response.json();
+
+        if (response.ok && data?.status === 'success') {
+          setStudents(data.data?.hallOfFame || []);
+        }
+      } catch (error) {
+        console.error('Failed to load Hall of Fame:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchHallOfFame();
+  }, []);
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -99,7 +83,7 @@ const cardVariants = {
               <div className="text-[16pt] text-gray-100">Average Grade</div>
             </div>
             <div className="bg-gradient-to-br from-gray-700 to-gray-800 rounded-xl p-8 text-center">
-              <div className="text-[36pt] font-bold mb-2">100+</div>
+              <div className="text-[36pt] font-bold mb-2">400+</div>
               <div className="text-[16pt] text-gray-100">Successful Students</div>
             </div>
           </motion.div>
@@ -112,9 +96,9 @@ const cardVariants = {
             viewport={{ once: true, margin: "-100px" }}
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
           >
-            {students.map((student, index) => (
+            {!loading && students.map((student, index) => (
               <motion.div
-                key={index}
+                key={student._id || `${student.name}-${index}`}
                 variants={cardVariants}
                 whileHover={{
                   scale: 1.05,
@@ -132,7 +116,9 @@ const cardVariants = {
                   <h3 className="text-[18pt] font-bold text-white mb-2 group-hover:text-[#CA133E] transition-colors">
                     {student.name}
                   </h3>
-                  <div className="space-y-2" />
+                  <div className="space-y-2">
+                    <p className="text-[11pt] text-gray-400">Class of {student.year || 'N/A'}</p>
+                  </div>
                 </div>
                 <div className="mt-4 flex justify-center">
                   <div className="bg-[#CA133E] bg-opacity-20 border border-[#CA133E] rounded-xl px-3 py-1 text-[#CA133E] text-[10pt] font-semibold">
@@ -141,6 +127,13 @@ const cardVariants = {
                 </div>
               </motion.div>
             ))}
+            {!loading && students.length === 0 && (
+              <motion.div variants={cardVariants} className="col-span-full">
+                <div className="rounded-xl border border-dashed border-gray-600 bg-gray-900/60 p-10 text-center">
+                  <p className="text-gray-300 text-[14pt]">No Hall of Fame students added yet.</p>
+                </div>
+              </motion.div>
+            )}
             <motion.div variants={cardVariants}>
               <Link
                 to="/register"

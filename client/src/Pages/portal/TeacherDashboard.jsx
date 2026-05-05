@@ -603,6 +603,9 @@ const DashboardOverview = ({ stats, loading, setActiveTab, setShowCreateAssignme
   const [newSessionLabel, setNewSessionLabel] = useState('');
   const [resetLoading, setResetLoading] = useState(false);
   const [resetMsg, setResetMsg] = useState('');
+  const [showHallOfFameModal, setShowHallOfFameModal] = useState(false);
+  const [hallOfFameForm, setHallOfFameForm] = useState({ name: '', year: '' });
+  const [hallOfFameLoading, setHallOfFameLoading] = useState(false);
 
   const handleResetSession = async () => {
     if (!newSessionLabel.trim()) return;
@@ -629,6 +632,40 @@ const DashboardOverview = ({ stats, loading, setActiveTab, setShowCreateAssignme
       setResetMsg('Network error');
     } finally {
       setResetLoading(false);
+    }
+  };
+
+  const handleAddHallOfFameStudent = async (e) => {
+    e.preventDefault();
+    if (!hallOfFameForm.name.trim() || !hallOfFameForm.year.trim()) return;
+
+    try {
+      setHallOfFameLoading(true);
+      const token = localStorage.getItem('token');
+      const response = await fetch(API_ENDPOINTS.TEACHER.HALL_OF_FAME, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          name: hallOfFameForm.name.trim(),
+          year: hallOfFameForm.year.trim()
+        })
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        showOperationToast.operationSuccess('Hall of Fame update');
+        setShowHallOfFameModal(false);
+        setHallOfFameForm({ name: '', year: '' });
+      } else {
+        showOperationToast.operationError('Hall of Fame update', data?.message || 'Unable to add student');
+      }
+    } catch (error) {
+      showOperationToast.operationError('Hall of Fame update', error?.message || 'Network error');
+    } finally {
+      setHallOfFameLoading(false);
     }
   };
 
@@ -688,7 +725,7 @@ const DashboardOverview = ({ stats, loading, setActiveTab, setShowCreateAssignme
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
           <button
             onClick={() => setShowCreateAssignment(true)}
-            className="flex items-center p-4 lg:p-6 bg-blue-600/20 backdrop-blur-sm rounded-xl hover:bg-blue-600/30 transition-all duration-300 group border border-blue-500/30"
+            className="min-h-[92px] flex items-center p-4 lg:p-6 bg-blue-600/20 backdrop-blur-sm rounded-xl hover:bg-blue-600/30 transition-all duration-300 group border border-blue-500/30"
           >
             <ClipboardDocumentListIcon className="h-8 w-8 lg:h-10 lg:w-10 text-blue-400 group-hover:text-blue-300" />
             <div className="ml-3 lg:ml-4 text-left">
@@ -698,7 +735,7 @@ const DashboardOverview = ({ stats, loading, setActiveTab, setShowCreateAssignme
 
           <button
             onClick={() => setShowCreateQuiz(true)}
-            className="flex items-center p-4 lg:p-6 bg-purple-600/20 backdrop-blur-sm rounded-xl hover:bg-purple-600/30 transition-all duration-300 group border border-purple-500/30"
+            className="min-h-[92px] flex items-center p-4 lg:p-6 bg-purple-600/20 backdrop-blur-sm rounded-xl hover:bg-purple-600/30 transition-all duration-300 group border border-purple-500/30"
           >
             <QuestionMarkCircleIcon className="h-8 w-8 lg:h-10 lg:w-10 text-purple-400 group-hover:text-purple-300" />
             <div className="ml-3 lg:ml-4 text-left">
@@ -708,17 +745,17 @@ const DashboardOverview = ({ stats, loading, setActiveTab, setShowCreateAssignme
 
           <button
             onClick={() => setActiveTab('announcements')}
-            className="flex items-center p-4 lg:p-6 bg-green-600/20 backdrop-blur-sm rounded-xl hover:bg-green-600/30 transition-all duration-300 group border border-green-500/30"
+            className="min-h-[92px] flex items-center p-4 lg:p-6 bg-green-600/20 backdrop-blur-sm rounded-xl hover:bg-green-600/30 transition-all duration-300 group border border-green-500/30"
           >
             <MegaphoneIcon className="h-8 w-8 lg:h-10 lg:w-10 text-green-400 group-hover:text-green-300" />
-            <div className="ml-3 lg:ml-4 text-left">
+            <div className="ml-3 lg:ml-4 text-left flex-1 min-w-0">
               <p className="text-base lg:text-[18pt] font-bold text-white">Send Announcement</p>
             </div>
           </button>
 
           <button
             onClick={() => setShowResetModal(true)}
-            className="flex items-center p-4 lg:p-6 bg-[#CA133E]/20 backdrop-blur-sm rounded-xl hover:bg-[#CA133E]/30 transition-all duration-300 group border border-[#CA133E]/30"
+            className="min-h-[92px] flex items-center p-4 lg:p-6 bg-[#CA133E]/20 backdrop-blur-sm rounded-xl hover:bg-[#CA133E]/30 transition-all duration-300 group border border-[#CA133E]/30"
           >
             <ArrowPathIcon className="h-8 w-8 lg:h-10 lg:w-10 text-[#CA133E] group-hover:text-red-400" />
             <div className="ml-3 lg:ml-4 text-left">
@@ -741,6 +778,64 @@ const DashboardOverview = ({ stats, loading, setActiveTab, setShowCreateAssignme
 
       {/* Reset Session Modal */}
       <AnimatePresence>
+        {showHallOfFameModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="bg-gray-800 rounded-xl p-6 w-full max-w-md border border-gray-600 shadow-2xl"
+            >
+              <h3 className="text-lg font-bold text-white mb-4">Add Hall of Fame Student</h3>
+              <form onSubmit={handleAddHallOfFameStudent} className="space-y-4">
+                <div>
+                  <label className="block text-sm text-gray-300 mb-2">Student Name</label>
+                  <input
+                    type="text"
+                    value={hallOfFameForm.name}
+                    onChange={(e) => setHallOfFameForm((prev) => ({ ...prev, name: e.target.value }))}
+                    placeholder="Student full name"
+                    className="w-full bg-gray-700 border border-gray-600 rounded-xl px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-[#CA133E] transition-colors"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm text-gray-300 mb-2">Year</label>
+                  <input
+                    type="text"
+                    value={hallOfFameForm.year}
+                    onChange={(e) => setHallOfFameForm((prev) => ({ ...prev, year: e.target.value }))}
+                    placeholder="2026"
+                    className="w-full bg-gray-700 border border-gray-600 rounded-xl px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-[#CA133E] transition-colors"
+                    required
+                  />
+                </div>
+                <div className="flex gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowHallOfFameModal(false)}
+                    className="flex-1 py-2.5 px-4 rounded-xl border border-gray-600 text-gray-300 hover:bg-gray-700 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={hallOfFameLoading || !hallOfFameForm.name.trim() || !hallOfFameForm.year.trim()}
+                    className="flex-1 py-2.5 px-4 rounded-xl bg-[#CA133E] text-white font-semibold hover:bg-[#A01030] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {hallOfFameLoading ? 'Adding...' : 'Add Student'}
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+
         {showResetModal && (
           <motion.div
             initial={{ opacity: 0 }}
@@ -808,6 +903,16 @@ const DashboardOverview = ({ stats, loading, setActiveTab, setShowCreateAssignme
           </motion.div>
         )}
       </AnimatePresence>
+
+      <motion.button
+        onClick={() => setShowHallOfFameModal(true)}
+        className="fixed bottom-6 right-6 z-40 w-14 h-14 rounded-full bg-[#CA133E] text-white shadow-xl border border-[#CA133E]/40 flex items-center justify-center"
+        whileHover={{ scale: 1.08 }}
+        whileTap={{ scale: 0.95 }}
+        title="Add Hall of Fame Student"
+      >
+        <PlusIcon className="h-7 w-7" />
+      </motion.button>
     </div>
   );
 };

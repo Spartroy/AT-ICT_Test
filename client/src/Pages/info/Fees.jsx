@@ -26,8 +26,9 @@ const pricingPlans = [
     description: 'Perfect for getting started with ICT fundamentals',
     features: [
       'Interactive study notes',
-      'Core IGCSE ICT curriculum coverage',
+      'Whole ICT curriculum coverage',
       'Progress tracking on the student portal',
+      'Recorded video sessions',
     ],
     recommended: false,
     color: 'border-gray-200'
@@ -38,11 +39,15 @@ const pricingPlans = [
     price: 'EGP 16,000',
     description: 'Most popular choice for comprehensive learning',
     features: [
+      'Interactive study notes',
+      'Whole ICT curriculum coverage',
+      'Progress tracking on the student portal',
+      'Personalised feedback',
+      'Live Sessions with the teacher',
+      'Weekly Office Hours',
       'Recorded video sessions',
-      'Live Q&A sessions',
       'Practice assignments & quizzes',
       'Mock exam papers',
-      'Examiner-style marking',
       '24/7 WhatsApp support',
     ],
     recommended: true,
@@ -54,16 +59,17 @@ const pricingPlans = [
     price: 'EGP 20,000',
     description: 'Complete package with personalised attention',
     features: [
-      '24/7 WhatsApp support',
-      'Examiner-style marking',
-      'Recorded video sessions',
-      'Live Q&A sessions',
-      'Practice assignments & quizzes',
-      'Mock papers',
-      'Final revision sprints',
+      'Interactive study notes',
+      'Whole ICT curriculum coverage',
+      'Progress tracking on the student portal',
       'Personalised feedback',
-      'Post-exam analysis',
-      'University guidance',
+      'Live Sessions with the teacher',
+      'Weekly Office Hours',
+      'Recorded video sessions',
+      'Practice assignments & quizzes',
+      'Mock exam papers',
+      '24/7 WhatsApp support',
+      '1-on-1 support with the teacher',
       'Priority support',
       'Access to the student community'
     ],
@@ -81,7 +87,7 @@ const paymentBenefits = [
   {
     icon: Users,
     title: 'Group Discounts',
-    description: '15% discount for 3+ students from the same school'
+    description: 'If you know a friend who needs sessions, bring him and get a 15% discount for you both'
   },
   {
     icon: Clock,
@@ -108,7 +114,7 @@ const reserveSteps = [
   }
 ];
 
-const WHATSAPP_NUMBER = '201274584000';
+const WHATSAPP_NUMBER = '+201274584000';
 
 const Fees = () => {
   const [selectedPlan, setSelectedPlan] = useState(null);
@@ -152,7 +158,7 @@ const Fees = () => {
             Course <span className="text-[#CA133E]">Fees</span>
           </h1>
 
-          <p className="text-xl text-gray-300 text-center mb-12">
+          <p className="text-xl text-gray-300 text-center mb-14">
             Choose the perfect plan for your ICT learning journey
           </p>
 
@@ -237,31 +243,7 @@ const Fees = () => {
             </div>
           </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.5 }}
-            className="bg-white rounded-xl shadow-lg p-8 mb-12"
-          >
-            <h2 className="text-3xl font-bold text-center text-gray-800 mb-2">
-              How <span className="text-[#CA133E]">Reserving</span> Works
-            </h2>
-            <p className="text-center text-gray-600 mb-8">
-              We don't take card details on this site. You reserve here, then pay through a secure channel.
-            </p>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {reserveSteps.map((step, index) => (
-                <div key={index} className="text-center p-6 bg-gray-50 rounded-xl">
-                  <div className="w-12 h-12 bg-[#CA133E] text-white rounded-full flex items-center justify-center mx-auto mb-4 font-bold text-lg">
-                    {index + 1}
-                  </div>
-                  <step.icon className="mx-auto mb-3 text-[#CA133E]" size={28} />
-                  <h3 className="text-lg font-semibold text-gray-800 mb-2">{step.title}</h3>
-                  <p className="text-gray-600 text-sm">{step.description}</p>
-                </div>
-              ))}
-            </div>
-          </motion.div>
+          
 
           <motion.div
             initial={{ opacity: 0, y: 50 }}

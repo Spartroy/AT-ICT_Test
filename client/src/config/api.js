@@ -32,6 +32,7 @@ export const API_ENDPOINTS = {
     ACTIVITIES: `${API_BASE_URL}/api/teacher/activities`,
     ADD_LEGACY_STUDENT: `${API_BASE_URL}/api/teacher/legacy-students`,
     RESET_SESSION_POINTS: `${API_BASE_URL}/api/teacher/reset-session-points`,
+    HALL_OF_FAME: `${API_BASE_URL}/api/teacher/hall-of-fame`,
     STUDENT_PAYMENTS: (studentId) => `${API_BASE_URL}/api/teacher/students/${studentId}/payments`,
     PAYMENT: (paymentId) => `${API_BASE_URL}/api/teacher/payments/${paymentId}`,
     RESET_STUDENT_PASSWORD: (studentId) => `${API_BASE_URL}/api/teacher/students/${studentId}/reset-password`,

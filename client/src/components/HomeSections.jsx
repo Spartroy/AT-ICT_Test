@@ -2,9 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
-  BookOpen,
-  Layers,
-  Trophy,
   ChevronRight,
   Quote,
   Sparkles,
@@ -15,85 +12,11 @@ import {
 import API_ENDPOINTS from '../config/api';
 import { studentStories } from '../data/studentStories';
 
-const curriculumTeasers = [
-  {
-    icon: BookOpen,
-    title: 'Foundations & Theory',
-    description:
-      'From hardware basics to networks, security, and emerging technologies — every theory topic broken down for IGCSE.',
-    bullet: 'Weeks 1 – 4'
-  },
-  {
-    icon: Layers,
-    title: 'Practical Mastery',
-    description:
-      'Word, Excel, Access, web authoring and presentations covered with hands-on tasks and exam-style files.',
-    bullet: 'Weeks 5 – 8'
-  },
-  {
-    icon: Trophy,
-    title: 'Exam Domination',
-    description:
-      'Mock papers, examiner-style marking, and final revision sprints designed to push you toward an A*.',
-    bullet: 'Weeks 9 – 10'
-  }
-];
+
 
 const carouselStories = studentStories.slice(0, 6);
 
-export const CurriculumTeaser = () => (
-  <section className="py-20 bg-[#0F0F0F] text-white">
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.6 }}
-        className="text-center mb-12"
-      >
-        <span className="inline-block bg-[#CA133E]/15 text-[#CA133E] text-xs font-semibold uppercase tracking-wider px-3 py-1 rounded-full mb-4">
-          The Curriculum
-        </span>
-        <h2 className="text-3xl md:text-4xl font-bold mb-3">
-          A 10-week roadmap to <span className="text-[#CA133E]">A*</span>
-        </h2>
-        <p className="text-gray-400 max-w-2xl mx-auto">
-          Every week is mapped to specific exam outcomes. No fluff, no filler — just what gets results.
-        </p>
-      </motion.div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {curriculumTeasers.map((item, idx) => (
-          <motion.div
-            key={item.title}
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: idx * 0.1 }}
-            className="bg-[#1a1a1a] border border-gray-800 rounded-xl p-6 hover:border-[#CA133E] transition-colors"
-          >
-            <div className="w-12 h-12 rounded-xl bg-[#CA133E]/15 flex items-center justify-center mb-4">
-              <item.icon className="text-[#CA133E]" size={24} />
-            </div>
-            <span className="text-xs font-semibold text-[#CA133E]">{item.bullet}</span>
-            <h3 className="text-xl font-bold mt-1 mb-2">{item.title}</h3>
-            <p className="text-gray-400 text-sm leading-relaxed">{item.description}</p>
-          </motion.div>
-        ))}
-      </div>
-
-      <div className="text-center mt-10">
-        <Link
-          to="/curriculum"
-          className="inline-flex items-center gap-2 bg-[#CA133E] hover:bg-[#A01030] text-white font-semibold px-6 py-3 rounded-xl transition-colors"
-        >
-          Explore the full curriculum
-          <ChevronRight size={18} />
-        </Link>
-      </div>
-    </div>
-  </section>
-);
 
 export const TestimonialsStrip = () => {
   const [activeIndex, setActiveIndex] = useState(0);

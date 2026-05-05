@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const HallOfFameEntry = require('../models/HallOfFameEntry');
 
 // @desc    Get top-3 students by currentSession points, filtered by session
 // @route   GET /api/leaderboard?session=NOV+25
@@ -56,28 +57,17 @@ const getLeaderboard = async (req, res) => {
 // @access  Public
 const getHallOfFame = async (req, res) => {
   try {
-    const limit = parseInt(req.query.limit, 10) || 10;
-
-    const topStudents = await User.find({
-      role: 'student',
-      isActive: true,
-      registrationStatus: 'approved',
-      'studentInfo.points.total': { $gt: 0 }
-    })
-      .select('firstName lastName avatar studentInfo.points studentInfo.session')
-      .sort({ 'studentInfo.points.total': -1 })
-      .limit(limit)
+    const entries = await HallOfFameEntry.find({})
+      .select('name year createdAt')
+      .sort({ createdAt: -1 })
       .lean();
 
-    const hallOfFame = topStudents.map((student, idx) => ({
+    const hallOfFame = entries.map((entry, idx) => ({
       rank: idx + 1,
-      _id: student._id,
-      firstName: student.firstName,
-      lastName: student.lastName,
-      name: `${student.firstName} ${student.lastName}`,
-      avatar: student.avatar || null,
-      totalPoints: student.studentInfo?.points?.total || 0,
-      session: student.studentInfo?.session || ''
+      _id: entry._id,
+      name: entry.name,
+      year: entry.year,
+      createdAt: entry.createdAt
     }));
 
     res.status(200).json({
@@ -92,6 +82,49 @@ const getHallOfFame = async (req, res) => {
     res.status(500).json({
       status: 'error',
       message: 'Server error retrieving hall of fame'
+    });
+  }
+};
+
+// @desc    Add Hall of Fame student
+// @route   POST /api/teacher/hall-of-fame
+// @access  Private (Teacher)
+const addHallOfFameStudent = async (req, res) => {
+  try {
+    const { name, year } = req.body;
+
+    if (!name || !name.trim()) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Student name is required'
+      });
+    }
+
+    if (!year || !year.trim()) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Year is required'
+      });
+    }
+
+    const entry = await HallOfFameEntry.create({
+      name: name.trim(),
+      year: year.trim(),
+      createdBy: req.user.id
+    });
+
+    return res.status(201).json({
+      status: 'success',
+      message: 'Student added to Hall of Fame successfully',
+      data: {
+        entry
+      }
+    });
+  } catch (error) {
+    console.error('Add hall of fame student error:', error);
+    return res.status(500).json({
+      status: 'error',
+      message: 'Server error adding hall of fame student'
     });
   }
 };
@@ -137,4 +170,4 @@ const resetSessionPoints = async (req, res) => {
   }
 };
 
-module.exports = { getLeaderboard, getHallOfFame, resetSessionPoints };
+module.exports = { getLeaderboard, getHallOfFame, addHallOfFameStudent, resetSessionPoints };
