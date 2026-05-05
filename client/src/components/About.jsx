@@ -3,6 +3,7 @@ import { Award, Users, Star, Trophy, Target, Zap, CheckCircle, TrendingUp } from
 import PP from "../assets/PP.jpg";
 import { motion } from 'framer-motion';
 import { studentStories as studentTestimonials } from '../data/studentStories';
+import { API_ENDPOINTS } from '../config/api';
 
 const About = () => {
   // Easter egg states
@@ -11,6 +12,7 @@ const About = () => {
   const [simpleClickCount, setSimpleClickCount] = useState(0);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [inputPassword, setInputPassword] = useState('');
+  const [stories, setStories] = useState(studentTestimonials);
 
   // Global event listener for password (keyboard)
   useEffect(() => {
@@ -35,6 +37,28 @@ const About = () => {
       document.removeEventListener('keydown', handleKeyPress);
     };
   }, [password]);
+
+  useEffect(() => {
+    let mounted = true;
+    const loadStories = async () => {
+      try {
+        const response = await fetch(API_ENDPOINTS.LEADERBOARD.STORIES);
+        if (!response.ok) throw new Error('Failed to load stories');
+        const data = await response.json();
+        const fetchedStories = data?.data?.stories || [];
+        if (mounted && fetchedStories.length > 0) {
+          setStories(fetchedStories);
+        }
+      } catch (error) {
+        if (mounted) setStories(studentTestimonials);
+      }
+    };
+
+    loadStories();
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   // Handle "Simple" word click for mobile easter egg
   const handleSimpleClick = () => {
@@ -76,10 +100,10 @@ const About = () => {
   };
 
   const successStats = [
-    { number: "100+", label: "Students Taught", icon: Users },
-    { number: "90%", label: "(A* - A) Achievement", icon: Trophy },
+    { number: "400+", label: "Students Taught", icon: Users },
+    { number: "92%", label: "(A* - A) Achievement", icon: Trophy },
     { number: "5+", label: "Years Experience", icon: Award },
-    { number: "10+", label: "Countries Reached", icon: Target }
+    { number: "12+", label: "Countries Reached", icon: Target }
   ];
 
   return (
@@ -437,7 +461,7 @@ const About = () => {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                {studentTestimonials.map((testimonial, index) => (
+                {stories.map((testimonial, index) => (
                   <motion.div
                     key={index}
                     initial={{ opacity: 0, y: 30 }}

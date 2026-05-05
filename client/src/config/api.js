@@ -33,6 +33,9 @@ export const API_ENDPOINTS = {
     ADD_LEGACY_STUDENT: `${API_BASE_URL}/api/teacher/legacy-students`,
     RESET_SESSION_POINTS: `${API_BASE_URL}/api/teacher/reset-session-points`,
     HALL_OF_FAME: `${API_BASE_URL}/api/teacher/hall-of-fame`,
+    HALL_OF_FAME_BY_ID: (id) => `${API_BASE_URL}/api/teacher/hall-of-fame/${id}`,
+    STORIES: `${API_BASE_URL}/api/teacher/stories`,
+    STORY_BY_ID: (id) => `${API_BASE_URL}/api/teacher/stories/${id}`,
     STUDENT_PAYMENTS: (studentId) => `${API_BASE_URL}/api/teacher/students/${studentId}/payments`,
     PAYMENT: (paymentId) => `${API_BASE_URL}/api/teacher/payments/${paymentId}`,
     RESET_STUDENT_PASSWORD: (studentId) => `${API_BASE_URL}/api/teacher/students/${studentId}/reset-password`,
@@ -40,6 +43,7 @@ export const API_ENDPOINTS = {
   LEADERBOARD: {
     BASE: `${API_BASE_URL}/api/leaderboard`,
     HALL_OF_FAME: `${API_BASE_URL}/api/leaderboard/hall-of-fame`,
+    STORIES: `${API_BASE_URL}/api/leaderboard/stories`,
   },
   SCHEDULE: {
     QR: `${API_BASE_URL}/api/schedule/qr`,

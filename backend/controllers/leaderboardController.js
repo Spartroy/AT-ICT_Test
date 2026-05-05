@@ -57,10 +57,16 @@ const getLeaderboard = async (req, res) => {
 // @access  Public
 const getHallOfFame = async (req, res) => {
   try {
-    const entries = await HallOfFameEntry.find({})
+    const limit = Number.parseInt(req.query.limit, 10);
+    const query = HallOfFameEntry.find({})
       .select('name year createdAt')
-      .sort({ createdAt: -1 })
-      .lean();
+      .sort({ createdAt: -1 });
+
+    if (Number.isFinite(limit) && limit > 0) {
+      query.limit(limit);
+    }
+
+    const entries = await query.lean();
 
     const hallOfFame = entries.map((entry, idx) => ({
       rank: idx + 1,
@@ -110,7 +116,7 @@ const addHallOfFameStudent = async (req, res) => {
     const entry = await HallOfFameEntry.create({
       name: name.trim(),
       year: year.trim(),
-      createdBy: req.user.id
+      createdBy: req.user._id
     });
 
     return res.status(201).json({
@@ -125,6 +131,81 @@ const addHallOfFameStudent = async (req, res) => {
     return res.status(500).json({
       status: 'error',
       message: 'Server error adding hall of fame student'
+    });
+  }
+};
+
+// @desc    Update Hall of Fame student
+// @route   PUT /api/teacher/hall-of-fame/:id
+// @access  Private (Teacher)
+const updateHallOfFameStudent = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, year } = req.body;
+
+    if (!name?.trim() || !year?.trim()) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Student name and year are required'
+      });
+    }
+
+    const entry = await HallOfFameEntry.findByIdAndUpdate(
+      id,
+      {
+        $set: {
+          name: name.trim(),
+          year: year.trim()
+        }
+      },
+      { new: true, runValidators: true }
+    );
+
+    if (!entry) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'Hall of Fame entry not found'
+      });
+    }
+
+    return res.status(200).json({
+      status: 'success',
+      message: 'Hall of Fame entry updated successfully',
+      data: { entry }
+    });
+  } catch (error) {
+    console.error('Update hall of fame student error:', error);
+    return res.status(500).json({
+      status: 'error',
+      message: 'Server error updating hall of fame entry'
+    });
+  }
+};
+
+// @desc    Delete Hall of Fame student
+// @route   DELETE /api/teacher/hall-of-fame/:id
+// @access  Private (Teacher)
+const deleteHallOfFameStudent = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const entry = await HallOfFameEntry.findByIdAndDelete(id);
+
+    if (!entry) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'Hall of Fame entry not found'
+      });
+    }
+
+    return res.status(200).json({
+      status: 'success',
+      message: 'Hall of Fame entry deleted successfully'
+    });
+  } catch (error) {
+    console.error('Delete hall of fame student error:', error);
+    return res.status(500).json({
+      status: 'error',
+      message: 'Server error deleting hall of fame entry'
     });
   }
 };
@@ -170,4 +251,11 @@ const resetSessionPoints = async (req, res) => {
   }
 };
 
-module.exports = { getLeaderboard, getHallOfFame, addHallOfFameStudent, resetSessionPoints };
+module.exports = {
+  getLeaderboard,
+  getHallOfFame,
+  addHallOfFameStudent,
+  updateHallOfFameStudent,
+  deleteHallOfFameStudent,
+  resetSessionPoints
+};

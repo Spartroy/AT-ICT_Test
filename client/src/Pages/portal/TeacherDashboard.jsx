@@ -44,6 +44,7 @@ import NotesManagement from '../../components/teacher/NotesManagement';
 import FlashcardCenter from '../../components/teacher/FlashcardCenter';
 import SessionMonitoring from '../../components/teacher/SessionMonitoring';
 import RecentActivities from '../../components/teacher/RecentActivities';
+import ContentManagementCenter from '../../components/teacher/ContentManagementCenter';
 
 const TeacherDashboard = () => {
   const navigate = useNavigate();
@@ -174,6 +175,13 @@ const TeacherDashboard = () => {
       shortName: 'Chat',
       icon: ChatBubbleLeftRightIcon,
       color: 'bg-pink-600'
+    },
+    {
+      id: 'content',
+      name: 'Content Management',
+      shortName: 'Content',
+      icon: AcademicCapIcon,
+      color: 'bg-cyan-600'
     }
   ];
 
@@ -321,6 +329,8 @@ const TeacherDashboard = () => {
         return <AnnouncementCenter />;
       case 'chat':
         return <ChatCenter />;
+      case 'content':
+        return <ContentManagementCenter />;
       default:
         return <DashboardOverview stats={stats} loading={loading} setActiveTab={setActiveTab} setShowCreateAssignment={setShowCreateAssignment} setShowCreateQuiz={setShowCreateQuiz} onRegistrationUpdate={fetchPendingRegistrationsCount} />;
     }

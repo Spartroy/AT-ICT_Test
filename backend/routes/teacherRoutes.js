@@ -9,7 +9,17 @@ const {
   deleteStudent,
   addLegacyStudent
 } = require('../controllers/teacherController');
-const { resetSessionPoints, addHallOfFameStudent } = require('../controllers/leaderboardController');
+const {
+  resetSessionPoints,
+  addHallOfFameStudent,
+  updateHallOfFameStudent,
+  deleteHallOfFameStudent
+} = require('../controllers/leaderboardController');
+const {
+  createStudentStory,
+  updateStudentStory,
+  deleteStudentStory
+} = require('../controllers/studentStoryController');
 const {
   createPayment,
   getStudentPayments,
@@ -77,6 +87,11 @@ router.use('/notes', noteRoutes);
 // Session points reset
 router.post('/reset-session-points', resetSessionPoints);
 router.post('/hall-of-fame', addHallOfFameStudent);
+router.put('/hall-of-fame/:id', updateHallOfFameStudent);
+router.delete('/hall-of-fame/:id', deleteHallOfFameStudent);
+router.post('/stories', createStudentStory);
+router.put('/stories/:id', updateStudentStory);
+router.delete('/stories/:id', deleteStudentStory);
 
 // Payment management
 router.get('/students/:studentId/payments', getStudentPayments);

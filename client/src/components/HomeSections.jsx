@@ -12,21 +12,43 @@ import {
 import API_ENDPOINTS from '../config/api';
 import { studentStories } from '../data/studentStories';
 
-
-
-const carouselStories = studentStories.slice(0, 6);
-
-
+const carouselStoriesFallback = studentStories;
 
 export const TestimonialsStrip = () => {
+  const [stories, setStories] = useState(carouselStoriesFallback);
+  const [loadingStories, setLoadingStories] = useState(true);
   const [activeIndex, setActiveIndex] = useState(0);
 
+  useEffect(() => {
+    let mounted = true;
+    const loadStories = async () => {
+      try {
+        const res = await fetch(API_ENDPOINTS.LEADERBOARD.STORIES);
+        if (!res.ok) throw new Error('Failed to fetch stories');
+        const data = await res.json();
+        const fetched = data?.data?.stories || [];
+        if (mounted && fetched.length > 0) {
+          setStories(fetched);
+        }
+      } catch (error) {
+        if (mounted) setStories(carouselStoriesFallback);
+      } finally {
+        if (mounted) setLoadingStories(false);
+      }
+    };
+
+    loadStories();
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
   const goPrev = () => {
-    setActiveIndex((prev) => (prev === 0 ? carouselStories.length - 1 : prev - 1));
+    setActiveIndex((prev) => (prev === 0 ? stories.length - 1 : prev - 1));
   };
 
   const goNext = () => {
-    setActiveIndex((prev) => (prev === carouselStories.length - 1 ? 0 : prev + 1));
+    setActiveIndex((prev) => (prev === stories.length - 1 ? 0 : prev + 1));
   };
 
   return (
@@ -43,7 +65,7 @@ export const TestimonialsStrip = () => {
             Student stories
           </span>
           <h2 className="text-3xl md:text-4xl font-bold mb-3">
-            6 stories from <span className="text-[#CA133E]">our students</span>
+            Stories from <span className="text-[#CA133E]">our students</span>
           </h2>
           <p className="text-gray-400 max-w-2xl mx-auto">
             Same stories shown in the About page, now in a swipeable carousel.
@@ -59,7 +81,7 @@ export const TestimonialsStrip = () => {
             <ChevronLeft size={18} />
           </button>
           <span className="text-sm text-gray-400">
-            {activeIndex + 1} / {carouselStories.length}
+            {stories.length ? `${activeIndex + 1} / ${stories.length}` : '0 / 0'}
           </span>
           <button
             onClick={goNext}
@@ -75,9 +97,9 @@ export const TestimonialsStrip = () => {
             className="flex transition-transform duration-300"
             style={{ transform: `translateX(-${activeIndex * 100}%)` }}
           >
-            {carouselStories.map((story) => (
+            {(loadingStories ? carouselStoriesFallback : stories).map((story, idx) => (
               <div
-                key={story.name}
+                key={story._id || `${story.name}-${idx}`}
                 className="min-w-full snap-center bg-gradient-to-br from-gray-800/60 to-gray-900/60 border border-gray-800 rounded-xl p-6"
               >
                 <Quote className="text-[#CA133E] mb-3" size={24} />
@@ -151,13 +173,13 @@ export const HallOfFameStrip = () => {
               className="bg-[#1a1a1a] border border-gray-800 rounded-xl p-4 text-center"
             >
               <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#CA133E] to-[#A01030] flex items-center justify-center mx-auto mb-3 font-bold">
-                {loading ? '…' : (student.firstName?.[0] || '?')}
+                {loading ? '…' : (student.name?.[0] || '?')}
               </div>
               <p className="font-semibold text-sm truncate">
                 {loading ? 'Loading…' : student.name}
               </p>
               <p className="text-xs text-[#CA133E] mt-1">
-                {loading ? '' : `${student.totalPoints} pts`}
+                {loading ? '' : `Class of ${student.year || 'N/A'}`}
               </p>
             </div>
           ))}
