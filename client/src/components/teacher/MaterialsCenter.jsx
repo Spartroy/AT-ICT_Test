@@ -15,116 +15,119 @@ import {
   CloudArrowUpIcon,
   AcademicCapIcon,
   ComputerDesktopIcon,
-  TagIcon,
-  UserGroupIcon,
   MagnifyingGlassIcon,
-  FunnelIcon
+  LinkIcon,
+  ExclamationTriangleIcon
 } from '@heroicons/react/24/outline';
 
+const typeConfig = {
+  theory:    { icon: AcademicCapIcon,     label: 'Theory',    gradient: 'from-blue-600 to-blue-800',     badge: 'bg-blue-500/20 text-blue-300 border-blue-500/30',     tab: 'bg-blue-500/20 text-blue-300 border-blue-400/40' },
+  practical: { icon: ComputerDesktopIcon, label: 'Practical', gradient: 'from-emerald-600 to-emerald-800', badge: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30', tab: 'bg-emerald-500/20 text-emerald-300 border-emerald-400/40' },
+  other:     { icon: DocumentTextIcon,    label: 'Other',     gradient: 'from-violet-600 to-violet-800',  badge: 'bg-violet-500/20 text-violet-300 border-violet-500/30',  tab: 'bg-violet-500/20 text-violet-300 border-violet-400/40' },
+};
+
+const EMPTY_FORM = {
+  title: '',
+  description: '',
+  type: 'theory',
+  file: null,
+  thumbnail: null,
+  externalUrl: '',
+};
+
 const MaterialsCenter = () => {
-  const [materials, setMaterials] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [materials, setMaterials]             = useState([]);
+  const [loading, setLoading]                 = useState(true);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [editingMaterial, setEditingMaterial] = useState(null);
-  const [uploading, setUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [filter, setFilter] = useState('all');
-  const [searchTerm, setSearchTerm] = useState('');
+  const [uploading, setUploading]             = useState(false);
+  const [uploadProgress, setUploadProgress]   = useState(0);
+  const [filter, setFilter]                   = useState('all');
+  const [searchTerm, setSearchTerm]           = useState('');
+  const [deleteTarget, setDeleteTarget]       = useState(null);
+  const [formData, setFormData]               = useState(EMPTY_FORM);
+  const [useExternalUrl, setUseExternalUrl]   = useState(false);
 
-  const fileInputRef = useRef(null);
+  const fileInputRef      = useRef(null);
   const thumbnailInputRef = useRef(null);
 
-  const [formData, setFormData] = useState({
-    title: '',
-    type: 'theory',
-    file: null,
-    thumbnail: null,
-    externalUrl: ''
-  });
-
-  const materialTypes = [
-    { value: 'theory', label: 'Theory', icon: AcademicCapIcon, color: 'blue' },
-    { value: 'practical', label: 'Practical', icon: ComputerDesktopIcon, color: 'green' },
-    { value: 'other', label: 'Other', icon: DocumentTextIcon, color: 'gray' }
-  ];
-
-
-
-  useEffect(() => {
-    fetchMaterials();
-  }, []);
+  useEffect(() => { fetchMaterials(); }, []);
 
   const fetchMaterials = async () => {
     try {
       setLoading(true);
       const token = getValidToken();
-      
-      if (!token) {
-        console.error('Authentication token is missing or invalid');
-        setLoading(false);
-        clearAuth();
-        setTimeout(() => {
-          redirectToLogin('invalid_token');
-        }, 100);
-        return;
-      }
-      
+      if (!token) { clearAuth(); redirectToLogin('invalid_token'); return; }
+
       const response = await fetch(API_ENDPOINTS.TEACHER.MATERIALS, {
-        headers: setAuthHeaders({
-          'Content-Type': 'application/json'
-        })
+        headers: setAuthHeaders({ 'Content-Type': 'application/json' })
       });
 
       if (response.ok) {
         const data = await response.json();
         setMaterials(data.data.materials || []);
-      } else {
-        console.error('Failed to fetch materials');
       }
-    } catch (error) {
-      console.error('Error fetching materials:', error);
+    } catch {
+      showError('Failed to load materials');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleFileSelect = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      // Check file size (limit to 100MB)
-      if (file.size > 100 * 1024 * 1024) {
-        showError('File size must be less than 100MB');
-        return;
-      }
-      
-      setFormData({ ...formData, file });
-    }
+  const handleFileSelect = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (file.size > 100 * 1024 * 1024) { showError('File size must be less than 100MB'); return; }
+    setFormData(f => ({ ...f, file }));
   };
 
-  const handleThumbnailSelect = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      // Check file size (limit to 2MB for thumbnails)
-      if (file.size > 2 * 1024 * 1024) {
-        showError('Thumbnail size must be less than 2MB');
-        return;
-      }
-      
-      // Check if it's an image
-      if (!file.type.startsWith('image/')) {
-        showError('Thumbnail must be an image file');
-        return;
-      }
-      
-      setFormData({ ...formData, thumbnail: file });
-    }
+  const handleThumbnailSelect = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) { showError('Thumbnail must be less than 2MB'); return; }
+    if (!file.type.startsWith('image/')) { showError('Thumbnail must be an image'); return; }
+    setFormData(f => ({ ...f, thumbnail: file }));
   };
 
-  const handleUploadMaterial = async (e) => {
+  const openUploadModal = () => {
+    setEditingMaterial(null);
+    setFormData(EMPTY_FORM);
+    setUseExternalUrl(false);
+    setShowUploadModal(true);
+  };
+
+  const openEditModal = (material) => {
+    setEditingMaterial(material);
+    setFormData({
+      title: material.title,
+      description: material.description || '',
+      type: material.type,
+      file: null,
+      thumbnail: null,
+      externalUrl: material.externalUrl || '',
+    });
+    setUseExternalUrl(!!material.externalUrl);
+    setShowUploadModal(true);
+  };
+
+  const closeModal = () => {
+    setShowUploadModal(false);
+    setEditingMaterial(null);
+    setFormData(EMPTY_FORM);
+    setUseExternalUrl(false);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+    if (thumbnailInputRef.current) thumbnailInputRef.current.value = '';
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (!formData.file && !formData.externalUrl && !editingMaterial) {
-      showError('Please select a file or enter a link');
+
+    if (!editingMaterial && !formData.file && !useExternalUrl) {
+      showError('Please select a file or enter an external link');
+      return;
+    }
+    if (useExternalUrl && !formData.externalUrl.trim()) {
+      showError('Please enter an external URL');
       return;
     }
 
@@ -132,657 +135,652 @@ const MaterialsCenter = () => {
       setUploading(true);
       setUploadProgress(0);
       const token = getValidToken();
-      
-      if (!token) {
-        showWarning('Authentication token is missing or invalid. Please log in again.');
-        clearAuth();
-        redirectToLogin('invalid_token');
-        return;
-      }
-      
+      if (!token) { clearAuth(); redirectToLogin('invalid_token'); return; }
+
       const uploadData = new FormData();
       uploadData.append('title', formData.title);
       uploadData.append('type', formData.type);
-      
-      if (formData.file) {
-        uploadData.append('material', formData.file);
-      }
+      if (formData.description) uploadData.append('description', formData.description);
+      if (formData.file && !useExternalUrl) uploadData.append('material', formData.file);
+      if (formData.thumbnail) uploadData.append('thumbnail', formData.thumbnail);
+      if (useExternalUrl && formData.externalUrl) uploadData.append('externalUrl', formData.externalUrl);
 
-      if (formData.thumbnail) {
-        uploadData.append('thumbnail', formData.thumbnail);
-      }
-
-      if (!formData.file && formData.externalUrl) {
-        uploadData.append('externalUrl', formData.externalUrl);
-      }
-
-      const url = editingMaterial 
-        ? `${API_ENDPOINTS.TEACHER.MATERIALS}/${editingMaterial._id}`
-        : API_ENDPOINTS.TEACHER.MATERIALS;
-      
+      const url    = editingMaterial ? `${API_ENDPOINTS.TEACHER.MATERIALS}/${editingMaterial._id}` : API_ENDPOINTS.TEACHER.MATERIALS;
       const method = editingMaterial ? 'PUT' : 'POST';
 
-      // Use XMLHttpRequest for progress tracking
-      return new Promise((resolve, reject) => {
+      await new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
-        
+
         xhr.upload.addEventListener('progress', (event) => {
           if (event.lengthComputable) {
-            const progress = Math.round((event.loaded / event.total) * 100);
-            setUploadProgress(progress);
+            setUploadProgress(Math.round((event.loaded / event.total) * 100));
           }
         });
 
         xhr.addEventListener('load', () => {
           if (xhr.status >= 200 && xhr.status < 300) {
-            try {
-              const data = JSON.parse(xhr.responseText);
-              showSuccess(`Material ${editingMaterial ? 'updated' : 'uploaded'} successfully!`);
-              
-              if (editingMaterial) {
-                setMaterials(materials.map(m => m._id === editingMaterial._id ? data.data.material : m));
-              } else {
-                setMaterials([data.data.material, ...materials]);
-              }
-              
-              setShowUploadModal(false);
-              setEditingMaterial(null);
-              setFormData({
-                title: '',
-                type: 'theory',
-                file: null,
-                thumbnail: null,
-                externalUrl: ''
-              });
-              
-              // Reset file inputs
-              if (fileInputRef.current) {
-                fileInputRef.current.value = '';
-              }
-              if (thumbnailInputRef.current) {
-                thumbnailInputRef.current.value = '';
-              }
-              
-              setUploadProgress(0);
-              resolve(data);
-            } catch (error) {
-              console.error('Error parsing response:', error);
-              showError('Error processing response');
-              reject(error);
+            const data = JSON.parse(xhr.responseText);
+            showSuccess(`Material ${editingMaterial ? 'updated' : 'uploaded'} successfully!`);
+            if (editingMaterial) {
+              setMaterials(ms => ms.map(m => m._id === editingMaterial._id ? data.data.material : m));
+            } else {
+              setMaterials(ms => [data.data.material, ...ms]);
             }
+            closeModal();
+            resolve();
           } else {
             try {
-              const errorData = JSON.parse(xhr.responseText);
-              showError(errorData.message || 'Upload failed');
-            } catch (error) {
-              showError('Upload failed');
-            }
-            reject(new Error('Upload failed'));
+              const err = JSON.parse(xhr.responseText);
+              showError(err.message || 'Upload failed');
+            } catch { showError('Upload failed'); }
+            reject();
           }
         });
 
-        xhr.addEventListener('error', () => {
-          showError('Network error during upload');
-          reject(new Error('Network error'));
-        });
-
-        xhr.addEventListener('abort', () => {
-          showError('Upload was cancelled');
-          reject(new Error('Upload cancelled'));
-        });
-
+        xhr.addEventListener('error', () => { showError('Network error during upload'); reject(); });
         xhr.open(method, url);
         xhr.setRequestHeader('Authorization', `Bearer ${token}`);
         xhr.send(uploadData);
       });
 
-    } catch (error) {
-      console.error('Error uploading material:', error);
-      showError('Error uploading material');
-    } finally {
+    } catch { /* errors shown via showError */ } finally {
       setUploading(false);
       setUploadProgress(0);
     }
   };
 
-  const handleDeleteMaterial = async (materialId) => {
-    if (!window.confirm('Are you sure you want to delete this material?')) return;
-
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${API_ENDPOINTS.TEACHER.MATERIALS}/${materialId}`, {
+      const response = await fetch(`${API_ENDPOINTS.TEACHER.MATERIALS}/${deleteTarget._id}`, {
         method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+        headers: { 'Authorization': `Bearer ${token}` }
       });
-
       if (response.ok) {
-        showSuccess('Material deleted successfully!');
-        setMaterials(materials.filter(m => m._id !== materialId));
+        showSuccess('Material deleted successfully');
+        setMaterials(ms => ms.filter(m => m._id !== deleteTarget._id));
       } else {
-        const errorData = await response.json();
-        showError(errorData.message);
+        const err = await response.json();
+        showError(err.message || 'Failed to delete');
       }
-    } catch (error) {
-      console.error('Error deleting material:', error);
+    } catch {
       showError('Error deleting material');
+    } finally {
+      setDeleteTarget(null);
     }
-  };
-
-  const editMaterial = (material) => {
-    setEditingMaterial(material);
-    setFormData({
-      title: material.title,
-      type: material.type,
-      file: null,
-      thumbnail: null
-    });
-    setShowUploadModal(true);
   };
 
   const downloadMaterial = async (material) => {
     try {
       const token = localStorage.getItem('token');
       const response = await fetch(`${API_ENDPOINTS.TEACHER.MATERIALS}/${material._id}/download`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+        headers: { 'Authorization': `Bearer ${token}` }
       });
-
       if (response.ok) {
         const blob = await response.blob();
         const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = material.fileName;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+        const a = document.createElement('a');
+        a.href = url; a.download = material.fileName;
+        document.body.appendChild(a); a.click();
+        document.body.removeChild(a);
         window.URL.revokeObjectURL(url);
       } else {
         showError('Failed to download file');
       }
-    } catch (error) {
-      console.error('Error downloading material:', error);
-      showError('Error downloading material');
-    }
+    } catch { showError('Error downloading material'); }
   };
 
   const formatFileSize = (bytes) => {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    if (!bytes || bytes === 0) return '—';
+    const k = 1024, sizes = ['B', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
   };
 
-  const getFileIcon = (mimeType) => {
-    if (mimeType?.includes('pdf')) return '';
-    if (mimeType?.includes('word') || mimeType?.includes('document')) return '📝';
-    if (mimeType?.includes('powerpoint') || mimeType?.includes('presentation')) return '📊';
-    if (mimeType?.includes('excel') || mimeType?.includes('sheet')) return '📈';
-    if (mimeType?.includes('image')) return '🖼️';
-    if (mimeType?.includes('video')) return '🎥';
-    if (mimeType?.includes('audio')) return '🎵';
+  const getFileEmoji = (mimeType) => {
+    if (!mimeType) return '📁';
+    if (mimeType.includes('pdf'))          return '📄';
+    if (mimeType.includes('word') || mimeType.includes('document')) return '📝';
+    if (mimeType.includes('powerpoint') || mimeType.includes('presentation')) return '📊';
+    if (mimeType.includes('excel') || mimeType.includes('sheet')) return '📈';
+    if (mimeType.includes('image'))  return '🖼️';
+    if (mimeType.includes('video'))  return '🎥';
+    if (mimeType.includes('audio'))  return '🎵';
+    if (mimeType.includes('zip'))    return '🗜️';
     return '📁';
   };
 
-  const filteredMaterials = materials.filter(material => {
-    const matchesType = filter === 'all' || material.type === filter;
-    const matchesSearch = searchTerm === '' || 
-      material.title.toLowerCase().includes(searchTerm.toLowerCase());
-    
+  const filteredMaterials = materials.filter(m => {
+    const matchesType   = filter === 'all' || m.type === filter;
+    const matchesSearch = !searchTerm || m.title.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesType && matchesSearch;
   });
 
+  const counts = {
+    theory:    materials.filter(m => m.type === 'theory').length,
+    practical: materials.filter(m => m.type === 'practical').length,
+    other:     materials.filter(m => m.type === 'other').length,
+  };
+
+  // ── Loading ──────────────────────────────────────────────────────────────────
   if (loading) {
     return (
-      <div className="space-y-4">
+      <div className="space-y-6 bg-gray-800/60 rounded-2xl p-6 border border-gray-700/50">
         <div className="flex items-center justify-between">
-          <div className="h-8 bg-gray-700/50 rounded w-64 animate-pulse"></div>
-          <div className="h-10 bg-gray-700/50 rounded w-32 animate-pulse"></div>
+          <div className="h-8 bg-gray-700/50 rounded-xl w-48 animate-pulse" />
+          <div className="h-10 bg-gray-700/50 rounded-xl w-36 animate-pulse" />
         </div>
-        {[...Array(6)].map((_, i) => (
-          <div key={i} className="bg-gray-800/60 rounded-xl shadow-sm p-6 animate-pulse backdrop-blur-sm border-2 border-gray-600/50">
-            <div className="h-4 bg-gray-700/50 rounded w-3/4 mb-4"></div>
-            <div className="h-20 bg-gray-700/50 rounded"></div>
-          </div>
-        ))}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          {[...Array(6)].map((_, i) => (
+            <div key={i} className="bg-gray-700/30 rounded-2xl overflow-hidden animate-pulse">
+              <div className="h-40 bg-gray-700/50" />
+              <div className="p-4 space-y-2">
+                <div className="h-4 bg-gray-700/50 rounded w-3/4" />
+                <div className="h-3 bg-gray-700/30 rounded w-1/2" />
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
 
+  // ── Main ─────────────────────────────────────────────────────────────────────
   return (
-    <div className="space-y-6 bg-gray-800/60 rounded-xl p-4 sm:p-6 shadow-2xl backdrop-blur-sm border-2 border-gray-600/50">
+    <div className="space-y-6 bg-gray-800/60 rounded-2xl p-6 shadow-2xl backdrop-blur-sm border border-gray-700/50">
+
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-        <div className="flex-1">
-          <h2 className="text-lg sm:text-xl lg:text-[20pt] font-bold text-white flex items-center">
-            <FolderIcon className="h-6 w-6 sm:h-8 sm:w-8 mr-2 sm:mr-3" />
-            Materials Center
-          </h2>
-          <p className="text-sm text-gray-300 mt-1">Upload and manage learning materials for students</p>
+        <div className="flex items-center gap-3">
+          <div className="p-2.5 bg-[#CA133E]/20 rounded-xl border border-[#CA133E]/30">
+            <FolderIcon className="h-6 w-6 text-[#CA133E]" />
+          </div>
+          <div>
+            <h2 className="text-xl font-bold text-white">Materials Center</h2>
+            <p className="text-sm text-gray-400 mt-0.5">Upload and manage learning materials for students</p>
+          </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
-          {/* Search */}
-          <div className="relative flex-1 sm:flex-initial">
-            <MagnifyingGlassIcon className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+          <div className="relative flex-1 sm:flex-initial sm:w-64">
+            <MagnifyingGlassIcon className="h-4 w-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
             <input
               type="text"
-              placeholder="Search materials..."
+              placeholder="Search materials…"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-900/70 text-white"
+              className="w-full pl-10 pr-4 py-2.5 bg-gray-900/70 border border-gray-700/50 rounded-xl text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#CA133E]/50 transition-all"
             />
           </div>
-
           <button
-            onClick={() => setShowUploadModal(true)}
-            disabled={uploading}
-            className="flex items-center justify-center space-x-2 bg-blue-600 font-bold text-white px-4 py-2 rounded-xl hover:bg-blue-700 disabled:bg-blue-800/50 disabled:cursor-not-allowed transition-colors whitespace-nowrap"
+            onClick={openUploadModal}
+            className="flex items-center justify-center gap-2 bg-[#CA133E] hover:bg-[#a01030] text-white px-5 py-2.5 rounded-xl font-semibold transition-colors shadow-lg whitespace-nowrap"
           >
-            {uploading ? (
-              <>
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                <span>Uploading...</span>
-              </>
-            ) : (
-              <>
-                <PlusIcon className="h-5 w-5" />
-                <span>Upload Material</span>
-              </>
-            )}
+            <PlusIcon className="h-5 w-5" />
+            Upload Material
           </button>
         </div>
       </div>
 
-      {/* Upload Progress Bar for Main View */}
-      {uploading && (
-        <div className="bg-gray-900/70 rounded-xl p-4 border border-gray-600/50">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-white">Uploading Material...</span>
-            <span className="text-sm text-blue-400 font-medium">{uploadProgress}%</span>
-          </div>
-          <div className="w-full bg-gray-700 rounded-full h-3">
-            <div 
-              className="bg-blue-500 h-3 rounded-full transition-all duration-300 ease-out"
-              style={{ width: `${uploadProgress}%` }}
-            />
-          </div>
-          <p className="text-xs text-gray-400 mt-1">Please wait while your file is being uploaded...</p>
-        </div>
-      )}
-
-      {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
-        {/* Type Filter */}
-        <div className="flex items-center space-x-2">
-          <FunnelIcon className="h-5 w-5 text-gray-400" />
-          <select
-            value={filter}
-            onChange={(e) => setFilter(e.target.value)}
-            className="px-3 py-2 border border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-900/70 text-white"
+      {/* Upload progress (global) */}
+      <AnimatePresence>
+        {uploading && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="bg-gray-900/80 rounded-xl p-4 border border-gray-700/50"
           >
-            <option value="all">All Types</option>
-            {materialTypes.map(type => (
-              <option key={type.value} value={type.value}>{type.label}</option>
-            ))}
-          </select>
-        </div>
+            <div className="flex justify-between text-sm mb-2">
+              <span className="text-white font-medium">Uploading…</span>
+              <span className="text-[#CA133E] font-bold">{uploadProgress}%</span>
+            </div>
+            <div className="w-full bg-gray-700/60 rounded-full h-2">
+              <motion.div
+                className="bg-[#CA133E] h-2 rounded-full"
+                animate={{ width: `${uploadProgress}%` }}
+                transition={{ duration: 0.3 }}
+              />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-        {/* Stats */}
-        <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm font-bold text-gray-300 sm:ml-auto">
-          <span>{filteredMaterials.length} materials</span>
-          <span>•</span>
-          <span>{materials.filter(m => m.type === 'theory').length} theory</span>
-          <span>•</span>
-          <span>{materials.filter(m => m.type === 'practical').length} practical</span>
-          <span>•</span>
-          <span>{materials.filter(m => m.type === 'other').length} other</span>
-        </div>
+      {/* Type filter tabs + stats */}
+      <div className="flex flex-wrap items-center gap-2">
+        {(['all', 'theory', 'practical', 'other']).map((type) => {
+          const cfg = type !== 'all' ? typeConfig[type] : null;
+          const TypeIcon = cfg?.icon;
+          const isActive = filter === type;
+          const count = type === 'all' ? materials.length : counts[type];
+
+          return (
+            <button
+              key={type}
+              onClick={() => setFilter(type)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all border
+                ${isActive
+                  ? type === 'all'
+                    ? 'bg-[#CA133E]/20 text-[#CA133E] border-[#CA133E]/40'
+                    : `${cfg.tab} border-current`
+                  : 'text-gray-400 border-gray-700/50 hover:text-white bg-gray-900/40 hover:border-gray-600/50'
+                }`}
+            >
+              {TypeIcon && <TypeIcon className="h-4 w-4" />}
+              {type.charAt(0).toUpperCase() + type.slice(1)}
+              <span className={`px-1.5 py-0.5 rounded-md text-xs font-bold
+                ${isActive ? 'bg-white/20' : 'bg-gray-700/60 text-gray-500'}`}>
+                {count}
+              </span>
+            </button>
+          );
+        })}
+
+        <span className="ml-auto text-xs text-gray-500">
+          {filteredMaterials.length} {filteredMaterials.length === 1 ? 'material' : 'materials'}
+          {(searchTerm || filter !== 'all') && ' shown'}
+        </span>
       </div>
 
-      {/* Materials Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-        {filteredMaterials.length === 0 ? (
-          <div className="col-span-full bg-gray-900/50 rounded-xl p-8 sm:p-12 text-center border-2 border-dashed border-gray-700/50">
-            <DocumentTextIcon className="h-12 w-12 text-gray-500 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-white mb-2">
-              {searchTerm || filter !== 'all' 
-                ? 'No matching materials' 
-                : 'No Materials Yet'
-              }
-            </h3>
-            <p className="text-gray-400 mb-4">
-              {searchTerm || filter !== 'all'
-                ? 'Try adjusting your search or filter criteria.'
-                : 'Upload your first learning material to get started.'
-              }
-            </p>
-            {(!searchTerm && filter === 'all') && (
-              <button
-                onClick={() => setShowUploadModal(true)}
-                className="bg-blue-600 text-white px-4 py-2 rounded-xl hover:bg-blue-700"
-              >
-                Upload Material
-              </button>
-            )}
-          </div>
-        ) : (
-          filteredMaterials.map((material, index) => {
-            const typeConfig = materialTypes.find(t => t.value === material.type);
-            const TypeIcon = typeConfig?.icon || DocumentTextIcon;
-            
+      {/* Materials grid */}
+      {filteredMaterials.length === 0 ? (
+        <div className="py-20 text-center rounded-2xl border-2 border-dashed border-gray-700/50 bg-gray-900/30">
+          <FolderIcon className="h-14 w-14 mx-auto text-gray-600 mb-4" />
+          <h3 className="text-base font-semibold text-white mb-1">
+            {searchTerm || filter !== 'all' ? 'No matching materials' : 'No Materials Yet'}
+          </h3>
+          <p className="text-sm text-gray-500 mb-6">
+            {searchTerm || filter !== 'all'
+              ? 'Try adjusting your search or filter.'
+              : 'Upload your first material to get started.'}
+          </p>
+          {!searchTerm && filter === 'all' && (
+            <button
+              onClick={openUploadModal}
+              className="px-5 py-2.5 bg-[#CA133E] hover:bg-[#a01030] text-white rounded-xl font-semibold transition-colors"
+            >
+              Upload Material
+            </button>
+          )}
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          {filteredMaterials.map((material, index) => {
+            const cfg     = typeConfig[material.type] || typeConfig.other;
+            const TypeIcon = cfg.icon;
+
             return (
               <motion.div
                 key={material._id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                className="bg-gray-900/70 backdrop-blur-md rounded-xl p-4 sm:p-6 border border-gray-700/50 hover:shadow-xl transition-shadow"
+                transition={{ delay: index * 0.05 }}
+                className="group bg-gray-900/70 rounded-2xl overflow-hidden border border-gray-700/40 hover:border-gray-600/60 shadow-md hover:shadow-xl transition-all duration-300"
               >
-                <div className="flex justify-between items-start mb-4">
-                  <div className="flex items-center space-x-3">
-                    <div className={`p-2 rounded-xl bg-${typeConfig?.color || 'gray'}-900/50`}>
-                      <TypeIcon className={`h-5 w-5 sm:h-6 sm:w-6 text-${typeConfig?.color || 'gray'}-400`} />
-                    </div>
-                    <div>
-                      <span className="text-xl sm:text-2xl">{getFileIcon(material.mimeType)}</span>
-                    </div>
+                {/* Cover */}
+                <div className="relative h-40 overflow-hidden">
+                  {material.thumbnailUrl ? (
+                    <img
+                      src={material.thumbnailUrl}
+                      alt={material.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                        e.target.nextSibling.style.display = 'flex';
+                      }}
+                    />
+                  ) : null}
+                  <div
+                    className={`absolute inset-0 bg-gradient-to-br ${cfg.gradient} flex flex-col items-center justify-center`}
+                    style={{ display: material.thumbnailUrl ? 'none' : 'flex' }}
+                  >
+                    <TypeIcon className="h-10 w-10 text-white/70 mb-1" />
+                    <span className="text-2xl">{getFileEmoji(material.mimeType)}</span>
                   </div>
-                  
-                  <div className="flex space-x-1 sm:space-x-2">
+                  <div className="absolute inset-0 bg-gradient-to-t from-gray-900/80 via-transparent to-transparent" />
+
+                  {/* Type badge */}
+                  <div className={`absolute top-3 left-3 px-2.5 py-1 rounded-lg text-xs font-semibold border backdrop-blur-sm ${cfg.badge}`}>
+                    {cfg.label}
+                  </div>
+
+                  {/* Action buttons (visible on hover) */}
+                  <div className="absolute top-3 right-3 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                     <button
                       onClick={() => downloadMaterial(material)}
-                      className="p-2 text-green-400 hover:bg-green-500/20 rounded-xl transition-colors"
                       title="Download"
+                      className="p-2 bg-black/50 hover:bg-emerald-600/80 rounded-xl backdrop-blur-sm transition-colors"
                     >
-                      <ArrowDownTrayIcon className="h-4 w-4 sm:h-5 sm:w-5" />
+                      <ArrowDownTrayIcon className="h-4 w-4 text-white" />
                     </button>
                     <button
-                      onClick={() => editMaterial(material)}
-                      className="p-2 text-blue-400 hover:bg-blue-500/20 rounded-xl transition-colors"
+                      onClick={() => openEditModal(material)}
                       title="Edit"
+                      className="p-2 bg-black/50 hover:bg-blue-600/80 rounded-xl backdrop-blur-sm transition-colors"
                     >
-                      <PencilIcon className="h-4 w-4 sm:h-5 sm:w-5" />
+                      <PencilIcon className="h-4 w-4 text-white" />
                     </button>
                     <button
-                      onClick={() => handleDeleteMaterial(material._id)}
-                      className="p-2 text-red-400 hover:bg-red-500/20 rounded-xl transition-colors"
+                      onClick={() => setDeleteTarget(material)}
                       title="Delete"
+                      className="p-2 bg-black/50 hover:bg-red-600/80 rounded-xl backdrop-blur-sm transition-colors"
                     >
-                      <TrashIcon className="h-4 w-4 sm:h-5 sm:w-5" />
+                      <TrashIcon className="h-4 w-4 text-white" />
                     </button>
                   </div>
                 </div>
 
-                <div className="space-y-3">
-                  <div>
-                    <h3 className="text-base sm:text-lg font-semibold text-white line-clamp-2">
-                      {material.title}
-                    </h3>
+                {/* Info */}
+                <div className="p-4">
+                  <h3 className="text-sm font-bold text-white line-clamp-2 mb-3 leading-snug">
+                    {material.title}
+                  </h3>
+                  {material.description && (
+                    <p className="text-xs text-gray-400 line-clamp-2 mb-3">{material.description}</p>
+                  )}
+                  <div className="flex items-center justify-between text-xs text-gray-500">
+                    <div className="flex items-center gap-1">
+                      <ArrowDownTrayIcon className="h-3.5 w-3.5" />
+                      <span>{material.downloadCount || 0} downloads</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      {material.externalUrl && <LinkIcon className="h-3.5 w-3.5 text-violet-400" title="External link" />}
+                      {material.fileSize > 0 && <span>{formatFileSize(material.fileSize)}</span>}
+                    </div>
                   </div>
-
-                  <div className="flex items-center justify-between text-sm">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium bg-${typeConfig?.color || 'gray'}-900/50 text-${typeConfig?.color || 'gray'}-300`}>
-                      {typeConfig?.label || material.type}
-                    </span>
-                    <span className="text-gray-400">{formatFileSize(material.fileSize)}</span>
-                  </div>
-
-                  <div className="flex items-center text-sm text-gray-400">
-                    <EyeIcon className="h-4 w-4 mr-1" />
-                    <span>{material.downloadCount || 0} downloads</span>
-                  </div>
-
-                  <div className="text-xs text-gray-500 pt-2 border-t border-gray-700/50">
-                    Uploaded {new Date(material.createdAt).toLocaleDateString()}
+                  <div className="text-xs text-gray-600 mt-2 pt-2 border-t border-gray-800">
+                    {new Date(material.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                   </div>
                 </div>
               </motion.div>
             );
-          })
-        )}
-      </div>
+          })}
+        </div>
+      )}
 
-      {/* Upload/Edit Modal */}
+      {/* ── Upload / Edit Modal ─────────────────────────────────────────────── */}
       <AnimatePresence>
         {showUploadModal && (
-          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+            onClick={closeModal}
+          >
             <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-gray-900/90 border border-gray-700 text-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col"
+              className="bg-gray-900 border border-gray-700/60 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col"
+              onClick={(e) => e.stopPropagation()}
             >
-              <div className="p-4 sm:p-6 border-b border-gray-700">
-                <div className="flex justify-between items-center">
-                  <h3 className="text-lg sm:text-xl font-semibold">
+              {/* Modal header */}
+              <div className="flex items-center justify-between p-6 border-b border-gray-800">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-[#CA133E]/20 rounded-xl border border-[#CA133E]/30">
+                    <CloudArrowUpIcon className="h-5 w-5 text-[#CA133E]" />
+                  </div>
+                  <h3 className="text-lg font-bold text-white">
                     {editingMaterial ? 'Edit Material' : 'Upload New Material'}
                   </h3>
-                  <button
-                    onClick={() => {
-                      setShowUploadModal(false);
-                      setEditingMaterial(null);
-                      setFormData({
-                        title: '',
-                        type: 'theory',
-                        file: null,
-                        thumbnail: null,
-                        externalUrl: ''
-                      });
-                      if (fileInputRef.current) {
-                        fileInputRef.current.value = '';
-                      }
-                      if (thumbnailInputRef.current) {
-                        thumbnailInputRef.current.value = '';
-                      }
-                    }}
-                    className="text-gray-400 hover:text-white"
-                  >
-                    <XMarkIcon className="h-5 w-5 sm:h-6 sm:w-6" />
-                  </button>
                 </div>
+                <button onClick={closeModal} className="p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-xl transition-colors">
+                  <XMarkIcon className="h-5 w-5" />
+                </button>
               </div>
 
-              <form onSubmit={handleUploadMaterial} className="p-4 sm:p-6 space-y-4 overflow-y-auto">
-                {/* File Upload */}
+              <form onSubmit={handleSubmit} className="p-6 space-y-5 overflow-y-auto">
+
+                {/* Title */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    File {!editingMaterial && '*'}
-                  </label>
-                  <div className="border-2 border-dashed border-gray-600 rounded-xl p-6 text-center hover:border-blue-500 transition-colors">
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      onChange={handleFileSelect}
-                      className="hidden"
-                      id="material-file-upload"
-                      accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.zip,.rar"
-                      required={!editingMaterial}
-                    />
+                  <label className="block text-sm font-semibold text-gray-300 mb-1.5">Title <span className="text-[#CA133E]">*</span></label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.title}
+                    onChange={(e) => setFormData(f => ({ ...f, title: e.target.value }))}
+                    className="w-full px-4 py-2.5 bg-gray-800/80 border border-gray-700/60 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#CA133E]/50 focus:border-transparent text-sm"
+                    placeholder="e.g. Introduction to Programming"
+                  />
+                </div>
+
+                {/* Description */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-300 mb-1.5">Description <span className="text-gray-500 font-normal">(optional)</span></label>
+                  <textarea
+                    value={formData.description}
+                    onChange={(e) => setFormData(f => ({ ...f, description: e.target.value }))}
+                    rows={2}
+                    className="w-full px-4 py-2.5 bg-gray-800/80 border border-gray-700/60 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#CA133E]/50 focus:border-transparent text-sm resize-none"
+                    placeholder="Brief description visible to students…"
+                  />
+                </div>
+
+                {/* Type */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-300 mb-2">Type <span className="text-[#CA133E]">*</span></label>
+                  <div className="flex gap-2">
+                    {Object.entries(typeConfig).map(([key, cfg]) => {
+                      const Icon = cfg.icon;
+                      return (
+                        <button
+                          key={key}
+                          type="button"
+                          onClick={() => setFormData(f => ({ ...f, type: key }))}
+                          className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold border transition-all
+                            ${formData.type === key ? `${cfg.tab} border-current` : 'text-gray-400 border-gray-700/50 bg-gray-800/40 hover:border-gray-600'}`}
+                        >
+                          <Icon className="h-4 w-4" />
+                          {cfg.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* File source toggle */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-300 mb-2">Content Source <span className="text-[#CA133E]">*</span></label>
+                  <div className="flex gap-2 mb-4">
                     <button
                       type="button"
-                      onClick={() => document.getElementById('material-file-upload').click()}
-                      className="flex flex-col items-center space-y-2 w-full"
+                      onClick={() => setUseExternalUrl(false)}
+                      className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold border transition-all
+                        ${!useExternalUrl ? 'bg-[#CA133E]/20 text-[#CA133E] border-[#CA133E]/40' : 'text-gray-400 border-gray-700/50 bg-gray-800/40 hover:border-gray-600'}`}
                     >
-                      {editingMaterial && !formData.file ? (
-                        <div className="flex items-center space-x-3">
-                          <div className="h-12 w-12 bg-blue-900/50 rounded-xl flex items-center justify-center">
-                            <span className="text-2xl">{getFileIcon(editingMaterial.mimeType)}</span>
-                          </div>
+                      <CloudArrowUpIcon className="h-4 w-4" />
+                      Upload File
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setUseExternalUrl(true)}
+                      className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold border transition-all
+                        ${useExternalUrl ? 'bg-violet-500/20 text-violet-300 border-violet-500/40' : 'text-gray-400 border-gray-700/50 bg-gray-800/40 hover:border-gray-600'}`}
+                    >
+                      <LinkIcon className="h-4 w-4" />
+                      External Link
+                    </button>
+                  </div>
+
+                  {useExternalUrl ? (
+                    <input
+                      type="url"
+                      value={formData.externalUrl}
+                      onChange={(e) => setFormData(f => ({ ...f, externalUrl: e.target.value }))}
+                      className="w-full px-4 py-2.5 bg-gray-800/80 border border-gray-700/60 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-transparent text-sm"
+                      placeholder="https://drive.google.com/…"
+                    />
+                  ) : (
+                    <div
+                      className="border-2 border-dashed border-gray-700/60 rounded-xl p-5 text-center hover:border-[#CA133E]/40 transition-colors cursor-pointer"
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        onChange={handleFileSelect}
+                        className="hidden"
+                        accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.zip,.rar"
+                        required={!editingMaterial && !useExternalUrl}
+                      />
+                      {formData.file ? (
+                        <div className="flex items-center justify-center gap-3">
+                          <span className="text-2xl">{getFileEmoji(formData.file.type)}</span>
                           <div className="text-left">
-                            <p className="text-sm font-medium text-white">{editingMaterial.fileName}</p>
-                            <p className="text-xs text-gray-400">{formatFileSize(editingMaterial.fileSize)}</p>
-                            <p className="text-xs text-blue-400 mt-1">Click to replace file</p>
-                          </div>
-                        </div>
-                      ) : formData.file ? (
-                        <div className="flex items-center space-x-3">
-                          <div className="h-12 w-12 bg-green-900/50 rounded-xl flex items-center justify-center">
-                            <span className="text-2xl">{getFileIcon(formData.file.type)}</span>
-                          </div>
-                          <div className="text-left">
-                            <p className="text-sm font-medium text-white">{formData.file.name}</p>
+                            <p className="text-sm font-semibold text-white">{formData.file.name}</p>
                             <p className="text-xs text-gray-400">{formatFileSize(formData.file.size)}</p>
-                            <p className="text-xs text-blue-400 mt-1">Click to change file</p>
+                          </div>
+                          <span className="text-xs text-[#CA133E] ml-2">Click to change</span>
+                        </div>
+                      ) : editingMaterial && editingMaterial.fileName ? (
+                        <div className="flex items-center justify-center gap-3">
+                          <span className="text-2xl">{getFileEmoji(editingMaterial.mimeType)}</span>
+                          <div className="text-left">
+                            <p className="text-sm font-semibold text-white">{editingMaterial.fileName}</p>
+                            <p className="text-xs text-gray-400">{formatFileSize(editingMaterial.fileSize)} · Click to replace</p>
                           </div>
                         </div>
                       ) : (
                         <>
-                          <CloudArrowUpIcon className="h-12 w-12 text-gray-500" />
-                          <span className="text-sm text-gray-400">Click to select file</span>
-                          <span className="text-xs text-gray-500">
-                            PDF, Word, PowerPoint, Excel, Text, ZIP (Max: 100MB)
-                          </span>
+                          <CloudArrowUpIcon className="h-10 w-10 text-gray-500 mx-auto mb-2" />
+                          <p className="text-sm text-gray-400">Click to select a file</p>
+                          <p className="text-xs text-gray-600 mt-1">PDF, Word, PowerPoint, Excel, ZIP · Max 100MB</p>
                         </>
                       )}
-                    </button>
-                  </div>
+                    </div>
+                  )}
                 </div>
 
-                {/* Thumbnail Upload */}
+                {/* Thumbnail */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Thumbnail (Optional)
-                  </label>
-                  <div className="border-2 border-dashed border-gray-600 rounded-xl p-4 text-center hover:border-blue-500 transition-colors">
+                  <label className="block text-sm font-semibold text-gray-300 mb-1.5">Thumbnail <span className="text-gray-500 font-normal">(optional · shown as cover image)</span></label>
+                  <div
+                    className="border-2 border-dashed border-gray-700/60 rounded-xl p-4 text-center hover:border-[#CA133E]/30 transition-colors cursor-pointer"
+                    onClick={() => thumbnailInputRef.current?.click()}
+                  >
                     <input
                       ref={thumbnailInputRef}
                       type="file"
                       onChange={handleThumbnailSelect}
                       className="hidden"
-                      id="thumbnail-file-upload"
                       accept="image/*"
                     />
-                    <button
-                      type="button"
-                      onClick={() => document.getElementById('thumbnail-file-upload').click()}
-                      className="flex flex-col items-center space-y-2 w-full"
-                    >
-                      {editingMaterial && !formData.thumbnail && editingMaterial.thumbnailUrl ? (
-                        <div className="flex items-center space-x-2">
-                          <img 
-                            src={`${API_ENDPOINTS.BASE_URL}${editingMaterial.thumbnailUrl}`}
-                            alt="Current thumbnail" 
-                            className="h-16 w-16 object-cover rounded-xl"
-                          />
-                          <div>
-                            <p className="text-sm text-gray-400">Current thumbnail</p>
-                            <p className="text-xs text-blue-400">Click to change</p>
-                          </div>
+                    {formData.thumbnail ? (
+                      <div className="flex items-center justify-center gap-3">
+                        <img src={URL.createObjectURL(formData.thumbnail)} alt="preview" className="h-14 w-14 object-cover rounded-xl" />
+                        <div className="text-left">
+                          <p className="text-sm text-white">{formData.thumbnail.name}</p>
+                          <p className="text-xs text-[#CA133E]">Click to change</p>
                         </div>
-                      ) : formData.thumbnail ? (
-                        <div className="flex items-center space-x-2">
-                          <img 
-                            src={URL.createObjectURL(formData.thumbnail)} 
-                            alt="Thumbnail preview" 
-                            className="h-16 w-16 object-cover rounded-xl"
-                          />
-                          <div>
-                            <p className="text-sm text-gray-400">{formData.thumbnail.name}</p>
-                            <p className="text-xs text-blue-400">Click to change</p>
-                          </div>
+                      </div>
+                    ) : editingMaterial?.thumbnailUrl ? (
+                      <div className="flex items-center justify-center gap-3">
+                        <img src={editingMaterial.thumbnailUrl} alt="current" className="h-14 w-14 object-cover rounded-xl" />
+                        <div className="text-left">
+                          <p className="text-sm text-gray-300">Current thumbnail</p>
+                          <p className="text-xs text-[#CA133E]">Click to change</p>
                         </div>
-                      ) : (
-                        <>
-                          <div className="h-16 w-16 bg-gray-800/70 rounded-xl flex items-center justify-center">
-                            <span className="text-2xl">🖼️</span>
-                          </div>
-                          <span className="text-sm text-gray-400">Click to select thumbnail</span>
-                          <span className="text-xs text-gray-500">
-                            JPEG, PNG, GIF (Max: 2MB)
-                          </span>
-                        </>
-                      )}
-                    </button>
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-center gap-2 text-gray-500">
+                        <span className="text-2xl">🖼️</span>
+                        <div className="text-left">
+                          <p className="text-sm">Add a cover image</p>
+                          <p className="text-xs text-gray-600">JPEG, PNG, GIF · Max 2MB</p>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-1">
-                    Title *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.title}
-                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-800/90 text-white"
-                    placeholder="Introduction to Programming"
-                  />
-                </div>
+                {/* Upload progress */}
+                <AnimatePresence>
+                  {uploading && (
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                      <div className="flex justify-between text-sm mb-1">
+                        <span className="text-gray-400">Uploading…</span>
+                        <span className="text-[#CA133E] font-bold">{uploadProgress}%</span>
+                      </div>
+                      <div className="w-full bg-gray-700/60 rounded-full h-1.5">
+                        <motion.div className="bg-[#CA133E] h-1.5 rounded-full" animate={{ width: `${uploadProgress}%` }} />
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-1">
-                    Type *
-                  </label>
-                  <select
-                    value={formData.type}
-                    onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-800/90 text-white"
-                    required
-                  >
-                    {materialTypes.map(type => (
-                      <option key={type.value} value={type.value}>{type.label}</option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Upload Progress Bar */}
-                {uploading && (
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm text-gray-400">
-                      <span>Uploading...</span>
-                      <span>{uploadProgress}%</span>
-                    </div>
-                    <div className="w-full bg-gray-700 rounded-full h-2">
-                      <div 
-                        className="bg-blue-500 h-2 rounded-full transition-all duration-300 ease-out"
-                        style={{ width: `${uploadProgress}%` }}
-                      />
-                    </div>
-                  </div>
-                )}
-
-                <div className="flex justify-end space-x-3 pt-4">
+                {/* Actions */}
+                <div className="flex justify-end gap-3 pt-2">
                   <button
                     type="button"
-                    onClick={() => {
-                      setShowUploadModal(false);
-                      setEditingMaterial(null);
-                      setFormData({
-                        title: '',
-                        type: 'theory',
-                        file: null,
-                        thumbnail: null,
-                        externalUrl: ''
-                      });
-                      if (fileInputRef.current) {
-                        fileInputRef.current.value = '';
-                      }
-                      if (thumbnailInputRef.current) {
-                        thumbnailInputRef.current.value = '';
-                      }
-                    }}
+                    onClick={closeModal}
                     disabled={uploading}
-                    className="px-4 py-2 text-gray-300 bg-gray-700/80 rounded-xl hover:bg-gray-700 disabled:bg-gray-800/50 disabled:cursor-not-allowed transition-colors"
+                    className="px-5 py-2.5 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-xl font-semibold transition-colors disabled:opacity-50"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={uploading}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:bg-blue-800/50 disabled:cursor-not-allowed transition-colors"
+                    className="px-6 py-2.5 bg-[#CA133E] hover:bg-[#a01030] text-white rounded-xl font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed min-w-[140px] flex items-center justify-center gap-2"
                   >
-                    {uploading ? 'Uploading...' : (editingMaterial ? 'Update Material' : 'Upload Material')}
+                    {uploading ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        Uploading…
+                      </>
+                    ) : editingMaterial ? 'Update Material' : 'Upload Material'}
                   </button>
                 </div>
               </form>
             </motion.div>
-          </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── Delete confirmation modal ───────────────────────────────────────── */}
+      <AnimatePresence>
+        {deleteTarget && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+            onClick={() => setDeleteTarget(null)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-gray-900 border border-gray-700/60 rounded-2xl shadow-2xl w-full max-w-sm p-6"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-2.5 bg-red-900/30 rounded-xl border border-red-900/40">
+                  <ExclamationTriangleIcon className="h-6 w-6 text-red-400" />
+                </div>
+                <h3 className="text-lg font-bold text-white">Delete Material?</h3>
+              </div>
+              <p className="text-sm text-gray-400 mb-6">
+                <span className="text-white font-semibold">"{deleteTarget.title}"</span> will be permanently removed from Cloudinary and no longer accessible to students.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setDeleteTarget(null)}
+                  className="flex-1 py-2.5 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-xl font-semibold transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmDelete}
+                  className="flex-1 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl font-semibold transition-colors"
+                >
+                  Delete
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
         )}
       </AnimatePresence>
     </div>
