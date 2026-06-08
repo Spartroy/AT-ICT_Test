@@ -24,10 +24,10 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "cross-env CI=false react-scripts build",
-    "postbuild": "react-snap",
+    "postbuild": "node postbuild.js",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "vercel-build": "cross-env CI=false react-scripts build && react-snap"
+    "vercel-build": "cross-env CI=false react-scripts build && node postbuild.js"
   },
   "reactSnap": {
     "source": "build",
