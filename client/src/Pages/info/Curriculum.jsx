@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Nav from '../../components/Nav';
 import Footer from '../../components/Footer';
@@ -398,17 +399,17 @@ const Curriculum = () => {
                 Ready to Start Your <span className="text-yellow-300">A* Journey?</span>
               </h2>
               <p className="text-xl mb-8 opacity-90">
-                Join 500+ students who have already transformed their ICT skills with our proven curriculum.
+                Join 400+ students who have already transformed their ICT skills with our proven curriculum.
                 Your success story starts here!
               </p>
-              
+
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <a href="/register" className="bg-white text-[#CA133E] px-8 py-4 rounded-xl font-bold text-lg hover:bg-gray-100 transition-all">
+                <Link to="/register" className="bg-white text-[#CA133E] px-8 py-4 rounded-xl font-bold text-lg hover:bg-gray-100 transition-all">
                   Enroll Now 🚀
-                </a>
-                <a href="/samples" className="bg-transparent border-2 border-white text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-white hover:text-[#CA133E] transition-all">
+                </Link>
+                <Link to="/samples" className="bg-transparent border-2 border-white text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-white hover:text-[#CA133E] transition-all">
                   Try Free Samples First 📚
-                </a>
+                </Link>
               </div>
               
       

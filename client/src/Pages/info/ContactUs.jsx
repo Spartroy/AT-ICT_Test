@@ -7,13 +7,19 @@ import Seo from '../../components/Seo';
 import { Mail, Phone, MapPin, School, HelpCircle } from 'lucide-react';
 import { showError, showSuccess } from '../../utils/toast';
 
-// Primary WhatsApp number (Egypt). Stripped to international format for wa.me.
 const WHATSAPP_NUMBER = '201274584000';
 const SUPPORT_EMAIL = 'at.ictofficial@gmail.com';
 
-// Egyptian numbers: 01X XXXXXXXX (11 digits) or +20 1X XXXXXXXX.
 const EG_PHONE_REGEX = /^(?:\+?20|0)?1[0125]\d{8}$/;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+const contactJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'ContactPage',
+  name: 'Contact AT-ICT',
+  url: 'https://at-ict-test.vercel.app/contact',
+  description: 'Get in touch with AT-ICT for IGCSE ICT course enrolment, free trials, and support.'
+};
 
 const ContactUs = () => {
   const [formData, setFormData] = useState({
@@ -23,24 +29,31 @@ const ContactUs = () => {
     message: '',
     phone: ''
   });
+  const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    if (errors[name]) {
+      setErrors((prev) => {
+        const next = { ...prev };
+        delete next[name];
+        return next;
+      });
+    }
   };
 
   const validate = () => {
     const { name, email, subject, message, phone } = formData;
-    if (!name.trim() || name.trim().length < 2) return 'Please enter your full name.';
-    if (!EMAIL_REGEX.test(email.trim())) return 'Please enter a valid email address.';
-    if (!subject.trim()) return 'Please enter a subject.';
-    if (!message.trim() || message.trim().length < 10) return 'Please write a message of at least 10 characters.';
+    const fieldErrors = {};
+    if (!name.trim() || name.trim().length < 2) fieldErrors.name = 'Please enter your full name.';
+    if (!EMAIL_REGEX.test(email.trim())) fieldErrors.email = 'Please enter a valid email address.';
+    if (!subject.trim()) fieldErrors.subject = 'Please enter a subject.';
+    if (!message.trim() || message.trim().length < 10) fieldErrors.message = 'Please write a message of at least 10 characters.';
     const phoneClean = phone.replace(/[\s-]/g, '');
-    if (!EG_PHONE_REGEX.test(phoneClean)) return 'Please enter a valid Egyptian phone number.';
-    return null;
+    if (!EG_PHONE_REGEX.test(phoneClean)) fieldErrors.phone = 'Please enter a valid Egyptian phone number (e.g. 01012345678).';
+    return fieldErrors;
   };
 
   const buildMessage = () => {
@@ -58,11 +71,13 @@ const ContactUs = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const error = validate();
-    if (error) {
-      showError(error);
+    const fieldErrors = validate();
+    if (Object.keys(fieldErrors).length > 0) {
+      setErrors(fieldErrors);
+      showError(Object.values(fieldErrors)[0]);
       return;
     }
+    setErrors({});
     setSubmitting(true);
     const text = buildMessage();
     const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${text}`;
@@ -72,11 +87,13 @@ const ContactUs = () => {
   };
 
   const handleEmailFallback = () => {
-    const error = validate();
-    if (error) {
-      showError(error);
+    const fieldErrors = validate();
+    if (Object.keys(fieldErrors).length > 0) {
+      setErrors(fieldErrors);
+      showError(Object.values(fieldErrors)[0]);
       return;
     }
+    setErrors({});
     const subject = encodeURIComponent(formData.subject || 'Inquiry from AT-ICT website');
     const body = encodeURIComponent(
       `Name: ${formData.name}\n` +
@@ -86,6 +103,11 @@ const ContactUs = () => {
     );
     window.location.href = `mailto:${SUPPORT_EMAIL}?subject=${subject}&body=${body}`;
   };
+
+  const inputClass = (field) =>
+    `w-full px-3 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#CA133E] focus:border-transparent ${
+      errors[field] ? 'border-red-500' : 'border-gray-300'
+    }`;
 
   const contactInfo = [
     {
@@ -104,15 +126,13 @@ const ContactUs = () => {
       icon: MapPin,
       title: 'Centers',
       content: 'Apex Academy - EzScience - IG Cubs - IG Stars',
-      subContent: 'Bright Minds - Future Stars Center - IG Guide Academy',
-     
+      subContent: 'Bright Minds - Future Stars Center - IG Guide Academy'
     },
-
     {
       icon: School,
       title: 'Schools',
       content: 'Royal College International School'
-    },
+    }
   ];
 
   return (
@@ -121,10 +141,11 @@ const ContactUs = () => {
         title="Contact Us"
         description="Reach AT-ICT for enrolment, course questions, or a free trial — via WhatsApp, email, or phone."
         path="/contact"
+        jsonLd={contactJsonLd}
       />
       <Nav />
-      
-      <div className="pt-20 px-4 pb-8">
+
+      <main id="main-content" className="pt-20 px-4 pb-8">
         <motion.div
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
@@ -134,11 +155,11 @@ const ContactUs = () => {
           <h1 className="text-3xl md:text-[25pt] font-bold text-white text-center mt-6 mb-2">
             Contact <span className="text-[#CA133E]">AT-ICT</span>
           </h1>
-          
+
           <p className="text-[15pt] text-gray-300 text-center mb-8 mt-2">
             Get in touch with us for any questions or inquiries
           </p>
-          
+
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
             {/* Contact Form */}
             <motion.div
@@ -148,8 +169,8 @@ const ContactUs = () => {
               className="bg-white p-6 rounded-xl shadow-lg h-full flex flex-col"
             >
               <h2 className="text-xl font-bold text-gray-800 mb-4">Send us a Message</h2>
-              
-              <form onSubmit={handleSubmit} className="space-y-4 flex-1 flex flex-col">
+
+              <form onSubmit={handleSubmit} noValidate className="space-y-4 flex-1 flex flex-col">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
@@ -162,10 +183,16 @@ const ContactUs = () => {
                       value={formData.name}
                       onChange={handleChange}
                       required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#CA133E] focus:border-transparent"
+                      autoComplete="name"
+                      aria-invalid={!!errors.name}
+                      aria-describedby={errors.name ? 'name-error' : undefined}
+                      className={inputClass('name')}
                     />
+                    {errors.name && (
+                      <p id="name-error" role="alert" className="text-xs text-red-600 mt-1">{errors.name}</p>
+                    )}
                   </div>
-                  
+
                   <div>
                     <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
                       Email Address
@@ -177,11 +204,17 @@ const ContactUs = () => {
                       value={formData.email}
                       onChange={handleChange}
                       required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#CA133E] focus:border-transparent"
+                      autoComplete="email"
+                      aria-invalid={!!errors.email}
+                      aria-describedby={errors.email ? 'email-error' : undefined}
+                      className={inputClass('email')}
                     />
+                    {errors.email && (
+                      <p id="email-error" role="alert" className="text-xs text-red-600 mt-1">{errors.email}</p>
+                    )}
                   </div>
                 </div>
-                
+
                 <div>
                   <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-1">
                     Subject
@@ -193,9 +226,14 @@ const ContactUs = () => {
                     value={formData.subject}
                     onChange={handleChange}
                     required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#CA133E] focus:border-transparent"
+                    aria-invalid={!!errors.subject}
+                    aria-describedby={errors.subject ? 'subject-error' : undefined}
+                    className={inputClass('subject')}
                     placeholder="What is this about?"
                   />
+                  {errors.subject && (
+                    <p id="subject-error" role="alert" className="text-xs text-red-600 mt-1">{errors.subject}</p>
+                  )}
                 </div>
 
                 <div>
@@ -211,12 +249,20 @@ const ContactUs = () => {
                     required
                     inputMode="tel"
                     autoComplete="tel"
+                    placeholder="01012345678"
                     pattern="^(?:\+?20|0)?1[0125]\d{8}$"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#CA133E] focus:border-transparent"
+                    aria-invalid={!!errors.phone}
+                    aria-describedby={errors.phone ? 'phone-error phone-hint' : 'phone-hint'}
+                    className={inputClass('phone')}
                   />
+                  <p id="phone-hint" className="text-xs text-gray-500 mt-1">
+                    Egyptian mobile number — e.g. 01012345678 or +201012345678.
+                  </p>
+                  {errors.phone && (
+                    <p id="phone-error" role="alert" className="text-xs text-red-600 mt-1">{errors.phone}</p>
+                  )}
                 </div>
 
-                
                 <div className="flex-1">
                   <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">
                     Message
@@ -228,11 +274,18 @@ const ContactUs = () => {
                     onChange={handleChange}
                     required
                     rows={4}
-                    className="w-full h-full min-h-[100px] px-3 py-2 mb-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#CA133E] focus:border-transparent resize-none"
+                    aria-invalid={!!errors.message}
+                    aria-describedby={errors.message ? 'message-error' : undefined}
+                    className={`w-full h-full min-h-[100px] px-3 py-2 mb-1 border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#CA133E] focus:border-transparent resize-none ${
+                      errors.message ? 'border-red-500' : 'border-gray-300'
+                    }`}
                     placeholder="Tell us how we can help you..."
                   />
+                  {errors.message && (
+                    <p id="message-error" role="alert" className="text-xs text-red-600 mt-1">{errors.message}</p>
+                  )}
                 </div>
-                
+
                 <div className="mt-auto space-y-2">
                   <button
                     type="submit"
@@ -251,7 +304,7 @@ const ContactUs = () => {
                 </div>
               </form>
             </motion.div>
-            
+
             {/* Contact Information */}
             <motion.div
               initial={{ opacity: 0, x: 50 }}
@@ -262,10 +315,10 @@ const ContactUs = () => {
               <div className="bg-white p-6 rounded-xl shadow-lg h-full flex flex-col">
                 <h2 className="text-xl font-bold text-gray-800 mb-3">Get in Touch</h2>
                 <p className="text-gray-600 mb-4 text-sm">
-                  We're here to help you succeed in your ICT journey.  <br /> Don't hesitate to reach out 
+                  We're here to help you succeed in your ICT journey.  <br /> Don't hesitate to reach out
                   with any questions about the course, teaching methods, or enrollment process.
                 </p>
-                
+
                 <div className="space-y-3 flex-1">
                   {contactInfo.map((info, index) => (
                     <motion.div
@@ -275,13 +328,15 @@ const ContactUs = () => {
                       transition={{ duration: 0.6, delay: index * 0.1 }}
                       className="flex items-start space-x-3 p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors"
                     >
-                      <div className="w-8 h-8 bg-red-100 rounded-xl flex items-center justify-center">
+                      <div className="w-8 h-8 bg-red-100 rounded-xl flex items-center justify-center" aria-hidden="true">
                         <info.icon className="text-[#CA133E]" size={16} />
                       </div>
                       <div>
                         <h3 className="font-semibold text-gray-800 text-sm">{info.title}</h3>
                         <p className="text-gray-600 text-sm">{info.content}</p>
-                        <p className="text-gray-600 text-sm">{info.subContent}</p>
+                        {info.subContent && (
+                          <p className="text-gray-600 text-sm">{info.subContent}</p>
+                        )}
                       </div>
                     </motion.div>
                   ))}
@@ -289,7 +344,7 @@ const ContactUs = () => {
               </div>
             </motion.div>
           </div>
-          
+
           {/* FAQ link - keeps a single source of truth */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -298,7 +353,7 @@ const ContactUs = () => {
             className="max-w-2xl mx-auto"
           >
             <div className="bg-white p-6 rounded-xl shadow-lg flex items-center gap-4">
-              <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center flex-shrink-0">
+              <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center flex-shrink-0" aria-hidden="true">
                 <HelpCircle className="text-[#CA133E]" size={20} />
               </div>
               <div className="flex-1">
@@ -316,7 +371,7 @@ const ContactUs = () => {
             </div>
           </motion.div>
         </motion.div>
-      </div>
+      </main>
       <Footer />
     </div>
   );

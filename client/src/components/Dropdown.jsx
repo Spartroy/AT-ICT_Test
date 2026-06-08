@@ -21,12 +21,15 @@ const Dropdown = () => {
       transition={{ duration: 0.5 }}
     >
       {/* Dropdown */}
+      <label htmlFor="page-jump" className="sr-only">Jump to page</label>
       <select
-        name="cars"
-        id="cars"
+        name="page-jump"
+        id="page-jump"
+        defaultValue=""
         onChange={handleSelectChange}
         className="w-full bg-[#2a1a1a] border-2 border-[#CA133E] text-white py-3 px-10 rounded-xl appearance-none focus:outline-none focus:border-[#A01030] cursor-pointer transition-all duration-300 hover:bg-[#3a1a1a]"
       >
+        <option value="" disabled>Need help?</option>
         <option value="/contact">Contact us</option>
         <option value="/faq">FAQ</option>
       </select>

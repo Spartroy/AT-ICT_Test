@@ -1,14 +1,15 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import Logo from "../assets/logo.png";
 
 const Nav = () => {
   const [navOpen, setNavOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const navigate = useNavigate();
   const location = useLocation();
+  const mobileMenuRef = useRef(null);
+  const menuButtonRef = useRef(null);
 
   // Handle scroll effect
   useEffect(() => {
@@ -22,16 +23,47 @@ const Nav = () => {
   }, []);
 
   const toggleNav = () => {
-    setNavOpen(!navOpen);
+    setNavOpen((prev) => !prev);
   };
 
-  // Close mobile menu on ESC key
+  // Close mobile menu on ESC key, lock body scroll, and focus trap
   useEffect(() => {
+    if (!navOpen) {
+      document.body.style.overflow = '';
+      return;
+    }
+
+    document.body.style.overflow = 'hidden';
+
     const handleKeyDown = (e) => {
-      if (e.key === 'Escape' && navOpen) setNavOpen(false);
+      if (e.key === 'Escape') {
+        setNavOpen(false);
+        menuButtonRef.current?.focus();
+        return;
+      }
+
+      if (e.key === 'Tab' && mobileMenuRef.current) {
+        const focusable = mobileMenuRef.current.querySelectorAll(
+          'a, button, input, [tabindex]:not([tabindex="-1"])'
+        );
+        if (focusable.length === 0) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
     };
+
     document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = '';
+    };
   }, [navOpen]);
 
   return (
@@ -70,9 +102,11 @@ const Nav = () => {
         </div>
 
         {/* Center Section - Desktop Navigation Links */}
-        <div className="hidden lg:flex items-center gap-[25px]">
+        <div className="hidden lg:flex items-center gap-[20px]">
           {[
-            { to: '/about', label: 'About Us' },
+            { to: '/about', label: 'About' },
+            { to: '/curriculum', label: 'Curriculum' },
+            { to: '/fees', label: 'Fees' },
             { to: '/hall-of-fame', label: 'Hall of Fame' },
             { to: '/samples', label: 'Free Samples' },
             { to: '/faq', label: 'FAQ' },
@@ -175,13 +209,16 @@ const Nav = () => {
 
           {/* Mobile Menu Button */}
           <button
+            ref={menuButtonRef}
             className={`lg:hidden p-2 rounded-xl transition-all duration-300 ${
               scrolled ? 'text-gray-700 hover:bg-gray-200' : 'text-white hover:bg-white/10'
             }`}
             onClick={toggleNav}
-            aria-label="Toggle navigation menu"
+            aria-label={navOpen ? 'Close navigation menu' : 'Open navigation menu'}
+            aria-expanded={navOpen}
+            aria-controls="mobile-nav-menu"
           >
-            <Bars3Icon className="h-7 w-7" />
+            {navOpen ? <XMarkIcon className="h-7 w-7" /> : <Bars3Icon className="h-7 w-7" />}
           </button>
         </div>
       </div>
@@ -190,11 +227,16 @@ const Nav = () => {
       <AnimatePresence>
         {navOpen && (
           <motion.div
+            id="mobile-nav-menu"
+            ref={mobileMenuRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Site navigation"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.3 }}
-            className="fixed inset-0 z-40 flex flex-col items-center justify-center space-y-6 lg:hidden"
+            className="fixed inset-0 z-40 flex flex-col items-center justify-center space-y-5 lg:hidden overflow-y-auto py-16"
             style={{
               background: 'rgba(0, 0, 0, 0.85)',
               backdropFilter: 'blur(15px)',
@@ -213,7 +255,13 @@ const Nav = () => {
               Home
             </Link>
             <Link to="/about" onClick={toggleNav} className="text-white text-[22px] font-medium hover:text-[#CD143F] transition-colors">
-              About Us
+              About
+            </Link>
+            <Link to="/curriculum" onClick={toggleNav} className="text-white text-[22px] font-medium hover:text-[#CD143F] transition-colors">
+              Curriculum
+            </Link>
+            <Link to="/fees" onClick={toggleNav} className="text-white text-[22px] font-medium hover:text-[#CD143F] transition-colors">
+              Fees
             </Link>
             <Link to="/hall-of-fame" onClick={toggleNav} className="text-white text-[22px] font-medium hover:text-[#CD143F] transition-colors">
               Hall of Fame
@@ -221,7 +269,6 @@ const Nav = () => {
             <Link to="/samples" onClick={toggleNav} className="text-white text-[22px] font-medium hover:text-[#CD143F] transition-colors">
               Free Samples
             </Link>
-       
             <Link to="/faq" onClick={toggleNav} className="text-white text-[22px] font-medium hover:text-[#CD143F] transition-colors">
               FAQ
             </Link>

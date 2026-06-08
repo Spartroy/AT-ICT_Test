@@ -82,7 +82,7 @@ const WhyChooseATICT = () => {
             </div>
             <h3 className="text-[16pt] sm:text-[18pt] lg:text-[20pt] font-semibold mb-2">Recorded Sessions</h3>
             <p className="text-gray-600 text-[12pt] sm:text-[14pt] lg:text-[16pt]">
-              Whenever you're <strong>stuck</strong>,  <span  className="text-[#CA133E] font-bold">We've got you !</span> With our <span className='text-[16pt] sm:text-[18pt] lg:text-[20pt] font-bold'>Huge</span> library of past recorded videos, Solving Practical & Explaing Theory.
+              Whenever you're <strong>stuck</strong>, <span className="text-[#CA133E] font-bold">We've got you!</span> With our <span className='text-[16pt] sm:text-[18pt] lg:text-[20pt] font-bold'>Huge</span> library of past recorded videos, Solving Practical & Explaining Theory.
             </p>
           </motion.div>
 
@@ -98,7 +98,7 @@ const WhyChooseATICT = () => {
               {/* Lifebuoy icon for assistance */}
               <svg xmlns="http://www.w3.org/2000/svg" className="text-[#CA133E]" width={24} height={24} fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="#CA133E" strokeWidth="2"/><circle cx="12" cy="12" r="4" stroke="#CA133E" strokeWidth="2"/><path d="M4.93 4.93l4.24 4.24M19.07 4.93l-4.24 4.24M19.07 19.07l-4.24-4.24M4.93 19.07l4.24-4.24" stroke="#CA133E" strokeWidth="2"/></svg>
             </div>
-            <h3 className="text-[16pt] sm:text-[18pt] lg:text-[20pt] font-semibold mb-2">Continous Assistance</h3>
+            <h3 className="text-[16pt] sm:text-[18pt] lg:text-[20pt] font-semibold mb-2">Continuous Assistance</h3>
             <p className="text-gray-600 text-[12pt] sm:text-[14pt] lg:text-[16pt]">
               You've got <span className="text-[#CA133E] font-bold">full support</span> along your learning journey. Whenever you're facing <span className='text-[#CA133E] font-bold'>Tough topics</span> or feeling <span className='text-[#CA133E] font-bold'>Exam stress</span>. <br />We'll be there for you.
             </p>
@@ -118,7 +118,7 @@ const WhyChooseATICT = () => {
             </div>
             <h3 className="text-[16pt] sm:text-[18pt] lg:text-[20pt] font-semibold mb-2">Practical Activities</h3>
             <p className="text-gray-600 text-[12pt] sm:text-[14pt] lg:text-[16pt]">
-              Hands on <span className='text-gray-600 font-bold'>projects, simulations, & engaging activities</span> that transforms <span className='text-[#CA133E] font-bold'>Boring theory</span> into <span className='text-[#CA133E] font-bold'>Enjoiable knowledge</span>.
+              Hands-on <span className='text-gray-600 font-bold'>projects, simulations, & engaging activities</span> that transform <span className='text-[#CA133E] font-bold'>Boring theory</span> into <span className='text-[#CA133E] font-bold'>Enjoyable knowledge</span>.
             </p>
           </motion.div>
 
@@ -135,9 +135,9 @@ const WhyChooseATICT = () => {
               <svg xmlns="http://www.w3.org/2000/svg" className="text-[#CA133E]" width={24} height={24} fill="none" viewBox="0 0 24 24"><rect x="3" y="12" width="4" height="8" rx="1" stroke="#CA133E" strokeWidth="2"/><rect x="9" y="8" width="4" height="12" rx="1" stroke="#CA133E" strokeWidth="2"/><rect x="15" y="4" width="4" height="16" rx="1" stroke="#CA133E" strokeWidth="2"/></svg>
             </div>
             <h3 className="text-[16pt] sm:text-[18pt] lg:text-[20pt] font-semibold mb-2">Progress Tracking</h3>
-            <p className="text-gray-600 text-[12pt] sm:text-[14pt] lg:text-[16pt]">
-              We monitor your progress with regular 
-              <ul className='list-disc pl-5'>
+            <div className="text-gray-600 text-[12pt] sm:text-[14pt] lg:text-[16pt]">
+              <p>We monitor your progress with regular</p>
+              <ul className='list-disc pl-5 my-2'>
                 <li>
                   <span className='text-[#CA133E] font-bold'>Assessments</span>
                 </li>
@@ -148,8 +148,8 @@ const WhyChooseATICT = () => {
                   <span className='text-[#CA133E] font-bold'>Performance reports</span>
                 </li>
               </ul>
-              to help you stay on track.
-            </p>
+              <p>to help you stay on track.</p>
+            </div>
           </motion.div>
         </div>
       </div>

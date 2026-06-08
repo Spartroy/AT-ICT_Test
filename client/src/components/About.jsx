@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { Award, Users, Star, Trophy, Target, Zap, CheckCircle, TrendingUp } from 'lucide-react';
 import PP from "../assets/PP.jpg";
 import { motion } from 'framer-motion';
@@ -110,14 +111,19 @@ const About = () => {
     <div className="flex flex-col min-h-screen">
       {/* Password Modal for Mobile Easter Egg */}
       {showPasswordModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4">
+        <div
+          className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="password-modal-title"
+        >
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             className="bg-white rounded-xl p-8 max-w-md w-full shadow-2xl"
           >
             <div className="text-center">
-              <p className="text-gray-600 mb-6 font-bold">You found an easter egg !<br /> Enter the password to reveal the lore.</p>
+              <p id="password-modal-title" className="text-gray-600 mb-6 font-bold">You found an easter egg!<br /> Enter the password to reveal the lore.</p>
               
               <input
                 type="password"
@@ -125,7 +131,7 @@ const About = () => {
                 onChange={(e) => setInputPassword(e.target.value)}
                 placeholder="Enter password..."
                 className="w-full px-4 py-3 border border-gray-300 rounded-xl mb-6 focus:outline-none focus:ring-2 focus:ring-[#CA133E] focus:border-transparent"
-                onKeyPress={(e) => {
+                onKeyDown={(e) => {
                   if (e.key === 'Enter') {
                     handlePasswordSubmit();
                   }
@@ -156,7 +162,12 @@ const About = () => {
 
       {/* AT ICT Lore Modal */}
       {showLoreModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4">
+        <div
+          className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="lore-modal-title"
+        >
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -172,7 +183,9 @@ const About = () => {
 
               {/* Close Button */}
               <button
+                type="button"
                 onClick={() => setShowLoreModal(false)}
+                aria-label="Close lore"
                 className="absolute top-5 right-8 text-[#CA133E] hover:text-white text-2xl font-bold transition-colors"
               >
                 ✕
@@ -180,7 +193,7 @@ const About = () => {
 
               {/* Header */}
               <div className="text-center mb-8">
-                <h1 className="text-4xl font-bold text-[#CA133E] mb-2">🏛️ The Chronicles of AT-ICT</h1>
+                <h2 id="lore-modal-title" className="text-4xl font-bold text-[#CA133E] mb-2">🏛️ The Chronicles of AT-ICT</h2>
                 <div className="w-32 h-1 bg-gradient-to-r from-[#CA133E] to-[#A01030] mx-auto"></div>
                 <p className="text-gray-400 mt-2">A Tale of Innovation & Rise</p>
               </div>
@@ -258,7 +271,7 @@ const About = () => {
         </div>
       )}
 
-      <main className="flex-grow">
+      <main id="main-content" className="flex-grow">
         {/* Hero Section - Attention Grabber */}
         <section className="pt-24 pb-12 bg-gradient-to-br from-[#1a1a1a] via-[#2a1a1a] to-[#3a1a1a] text-white relative overflow-hidden">
           <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNDQTEzM0UiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iNCIvPjwvZz48L2c+PC9zdmc+')] opacity-20"></div>
@@ -270,10 +283,10 @@ const About = () => {
               variants={fadeInUp}
               className="text-center max-w-4xl mx-auto mt-10"
             >
-              <span className="text-white font-bold text-[25pt] tracking-wide uppercase">Meet Your ICT Success Partner</span>
-              <h1 className="text-4xl md:text-[20pt] font-bold mt-4 mb-6">
+              <p className="text-white/90 font-semibold text-[14pt] md:text-[16pt] tracking-wide uppercase">Meet Your ICT Success Partner</p>
+              <h1 className="text-[28pt] sm:text-[34pt] md:text-[40pt] font-bold mt-4 mb-6 leading-tight">
                 From a <span className="text-[#CA133E]">Struggler</span> to
-                <span className="text-[#CA133E]"> A* Champion !</span>
+                <span className="text-[#CA133E]"> A* Champion!</span>
               </h1>
               <p className="text-xl md:text-[15pt] text-gray-300 mb-8 leading-relaxed">
                 ICT explained using our <span className="text-[#CA133E] font-semibold">proven method</span> <br />
@@ -366,25 +379,32 @@ const About = () => {
 
                     <p className='text-center text-[13pt]'>
                       Since then, I've dedicated my career to make Learning
-                      <div className="my-8">
-                        <ul className="flex flex-col sm:flex-row gap-6 sm:gap-10 justify-center pl-0 list-none">
-                          <li>
-                            <span
-                              onClick={handleSimpleClick}
-                              className="text-[#CA133E] bg-[#FDE8EC] font-bold rounded-xl px-4 py-2 text-[15pt] block cursor-pointer"
-                            >
-                              Simple
-                            </span>
-                          </li>
-                          <li>
-                            <span className="text-[#CA133E] bg-[#FDE8EC] font-bold rounded-xl px-4 py-2 text-[15pt] block">Engaging</span>
-                          </li>
-                          <li>
-                            <span className="text-[#CA133E] bg-[#FDE8EC] font-bold rounded-xl px-4 py-2 text-[15pt] block">Actually Fun!</span>
-                          </li>
-                        </ul>
-                      </div>
                     </p>
+                    <div className="my-8">
+                      <ul className="flex flex-col sm:flex-row gap-6 sm:gap-10 justify-center pl-0 list-none">
+                        <li>
+                          <button
+                            type="button"
+                            onClick={handleSimpleClick}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter' || e.key === ' ') {
+                                e.preventDefault();
+                                handleSimpleClick();
+                              }
+                            }}
+                            className="text-[#CA133E] bg-[#FDE8EC] font-bold rounded-xl px-4 py-2 text-[15pt] block cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#CA133E]"
+                          >
+                            Simple
+                          </button>
+                        </li>
+                        <li>
+                          <span className="text-[#CA133E] bg-[#FDE8EC] font-bold rounded-xl px-4 py-2 text-[15pt] block">Engaging</span>
+                        </li>
+                        <li>
+                          <span className="text-[#CA133E] bg-[#FDE8EC] font-bold rounded-xl px-4 py-2 text-[15pt] block">Actually Fun!</span>
+                        </li>
+                      </ul>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -451,8 +471,8 @@ const About = () => {
               className="max-w-6xl mx-auto"
             >
               <div className="text-center mb-16">
-                <span className="text-[#CA133E] font-bold text-[25pt]">Student Stories</span>
-                <h2 className="text-[15pt] font-bold text-gray-800 mt-2 mb-4">
+                <p className="text-[#CA133E] font-bold text-[18pt]">Student Stories</p>
+                <h2 className="text-[24pt] sm:text-[28pt] font-bold text-gray-800 mt-2 mb-4">
                   Real Students, <span className="text-[#CA133E]">Real Results</span>
                 </h2>
                 <p className="text-[13pt] text-gray-600">
@@ -498,12 +518,12 @@ const About = () => {
                     Your A* journey starts with a single step. Let's make it happen together!
                   </p>
                   <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                    <a href="/register" className="bg-white text-[#CA133E] px-8 py-3 rounded-xl font-bold hover:bg-gray-100 transition-all">
+                    <Link to="/register" className="bg-white text-[#CA133E] px-8 py-3 rounded-xl font-bold hover:bg-gray-100 transition-all">
                       Start Your Journey
-                    </a>
-                    <a href="/samples" className="bg-transparent border-2 border-white text-white px-8 py-3 rounded-xl font-bold hover:bg-white hover:text-[#CA133E] transition-all">
+                    </Link>
+                    <Link to="/samples" className="bg-transparent border-2 border-white text-white px-8 py-3 rounded-xl font-bold hover:bg-white hover:text-[#CA133E] transition-all">
                       Access Free Samples
-                    </a>
+                    </Link>
                   </div>
                 </div>
               </div>

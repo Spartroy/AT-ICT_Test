@@ -5,10 +5,7 @@ import WhyChooseATICT from '../../components/WhyChooseATICT';
 import Footer from '../../components/Footer';
 import Seo from '../../components/Seo';
 import {
-  CurriculumTeaser,
   TestimonialsStrip,
-  HallOfFameStrip,
-  FeesTeaser,
   FinalCTA
 } from '../../components/HomeSections';
 
@@ -21,7 +18,7 @@ const Home = () => {
         path="/"
       />
       <Nav />
-      <main className="flex-1">
+      <main id="main-content" className="flex-1">
         <Hero />
         <WhyChooseATICT />
         <TestimonialsStrip />

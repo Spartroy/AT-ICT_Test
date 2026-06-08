@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import videoThumbnail from '../assets/video-thumbnail.png';
 
@@ -63,14 +64,21 @@ const Hero = () => {
               className="flex flex-col sm:flex-row gap-4"
               variants={itemVariants}
             >
-              <button onClick={() => window.open('https://drive.google.com/file/d/1ECbYVvxmOv89e9ifF34_ozVzsd-EHiq2/view?usp=sharing', '_blank')} className="bg-[#CA133E] text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl text-[14pt] sm:text-[16pt] font-semibold hover:bg-[#A01030] transition-all">
+              <a
+                href="https://drive.google.com/file/d/1ECbYVvxmOv89e9ifF34_ozVzsd-EHiq2/view?usp=sharing"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex justify-center items-center bg-[#CA133E] text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl text-[14pt] sm:text-[16pt] font-semibold hover:bg-[#A01030] transition-all"
+              >
                 Watch a Free Lesson
-              </button>
-              
-              
-              <button onClick={() => window.location.href = '/register'} className="border-2 border-gray-500 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl text-[14pt] sm:text-[16pt] font-semibold hover:bg-gray-500 hover:text-white transition-all">
+              </a>
+
+              <Link
+                to="/register"
+                className="inline-flex justify-center items-center border-2 border-gray-500 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl text-[14pt] sm:text-[16pt] font-semibold hover:bg-gray-500 hover:text-white transition-all"
+              >
                 Start Learning
-              </button>
+              </Link>
             </motion.div>
 
             {/* Features */}
@@ -148,7 +156,7 @@ const Hero = () => {
                   <div className="absolute inset-0">
                     <img
                       src={videoThumbnail}
-                      alt="Video Thumbnail"
+                      alt="Preview of an AT-ICT IGCSE ICT lesson"
                       className="w-full h-full object-cover blur-sm"
                     />
                   </div>

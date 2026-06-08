@@ -6,8 +6,7 @@ import {
   Quote,
   Sparkles,
   CheckCircle,
-  ChevronLeft,
-  ChevronRightCircle
+  ChevronLeft
 } from 'lucide-react';
 import API_ENDPOINTS from '../config/api';
 import { studentStories } from '../data/studentStories';
@@ -68,7 +67,7 @@ export const TestimonialsStrip = () => {
             Stories from <span className="text-[#CA133E]">our students</span>
           </h2>
           <p className="text-gray-400 max-w-2xl mx-auto">
-            Same stories shown in the About page, now in a swipeable carousel.
+            Real students, real results. Swipe through their experiences with AT-ICT.
           </p>
         </motion.div>
 
@@ -88,11 +87,15 @@ export const TestimonialsStrip = () => {
             className="p-2 rounded-xl border border-gray-700 hover:border-[#CA133E] transition-colors"
             aria-label="Next story"
           >
-            <ChevronRightCircle size={18} />
+            <ChevronRight size={18} />
           </button>
         </div>
 
-        <div className="overflow-hidden">
+        <div
+          className="overflow-hidden"
+          aria-live="polite"
+          aria-atomic="true"
+        >
           <div
             className="flex transition-transform duration-300"
             style={{ transform: `translateX(-${activeIndex * 100}%)` }}

@@ -4,7 +4,8 @@ const SITE_URL =
   process.env.REACT_APP_SITE_URL ||
   (typeof window !== 'undefined' ? window.location.origin : 'https://at-ict-test.vercel.app');
 
-const SITE_NAME = 'AT-ICT — IGCSE ICT Mastery';
+const SITE_NAME = 'AT-ICT';
+const SITE_FULL_NAME = 'AT-ICT — IGCSE ICT Mastery';
 
 const ensureMetaName = (name, content) => {
   if (!content) return null;
@@ -57,10 +58,11 @@ const Seo = ({
   path = '/',
   image,
   type = 'website',
-  jsonLd
+  jsonLd,
+  noIndex = false
 }) => {
   useEffect(() => {
-    const fullTitle = title ? `${title} | ${SITE_NAME}` : SITE_NAME;
+    const fullTitle = title ? `${title} | ${SITE_NAME}` : SITE_FULL_NAME;
     const previousTitle = document.title;
     document.title = fullTitle;
 
@@ -73,13 +75,14 @@ const Seo = ({
       ensureMetaProperty('og:description', description),
       ensureMetaProperty('og:type', type),
       ensureMetaProperty('og:url', url),
-      ensureMetaProperty('og:site_name', SITE_NAME),
+      ensureMetaProperty('og:site_name', SITE_FULL_NAME),
       ensureMetaProperty('og:image', ogImage),
       ensureMetaName('twitter:card', 'summary_large_image'),
       ensureMetaName('twitter:title', fullTitle),
       ensureMetaName('twitter:description', description),
       ensureMetaName('twitter:image', ogImage),
-      ensureLink('canonical', url)
+      ensureLink('canonical', url),
+      noIndex ? ensureMetaName('robots', 'noindex, nofollow') : null
     ].filter(Boolean);
 
     let jsonLdScript = null;
@@ -105,7 +108,7 @@ const Seo = ({
         jsonLdScript.parentNode.removeChild(jsonLdScript);
       }
     };
-  }, [title, description, path, image, type, jsonLd]);
+  }, [title, description, path, image, type, jsonLd, noIndex]);
 
   return null;
 };

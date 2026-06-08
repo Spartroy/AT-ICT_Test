@@ -11,7 +11,7 @@ const Privacy = () => (
       path="/privacy"
     />
     <Nav />
-    <main className="flex-1 pt-28 pb-12 px-4">
+    <main id="main-content" className="flex-1 pt-28 pb-12 px-4">
       <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-sm border border-gray-100 p-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-6">Privacy Policy</h1>
         <p className="text-gray-700 mb-4">
