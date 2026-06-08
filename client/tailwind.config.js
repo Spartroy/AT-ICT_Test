@@ -38,14 +38,6 @@ module.exports = {
           dark: "#A01030",
           light: "#FDE8EC",
         },
-        NavBlue: "#0A767C",
-        gold: "#DAA520",
-        primary: "#1089d3",
-        secondary: "#12b1d1",
-        accent: "#0099ff",
-      },
-      backgroundImage: {
-        BG: "url('/src/assets/BG.svg')",
       },
       height: {
         248: "248px",

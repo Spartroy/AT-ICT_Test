@@ -130,7 +130,7 @@ const Footer = () => {
 
             <div className="mt-4">
               <h4 className="text-white text-sm font-semibold mb-2">Centers</h4>
-              <ul className="text-xs text-gray-400 leading-relaxed list-disc pl-4 space-y-1">
+              <ul className="text-xs text-gray-300 leading-relaxed list-disc pl-4 space-y-1">
                 {centers.map((center, idx) => (
                   <li key={idx}>{center}</li>
                 ))}
@@ -140,7 +140,7 @@ const Footer = () => {
           </div>
         </div>
 
-        <div className="mt-10 pt-6 border-t border-gray-800 flex flex-col sm:flex-row justify-between items-center gap-3 text-xs text-gray-500">
+        <div className="mt-10 pt-6 border-t border-gray-800 flex flex-col sm:flex-row justify-between items-center gap-3 text-xs text-gray-300">
           <p>© {year} AT-ICT. All rights reserved.</p>
           <p>
             Built with care for IGCSE ICT students.

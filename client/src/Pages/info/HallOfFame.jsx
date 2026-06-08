@@ -116,7 +116,7 @@ const cardVariants = {
                     {student.name}
                   </h3>
                   <div className="space-y-2">
-                    <p className="text-[11pt] text-gray-400">Class of {student.year || 'N/A'}</p>
+                    <p className="text-[11pt] text-gray-300">Class of {student.year || 'N/A'}</p>
                   </div>
                 </div>
                 <div className="mt-4 flex justify-center">
@@ -142,7 +142,7 @@ const cardVariants = {
                   <span className="text-white text-[24pt] font-bold">?</span>
                 </div>
                 <h3 className="text-[18pt] font-bold mb-2">You're next</h3>
-                <p className="text-[12pt] text-gray-400 mb-4">Your name belongs here. Start today.</p>
+                <p className="text-[12pt] text-gray-300 mb-4">Your name belongs here. Start today.</p>
                 <span className="inline-block px-5 py-2 rounded-xl bg-white text-[#CA133E] font-bold">Claim your spot now !</span>
               </Link>
             </motion.div>

@@ -195,7 +195,7 @@ const About = () => {
               <div className="text-center mb-8">
                 <h2 id="lore-modal-title" className="text-4xl font-bold text-[#CA133E] mb-2">🏛️ The Chronicles of AT-ICT</h2>
                 <div className="w-32 h-1 bg-gradient-to-r from-[#CA133E] to-[#A01030] mx-auto"></div>
-                <p className="text-gray-400 mt-2">A Tale of Innovation & Rise</p>
+                <p className="text-gray-300 mt-2">A Tale of Innovation & Rise</p>
               </div>
 
               {/* Story Content */}
@@ -260,7 +260,7 @@ const About = () => {
 
               {/* Footer */}
               <div className="text-center mt-8 pt-6 border-t border-gray-700">
-                <p className="text-gray-400 text-sm">
+                <p className="text-gray-300 text-sm">
                   "A Winner is just a Loser who tried one more time !"
                   <br />
                   <span className="text-[#CA133E] font-semibold">- AT-ICT Philosophy</span>
@@ -307,7 +307,7 @@ const About = () => {
                       <stat.icon className="text-white" size={28} />
                     </div>
                     <div className="text-[15pt] font-bold text-[#CA133E] mb-1">{stat.number}</div>
-                    <div className="text-gray-400 text-[15pt]">{stat.label}</div>
+                    <div className="text-gray-300 text-[15pt]">{stat.label}</div>
                   </motion.div>
                 ))}
               </div>

@@ -9,6 +9,8 @@ try {
   console.log('Running react-snap...');
   execSync('react-snap', { stdio: 'inherit', shell: true });
 } catch (error) {
-  console.error('react-snap execution failed:', error.message);
-  process.exit(1);
+  console.warn('\n⚠️  Warning: react-snap pre-rendering failed.');
+  console.warn('The build will continue, but static pre-rendered HTML files will not be generated.');
+  console.warn('Reason:', error.message, '\n');
+  process.exit(0);
 }

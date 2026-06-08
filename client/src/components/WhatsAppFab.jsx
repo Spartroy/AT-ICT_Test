@@ -39,7 +39,7 @@ const WhatsAppFab = () => {
   return (
     <div className="fixed bottom-5 right-5 z-50 flex items-end gap-2">
       {labelOpen && (
-        <div className="hidden sm:block bg-white text-gray-800 text-sm font-medium px-3 py-2 rounded-xl shadow-lg max-w-[220px] animate-fade-in">
+        <div className="bg-white text-gray-800 text-xs sm:text-sm font-medium px-3 py-2 rounded-xl shadow-lg max-w-[180px] sm:max-w-[220px] animate-fade-in">
           Have a question? Chat on WhatsApp.
           <button
             type="button"

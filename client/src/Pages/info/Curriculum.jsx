@@ -306,11 +306,15 @@ const Curriculum = () => {
                         </div>
                         
                         <div className="flex items-center space-x-4">
-                          <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                          <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-semibold ${
                             module.difficulty === 'Beginner' ? 'bg-green-100 text-green-800' :
                             module.difficulty === 'Intermediate' ? 'bg-yellow-100 text-yellow-800' :
                             'bg-red-100 text-red-800'
                           }`}>
+                            <span aria-hidden="true" className="font-mono leading-none">
+                              {module.difficulty === 'Beginner' ? '●○○' :
+                               module.difficulty === 'Intermediate' ? '●●○' : '●●●'}
+                            </span>
                             {module.difficulty}
                           </span>
                           <div className="flex items-center text-gray-600">

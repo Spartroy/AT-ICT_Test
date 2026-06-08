@@ -8,7 +8,7 @@ import {
   CheckCircle,
   ChevronLeft
 } from 'lucide-react';
-import API_ENDPOINTS from '../config/api';
+import { API_ENDPOINTS } from '../config/api';
 import { studentStories } from '../data/studentStories';
 
 const carouselStoriesFallback = studentStories;
@@ -66,7 +66,7 @@ export const TestimonialsStrip = () => {
           <h2 className="text-3xl md:text-4xl font-bold mb-3">
             Stories from <span className="text-[#CA133E]">our students</span>
           </h2>
-          <p className="text-gray-400 max-w-2xl mx-auto">
+          <p className="text-gray-300 max-w-2xl mx-auto">
             Real students, real results. Swipe through their experiences with AT-ICT.
           </p>
         </motion.div>
@@ -79,7 +79,7 @@ export const TestimonialsStrip = () => {
           >
             <ChevronLeft size={18} />
           </button>
-          <span className="text-sm text-gray-400">
+          <span className="text-sm text-gray-300">
             {stories.length ? `${activeIndex + 1} / ${stories.length}` : '0 / 0'}
           </span>
           <button
@@ -164,7 +164,7 @@ export const HallOfFameStrip = () => {
           <h2 className="text-3xl md:text-4xl font-bold mb-3">
             Top performers <span className="text-[#CA133E]">right now</span>
           </h2>
-          <p className="text-gray-400 max-w-2xl mx-auto">
+          <p className="text-gray-300 max-w-2xl mx-auto">
             Live ranking from the AT-ICT student platform. Could your name be next?
           </p>
         </motion.div>

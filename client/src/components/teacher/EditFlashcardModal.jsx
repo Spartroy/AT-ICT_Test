@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import API_ENDPOINTS from '../../config/api';
+import { API_ENDPOINTS } from '../../config/api';
 import { showSuccess, showError, showWarning } from '../../utils/toast';
 import {
   XMarkIcon,
