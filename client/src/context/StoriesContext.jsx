@@ -12,12 +12,16 @@ export const StoriesProvider = ({ children }) => {
     let mounted = true;
     const load = async () => {
       try {
+        if (!API_ENDPOINTS?.LEADERBOARD?.STORIES) {
+          if (mounted) setLoading(false);
+          return;
+        }
         const res = await fetch(API_ENDPOINTS.LEADERBOARD.STORIES);
         if (!res.ok) throw new Error('Failed to fetch stories');
         const data = await res.json();
         const fetched = data?.data?.stories || [];
         if (mounted && fetched.length > 0) setStories(fetched);
-      } catch {
+      } catch (err) {
         // keep fallback
       } finally {
         if (mounted) setLoading(false);
