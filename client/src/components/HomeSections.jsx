@@ -73,7 +73,7 @@ export const TestimonialsStrip = () => {
             className="flex transition-transform duration-300"
             style={{ transform: `translateX(-${activeIndex * 100}%)` }}
           >
-            {(loadingStories ? carouselStoriesFallback : stories).map((story, idx) => (
+            {stories.map((story, idx) => (
               <div
                 key={story._id || `${story.name}-${idx}`}
                 className="min-w-full snap-center bg-gradient-to-br from-gray-800/60 to-gray-900/60 border border-gray-800 rounded-xl p-6"
