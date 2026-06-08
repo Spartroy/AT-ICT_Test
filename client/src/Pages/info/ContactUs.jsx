@@ -13,11 +13,13 @@ const SUPPORT_EMAIL = 'at.ictofficial@gmail.com';
 const EG_PHONE_REGEX = /^(?:\+?20|0)?1[0125]\d{8}$/;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+const SITE_URL = (process.env.REACT_APP_SITE_URL || 'https://at-ict-test.vercel.app').replace(/\/$/, '');
+
 const contactJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'ContactPage',
   name: 'Contact AT-ICT',
-  url: 'https://at-ict-test.vercel.app/contact',
+  url: `${SITE_URL}/contact`,
   description: 'Get in touch with AT-ICT for IGCSE ICT course enrolment, free trials, and support.'
 };
 

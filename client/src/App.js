@@ -5,6 +5,7 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 import ProtectedRoute from "./components/ProtectedRoute";
+import { StoriesProvider } from "./context/StoriesContext";
 import WhatsAppFab from "./components/WhatsAppFab";
 import ErrorBoundary from "./components/ErrorBoundary";
 import AnalyticsTracker from "./components/AnalyticsTracker";
@@ -45,6 +46,7 @@ const RouteFallback = () => (
 function App() {
   return (
     <Router>
+      <StoriesProvider>
       <ErrorBoundary>
         <MotionConfig reducedMotion="user">
         <SkipLink />
@@ -121,6 +123,7 @@ function App() {
         </div>
         </MotionConfig>
       </ErrorBoundary>
+      </StoriesProvider>
     </Router>
   );
 }

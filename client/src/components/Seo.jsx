@@ -1,8 +1,9 @@
 import { useEffect } from 'react';
 
-const SITE_URL =
+const SITE_URL = (
   process.env.REACT_APP_SITE_URL ||
-  (typeof window !== 'undefined' ? window.location.origin : 'https://at-ict-test.vercel.app');
+  (typeof window !== 'undefined' ? window.location.origin : 'https://at-ict-test.vercel.app')
+).replace(/\/$/, '');
 
 const SITE_NAME = 'AT-ICT';
 const SITE_FULL_NAME = 'AT-ICT — IGCSE ICT Mastery';

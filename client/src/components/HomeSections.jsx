@@ -9,38 +9,11 @@ import {
   ChevronLeft
 } from 'lucide-react';
 import { API_ENDPOINTS } from '../config/api';
-import { studentStories } from '../data/studentStories';
-
-const carouselStoriesFallback = studentStories;
+import { useStories } from '../context/StoriesContext';
 
 export const TestimonialsStrip = () => {
-  const [stories, setStories] = useState(carouselStoriesFallback);
-  const [loadingStories, setLoadingStories] = useState(true);
+  const { stories, loading: loadingStories } = useStories();
   const [activeIndex, setActiveIndex] = useState(0);
-
-  useEffect(() => {
-    let mounted = true;
-    const loadStories = async () => {
-      try {
-        const res = await fetch(API_ENDPOINTS.LEADERBOARD.STORIES);
-        if (!res.ok) throw new Error('Failed to fetch stories');
-        const data = await res.json();
-        const fetched = data?.data?.stories || [];
-        if (mounted && fetched.length > 0) {
-          setStories(fetched);
-        }
-      } catch (error) {
-        if (mounted) setStories(carouselStoriesFallback);
-      } finally {
-        if (mounted) setLoadingStories(false);
-      }
-    };
-
-    loadStories();
-    return () => {
-      mounted = false;
-    };
-  }, []);
 
   const goPrev = () => {
     setActiveIndex((prev) => (prev === 0 ? stories.length - 1 : prev - 1));

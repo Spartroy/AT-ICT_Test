@@ -6,6 +6,8 @@ import Footer from '../../components/Footer';
 import Seo from '../../components/Seo';
 import { BookOpen, Clock, CheckCircle, Star, Users, Target, Zap, Award } from 'lucide-react';
 
+const SITE_URL = (process.env.REACT_APP_SITE_URL || 'https://at-ict-test.vercel.app').replace(/\/$/, '');
+
 const curriculumJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'Course',
@@ -14,7 +16,7 @@ const curriculumJsonLd = {
   provider: {
     '@type': 'EducationalOrganization',
     name: 'AT-ICT',
-    sameAs: 'https://at-ict-test.vercel.app'
+    sameAs: SITE_URL
   }
 };
 

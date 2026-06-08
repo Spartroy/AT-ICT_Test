@@ -3,8 +3,7 @@ import { Link } from 'react-router-dom';
 import { Award, Users, Star, Trophy, Target, Zap, CheckCircle, TrendingUp } from 'lucide-react';
 import PP from "../assets/PP.jpg";
 import { motion } from 'framer-motion';
-import { studentStories as studentTestimonials } from '../data/studentStories';
-import { API_ENDPOINTS } from '../config/api';
+import { useStories } from '../context/StoriesContext';
 
 const About = () => {
   // Easter egg states
@@ -13,7 +12,7 @@ const About = () => {
   const [simpleClickCount, setSimpleClickCount] = useState(0);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [inputPassword, setInputPassword] = useState('');
-  const [stories, setStories] = useState(studentTestimonials);
+  const { stories } = useStories();
 
   // Global event listener for password (keyboard)
   useEffect(() => {
@@ -39,27 +38,6 @@ const About = () => {
     };
   }, [password]);
 
-  useEffect(() => {
-    let mounted = true;
-    const loadStories = async () => {
-      try {
-        const response = await fetch(API_ENDPOINTS.LEADERBOARD.STORIES);
-        if (!response.ok) throw new Error('Failed to load stories');
-        const data = await response.json();
-        const fetchedStories = data?.data?.stories || [];
-        if (mounted && fetchedStories.length > 0) {
-          setStories(fetchedStories);
-        }
-      } catch (error) {
-        if (mounted) setStories(studentTestimonials);
-      }
-    };
-
-    loadStories();
-    return () => {
-      mounted = false;
-    };
-  }, []);
 
   // Handle "Simple" word click for mobile easter egg
   const handleSimpleClick = () => {

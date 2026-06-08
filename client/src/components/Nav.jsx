@@ -117,17 +117,12 @@ const Nav = () => {
               <Link
                 key={to}
                 to={to}
-                className={`transition-all duration-300 relative group ${
+                className={`transition-all duration-300 relative group text-[18px] tracking-tight ${
                   isActive
-                    ? 'text-[#CD143F]'
-                    : scrolled ? 'text-gray-800 hover:text-[#CD143F]' : 'text-white hover:text-[#CD143F]'
+                    ? 'text-[#CD143F] font-semibold'
+                    : scrolled ? 'text-gray-800 hover:text-[#CD143F] font-medium' : 'text-white hover:text-[#CD143F] font-medium'
                 }`}
                 style={{
-                  fontFamily: 'Geist, system-ui, sans-serif',
-                  fontWeight: isActive ? '600' : '500',
-                  fontSize: '20px',
-                  lineHeight: '110%',
-                  letterSpacing: '-0.05em',
                   textShadow: scrolled
                     ? '0 1px 2px rgba(0, 0, 0, 0.1)'
                     : '0 1px 3px rgba(0, 0, 0, 0.5)'
@@ -147,63 +142,39 @@ const Nav = () => {
             {/* Login Button */}
             <Link
               to="/signin"
-              className={`flex justify-center items-center transition-all duration-300 relative overflow-hidden group ${
+              className={`flex justify-center items-center w-[106px] h-[42px] px-[14px] rounded-lg text-[18px] font-medium tracking-tight transition-all duration-300 relative overflow-hidden group ${
                 scrolled
-                  ? 'text-gray-700 hover:bg-gray-100'
-                  : 'text-white hover:bg-white hover:bg-opacity-20'
+                  ? 'text-gray-700 hover:bg-gray-100 border border-black/10'
+                  : 'text-white hover:bg-white/20 border border-white/30'
               }`}
               style={{
-                width: '106px',
-                height: '42px',
-                background: scrolled
-                  ? 'rgba(255, 255, 255, 0.8)'
-                  : 'rgba(255, 255, 255, 0.15)',
+                background: scrolled ? 'rgba(255,255,255,0.8)' : 'rgba(255,255,255,0.15)',
                 backdropFilter: 'blur(8px)',
                 WebkitBackdropFilter: 'blur(8px)',
-                border: scrolled
-                  ? '1px solid rgba(0, 0, 0, 0.1)'
-                  : '1px solid rgba(255, 255, 255, 0.3)',
-                borderRadius: '7.15164px',
-                padding: '10.7275px 14.3033px',
-                fontFamily: 'Geist, system-ui, sans-serif',
-                fontWeight: '500',
-                fontSize: '18.5943px',
-                lineHeight: '110%',
-                letterSpacing: '-0.05em',
                 boxShadow: scrolled
-                  ? '0 4px 16px rgba(0, 0, 0, 0.05)'
-                  : '0 4px 16px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.2)',
-                textShadow: scrolled ? 'none' : '0 1px 2px rgba(0, 0, 0, 0.4)'
+                  ? '0 4px 16px rgba(0,0,0,0.05)'
+                  : '0 4px 16px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.2)',
+                textShadow: scrolled ? 'none' : '0 1px 2px rgba(0,0,0,0.4)'
               }}
             >
               <span className="relative z-10">Login</span>
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-20 transition-opacity duration-300 transform -skew-x-12"></div>
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-20 transition-opacity duration-300 -skew-x-12"></div>
             </Link>
 
             {/* Sign Up Button */}
             <Link
               to="/register"
-              className="flex justify-center items-center text-white hover:shadow-xl transition-all duration-300 relative overflow-hidden group"
+              className="flex justify-center items-center w-[121px] h-[42px] px-[14px] rounded-lg text-[18px] font-medium tracking-tight text-white hover:shadow-xl transition-all duration-300 relative overflow-hidden group border border-white/20"
               style={{
-                width: '121px',
-                height: '42px',
                 background: 'linear-gradient(135deg, #CD143F 0%, #A01030 100%)',
                 backdropFilter: 'blur(8px)',
                 WebkitBackdropFilter: 'blur(8px)',
-                borderRadius: '7.15164px',
-                padding: '10.7275px 14.3033px',
-                fontFamily: 'Geist, system-ui, sans-serif',
-                fontWeight: '500',
-                fontSize: '18.5943px',
-                lineHeight: '110%',
-                letterSpacing: '-0.05em',
-                boxShadow: '0 4px 16px rgba(205, 20, 63, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3)',
-                textShadow: '0 1px 2px rgba(0, 0, 0, 0.4)',
-                border: '1px solid rgba(255, 255, 255, 0.2)'
+                boxShadow: '0 4px 16px rgba(205,20,63,0.4), inset 0 1px 0 rgba(255,255,255,0.3)',
+                textShadow: '0 1px 2px rgba(0,0,0,0.4)'
               }}
             >
               <span className="relative z-10">Sign Up</span>
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-30 transition-opacity duration-300 transform -skew-x-12"></div>
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-30 transition-opacity duration-300 -skew-x-12"></div>
             </Link>
           </div>
 
@@ -280,13 +251,12 @@ const Nav = () => {
               <Link
                 to="/signin"
                 onClick={toggleNav}
-                className="text-white text-center hover:bg-white/20 px-8 py-3 rounded-xl font-medium text-[18px] transition-all"
+                className="text-white text-center hover:bg-white/20 px-8 py-3 rounded-xl font-medium text-lg transition-all border border-white/30"
                 style={{
-                  background: 'rgba(255, 255, 255, 0.15)',
+                  background: 'rgba(255,255,255,0.15)',
                   backdropFilter: 'blur(8px)',
                   WebkitBackdropFilter: 'blur(8px)',
-                  border: '1px solid rgba(255, 255, 255, 0.3)',
-                  boxShadow: '0 4px 16px rgba(0, 0, 0, 0.1)'
+                  boxShadow: '0 4px 16px rgba(0,0,0,0.1)'
                 }}
               >
                 Login
@@ -295,13 +265,10 @@ const Nav = () => {
               <Link
                 to="/register"
                 onClick={toggleNav}
-                className="text-white text-center px-8 py-3 rounded-xl font-medium text-[18px] transition-colors"
+                className="text-white text-center px-8 py-3 rounded-xl font-medium text-lg transition-colors border border-white/20"
                 style={{
                   background: 'linear-gradient(135deg, #CD143F 0%, #A01030 100%)',
-                  backdropFilter: 'blur(8px)',
-                  WebkitBackdropFilter: 'blur(8px)',
-                  boxShadow: '0 4px 16px rgba(205, 20, 63, 0.4)',
-                  border: '1px solid rgba(255, 255, 255, 0.2)'
+                  boxShadow: '0 4px 16px rgba(205,20,63,0.4)'
                 }}
               >
                 Sign Up
