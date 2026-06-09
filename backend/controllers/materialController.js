@@ -289,7 +289,7 @@ const getMaterialsForStudent = async (req, res) => {
   }
 };
 
-// @desc    Stream material file for student (no redirect – proxied through server)
+// @desc    Stream material file for student (proxied through server – no client redirect)
 // @route   GET /api/student/materials/:id/download
 // @access  Private (Student)
 const downloadMaterialForStudent = async (req, res) => {
@@ -304,39 +304,74 @@ const downloadMaterialForStudent = async (req, res) => {
       return res.status(404).json({ status: 'error', message: 'Material not found' });
     }
 
-    // Increment download counter before streaming
-    await material.incrementDownload();
-
-    // Derive file extension for Cloudinary's private_download_url
-    const ext = material.fileName
-      ? material.fileName.split('.').pop().toLowerCase()
-      : (material.mimeType || '').split('/').pop() || 'pdf';
-
-    // Generate a short-lived signed download URL via the Cloudinary API.
-    // This bypasses any CDN-level access restrictions on the resource.
-    const signedUrl = cloudinary.utils.private_download_url(
-      material.cloudinaryPublicId,
-      ext,
-      { resource_type: 'auto' }
-    );
-
-    // Fetch the file bytes from Cloudinary on the server side
-    const cloudRes = await fetch(signedUrl);
-    if (!cloudRes.ok) {
-      console.error('Cloudinary fetch failed:', cloudRes.status, await cloudRes.text().catch(() => ''));
-      return res.status(502).json({ status: 'error', message: 'Could not retrieve file from storage' });
+    const fileUrl = material.cloudinaryUrl || material.fileUrl;
+    if (!fileUrl) {
+      return res.status(404).json({ status: 'error', message: 'File not found for this material' });
     }
 
-    // Stream bytes straight to the client — no redirect, no JWT forwarded
-    res.setHeader('Content-Type', material.mimeType || 'application/octet-stream');
-    res.setHeader(
-      'Content-Disposition',
-      `inline; filename="${encodeURIComponent(material.fileName || 'material')}"`
-    );
-    res.setHeader('Cache-Control', 'private, no-store');
+    await material.incrementDownload();
 
-    // Node 18+ Web ReadableStream → Node Readable → pipe to response
-    Readable.fromWeb(cloudRes.body).pipe(res);
+    /* ── Helper: pipe a successful fetch response to the client ── */
+    const streamToClient = (upstream) => {
+      res.setHeader('Content-Type', material.mimeType || 'application/octet-stream');
+      res.setHeader(
+        'Content-Disposition',
+        `inline; filename="${encodeURIComponent(material.fileName || 'material')}"`
+      );
+      res.setHeader('Cache-Control', 'private, no-store');
+      Readable.fromWeb(upstream.body).pipe(res);
+    };
+
+    /* ── Strategy 1: plain server-to-Cloudinary fetch (no auth headers) ──
+     *  Works for 'upload'-type (public) resources. The original 401 was
+     *  caused by the browser forwarding the JWT to Cloudinary; a bare
+     *  server-side request has no such header. */
+    const directRes = await fetch(fileUrl);
+    if (directRes.ok) {
+      return streamToClient(directRes);
+    }
+    console.warn(`[download] Direct fetch ${directRes.status} for ${fileUrl}`);
+
+    /* ── Strategy 2: signed CDN URL (handles Strict-Transformations) ── */
+    if (material.cloudinaryPublicId) {
+      const ext = material.fileName
+        ? material.fileName.split('.').pop().toLowerCase()
+        : (material.mimeType || '').split('/').pop() || 'pdf';
+
+      // cloudinary.url with sign_url:true appends s--HASH-- to the CDN URL,
+      // which satisfies Cloudinary accounts with Strict Transformations enabled.
+      const signedCdnUrl = cloudinary.url(material.cloudinaryPublicId, {
+        sign_url:      true,
+        secure:        true,
+        resource_type: 'image',   // PDFs stored via resource_type:'auto' become 'image'
+        type:          'upload',
+        format:        ext,
+      });
+
+      const signedCdnRes = await fetch(signedCdnUrl);
+      if (signedCdnRes.ok) {
+        return streamToClient(signedCdnRes);
+      }
+      console.warn(`[download] Signed CDN fetch ${signedCdnRes.status} for ${signedCdnUrl}`);
+
+      /* ── Strategy 3: private download API URL ── */
+      const apiDownloadUrl = cloudinary.utils.private_download_url(
+        material.cloudinaryPublicId,
+        ext,
+        { resource_type: 'image' }
+      );
+
+      const apiRes = await fetch(apiDownloadUrl);
+      if (apiRes.ok) {
+        return streamToClient(apiRes);
+      }
+      console.error(`[download] All strategies failed. Last status: ${apiRes.status}`);
+    }
+
+    return res.status(502).json({
+      status:  'error',
+      message: 'Could not retrieve file from storage. Please contact support.',
+    });
 
   } catch (error) {
     console.error('Download material for student error:', error);
