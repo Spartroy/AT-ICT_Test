@@ -31,14 +31,14 @@ const formatFileSize = (bytes) => {
 
 const getFileEmoji = (mimeType) => {
   if (!mimeType) return '📁';
-  if (mimeType.includes('pdf'))                                      return '📄';
-  if (mimeType.includes('word') || mimeType.includes('document'))    return '📝';
-  if (mimeType.includes('powerpoint') || mimeType.includes('pres'))  return '📊';
-  if (mimeType.includes('excel') || mimeType.includes('sheet'))      return '📈';
-  if (mimeType.includes('image'))   return '🖼️';
-  if (mimeType.includes('video'))   return '🎥';
-  if (mimeType.includes('audio'))   return '🎵';
-  if (mimeType.includes('zip'))     return '🗜️';
+  if (mimeType.includes('pdf'))                                     return '📄';
+  if (mimeType.includes('word') || mimeType.includes('document'))   return '📝';
+  if (mimeType.includes('powerpoint') || mimeType.includes('pres')) return '📊';
+  if (mimeType.includes('excel') || mimeType.includes('sheet'))     return '📈';
+  if (mimeType.includes('image')) return '🖼️';
+  if (mimeType.includes('video')) return '🎥';
+  if (mimeType.includes('audio')) return '🎵';
+  if (mimeType.includes('zip'))   return '🗜️';
   return '📁';
 };
 
@@ -49,7 +49,7 @@ const TYPE_CFG = {
     coverGradient: 'from-blue-900 via-blue-800 to-blue-700',
     spineGradient: 'from-blue-950 to-blue-700',
     badge: 'bg-blue-500/20 text-blue-300 border-blue-500/30',
-    tab: 'bg-blue-500/20 text-blue-300',
+    tab:   'bg-blue-500/20 text-blue-300',
   },
   practical: {
     icon: ComputerDesktopIcon,
@@ -57,7 +57,7 @@ const TYPE_CFG = {
     coverGradient: 'from-emerald-900 via-emerald-800 to-emerald-700',
     spineGradient: 'from-emerald-950 to-emerald-700',
     badge: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',
-    tab: 'bg-emerald-500/20 text-emerald-300',
+    tab:   'bg-emerald-500/20 text-emerald-300',
   },
   other: {
     icon: FolderIcon,
@@ -65,7 +65,7 @@ const TYPE_CFG = {
     coverGradient: 'from-violet-900 via-violet-800 to-violet-700',
     spineGradient: 'from-violet-950 to-violet-700',
     badge: 'bg-violet-500/20 text-violet-300 border-violet-500/30',
-    tab: 'bg-violet-500/20 text-violet-300',
+    tab:   'bg-violet-500/20 text-violet-300',
   },
 };
 
@@ -73,10 +73,9 @@ const TYPE_CFG = {
    BookCard
 ───────────────────────────────────────────────────────────────────────────── */
 const BookCard = ({ material, index, onPreview, onDownload, onOpenExternal, isDownloading }) => {
-  const cfg      = TYPE_CFG[material.type] || TYPE_CFG.other;
-  const TypeIcon = cfg.icon;
-  const hasFile  = !!(material.fileUrl || material.cloudinaryUrl);
-  const isPdf    = !!material.mimeType?.includes('pdf');
+  const cfg       = TYPE_CFG[material.type] || TYPE_CFG.other;
+  const hasFile   = !!(material.cloudinaryPublicId || material.fileUrl);
+  const isPdf     = !!material.mimeType?.includes('pdf');
   const hasPreview = hasFile && isPdf;
 
   const handleCardClick = () => {
@@ -93,7 +92,7 @@ const BookCard = ({ material, index, onPreview, onDownload, onOpenExternal, isDo
       style={{ perspective: '900px' }}
       onClick={handleCardClick}
     >
-      {/* Book shell — hover gives 3-D tilt */}
+      {/* Book shell — 3-D tilt on hover */}
       <div
         className="relative flex rounded-xl overflow-hidden
                    shadow-md shadow-black/40
@@ -141,7 +140,7 @@ const BookCard = ({ material, index, onPreview, onDownload, onOpenExternal, isDo
               }}
             />
 
-            {/* Thumbnail */}
+            {/* Thumbnail overlay */}
             {material.thumbnailUrl && (
               <img
                 src={material.thumbnailUrl}
@@ -151,28 +150,27 @@ const BookCard = ({ material, index, onPreview, onDownload, onOpenExternal, isDo
               />
             )}
 
-            {/* Bottom darkening */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
 
-            {/* Top-right: file emoji */}
+            {/* File emoji (top-right) */}
             <div className="absolute top-3 right-3 text-2xl select-none drop-shadow">
               {getFileEmoji(material.mimeType)}
             </div>
 
-            {/* Top-left: type badge */}
+            {/* Type badge */}
             <div className={`absolute top-3 left-3 px-1.5 py-0.5 rounded-md text-[9px]
                              font-bold border backdrop-blur-sm ${cfg.badge}`}>
               {cfg.label}
             </div>
 
-            {/* External link indicator overrides emoji */}
+            {/* External link indicator */}
             {material.externalUrl && (
               <div className="absolute top-3 right-3 p-1.5 rounded-md bg-black/50 backdrop-blur-sm border border-white/10">
                 <LinkIcon className="h-3 w-3 text-white/70" />
               </div>
             )}
 
-            {/* Eye badge on hover for previewable PDFs */}
+            {/* Eye badge on PDF hover */}
             {hasPreview && (
               <div className="absolute inset-0 flex items-center justify-center
                               opacity-0 group-hover:opacity-100 transition-opacity duration-200">
@@ -182,7 +180,7 @@ const BookCard = ({ material, index, onPreview, onDownload, onOpenExternal, isDo
               </div>
             )}
 
-            {/* Title on cover bottom */}
+            {/* Title at bottom of cover */}
             <div className="absolute bottom-0 left-0 right-0 px-3 pb-3 pt-8">
               <h3 className="text-white text-[11px] font-bold line-clamp-3 leading-tight drop-shadow-lg">
                 {material.title}
@@ -190,7 +188,7 @@ const BookCard = ({ material, index, onPreview, onDownload, onOpenExternal, isDo
             </div>
           </div>
 
-          {/* Page-edge lines on right */}
+          {/* Page-edge lines */}
           <div className="absolute right-0 top-0 pointer-events-none" style={{ width: '5px', bottom: '82px' }}>
             {[0, 1, 2].map(i => (
               <div
@@ -205,7 +203,7 @@ const BookCard = ({ material, index, onPreview, onDownload, onOpenExternal, isDo
             ))}
           </div>
 
-          {/* ── Back cover / info strip ── */}
+          {/* Back-cover info strip */}
           <div className="bg-gray-900 border-t border-gray-700/40 px-2.5 py-2 space-y-2">
             <div className="flex items-center justify-between text-[9px] text-gray-500">
               <span className="flex items-center gap-1">
@@ -268,13 +266,16 @@ const BookCard = ({ material, index, onPreview, onDownload, onOpenExternal, isDo
 /* ─────────────────────────────────────────────────────────────────────────────
    PreviewModal
 ───────────────────────────────────────────────────────────────────────────── */
-const PreviewModal = ({ material, onClose, onDownload, isFullscreen, onToggleFullscreen }) => {
+const PreviewModal = ({
+  material, blobUrl, loading, previewError,
+  onClose, onDownload,
+  isFullscreen, onToggleFullscreen,
+}) => {
   if (!material) return null;
 
-  const cfg     = TYPE_CFG[material.type] || TYPE_CFG.other;
-  const fileUrl = material.fileUrl || material.cloudinaryUrl || '';
-  const isPdf   = !!material.mimeType?.includes('pdf');
-  const hasFile = !!fileUrl;
+  const cfg    = TYPE_CFG[material.type] || TYPE_CFG.other;
+  const isPdf  = !!material.mimeType?.includes('pdf');
+  const hasFile = !!(material.cloudinaryPublicId || material.fileUrl);
 
   return (
     <motion.div
@@ -347,17 +348,49 @@ const PreviewModal = ({ material, onClose, onDownload, isFullscreen, onToggleFul
           </div>
         </div>
 
-        {/* ── PDF / Preview area ── */}
+        {/* ── Content area ── */}
         <div className="flex-1 relative bg-gray-950 overflow-hidden">
-          {isPdf && fileUrl ? (
+          {/* Loading spinner */}
+          {loading && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 z-10 bg-gray-950">
+              <div className="w-10 h-10 border-4 border-gray-700 border-t-blue-500 rounded-full animate-spin" />
+              <p className="text-gray-400 text-sm">Loading preview…</p>
+            </div>
+          )}
+
+          {/* Error state */}
+          {!loading && previewError && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 px-8 text-center">
+              <ExclamationCircleIcon className="h-12 w-12 text-red-400" />
+              <p className="text-white font-semibold">Could not load preview</p>
+              <p className="text-gray-400 text-sm">{previewError}</p>
+              {hasFile && (
+                <button
+                  onClick={() => onDownload(material)}
+                  className="flex items-center gap-2 px-6 py-2.5 mt-2
+                             bg-emerald-600 hover:bg-emerald-700 text-white
+                             rounded-xl font-semibold transition-colors"
+                >
+                  <ArrowDownTrayIcon className="h-4 w-4" />
+                  Download instead
+                </button>
+              )}
+            </div>
+          )}
+
+          {/* PDF iframe — shown once blob URL is ready */}
+          {!loading && !previewError && isPdf && blobUrl && (
             <iframe
-              src={fileUrl}
+              src={blobUrl}
               title={material.title}
               className="absolute inset-0 w-full h-full border-0"
               allow="fullscreen"
             />
-          ) : fileUrl ? (
-            <div className="flex flex-col items-center justify-center h-full gap-5 px-8 text-center">
+          )}
+
+          {/* Non-PDF: prompt to download */}
+          {!loading && !previewError && !isPdf && hasFile && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-5 px-8 text-center">
               <div className="text-7xl select-none">{getFileEmoji(material.mimeType)}</div>
               <div>
                 <p className="text-white font-bold text-lg mb-1">{material.title}</p>
@@ -373,10 +406,6 @@ const PreviewModal = ({ material, onClose, onDownload, isFullscreen, onToggleFul
                 Download to view
               </button>
             </div>
-          ) : (
-            <div className="flex items-center justify-center h-full">
-              <p className="text-gray-500 text-sm">No file available to preview.</p>
-            </div>
           )}
         </div>
       </motion.div>
@@ -385,7 +414,7 @@ const PreviewModal = ({ material, onClose, onDownload, isFullscreen, onToggleFul
 };
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   MaterialsTab (main component)
+   MaterialsTab  (main component)
 ───────────────────────────────────────────────────────────────────────────── */
 const MaterialsTab = ({ studentData }) => {
   const [allMaterials, setAllMaterials] = useState([]);
@@ -399,10 +428,20 @@ const MaterialsTab = ({ studentData }) => {
   const [previewMaterial, setPreviewMaterial]   = useState(null);
   const [showPreviewModal, setShowPreviewModal] = useState(false);
   const [isFullscreen, setIsFullscreen]         = useState(false);
+  const [previewBlobUrl, setPreviewBlobUrl]     = useState(null);
+  const [previewLoading, setPreviewLoading]     = useState(false);
+  const [previewError, setPreviewError]         = useState('');
 
   useEffect(() => { fetchMaterials(); }, []);
 
-  /* ── Fetch ─────────────────────────────────────────────────────────────────── */
+  /* Revoke blob URL when component unmounts */
+  useEffect(() => {
+    return () => {
+      if (previewBlobUrl) URL.revokeObjectURL(previewBlobUrl);
+    };
+  }, [previewBlobUrl]);
+
+  /* ── Fetch materials list ──────────────────────────────────────────────────── */
   const fetchMaterials = async () => {
     try {
       setLoading(true);
@@ -425,45 +464,47 @@ const MaterialsTab = ({ studentData }) => {
     }
   };
 
+  /* ── Fetch file blob from backend (authenticated, no Cloudinary redirect) ──── */
+  const fetchBlob = async (materialId) => {
+    const token = localStorage.getItem('token');
+    const res = await fetch(`${API_ENDPOINTS.STUDENT.MATERIALS}/${materialId}/download`, {
+      headers: { 'Authorization': `Bearer ${token}` },
+    });
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      throw new Error(body.message || `Server returned ${res.status}`);
+    }
+    return res.blob();
+  };
+
   /* ── Download ─────────────────────────────────────────────────────────────────
    *
-   * ROOT CAUSE: The old code used fetch(..., { redirect: 'follow' }) which
-   * followed the backend's 302 redirect to Cloudinary while still sending the
-   * JWT Authorization header.  Cloudinary rejected it with 401.
-   *
-   * FIX: Use the fileUrl already returned by GET /materials (no second round-trip
-   * needed).  For Cloudinary URLs we inject the fl_attachment flag to force a
-   * browser download dialog.  We also fire-and-forget the /download endpoint so
-   * the server can still increment the download counter.
+   * The backend now streams the file bytes through the server (no redirect to
+   * Cloudinary).  We receive a Blob, build a local objectURL, and trigger an
+   * anchor download — the browser never touches Cloudinary.
    ──────────────────────────────────────────────────────────────────────────── */
-  const handleDownload = (material) => {
-    const raw = material.fileUrl || material.cloudinaryUrl;
-    if (!raw) { showError('Download link is not available.'); return; }
-
+  const handleDownload = async (material) => {
+    if (downloading) return;
     setDownloading(material._id);
+    try {
+      const blob = await fetchBlob(material._id);
+      const url  = URL.createObjectURL(blob);
 
-    /* Force attachment download for Cloudinary-hosted files */
-    const url = raw.includes('res.cloudinary.com')
-      ? raw.replace('/upload/', '/upload/fl_attachment/')
-      : raw;
+      const a      = document.createElement('a');
+      a.href       = url;
+      a.download   = material.fileName || material.title || 'material';
+      a.rel        = 'noopener noreferrer';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
 
-    const a  = document.createElement('a');
-    a.href   = url;
-    a.download = material.fileName || material.title || 'material';
-    a.target = '_blank';
-    a.rel    = 'noopener noreferrer';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-
-    /* Increment download counter — redirect: 'manual' so we never touch Cloudinary */
-    const token = localStorage.getItem('token');
-    fetch(`${API_ENDPOINTS.STUDENT.MATERIALS}/${material._id}/download`, {
-      headers: { 'Authorization': `Bearer ${token}` },
-      redirect: 'manual',
-    }).catch(() => {});
-
-    setTimeout(() => setDownloading(null), 1200);
+      /* Revoke after a tick so browser has time to start the download */
+      setTimeout(() => URL.revokeObjectURL(url), 2000);
+    } catch (err) {
+      showError(err.message || 'Failed to download. Please try again.');
+    } finally {
+      setDownloading(null);
+    }
   };
 
   const handleOpenExternal = (material) => {
@@ -473,11 +514,50 @@ const MaterialsTab = ({ studentData }) => {
     window.open(url, '_blank', 'noopener,noreferrer');
   };
 
-  const openPreview      = (mat) => { setPreviewMaterial(mat); setShowPreviewModal(true); setIsFullscreen(false); };
-  const closePreview     = ()    => { setShowPreviewModal(false); setPreviewMaterial(null); setIsFullscreen(false); };
-  const toggleFullscreen = ()    => setIsFullscreen(f => !f);
+  /* ── Preview ──────────────────────────────────────────────────────────────────
+   *
+   * For PDFs: fetch blob via backend → createObjectURL → iframe src
+   * Blob URL stays alive until closePreview() revokes it.
+   ──────────────────────────────────────────────────────────────────────────── */
+  const openPreview = async (material) => {
+    /* Revoke any previous blob URL */
+    if (previewBlobUrl) {
+      URL.revokeObjectURL(previewBlobUrl);
+      setPreviewBlobUrl(null);
+    }
 
-  /* ── Derived ────────────────────────────────────────────────────────────────── */
+    setPreviewMaterial(material);
+    setShowPreviewModal(true);
+    setIsFullscreen(false);
+    setPreviewError('');
+
+    const isPdf = !!material.mimeType?.includes('pdf');
+    if (isPdf) {
+      setPreviewLoading(true);
+      try {
+        const blob = await fetchBlob(material._id);
+        setPreviewBlobUrl(URL.createObjectURL(blob));
+      } catch (err) {
+        setPreviewError(err.message || 'Could not load preview.');
+      } finally {
+        setPreviewLoading(false);
+      }
+    }
+  };
+
+  const closePreview = () => {
+    if (previewBlobUrl) URL.revokeObjectURL(previewBlobUrl);
+    setPreviewBlobUrl(null);
+    setPreviewLoading(false);
+    setPreviewError('');
+    setShowPreviewModal(false);
+    setPreviewMaterial(null);
+    setIsFullscreen(false);
+  };
+
+  const toggleFullscreen = () => setIsFullscreen(f => !f);
+
+  /* ── Derived ──────────────────────────────────────────────────────────────── */
   const filteredMaterials = allMaterials.filter(m =>
     m.type === activeSection &&
     (searchTerm === '' || m.title.toLowerCase().includes(searchTerm.toLowerCase()))
@@ -621,6 +701,9 @@ const MaterialsTab = ({ studentData }) => {
         {showPreviewModal && (
           <PreviewModal
             material={previewMaterial}
+            blobUrl={previewBlobUrl}
+            loading={previewLoading}
+            previewError={previewError}
             onClose={closePreview}
             onDownload={handleDownload}
             isFullscreen={isFullscreen}

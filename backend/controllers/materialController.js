@@ -1,7 +1,8 @@
 const Material = require('../models/Material');
 const User = require('../models/User');
 const { validationResult } = require('express-validator');
-const { deleteFromCloudinary, getFileUrl } = require('../config/cloudinary');
+const { deleteFromCloudinary, getFileUrl, cloudinary } = require('../config/cloudinary');
+const { Readable } = require('stream');
 
 // @desc    Get all materials
 // @route   GET /api/teacher/materials
@@ -288,39 +289,60 @@ const getMaterialsForStudent = async (req, res) => {
   }
 };
 
-// @desc    Download material file for student
+// @desc    Stream material file for student (no redirect – proxied through server)
 // @route   GET /api/student/materials/:id/download
 // @access  Private (Student)
 const downloadMaterialForStudent = async (req, res) => {
   try {
     const student = await User.findById(req.user.id);
     if (!student || student.role !== 'student') {
-      return res.status(404).json({
-        status: 'error',
-        message: 'Student profile not found'
-      });
+      return res.status(404).json({ status: 'error', message: 'Student profile not found' });
     }
 
     const material = await Material.findById(req.params.id);
-
     if (!material || !material.isActive) {
-      return res.status(404).json({
-        status: 'error',
-        message: 'Material not found'
-      });
+      return res.status(404).json({ status: 'error', message: 'Material not found' });
     }
 
-    // Increment download count
+    // Increment download counter before streaming
     await material.incrementDownload();
 
-    // Redirect to Cloudinary URL for download
-    res.redirect(material.cloudinaryUrl);
+    // Derive file extension for Cloudinary's private_download_url
+    const ext = material.fileName
+      ? material.fileName.split('.').pop().toLowerCase()
+      : (material.mimeType || '').split('/').pop() || 'pdf';
+
+    // Generate a short-lived signed download URL via the Cloudinary API.
+    // This bypasses any CDN-level access restrictions on the resource.
+    const signedUrl = cloudinary.utils.private_download_url(
+      material.cloudinaryPublicId,
+      ext,
+      { resource_type: 'auto' }
+    );
+
+    // Fetch the file bytes from Cloudinary on the server side
+    const cloudRes = await fetch(signedUrl);
+    if (!cloudRes.ok) {
+      console.error('Cloudinary fetch failed:', cloudRes.status, await cloudRes.text().catch(() => ''));
+      return res.status(502).json({ status: 'error', message: 'Could not retrieve file from storage' });
+    }
+
+    // Stream bytes straight to the client — no redirect, no JWT forwarded
+    res.setHeader('Content-Type', material.mimeType || 'application/octet-stream');
+    res.setHeader(
+      'Content-Disposition',
+      `inline; filename="${encodeURIComponent(material.fileName || 'material')}"`
+    );
+    res.setHeader('Cache-Control', 'private, no-store');
+
+    // Node 18+ Web ReadableStream → Node Readable → pipe to response
+    Readable.fromWeb(cloudRes.body).pipe(res);
+
   } catch (error) {
     console.error('Download material for student error:', error);
-    res.status(500).json({
-      status: 'error',
-      message: 'Server error downloading material'
-    });
+    if (!res.headersSent) {
+      res.status(500).json({ status: 'error', message: 'Server error downloading material' });
+    }
   }
 };
 
