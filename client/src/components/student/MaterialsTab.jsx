@@ -4,128 +4,484 @@ import { API_ENDPOINTS } from '../../config/api';
 import { showError } from '../../utils/toast';
 import {
   BookOpenIcon,
-  DocumentTextIcon,
   ArrowDownTrayIcon,
   EyeIcon,
   FolderIcon,
   AcademicCapIcon,
   ComputerDesktopIcon,
   MagnifyingGlassIcon,
-  UserIcon,
   ExclamationCircleIcon,
   XMarkIcon,
-  CalendarIcon,
-  InformationCircleIcon,
+  ArrowsPointingOutIcon,
+  ArrowsPointingInIcon,
   LinkIcon,
-  ArrowTopRightOnSquareIcon
+  ArrowTopRightOnSquareIcon,
 } from '@heroicons/react/24/outline';
 
+/* ─────────────────────────────────────────────────────────────────────────────
+   Helpers
+───────────────────────────────────────────────────────────────────────────── */
+const formatFileSize = (bytes) => {
+  if (!bytes || bytes === 0) return '—';
+  const k = 1024;
+  const sizes = ['B', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+};
+
+const getFileEmoji = (mimeType) => {
+  if (!mimeType) return '📁';
+  if (mimeType.includes('pdf'))                                      return '📄';
+  if (mimeType.includes('word') || mimeType.includes('document'))    return '📝';
+  if (mimeType.includes('powerpoint') || mimeType.includes('pres'))  return '📊';
+  if (mimeType.includes('excel') || mimeType.includes('sheet'))      return '📈';
+  if (mimeType.includes('image'))   return '🖼️';
+  if (mimeType.includes('video'))   return '🎥';
+  if (mimeType.includes('audio'))   return '🎵';
+  if (mimeType.includes('zip'))     return '🗜️';
+  return '📁';
+};
+
+const TYPE_CFG = {
+  theory: {
+    icon: AcademicCapIcon,
+    label: 'Theory',
+    coverGradient: 'from-blue-900 via-blue-800 to-blue-700',
+    spineGradient: 'from-blue-950 to-blue-700',
+    badge: 'bg-blue-500/20 text-blue-300 border-blue-500/30',
+    tab: 'bg-blue-500/20 text-blue-300',
+  },
+  practical: {
+    icon: ComputerDesktopIcon,
+    label: 'Practical',
+    coverGradient: 'from-emerald-900 via-emerald-800 to-emerald-700',
+    spineGradient: 'from-emerald-950 to-emerald-700',
+    badge: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',
+    tab: 'bg-emerald-500/20 text-emerald-300',
+  },
+  other: {
+    icon: FolderIcon,
+    label: 'Other',
+    coverGradient: 'from-violet-900 via-violet-800 to-violet-700',
+    spineGradient: 'from-violet-950 to-violet-700',
+    badge: 'bg-violet-500/20 text-violet-300 border-violet-500/30',
+    tab: 'bg-violet-500/20 text-violet-300',
+  },
+};
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   BookCard
+───────────────────────────────────────────────────────────────────────────── */
+const BookCard = ({ material, index, onPreview, onDownload, onOpenExternal, isDownloading }) => {
+  const cfg      = TYPE_CFG[material.type] || TYPE_CFG.other;
+  const TypeIcon = cfg.icon;
+  const hasFile  = !!(material.fileUrl || material.cloudinaryUrl);
+  const isPdf    = !!material.mimeType?.includes('pdf');
+  const hasPreview = hasFile && isPdf;
+
+  const handleCardClick = () => {
+    if (hasPreview)                onPreview(material);
+    else if (material.externalUrl) onOpenExternal(material);
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: index * 0.06, type: 'spring', stiffness: 120, damping: 14 }}
+      className="group cursor-pointer select-none"
+      style={{ perspective: '900px' }}
+      onClick={handleCardClick}
+    >
+      {/* Book shell — hover gives 3-D tilt */}
+      <div
+        className="relative flex rounded-xl overflow-hidden
+                   shadow-md shadow-black/40
+                   group-hover:shadow-2xl group-hover:shadow-black/60
+                   transition-shadow duration-300"
+        style={{ transition: 'transform 0.3s ease, box-shadow 0.3s ease' }}
+        onMouseEnter={e => { e.currentTarget.style.transform = 'rotateY(-5deg) translateY(-4px)'; }}
+        onMouseLeave={e => { e.currentTarget.style.transform = 'rotateY(0deg) translateY(0px)'; }}
+      >
+        {/* ── SPINE ── */}
+        <div
+          className={`w-7 flex-shrink-0 bg-gradient-to-b ${cfg.spineGradient}
+                      relative flex items-center justify-center`}
+          style={{ minHeight: '272px' }}
+        >
+          <div className="absolute inset-y-0 left-0 w-px bg-white/15" />
+          <div className="absolute inset-y-0 right-0 w-px bg-black/40" />
+          <span
+            className="text-white/70 font-bold text-[7px] tracking-widest uppercase overflow-hidden"
+            style={{
+              writingMode: 'vertical-rl',
+              textOrientation: 'mixed',
+              transform: 'rotate(180deg)',
+              maxHeight: '120px',
+              display: '-webkit-box',
+              WebkitLineClamp: 1,
+              WebkitBoxOrient: 'vertical',
+            }}
+          >
+            {material.title}
+          </span>
+        </div>
+
+        {/* ── BOOK BODY ── */}
+        <div className="flex-1 flex flex-col" style={{ minHeight: '272px' }}>
+
+          {/* Cover graphic */}
+          <div className={`relative flex-1 bg-gradient-to-br ${cfg.coverGradient} overflow-hidden`}>
+            {/* Lined-paper texture */}
+            <div
+              className="absolute inset-0 opacity-[0.04]"
+              style={{
+                backgroundImage:
+                  'repeating-linear-gradient(0deg,transparent,transparent 22px,rgba(255,255,255,.6) 22px,rgba(255,255,255,.6) 23px)',
+              }}
+            />
+
+            {/* Thumbnail */}
+            {material.thumbnailUrl && (
+              <img
+                src={material.thumbnailUrl}
+                alt={material.title}
+                className="absolute inset-0 w-full h-full object-cover opacity-30"
+                onError={e => { e.target.style.display = 'none'; }}
+              />
+            )}
+
+            {/* Bottom darkening */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
+
+            {/* Top-right: file emoji */}
+            <div className="absolute top-3 right-3 text-2xl select-none drop-shadow">
+              {getFileEmoji(material.mimeType)}
+            </div>
+
+            {/* Top-left: type badge */}
+            <div className={`absolute top-3 left-3 px-1.5 py-0.5 rounded-md text-[9px]
+                             font-bold border backdrop-blur-sm ${cfg.badge}`}>
+              {cfg.label}
+            </div>
+
+            {/* External link indicator overrides emoji */}
+            {material.externalUrl && (
+              <div className="absolute top-3 right-3 p-1.5 rounded-md bg-black/50 backdrop-blur-sm border border-white/10">
+                <LinkIcon className="h-3 w-3 text-white/70" />
+              </div>
+            )}
+
+            {/* Eye badge on hover for previewable PDFs */}
+            {hasPreview && (
+              <div className="absolute inset-0 flex items-center justify-center
+                              opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                <div className="bg-white/15 backdrop-blur-sm rounded-full p-3 border border-white/20 shadow-lg">
+                  <EyeIcon className="h-6 w-6 text-white" />
+                </div>
+              </div>
+            )}
+
+            {/* Title on cover bottom */}
+            <div className="absolute bottom-0 left-0 right-0 px-3 pb-3 pt-8">
+              <h3 className="text-white text-[11px] font-bold line-clamp-3 leading-tight drop-shadow-lg">
+                {material.title}
+              </h3>
+            </div>
+          </div>
+
+          {/* Page-edge lines on right */}
+          <div className="absolute right-0 top-0 pointer-events-none" style={{ width: '5px', bottom: '82px' }}>
+            {[0, 1, 2].map(i => (
+              <div
+                key={i}
+                className="absolute inset-0"
+                style={{
+                  right: `${i * 1.5}px`,
+                  background: 'rgba(255,255,255,0.04)',
+                  borderRight: '1px solid rgba(255,255,255,0.06)',
+                }}
+              />
+            ))}
+          </div>
+
+          {/* ── Back cover / info strip ── */}
+          <div className="bg-gray-900 border-t border-gray-700/40 px-2.5 py-2 space-y-2">
+            <div className="flex items-center justify-between text-[9px] text-gray-500">
+              <span className="flex items-center gap-1">
+                <ArrowDownTrayIcon className="h-2.5 w-2.5" />
+                {material.downloadCount || 0}
+              </span>
+              {material.fileSize > 0 && <span>{formatFileSize(material.fileSize)}</span>}
+            </div>
+
+            <div className="flex gap-1">
+              {/* Preview — PDF only */}
+              {hasPreview && (
+                <button
+                  onClick={e => { e.stopPropagation(); onPreview(material); }}
+                  className="flex-1 flex items-center justify-center gap-1 py-1.5 rounded-lg
+                             text-[10px] font-semibold bg-gray-700/70 hover:bg-gray-600/80
+                             text-gray-200 border border-gray-600/40 transition-all"
+                >
+                  <EyeIcon className="h-3 w-3" />
+                  Preview
+                </button>
+              )}
+
+              {/* Download / Open */}
+              {material.externalUrl ? (
+                <button
+                  onClick={e => { e.stopPropagation(); onOpenExternal(material); }}
+                  className={`${hasPreview ? 'flex-1' : 'w-full'} flex items-center justify-center gap-1 py-1.5
+                              rounded-lg text-[10px] font-semibold
+                              bg-violet-600/20 hover:bg-violet-600/30 text-violet-300
+                              border border-violet-500/30 transition-all`}
+                >
+                  <ArrowTopRightOnSquareIcon className="h-3 w-3" />
+                  Open
+                </button>
+              ) : hasFile ? (
+                <button
+                  onClick={e => { e.stopPropagation(); onDownload(material); }}
+                  disabled={isDownloading}
+                  className={`${hasPreview ? 'flex-1' : 'w-full'} flex items-center justify-center gap-1 py-1.5
+                              rounded-lg text-[10px] font-semibold transition-all
+                              ${isDownloading
+                                ? 'bg-gray-700/40 text-gray-500 cursor-not-allowed border border-gray-600/20'
+                                : 'bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30'}`}
+                >
+                  {isDownloading
+                    ? <div className="w-2.5 h-2.5 border-[1.5px] border-gray-500/30 border-t-gray-300 rounded-full animate-spin" />
+                    : <ArrowDownTrayIcon className="h-3 w-3" />}
+                  {isDownloading ? '…' : 'Save'}
+                </button>
+              ) : null}
+            </div>
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
+};
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   PreviewModal
+───────────────────────────────────────────────────────────────────────────── */
+const PreviewModal = ({ material, onClose, onDownload, isFullscreen, onToggleFullscreen }) => {
+  if (!material) return null;
+
+  const cfg     = TYPE_CFG[material.type] || TYPE_CFG.other;
+  const fileUrl = material.fileUrl || material.cloudinaryUrl || '';
+  const isPdf   = !!material.mimeType?.includes('pdf');
+  const hasFile = !!fileUrl;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center z-50"
+      style={{ padding: isFullscreen ? 0 : '12px' }}
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ opacity: 0, scale: 0.93, y: 18 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.93, y: 18 }}
+        transition={{ type: 'spring', stiffness: 300, damping: 28 }}
+        className={`bg-gray-900 border border-gray-700/50 flex flex-col overflow-hidden shadow-2xl
+          ${isFullscreen ? 'w-full h-full rounded-none' : 'w-full max-w-5xl rounded-2xl'}`}
+        style={{ height: isFullscreen ? '100dvh' : '88vh' }}
+        onClick={e => e.stopPropagation()}
+      >
+        {/* ── Header ── */}
+        <div className="flex items-center justify-between gap-3 px-4 py-3
+                        border-b border-gray-700/60 bg-gray-900/90 flex-shrink-0">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className={`flex-shrink-0 w-8 h-8 rounded-lg bg-gradient-to-br ${cfg.coverGradient}
+                            flex items-center justify-center shadow-sm`}>
+              {React.createElement(cfg.icon, { className: 'h-4 w-4 text-white' })}
+            </div>
+            <div className="min-w-0">
+              <p className="text-sm font-bold text-white truncate">{material.title}</p>
+              <span className={`text-[9px] font-bold uppercase tracking-wider border px-1.5 py-0.5 rounded ${cfg.badge}`}>
+                {cfg.label}
+              </span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-1.5 flex-shrink-0">
+            {/* Download */}
+            {!material.externalUrl && hasFile && (
+              <button
+                onClick={() => onDownload(material)}
+                className="flex items-center gap-1.5 px-3 py-1.5
+                           bg-emerald-600/20 hover:bg-emerald-600/30
+                           text-emerald-300 border border-emerald-500/30
+                           rounded-lg text-xs font-semibold transition-all"
+              >
+                <ArrowDownTrayIcon className="h-3.5 w-3.5" />
+                Download
+              </button>
+            )}
+
+            {/* Fullscreen toggle */}
+            <button
+              onClick={onToggleFullscreen}
+              title={isFullscreen ? 'Exit fullscreen' : 'Fullscreen'}
+              className="p-2 text-gray-400 hover:text-white hover:bg-gray-700/60 rounded-lg transition-all"
+            >
+              {isFullscreen
+                ? <ArrowsPointingInIcon  className="h-4 w-4" />
+                : <ArrowsPointingOutIcon className="h-4 w-4" />}
+            </button>
+
+            {/* Close */}
+            <button
+              onClick={onClose}
+              className="p-2 text-gray-400 hover:text-white hover:bg-red-600/20 rounded-lg transition-all"
+            >
+              <XMarkIcon className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+
+        {/* ── PDF / Preview area ── */}
+        <div className="flex-1 relative bg-gray-950 overflow-hidden">
+          {isPdf && fileUrl ? (
+            <iframe
+              src={fileUrl}
+              title={material.title}
+              className="absolute inset-0 w-full h-full border-0"
+              allow="fullscreen"
+            />
+          ) : fileUrl ? (
+            <div className="flex flex-col items-center justify-center h-full gap-5 px-8 text-center">
+              <div className="text-7xl select-none">{getFileEmoji(material.mimeType)}</div>
+              <div>
+                <p className="text-white font-bold text-lg mb-1">{material.title}</p>
+                <p className="text-gray-400 text-sm">Preview is not available for this file type.</p>
+              </div>
+              <button
+                onClick={() => onDownload(material)}
+                className="flex items-center gap-2 px-6 py-2.5
+                           bg-emerald-600 hover:bg-emerald-700 text-white
+                           rounded-xl font-semibold transition-colors shadow-lg"
+              >
+                <ArrowDownTrayIcon className="h-4 w-4" />
+                Download to view
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center justify-center h-full">
+              <p className="text-gray-500 text-sm">No file available to preview.</p>
+            </div>
+          )}
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+};
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   MaterialsTab (main component)
+───────────────────────────────────────────────────────────────────────────── */
 const MaterialsTab = ({ studentData }) => {
-  const [materials, setMaterials]       = useState({ theory: [], practical: [], other: [] });
   const [allMaterials, setAllMaterials] = useState([]);
   const [loading, setLoading]           = useState(true);
   const [activeSection, setActiveSection] = useState('theory');
   const [searchTerm, setSearchTerm]     = useState('');
   const [error, setError]               = useState('');
-  const [selectedMaterial, setSelectedMaterial] = useState(null);
-  const [showDetailModal, setShowDetailModal]   = useState(false);
   const [downloading, setDownloading]   = useState(null);
+
+  /* Preview modal */
+  const [previewMaterial, setPreviewMaterial]   = useState(null);
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
+  const [isFullscreen, setIsFullscreen]         = useState(false);
 
   useEffect(() => { fetchMaterials(); }, []);
 
+  /* ── Fetch ─────────────────────────────────────────────────────────────────── */
   const fetchMaterials = async () => {
     try {
       setLoading(true);
       setError('');
       const token = localStorage.getItem('token');
-      const response = await fetch(API_ENDPOINTS.STUDENT.MATERIALS, {
-        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
+      const res = await fetch(API_ENDPOINTS.STUDENT.MATERIALS, {
+        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
       });
-      if (response.ok) {
-        const data = await response.json();
-        setMaterials(data.data.materials);
+      if (res.ok) {
+        const data = await res.json();
         setAllMaterials(data.data.allMaterials);
       } else {
-        const errorData = await response.json();
-        setError(errorData.message || 'Failed to fetch materials');
+        const err = await res.json().catch(() => ({}));
+        setError(err.message || 'Failed to fetch materials');
       }
-    } catch (err) {
+    } catch {
       setError('Network error — could not load materials.');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDownload = async (materialId, fileName) => {
-    try {
-      setDownloading(materialId);
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${API_ENDPOINTS.STUDENT.MATERIALS}/${materialId}/download`, {
-        headers: { 'Authorization': `Bearer ${token}` },
-        redirect: 'follow'
-      });
-      if (response.ok) {
-        window.open(response.url, '_blank');
-      } else {
-        const errorData = await response.json();
-        showError(errorData.message || 'Failed to download material');
-      }
-    } catch {
-      showError('Failed to download material. Please try again.');
-    } finally {
-      setDownloading(null);
-    }
+  /* ── Download ─────────────────────────────────────────────────────────────────
+   *
+   * ROOT CAUSE: The old code used fetch(..., { redirect: 'follow' }) which
+   * followed the backend's 302 redirect to Cloudinary while still sending the
+   * JWT Authorization header.  Cloudinary rejected it with 401.
+   *
+   * FIX: Use the fileUrl already returned by GET /materials (no second round-trip
+   * needed).  For Cloudinary URLs we inject the fl_attachment flag to force a
+   * browser download dialog.  We also fire-and-forget the /download endpoint so
+   * the server can still increment the download counter.
+   ──────────────────────────────────────────────────────────────────────────── */
+  const handleDownload = (material) => {
+    const raw = material.fileUrl || material.cloudinaryUrl;
+    if (!raw) { showError('Download link is not available.'); return; }
+
+    setDownloading(material._id);
+
+    /* Force attachment download for Cloudinary-hosted files */
+    const url = raw.includes('res.cloudinary.com')
+      ? raw.replace('/upload/', '/upload/fl_attachment/')
+      : raw;
+
+    const a  = document.createElement('a');
+    a.href   = url;
+    a.download = material.fileName || material.title || 'material';
+    a.target = '_blank';
+    a.rel    = 'noopener noreferrer';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+
+    /* Increment download counter — redirect: 'manual' so we never touch Cloudinary */
+    const token = localStorage.getItem('token');
+    fetch(`${API_ENDPOINTS.STUDENT.MATERIALS}/${material._id}/download`, {
+      headers: { 'Authorization': `Bearer ${token}` },
+      redirect: 'manual',
+    }).catch(() => {});
+
+    setTimeout(() => setDownloading(null), 1200);
   };
 
   const handleOpenExternal = (material) => {
-    const url = material.externalUrl.includes('/view')
+    const url = material.externalUrl?.includes('/view')
       ? material.externalUrl.replace('/view', '/preview')
       : material.externalUrl;
-    window.open(url, '_blank');
+    window.open(url, '_blank', 'noopener,noreferrer');
   };
 
-  const openDetailModal = (material) => {
-    setSelectedMaterial(material);
-    setShowDetailModal(true);
-  };
+  const openPreview      = (mat) => { setPreviewMaterial(mat); setShowPreviewModal(true); setIsFullscreen(false); };
+  const closePreview     = ()    => { setShowPreviewModal(false); setPreviewMaterial(null); setIsFullscreen(false); };
+  const toggleFullscreen = ()    => setIsFullscreen(f => !f);
 
-  const closeDetailModal = () => {
-    setShowDetailModal(false);
-    setSelectedMaterial(null);
-  };
-
-  const formatFileSize = (bytes) => {
-    if (!bytes || bytes === 0) return '—';
-    const k = 1024;
-    const sizes = ['B', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
-  };
-
-  const getFileEmoji = (mimeType) => {
-    if (!mimeType) return '📁';
-    if (mimeType.includes('pdf'))                          return '📄';
-    if (mimeType.includes('word') || mimeType.includes('document')) return '📝';
-    if (mimeType.includes('powerpoint') || mimeType.includes('presentation')) return '📊';
-    if (mimeType.includes('excel') || mimeType.includes('sheet')) return '📈';
-    if (mimeType.includes('image'))  return '🖼️';
-    if (mimeType.includes('video'))  return '🎥';
-    if (mimeType.includes('audio'))  return '🎵';
-    if (mimeType.includes('zip'))    return '🗜️';
-    return '📁';
-  };
-
-  const typeConfig = {
-    theory:    { icon: AcademicCapIcon,    label: 'Theory',    gradient: 'from-blue-600 to-blue-800',    badge: 'bg-blue-500/20 text-blue-300 border-blue-500/30',    tab: 'bg-blue-500/20 text-blue-300' },
-    practical: { icon: ComputerDesktopIcon, label: 'Practical', gradient: 'from-emerald-600 to-emerald-800', badge: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30', tab: 'bg-emerald-500/20 text-emerald-300' },
-    other:     { icon: FolderIcon,          label: 'Other',     gradient: 'from-violet-600 to-violet-800',  badge: 'bg-violet-500/20 text-violet-300 border-violet-500/30',  tab: 'bg-violet-500/20 text-violet-300' },
-  };
-
-  const getFilteredMaterials = () =>
-    allMaterials.filter(m =>
-      m.type === activeSection &&
-      (searchTerm === '' || m.title.toLowerCase().includes(searchTerm.toLowerCase()))
-    );
+  /* ── Derived ────────────────────────────────────────────────────────────────── */
+  const filteredMaterials = allMaterials.filter(m =>
+    m.type === activeSection &&
+    (searchTerm === '' || m.title.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
 
   const counts = {
     theory:    allMaterials.filter(m => m.type === 'theory').length,
@@ -133,19 +489,16 @@ const MaterialsTab = ({ studentData }) => {
     other:     allMaterials.filter(m => m.type === 'other').length,
   };
 
-  // ── Loading skeleton ─────────────────────────────────────────────────────────
+  /* ── Loading skeleton ───────────────────────────────────────────────────────── */
   if (loading) {
     return (
       <div className="space-y-6 bg-gray-800/60 rounded-2xl p-6 shadow-2xl backdrop-blur-sm border border-gray-700/50">
         <div className="h-8 bg-gray-700/50 rounded-xl w-52 animate-pulse" />
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {[...Array(8)].map((_, i) => (
-            <div key={i} className="bg-gray-700/30 rounded-2xl overflow-hidden animate-pulse">
-              <div className="h-52 bg-gray-700/50" />
-              <div className="p-4 space-y-2">
-                <div className="h-4 bg-gray-700/50 rounded w-3/4" />
-                <div className="h-3 bg-gray-700/30 rounded w-1/2" />
-              </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+          {[...Array(10)].map((_, i) => (
+            <div key={i} className="flex animate-pulse rounded-xl overflow-hidden" style={{ height: '272px' }}>
+              <div className="w-7 bg-gray-700/60 flex-shrink-0" />
+              <div className="flex-1 bg-gray-700/30" />
             </div>
           ))}
         </div>
@@ -153,7 +506,7 @@ const MaterialsTab = ({ studentData }) => {
     );
   }
 
-  // ── Error state ──────────────────────────────────────────────────────────────
+  /* ── Error state ────────────────────────────────────────────────────────────── */
   if (error) {
     return (
       <div className="bg-gray-800/60 rounded-2xl p-12 text-center border border-red-900/40 shadow-2xl">
@@ -172,110 +525,7 @@ const MaterialsTab = ({ studentData }) => {
     );
   }
 
-  const filteredMaterials = getFilteredMaterials();
-
-  // ── Material Card ────────────────────────────────────────────────────────────
-  const MaterialCard = ({ material, index }) => {
-    const cfg = typeConfig[material.type] || typeConfig.other;
-    const TypeIcon = cfg.icon;
-    const isDownloading = downloading === material._id;
-
-    return (
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: index * 0.06 }}
-        className="group relative bg-gray-900/70 rounded-2xl overflow-hidden border border-gray-700/40 hover:border-gray-600/60 shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer"
-        onClick={() => openDetailModal(material)}
-      >
-        {/* Cover */}
-        <div className="relative h-48 overflow-hidden">
-          {material.thumbnailUrl ? (
-            <img
-              src={material.thumbnailUrl}
-              alt={material.title}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-              onError={(e) => {
-                e.target.style.display = 'none';
-                e.target.nextSibling.style.display = 'flex';
-              }}
-            />
-          ) : null}
-
-          {/* Gradient fallback */}
-          <div
-            className={`absolute inset-0 bg-gradient-to-br ${cfg.gradient} flex flex-col items-center justify-center text-white`}
-            style={{ display: material.thumbnailUrl ? 'none' : 'flex' }}
-          >
-            <TypeIcon className="h-14 w-14 opacity-70 mb-2" />
-            <span className="text-3xl">{getFileEmoji(material.mimeType)}</span>
-          </div>
-
-          {/* Gradient overlay on image */}
-          {material.thumbnailUrl && (
-            <div className="absolute inset-0 bg-gradient-to-t from-gray-900/80 via-transparent to-transparent" />
-          )}
-
-          {/* Type badge */}
-          <div className={`absolute top-3 left-3 px-2.5 py-1 rounded-lg text-xs font-semibold border backdrop-blur-sm ${cfg.badge}`}>
-            {cfg.label}
-          </div>
-
-          {/* External link badge */}
-          {material.externalUrl && (
-            <div className="absolute top-3 right-3 p-1.5 rounded-lg bg-black/40 backdrop-blur-sm border border-white/10">
-              <LinkIcon className="h-3.5 w-3.5 text-white/80" />
-            </div>
-          )}
-        </div>
-
-        {/* Info */}
-        <div className="p-4">
-          <h3 className="text-sm font-bold text-white line-clamp-2 mb-3 leading-snug">
-            {material.title}
-          </h3>
-
-          <div className="flex items-center justify-between text-xs text-gray-500 mb-4">
-            <div className="flex items-center gap-1">
-              <ArrowDownTrayIcon className="h-3.5 w-3.5" />
-              <span>{material.downloadCount || 0} downloads</span>
-            </div>
-            {material.fileSize > 0 && (
-              <span>{formatFileSize(material.fileSize)}</span>
-            )}
-          </div>
-
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              if (material.externalUrl) {
-                handleOpenExternal(material);
-              } else {
-                handleDownload(material._id, material.fileName);
-              }
-            }}
-            disabled={isDownloading}
-            className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200
-              ${material.externalUrl
-                ? 'bg-violet-600/20 hover:bg-violet-600/30 text-violet-300 border border-violet-500/30'
-                : 'bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30'
-              } ${isDownloading ? 'opacity-60 cursor-not-allowed' : ''}`}
-          >
-            {isDownloading ? (
-              <div className="w-4 h-4 border-2 border-emerald-400/40 border-t-emerald-400 rounded-full animate-spin" />
-            ) : material.externalUrl ? (
-              <ArrowTopRightOnSquareIcon className="h-4 w-4" />
-            ) : (
-              <ArrowDownTrayIcon className="h-4 w-4" />
-            )}
-            {isDownloading ? 'Opening…' : material.externalUrl ? 'Open Link' : 'Download'}
-          </button>
-        </div>
-      </motion.div>
-    );
-  };
-
-  // ── Main Render ──────────────────────────────────────────────────────────────
+  /* ── Render ─────────────────────────────────────────────────────────────────── */
   return (
     <div className="space-y-6 bg-gray-800/60 rounded-2xl p-6 shadow-2xl backdrop-blur-sm border border-gray-700/50">
 
@@ -287,38 +537,39 @@ const MaterialsTab = ({ studentData }) => {
           </div>
           <div>
             <h2 className="text-xl font-bold text-white">Learning Materials</h2>
-            <p className="text-sm text-gray-400 mt-0.5">Access and download your course materials</p>
+            <p className="text-sm text-gray-400 mt-0.5">Your course library</p>
           </div>
         </div>
 
-        {/* Search */}
         <div className="relative lg:w-72">
           <MagnifyingGlassIcon className="h-4 w-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
           <input
             type="text"
             placeholder="Search materials…"
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-gray-900/70 border border-gray-700/50 rounded-xl text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#CA133E]/50 focus:border-transparent transition-all"
+            onChange={e => setSearchTerm(e.target.value)}
+            className="w-full pl-10 pr-4 py-2.5 bg-gray-900/70 border border-gray-700/50 rounded-xl
+                       text-sm text-white placeholder-gray-500
+                       focus:outline-none focus:ring-2 focus:ring-[#CA133E]/50 focus:border-transparent transition-all"
           />
         </div>
       </div>
 
-      {/* Type tabs */}
+      {/* Section tabs */}
       <div className="flex flex-wrap items-center gap-2">
-        {(['theory', 'practical', 'other']).map((type) => {
-          const cfg = typeConfig[type];
+        {(['theory', 'practical', 'other']).map(type => {
+          const cfg      = TYPE_CFG[type];
           const TypeIcon = cfg.icon;
           const isActive = activeSection === type;
           return (
             <button
               key={type}
               onClick={() => setActiveSection(type)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 border
-                ${isActive
-                  ? `${cfg.tab} border-current shadow-sm`
-                  : 'text-gray-400 border-gray-700/50 hover:text-white hover:border-gray-600/50 bg-gray-900/40'
-                }`}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold
+                          transition-all duration-200 border
+                          ${isActive
+                            ? `${cfg.tab} border-current shadow-sm`
+                            : 'text-gray-400 border-gray-700/50 hover:text-white hover:border-gray-600/50 bg-gray-900/40'}`}
             >
               <TypeIcon className="h-4 w-4" />
               {cfg.label}
@@ -336,145 +587,45 @@ const MaterialsTab = ({ studentData }) => {
         </span>
       </div>
 
-      {/* Grid */}
+      {/* Books grid */}
       {filteredMaterials.length === 0 ? (
         <div className="py-20 text-center rounded-2xl border-2 border-dashed border-gray-700/50 bg-gray-900/30">
-          {React.createElement(typeConfig[activeSection].icon, { className: 'h-14 w-14 mx-auto text-gray-600 mb-4' })}
+          {React.createElement(TYPE_CFG[activeSection].icon, { className: 'h-14 w-14 mx-auto text-gray-600 mb-4' })}
           <h3 className="text-base font-semibold text-white mb-1">
             {searchTerm ? 'No matching materials' : `No ${activeSection} materials yet`}
           </h3>
           <p className="text-sm text-gray-500">
             {searchTerm
               ? 'Try a different search term.'
-              : 'Your teacher hasn\'t uploaded any yet. Check back soon.'}
+              : "Your teacher hasn't uploaded any yet. Check back soon."}
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 gap-4">
           {filteredMaterials.map((material, index) => (
-            <MaterialCard key={material._id} material={material} index={index} />
+            <BookCard
+              key={material._id}
+              material={material}
+              index={index}
+              onPreview={openPreview}
+              onDownload={handleDownload}
+              onOpenExternal={handleOpenExternal}
+              isDownloading={downloading === material._id}
+            />
           ))}
         </div>
       )}
 
-      {/* Detail Modal */}
+      {/* PDF Preview Modal */}
       <AnimatePresence>
-        {showDetailModal && selectedMaterial && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4"
-            onClick={closeDetailModal}
-          >
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 10 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 10 }}
-              className="bg-gray-900 border border-gray-700/60 rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden"
-              onClick={(e) => e.stopPropagation()}
-            >
-              {/* Cover preview */}
-              <div className="relative h-52 overflow-hidden">
-                {selectedMaterial.thumbnailUrl ? (
-                  <img
-                    src={selectedMaterial.thumbnailUrl}
-                    alt={selectedMaterial.title}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      e.target.style.display = 'none';
-                      e.target.nextSibling.style.display = 'flex';
-                    }}
-                  />
-                ) : null}
-                <div
-                  className={`absolute inset-0 bg-gradient-to-br ${typeConfig[selectedMaterial.type]?.gradient || 'from-gray-600 to-gray-800'} flex items-center justify-center`}
-                  style={{ display: selectedMaterial.thumbnailUrl ? 'none' : 'flex' }}
-                >
-                  {React.createElement(typeConfig[selectedMaterial.type]?.icon || FolderIcon, { className: 'h-20 w-20 text-white/60' })}
-                </div>
-                <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-transparent to-transparent" />
-                <button
-                  onClick={closeDetailModal}
-                  className="absolute top-3 right-3 p-2 bg-black/50 hover:bg-black/70 rounded-xl backdrop-blur-sm transition-colors"
-                >
-                  <XMarkIcon className="h-5 w-5 text-white" />
-                </button>
-              </div>
-
-              {/* Content */}
-              <div className="p-6 space-y-4">
-                <div>
-                  <h2 className="text-lg font-bold text-white leading-snug">{selectedMaterial.title}</h2>
-                  <span className={`inline-flex items-center gap-1.5 mt-2 px-2.5 py-1 rounded-lg text-xs font-semibold border ${typeConfig[selectedMaterial.type]?.badge}`}>
-                    {React.createElement(typeConfig[selectedMaterial.type]?.icon || FolderIcon, { className: 'h-3.5 w-3.5' })}
-                    {typeConfig[selectedMaterial.type]?.label || selectedMaterial.type}
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  {selectedMaterial.uploadedBy && (
-                    <div className="bg-gray-800/60 rounded-xl p-3">
-                      <p className="text-xs text-gray-500 mb-1">Uploaded by</p>
-                      <p className="text-sm font-semibold text-white flex items-center gap-1.5">
-                        <UserIcon className="h-4 w-4 text-gray-400" />
-                        The {selectedMaterial.uploadedBy.lastName}
-                      </p>
-                    </div>
-                  )}
-                  <div className="bg-gray-800/60 rounded-xl p-3">
-                    <p className="text-xs text-gray-500 mb-1">Added</p>
-                    <p className="text-sm font-semibold text-white flex items-center gap-1.5">
-                      <CalendarIcon className="h-4 w-4 text-gray-400" />
-                      {new Date(selectedMaterial.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                    </p>
-                  </div>
-                  <div className="bg-gray-800/60 rounded-xl p-3">
-                    <p className="text-xs text-gray-500 mb-1">Downloads</p>
-                    <p className="text-sm font-semibold text-white flex items-center gap-1.5">
-                      <ArrowDownTrayIcon className="h-4 w-4 text-gray-400" />
-                      {selectedMaterial.downloadCount || 0} times
-                    </p>
-                  </div>
-                  {selectedMaterial.fileSize > 0 && (
-                    <div className="bg-gray-800/60 rounded-xl p-3">
-                      <p className="text-xs text-gray-500 mb-1">File size</p>
-                      <p className="text-sm font-semibold text-white flex items-center gap-1.5">
-                        <span className="text-base">{getFileEmoji(selectedMaterial.mimeType)}</span>
-                        {formatFileSize(selectedMaterial.fileSize)}
-                      </p>
-                    </div>
-                  )}
-                </div>
-
-                <div className="flex gap-3 pt-2">
-                  {selectedMaterial.externalUrl ? (
-                    <button
-                      onClick={() => { handleOpenExternal(selectedMaterial); closeDetailModal(); }}
-                      className="flex-1 flex items-center justify-center gap-2 py-3 bg-violet-600 hover:bg-violet-700 text-white rounded-xl font-semibold transition-colors"
-                    >
-                      <ArrowTopRightOnSquareIcon className="h-5 w-5" />
-                      Open Link
-                    </button>
-                  ) : (
-                    <button
-                      onClick={() => { handleDownload(selectedMaterial._id, selectedMaterial.fileName); closeDetailModal(); }}
-                      className="flex-1 flex items-center justify-center gap-2 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-semibold transition-colors"
-                    >
-                      <ArrowDownTrayIcon className="h-5 w-5" />
-                      Download
-                    </button>
-                  )}
-                  <button
-                    onClick={closeDetailModal}
-                    className="px-5 py-3 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-xl font-semibold transition-colors"
-                  >
-                    Close
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
+        {showPreviewModal && (
+          <PreviewModal
+            material={previewMaterial}
+            onClose={closePreview}
+            onDownload={handleDownload}
+            isFullscreen={isFullscreen}
+            onToggleFullscreen={toggleFullscreen}
+          />
         )}
       </AnimatePresence>
     </div>
