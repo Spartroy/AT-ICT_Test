@@ -3,48 +3,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { TrophyIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 import { API_ENDPOINTS } from '../../config/api';
 
-const MEDALS = [
-  {
-    rank: 1,
-    label: '1st',
-    bg: 'bg-gradient-to-br from-yellow-400 to-yellow-600',
-    border: 'border-yellow-400',
-    text: 'text-yellow-400',
-    glow: 'shadow-yellow-500/40',
-    icon: '🥇'
-  },
-  {
-    rank: 2,
-    label: '2nd',
-    bg: 'bg-gradient-to-br from-gray-300 to-gray-500',
-    border: 'border-gray-400',
-    text: 'text-gray-300',
-    glow: 'shadow-gray-400/40',
-    icon: '🥈'
-  },
-  {
-    rank: 3,
-    label: '3rd',
-    bg: 'bg-gradient-to-br from-amber-600 to-amber-800',
-    border: 'border-amber-600',
-    text: 'text-amber-500',
-    glow: 'shadow-amber-600/40',
-    icon: '🥉'
-  }
-];
-
-const AvatarCircle = ({ firstName, lastName, medal, isYou }) => {
-  const initials = `${(firstName || '?')[0]}${(lastName || '')[0] || ''}`.toUpperCase();
-  return (
-    <div className={`relative w-12 h-12 rounded-full ${medal.bg} flex items-center justify-center shadow-lg ${medal.glow} shadow-md border-2 ${medal.border} flex-shrink-0`}>
-      <span className="text-white font-bold text-sm">{initials}</span>
-      {isYou && (
-        <span className="absolute -top-1 -right-1 bg-[#CA133E] text-white text-[9px] font-bold rounded-full px-1 py-0.5 leading-none">
-          YOU
-        </span>
-      )}
-    </div>
-  );
+const rankColor = (idx) => {
+  if (idx === 0) return 'text-yellow-400';
+  if (idx === 1) return 'text-gray-300';
+  if (idx === 2) return 'text-amber-500';
+  return 'text-[#CA133E]';
 };
 
 const Leaderboard = ({ currentUserId, session, className = '' }) => {
@@ -55,54 +18,46 @@ const Leaderboard = ({ currentUserId, session, className = '' }) => {
 
   const fetchLeaderboard = useCallback(async () => {
     try {
-      setLoading(true);
-      setError('');
+      setLoading(true); setError('');
       const token = localStorage.getItem('token');
       const url = session
         ? `${API_ENDPOINTS.LEADERBOARD.BASE}?session=${encodeURIComponent(session)}`
         : API_ENDPOINTS.LEADERBOARD.BASE;
-
-      const res = await fetch(url, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-
+      const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
       if (!res.ok) throw new Error('Failed to fetch leaderboard');
-
       const data = await res.json();
       setLeaderboard(data.data.leaderboard || []);
       setSessionLabel(data.data.leaderboard?.[0]?.sessionLabel || session || '');
-    } catch (err) {
+    } catch {
       setError('Could not load leaderboard');
     } finally {
       setLoading(false);
     }
   }, [session]);
 
-  useEffect(() => {
-    fetchLeaderboard();
-  }, [fetchLeaderboard]);
+  useEffect(() => { fetchLeaderboard(); }, [fetchLeaderboard]);
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
-      className={`bg-gray-800/60 rounded-xl p-4 sm:p-5 shadow-2xl backdrop-blur-sm border border-gray-600/50 ${className}`}
+      className={`bg-[#161616] border border-white/5 rounded-xl p-4 sm:p-5 ${className}`}
     >
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-base sm:text-lg font-semibold text-white flex items-center gap-2">
-          <TrophyIcon className="h-5 w-5 text-yellow-400" />
-          Top Students
+        <h3 className="text-base font-semibold text-white flex items-center gap-2">
+          <TrophyIcon className="h-4 w-4 text-yellow-400" />
+          Leaderboard
           {sessionLabel && (
-            <span className="text-xs text-gray-400 font-normal bg-gray-700 px-2 py-0.5 rounded-full">
+            <span className="text-[10px] text-gray-500 font-normal bg-white/5 px-2 py-0.5 rounded-full">
               {sessionLabel}
             </span>
           )}
         </h3>
         <button
           onClick={fetchLeaderboard}
-          className="text-gray-400 hover:text-white transition-colors p-1 rounded-xl hover:bg-gray-700"
-          title="Refresh leaderboard"
+          className="text-gray-600 hover:text-gray-300 transition-colors p-1 rounded-lg hover:bg-white/5"
+          title="Refresh"
         >
           <ArrowPathIcon className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
         </button>
@@ -110,67 +65,68 @@ const Leaderboard = ({ currentUserId, session, className = '' }) => {
 
       {/* Content */}
       {loading ? (
-        <div className="space-y-3">
-          {[1, 2, 3].map((i) => (
+        <div className="space-y-2.5">
+          {[1, 2, 3, 4, 5].map((i) => (
             <div key={i} className="flex items-center gap-3 animate-pulse">
-              <div className="w-12 h-12 rounded-full bg-gray-700" />
-              <div className="flex-1">
-                <div className="h-3 bg-gray-700 rounded w-2/3 mb-2" />
-                <div className="h-2 bg-gray-700 rounded w-1/3" />
-              </div>
+              <div className="w-6 h-4 bg-white/5 rounded" />
+              <div className="w-8 h-8 rounded-full bg-white/5 flex-shrink-0" />
+              <div className="flex-1 h-3 bg-white/5 rounded" />
+              <div className="w-12 h-3 bg-white/5 rounded" />
             </div>
           ))}
         </div>
       ) : error ? (
-        <div className="text-center py-4 text-gray-400 text-sm">{error}</div>
+        <div className="text-center py-6 text-gray-600 text-sm">{error}</div>
       ) : leaderboard.length === 0 ? (
-        <div className="text-center py-6 text-gray-400">
-          <TrophyIcon className="h-10 w-10 mx-auto mb-2 text-gray-600" />
+        <div className="text-center py-8 text-gray-600">
+          <TrophyIcon className="h-10 w-10 mx-auto mb-2 opacity-40" />
           <p className="text-sm">No ranked students yet</p>
-          <p className="text-xs text-gray-500 mt-1">Complete assignments to earn points!</p>
+          <p className="text-xs mt-1 opacity-60">Complete assignments to earn points!</p>
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-1.5">
           <AnimatePresence>
             {leaderboard.map((entry, idx) => {
-              const medal = MEDALS[idx] || MEDALS[2];
               const isYou = currentUserId && entry._id === currentUserId;
+              const initials = `${(entry.firstName || '?')[0]}${(entry.lastName || '')[0] || ''}`.toUpperCase();
 
               return (
                 <motion.div
                   key={entry._id || idx}
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: idx * 0.08 }}
-                  className={`flex items-center gap-3 p-2.5 rounded-xl border transition-all ${
+                  transition={{ delay: idx * 0.06 }}
+                  className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors ${
                     isYou
-                      ? 'bg-[#CA133E]/10 border-[#CA133E]/40'
-                      : 'bg-gray-700/30 border-gray-600/30'
+                      ? 'bg-[#CA133E]/10 border border-[#CA133E]/25'
+                      : 'hover:bg-white/3'
                   }`}
                 >
-                  <AvatarCircle
-                    firstName={entry.firstName}
-                    lastName={entry.lastName}
-                    medal={medal}
-                    isYou={isYou}
-                  />
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-sm">{medal.icon}</span>
-                      <span className={`font-semibold text-sm truncate ${isYou ? 'text-[#CA133E]' : 'text-white'}`}>
-                        {entry.firstName} {entry.lastName}
-                      </span>
-                    </div>
-                    <div className="text-xs text-gray-400 mt-0.5">
-                      {medal.label} place
-                    </div>
+                  {/* Rank number */}
+                  <span className="text-gray-600 text-xs font-mono w-5 text-right flex-shrink-0">
+                    {String(idx + 1).padStart(2, '0')}
+                  </span>
+
+                  {/* Avatar */}
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 text-white font-bold text-xs ${
+                    idx === 0 ? 'bg-gradient-to-br from-yellow-400 to-yellow-600' :
+                    idx === 1 ? 'bg-gradient-to-br from-gray-300 to-gray-500' :
+                    idx === 2 ? 'bg-gradient-to-br from-amber-600 to-amber-800' :
+                    'bg-[#CA133E]'
+                  }`}>
+                    {initials}
                   </div>
-                  <div className="text-right flex-shrink-0">
-                    <div className={`text-base font-bold ${medal.text}`}>
-                      {(entry.points || 0).toLocaleString()}
-                    </div>
-                    <div className="text-xs text-gray-500">pts</div>
-                  </div>
+
+                  {/* Name */}
+                  <span className={`flex-1 text-sm font-medium truncate ${isYou ? 'text-[#CA133E]' : 'text-white'}`}>
+                    {entry.firstName} {entry.lastName}
+                    {isYou && <span className="text-xs text-gray-400 ml-1">(you)</span>}
+                  </span>
+
+                  {/* Points */}
+                  <span className={`text-sm font-bold flex-shrink-0 ${rankColor(idx)}`}>
+                    {(entry.points || 0).toLocaleString()}
+                  </span>
                 </motion.div>
               );
             })}

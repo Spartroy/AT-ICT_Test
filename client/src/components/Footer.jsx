@@ -35,7 +35,7 @@ const Footer = () => {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="bg-[#0F0F0F] text-gray-300 border-t border-gray-800">
+    <footer className="bg-[#0F0F0F] text-gray-300 border-t border-[#2C2C30]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           <div>
@@ -82,7 +82,7 @@ const Footer = () => {
           </div>
 
           <div>
-            <h3 className="text-white font-semibold mb-3">Explore</h3>
+            <h3 className="font-display text-white font-semibold mb-3">Explore</h3>
             <ul className="space-y-2 text-sm">
               {navLinks.map((link) => (
                 <li key={link.to}>
@@ -95,7 +95,7 @@ const Footer = () => {
           </div>
 
           <div>
-            <h3 className="text-white font-semibold mb-3">Account</h3>
+            <h3 className="font-display text-white font-semibold mb-3">Account</h3>
             <ul className="space-y-2 text-sm">
               {accountLinks.map((link) => (
                 <li key={link.to}>
@@ -108,7 +108,7 @@ const Footer = () => {
           </div>
 
           <div>
-            <h3 className="text-white font-semibold mb-3">Get in touch</h3>
+            <h3 className="font-display text-white font-semibold mb-3">Get in touch</h3>
             <ul className="space-y-2 text-sm">
               <li className="flex items-start gap-2">
                 <Mail size={16} className="text-[#CA133E] mt-0.5 flex-shrink-0" />
@@ -129,7 +129,7 @@ const Footer = () => {
             </ul>
 
             <div className="mt-4">
-              <h4 className="text-white text-sm font-semibold mb-2">Centers</h4>
+              <h4 className="font-display text-white text-sm font-semibold mb-2">Centers</h4>
               <ul className="text-xs text-gray-300 leading-relaxed list-disc pl-4 space-y-1">
                 {centers.map((center, idx) => (
                   <li key={idx}>{center}</li>
@@ -140,7 +140,7 @@ const Footer = () => {
           </div>
         </div>
 
-        <div className="mt-10 pt-6 border-t border-gray-800 flex flex-col sm:flex-row justify-between items-center gap-3 text-xs text-gray-300">
+        <div className="mt-10 pt-6 border-t border-[#2C2C30] flex flex-col sm:flex-row justify-between items-center gap-3 text-xs text-gray-300">
           <p>© {year} AT-ICT. All rights reserved.</p>
           <p>
             Built with care for IGCSE ICT students.

@@ -2,579 +2,331 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { API_ENDPOINTS } from '../../config/api';
 import {
-  MegaphoneIcon,
-  CalendarIcon,
-  ClockIcon,
-  AcademicCapIcon,
-  ExclamationTriangleIcon,
-  BookOpenIcon,
-  TrophyIcon,
-  InformationCircleIcon,
-  UserGroupIcon,
-  HeartIcon,
-  ChatBubbleLeftRightIcon,
-  EyeIcon,
-  FunnelIcon,
-  MagnifyingGlassIcon,
-  XMarkIcon,
-  PaperClipIcon,
-  ChevronRightIcon
+  MegaphoneIcon, CalendarIcon, ClockIcon, AcademicCapIcon,
+  ExclamationTriangleIcon, BookOpenIcon, TrophyIcon, InformationCircleIcon,
+  UserGroupIcon, HeartIcon, ChatBubbleLeftRightIcon, EyeIcon,
+  MagnifyingGlassIcon, XMarkIcon, PaperClipIcon, ChevronRightIcon
 } from '@heroicons/react/24/outline';
-import {
-  HeartIcon as HeartIconSolid,
-  MegaphoneIcon as MegaphoneIconSolid
-} from '@heroicons/react/24/solid';
-
+import { HeartIcon as HeartIconSolid, MegaphoneIcon as MegaphoneIconSolid } from '@heroicons/react/24/solid';
 import io from 'socket.io-client';
+
+const TYPES = [
+  { value: 'all',       label: 'All',        icon: MegaphoneIcon,          color: 'text-gray-400' },
+  { value: 'general',   label: 'General',    icon: InformationCircleIcon,  color: 'text-blue-400' },
+  { value: 'assignment',label: 'Assignment', icon: BookOpenIcon,           color: 'text-green-400' },
+  { value: 'exam',      label: 'Exam',       icon: AcademicCapIcon,        color: 'text-red-400' },
+  { value: 'holiday',   label: 'Holiday',    icon: CalendarIcon,           color: 'text-purple-400' },
+  { value: 'meeting',   label: 'Meeting',    icon: UserGroupIcon,          color: 'text-indigo-400' },
+  { value: 'important', label: 'Important',  icon: ExclamationTriangleIcon,color: 'text-yellow-400' }
+];
+
+const PRIORITY_BADGE = {
+  low:    'bg-white/5 text-gray-400',
+  medium: 'bg-blue-500/15 text-blue-400',
+  high:   'bg-orange-500/15 text-orange-400',
+  urgent: 'bg-red-500/15 text-red-400'
+};
+
+const PRIORITY_BORDER = {
+  low: 'border-l-gray-600', medium: 'border-l-blue-500',
+  high: 'border-l-orange-500', urgent: 'border-l-red-500'
+};
+
+const relTime = (d) => {
+  const h = Math.abs(Date.now() - new Date(d)) / 36e5;
+  if (h < 1) return 'Just now';
+  if (h < 24) return `${Math.floor(h)}h ago`;
+  if (h < 48) return 'Yesterday';
+  return new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+};
+
+const inputClass = 'bg-[#1A1A1A] border border-white/10 rounded-xl text-white placeholder-gray-600 focus:outline-none focus:border-[#CA133E] transition-colors text-sm';
 
 const AnnouncementsTab = ({ studentData }) => {
   const [announcements, setAnnouncements] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedAnnouncement, setSelectedAnnouncement] = useState(null);
+  const [selected, setSelected] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [filter, setFilter] = useState('all');
-  const [searchTerm, setSearchTerm] = useState('');
+  const [search, setSearch] = useState('');
   const [newComment, setNewComment] = useState('');
   const [submittingComment, setSubmittingComment] = useState(false);
 
-  const announcementTypes = [
-    { value: 'all', label: 'All', icon: MegaphoneIcon, color: 'text-gray-400' },
-    { value: 'general', label: 'General', icon: InformationCircleIcon, color: 'text-blue-400' },
-    { value: 'assignment', label: 'Assignment', icon: BookOpenIcon, color: 'text-green-400' },
-    { value: 'exam', label: 'Exam', icon: AcademicCapIcon, color: 'text-red-400' },
-    { value: 'holiday', label: 'Holiday', icon: CalendarIcon, color: 'text-purple-400' },
-    { value: 'meeting', label: 'Meeting', icon: UserGroupIcon, color: 'text-indigo-400' },
-    { value: 'important', label: 'Important', icon: ExclamationTriangleIcon, color: 'text-yellow-400' }
-  ];
-
-  const priorityColors = {
-    low: 'text-gray-400',
-    medium: 'text-blue-400',
-    high: 'text-orange-400',
-    urgent: 'text-red-400'
-  };
-
-  const priorityBadges = {
-    low: 'bg-gray-700 text-gray-200',
-    medium: 'bg-blue-900/50 text-blue-300',
-    high: 'bg-orange-900/50 text-orange-300',
-    urgent: 'bg-red-900/50 text-red-300'
-  };
-
   useEffect(() => {
     fetchAnnouncements();
-
-    // Initialize socket connection
     const socket = io(API_ENDPOINTS.BASE_URL);
-
-    // Listen for new announcements
-    socket.on('new_announcement', (newAnnouncement) => {
-      setAnnouncements(prev => [newAnnouncement, ...prev]);
-    });
-
-    return () => {
-      socket.disconnect();
-    };
+    socket.on('new_announcement', (a) => setAnnouncements(prev => [a, ...prev]));
+    return () => socket.disconnect();
   }, []);
 
   const fetchAnnouncements = async () => {
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
-      const response = await fetch(API_ENDPOINTS.ANNOUNCEMENTS.BASE, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+      const res = await fetch(API_ENDPOINTS.ANNOUNCEMENTS.BASE, {
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }
       });
-
-      if (response.ok) {
-        const data = await response.json();
+      if (res.ok) {
+        const data = await res.json();
         setAnnouncements(data.data.announcements || []);
-      } else {
-        console.error('Failed to fetch announcements');
       }
-    } catch (error) {
-      console.error('Error fetching announcements:', error);
-    } finally {
-      setLoading(false);
-    }
+    } catch (e) { console.error(e); }
+    finally { setLoading(false); }
   };
 
-  const toggleLike = async (announcementId) => {
+  const toggleLike = async (id) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${API_ENDPOINTS.ANNOUNCEMENTS.BASE}/${announcementId}/like`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+      const res = await fetch(`${API_ENDPOINTS.ANNOUNCEMENTS.BASE}/${id}/like`, {
+        method: 'PUT', headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }
       });
-
-      if (response.ok) {
-        const data = await response.json();
-        // Update announcements list
-        setAnnouncements(prev => prev.map(ann =>
-          ann._id === announcementId
-            ? { ...ann, likeCount: data.data.likeCount, hasLiked: data.data.hasLiked }
-            : ann
-        ));
-
-        // Update selected announcement if it's open
-        if (selectedAnnouncement && selectedAnnouncement._id === announcementId) {
-          setSelectedAnnouncement(prev => ({
-            ...prev,
-            likeCount: data.data.likeCount,
-            hasLiked: data.data.hasLiked
-          }));
-        }
+      if (res.ok) {
+        const data = await res.json();
+        const upd = (a) => a._id === id ? { ...a, likeCount: data.data.likeCount, hasLiked: data.data.hasLiked } : a;
+        setAnnouncements(prev => prev.map(upd));
+        if (selected?._id === id) setSelected(prev => upd(prev));
       }
-    } catch (error) {
-      console.error('Error toggling like:', error);
-    }
+    } catch (e) { console.error(e); }
   };
 
-  const addComment = async (announcementId) => {
+  const addComment = async (id) => {
     if (!newComment.trim()) return;
-
     try {
       setSubmittingComment(true);
       const token = localStorage.getItem('token');
-      const response = await fetch(`${API_ENDPOINTS.ANNOUNCEMENTS.BASE}/${announcementId}/comments`, {
+      const res = await fetch(`${API_ENDPOINTS.ANNOUNCEMENTS.BASE}/${id}/comments`, {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          content: newComment.trim()
-        })
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: newComment.trim() })
       });
-
-      if (response.ok) {
-        const data = await response.json();
-        setNewComment('');
-        // Refresh the selected announcement to get updated comments
-        fetchAnnouncementDetails(announcementId);
-      } else {
-        console.error('Failed to add comment');
-      }
-    } catch (error) {
-      console.error('Error adding comment:', error);
-    } finally {
-      setSubmittingComment(false);
-    }
+      if (res.ok) { setNewComment(''); fetchAnnouncementDetails(id); }
+    } catch (e) { console.error(e); }
+    finally { setSubmittingComment(false); }
   };
 
-  const fetchAnnouncementDetails = async (announcementId) => {
+  const fetchAnnouncementDetails = async (id) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${API_ENDPOINTS.ANNOUNCEMENTS.BASE}/${announcementId}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+      const res = await fetch(`${API_ENDPOINTS.ANNOUNCEMENTS.BASE}/${id}`, {
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }
       });
-
-      if (response.ok) {
-        const data = await response.json();
-        setSelectedAnnouncement(data.data.announcement);
-      }
-    } catch (error) {
-      console.error('Error fetching announcement details:', error);
-    }
+      if (res.ok) { const data = await res.json(); setSelected(data.data.announcement); }
+    } catch (e) { console.error(e); }
   };
 
-  const openAnnouncementModal = (announcement) => {
-    setSelectedAnnouncement(announcement);
-    setShowModal(true);
-    fetchAnnouncementDetails(announcement._id);
-  };
+  const openModal = (a) => { setSelected(a); setShowModal(true); fetchAnnouncementDetails(a._id); };
 
-  const getTypeIcon = (type) => {
-    const typeConfig = announcementTypes.find(t => t.value === type);
-    return typeConfig ? typeConfig.icon : InformationCircleIcon;
-  };
+  const getTypeIcon = (type) => TYPES.find(t => t.value === type)?.icon || InformationCircleIcon;
+  const getTypeColor = (type) => TYPES.find(t => t.value === type)?.color || 'text-gray-400';
 
-  const getTypeColor = (type) => {
-    const typeConfig = announcementTypes.find(t => t.value === type);
-    return typeConfig ? typeConfig.color : 'text-gray-400';
-  };
-
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffInHours = Math.abs(now - date) / 36e5;
-
-    if (diffInHours < 1) {
-      return 'Just now';
-    } else if (diffInHours < 24) {
-      return `${Math.floor(diffInHours)} hours ago`;
-    } else if (diffInHours < 48) {
-      return 'Yesterday';
-    } else {
-      return date.toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined
-      });
-    }
-  };
-
-  const filteredAnnouncements = announcements.filter(announcement => {
-    const matchesFilter = filter === 'all' || announcement.type === filter;
-    const matchesSearch = searchTerm === '' ||
-      announcement.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      announcement.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      announcement.tags?.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
-
-    return matchesFilter && matchesSearch;
+  const filtered = announcements.filter(a => {
+    const matchType = filter === 'all' || a.type === filter;
+    const matchSearch = !search || a.title.toLowerCase().includes(search.toLowerCase()) ||
+      a.content.toLowerCase().includes(search.toLowerCase()) ||
+      a.tags?.some(t => t.toLowerCase().includes(search.toLowerCase()));
+    return matchType && matchSearch;
   });
 
-  if (loading) {
-    return (
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="h-8 bg-gray-700/50 rounded-xl w-64 animate-pulse"></div>
-          <div className="h-10 bg-gray-700/50 rounded-xl w-32 animate-pulse"></div>
-        </div>
-        {[...Array(3)].map((_, i) => (
-          <div key={i} className="bg-gray-800/60 rounded-xl shadow-sm p-6 animate-pulse backdrop-blur-sm border-2 border-gray-600/50">
-            <div className="h-4 bg-gray-700/50 rounded-xl w-3/4 mb-4"></div>
-            <div className="h-20 bg-gray-700/50 rounded-xl"></div>
-          </div>
-        ))}
+  if (loading) return (
+    <div className="space-y-4">
+      <div className="flex gap-3 animate-pulse">
+        <div className="h-10 bg-white/5 rounded-xl flex-1" />
+        <div className="h-10 bg-white/5 rounded-xl w-32" />
       </div>
-    );
-  }
+      {[...Array(3)].map((_, i) => <div key={i} className="h-28 bg-white/5 rounded-xl animate-pulse" />)}
+    </div>
+  );
 
   return (
-    <div className="space-y-4 sm:space-y-6 bg-gray-800/60 rounded-xl p-4 sm:p-6 shadow-2xl backdrop-blur-sm border-2 border-gray-600/50">
+    <div className="space-y-5">
       {/* Header */}
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h2 className="text-lg sm:text-xl lg:text-[20pt] font-bold text-white flex items-center">
-            <MegaphoneIconSolid className="h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 mr-2 sm:mr-3 text-blue-500" />
+          <h2 className="text-xl font-bold text-white flex items-center gap-2">
+            <MegaphoneIconSolid className="h-5 w-5 text-[#CA133E]" />
             Announcements
           </h2>
-          <p className="text-sm sm:text-base lg:text-[14pt] text-gray-300 mt-1">Stay updated with the latest news and updates</p>
+          <p className="text-gray-500 text-sm mt-0.5">Stay updated with the latest news</p>
         </div>
-
-        {/* Search */}
-        <div className="flex items-center space-x-4">
-          <div className="relative w-full sm:w-auto">
-            <MagnifyingGlassIcon className="h-4 w-4 sm:h-5 sm:w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search announcements..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-8 sm:pl-10 pr-4 py-2 border border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-900/70 text-white text-sm sm:text-base w-full sm:w-64"
-            />
-          </div>
+        <div className="relative">
+          <MagnifyingGlassIcon className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
+          <input
+            type="text" placeholder="Search…" value={search}
+            onChange={e => setSearch(e.target.value)}
+            className={`${inputClass} pl-9 pr-4 py-2 w-full sm:w-56`}
+          />
         </div>
       </div>
 
-      {/* Filter Tabs */}
-      <div className="border-b border-gray-700 overflow-x-auto">
-        <nav className="-mb-px flex space-x-2 sm:space-x-4 lg:space-x-6 min-w-max pb-2" style={{ overflow: 'visible' }}>
-          {announcementTypes.map((type) => {
-            const IconComponent = type.icon;
-            const count = type.value === 'all'
-              ? announcements.length
-              : announcements.filter(a => a.type === type.value).length;
-
-            return (
-              <button
-                key={type.value}
-                onClick={() => setFilter(type.value)}
-                className={`
-                  group inline-flex items-center py-3 sm:py-4 px-2 sm:px-3 border-b-2 font-medium text-xs sm:text-sm whitespace-nowrap transition-colors duration-200
-                  ${filter === type.value
-                    ? 'border-blue-500 text-blue-400'
-                    : 'border-transparent text-gray-400 hover:text-white hover:border-gray-500'
-                  }
-                `}
-              >
-                <IconComponent
-                  className={`
-                    -ml-0.5 mr-1 sm:mr-2 h-4 w-4 sm:h-5 sm:w-5 transition-colors duration-200
-                    ${filter === type.value
-                      ? 'text-blue-500'
-                      : `${type.color} group-hover:text-gray-400`
-                    }
-                  `}
-                />
-                <span className="hidden sm:inline">{type.label}</span>
-                <span className="sm:hidden">{type.label.substring(0, 3)}</span>
-                {count > 0 && (
-                  <span className={`ml-1 sm:ml-2 inline-flex items-center px-1.5 sm:px-2.5 py-0.5 rounded-full text-xs font-medium ${filter === type.value
-                    ? 'bg-blue-900/70 text-blue-300'
-                    : 'bg-gray-700 text-gray-200'
-                    }`}>
-                    {count}
-                  </span>
-                )}
-              </button>
-            );
-          })}
-        </nav>
+      {/* Filter pills */}
+      <div className="flex gap-1.5 overflow-x-auto scrollbar-hide pb-1">
+        {TYPES.map(t => {
+          const Icon = t.icon;
+          const count = t.value === 'all' ? announcements.length : announcements.filter(a => a.type === t.value).length;
+          const active = filter === t.value;
+          return (
+            <button key={t.value} onClick={() => setFilter(t.value)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all flex-shrink-0 ${
+                active ? 'bg-[#CA133E] text-white' : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white'
+              }`}>
+              <Icon className="h-3.5 w-3.5" />
+              {t.label}
+              {count > 0 && (
+                <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${
+                  active ? 'bg-white/20 text-white' : 'bg-white/10 text-gray-300'
+                }`}>{count}</span>
+              )}
+            </button>
+          );
+        })}
       </div>
 
-      {/* Announcements List */}
-      <div className="space-y-3 sm:space-y-4">
-        {filteredAnnouncements.length === 0 ? (
-          <div className="bg-gray-800/60 rounded-xl shadow-lg p-8 sm:p-12 text-center backdrop-blur-sm border-2 border-gray-600/50">
-            <MegaphoneIcon className="h-10 w-10 sm:h-12 sm:w-12 text-gray-500 mx-auto mb-4" />
-            <h3 className="text-base sm:text-lg font-medium text-white mb-2">
-              {searchTerm || filter !== 'all' ? 'No matching announcements' : 'No announcements yet'}
-            </h3>
-            <p className="text-sm sm:text-base text-gray-400">
-              {searchTerm || filter !== 'all'
-                ? 'Try adjusting your search or filter criteria.'
-                : 'Your teachers haven\'t posted any announcements yet.'
-              }
+      {/* List */}
+      <div className="space-y-3">
+        {filtered.length === 0 ? (
+          <div className="bg-[#161616] border border-white/5 rounded-xl p-10 text-center">
+            <MegaphoneIcon className="h-10 w-10 text-gray-700 mx-auto mb-3" />
+            <p className="text-white font-medium text-sm">
+              {search || filter !== 'all' ? 'No matching announcements' : 'No announcements yet'}
+            </p>
+            <p className="text-gray-600 text-xs mt-1">
+              {search || filter !== 'all' ? 'Try adjusting your search or filter.' : "Your teachers haven't posted any announcements yet."}
             </p>
           </div>
-        ) : (
-          filteredAnnouncements.map((announcement, index) => {
-            const TypeIcon = getTypeIcon(announcement.type);
-
-            return (
-              <motion.div
-                key={announcement._id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                className={`bg-gray-900/70 backdrop-blur-md rounded-xl shadow-lg border-l-4 p-4 sm:p-6 hover:shadow-xl transition-all cursor-pointer ${announcement.isPinned ? 'border-l-yellow-400 bg-yellow-900/20' : 'border-l-blue-400'
-                  }`}
-                onClick={() => openAnnouncementModal(announcement)}
-              >
-                <div className="flex justify-between items-start gap-4">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-3">
-                      <div className="flex items-center space-x-2 sm:space-x-3">
-                        <TypeIcon className={`h-5 w-5 sm:h-6 sm:w-6 ${getTypeColor(announcement.type)} flex-shrink-0`} />
-                        <h3 className="text-base sm:text-lg font-semibold text-white truncate">{announcement.title}</h3>
-                      </div>
-                      <div className="flex items-center gap-2 flex-wrap">
-                        {announcement.isPinned && (
-                          <span className="bg-yellow-400/20 text-yellow-300 px-2 py-1 rounded-full text-xs font-medium">
-                            📌 Pinned
-                          </span>
-                        )}
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${priorityBadges[announcement.priority]}`}>
-                          {announcement.priority.toUpperCase()}
-                        </span>
-                      </div>
-                    </div>
-
-                    <p className="text-sm sm:text-base text-gray-300 mb-4 line-clamp-2">{announcement.content}</p>
-
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-6">
-                      <div className="flex flex-wrap items-center gap-3 sm:gap-6 text-xs sm:text-sm text-gray-400">
-                        <div className="flex items-center">
-                          <CalendarIcon className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
-                          <span>{formatDate(announcement.createdAt)}</span>
-                        </div>
-                        <div className="flex items-center">
-                          <span className="text-gray-500">By</span>
-                          <span className="ml-1 font-medium text-gray-300">{announcement.createdBy?.firstName} {announcement.createdBy?.lastName}</span>
-                        </div>
-                        <div className="flex items-center">
-                          <EyeIcon className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
-                          <span>{announcement.metadata?.views || 0} views</span>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center justify-between sm:justify-end gap-4">
-                        <div className="flex items-center space-x-4">
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              toggleLike(announcement._id);
-                            }}
-                            className={`flex items-center space-x-1 ${announcement.hasLiked ? 'text-red-500' : 'text-gray-400 hover:text-red-500'
-                              }`}
-                          >
-                            {announcement.hasLiked ? (
-                              <HeartIconSolid className="h-4 w-4 sm:h-5 sm:w-5" />
-                            ) : (
-                              <HeartIcon className="h-4 w-4 sm:h-5 sm:w-5" />
-                            )}
-                            <span className="text-xs sm:text-sm">{announcement.likeCount || 0}</span>
-                          </button>
-
-                          <div className="flex items-center space-x-1 text-gray-400">
-                            <ChatBubbleLeftRightIcon className="h-4 w-4 sm:h-5 sm:w-5" />
-                            <span className="text-xs sm:text-sm">{announcement.commentCount || 0}</span>
-                          </div>
-                        </div>
-
-                        <ChevronRightIcon className="h-4 w-4 sm:h-5 sm:w-5 text-gray-500 flex-shrink-0" />
-                      </div>
-                    </div>
+        ) : filtered.map((ann, i) => {
+          const Icon = getTypeIcon(ann.type);
+          return (
+            <motion.div key={ann._id}
+              initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
+              onClick={() => openModal(ann)}
+              className={`bg-[#161616] border border-white/5 border-l-4 ${PRIORITY_BORDER[ann.priority] || 'border-l-gray-600'} rounded-xl p-4 sm:p-5 cursor-pointer hover:border-white/10 transition-all group`}>
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex-1 min-w-0">
+                  <div className="flex flex-wrap items-center gap-2 mb-2">
+                    <Icon className={`h-4 w-4 flex-shrink-0 ${getTypeColor(ann.type)}`} />
+                    <h3 className="text-white font-semibold text-sm sm:text-base truncate">{ann.title}</h3>
+                    {ann.isPinned && <span className="text-[10px] bg-yellow-500/15 text-yellow-400 px-2 py-0.5 rounded-full">📌 Pinned</span>}
+                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${PRIORITY_BADGE[ann.priority]}`}>
+                      {ann.priority?.toUpperCase()}
+                    </span>
+                  </div>
+                  <p className="text-gray-400 text-sm line-clamp-2 mb-3">{ann.content}</p>
+                  <div className="flex flex-wrap items-center gap-3 text-xs text-gray-600">
+                    <span>{relTime(ann.createdAt)}</span>
+                    <span>· {ann.createdBy?.firstName} {ann.createdBy?.lastName}</span>
+                    <span className="flex items-center gap-1"><EyeIcon className="h-3 w-3" />{ann.metadata?.views || 0}</span>
+                    <button onClick={e => { e.stopPropagation(); toggleLike(ann._id); }}
+                      className={`flex items-center gap-1 transition-colors ${ann.hasLiked ? 'text-red-400' : 'hover:text-red-400'}`}>
+                      {ann.hasLiked ? <HeartIconSolid className="h-3.5 w-3.5" /> : <HeartIcon className="h-3.5 w-3.5" />}
+                      {ann.likeCount || 0}
+                    </button>
+                    <span className="flex items-center gap-1"><ChatBubbleLeftRightIcon className="h-3 w-3" />{ann.commentCount || 0}</span>
                   </div>
                 </div>
-              </motion.div>
-            );
-          })
-        )}
+                <ChevronRightIcon className="h-4 w-4 text-gray-600 flex-shrink-0 group-hover:text-gray-400 transition-colors mt-1" />
+              </div>
+            </motion.div>
+          );
+        })}
       </div>
 
-      {/* Announcement Detail Modal */}
+      {/* Detail Modal */}
       <AnimatePresence>
-        {showModal && selectedAnnouncement && (
-          <div className="fixed inset-0 bg-black bg-opacity-70 flex items-start sm:items-center justify-center z-50 p-2 sm:p-4">
+        {showModal && selected && (
+          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-start sm:items-center justify-center z-50 p-3 sm:p-4">
             <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-gray-900/90 backdrop-blur-md border border-gray-700 text-white rounded-xl shadow-xl max-w-4xl w-full max-h-[95vh] sm:max-h-[90vh] flex flex-col mt-2 sm:mt-0"
-            >
-              {/* Modal Header */}
-              <div className="p-4 sm:p-6 border-b border-gray-700 flex-shrink-0">
-                <div className="flex justify-between items-start gap-4">
+              initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.96 }}
+              className="bg-[#161616] border border-white/10 rounded-xl shadow-2xl w-full max-w-2xl max-h-[92vh] flex flex-col">
+              {/* Modal header */}
+              <div className="p-4 sm:p-5 border-b border-white/8 flex-shrink-0">
+                <div className="flex items-start justify-between gap-3">
                   <div className="flex-1 min-w-0">
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
-                      <div className="flex items-center space-x-2 sm:space-x-3">
-                        {React.createElement(getTypeIcon(selectedAnnouncement.type), {
-                          className: `h-5 w-5 sm:h-6 sm:w-6 ${getTypeColor(selectedAnnouncement.type)} flex-shrink-0`
-                        })}
-                        <h3 className="text-lg sm:text-xl font-semibold text-white line-clamp-2">{selectedAnnouncement.title}</h3>
-                      </div>
-                      {selectedAnnouncement.isPinned && (
-                        <span className="bg-yellow-400/20 text-yellow-300 px-2 py-1 rounded-full text-xs font-medium self-start">
-                          📌 Pinned
-                        </span>
-                      )}
+                    <div className="flex flex-wrap items-center gap-2 mb-1.5">
+                      {React.createElement(getTypeIcon(selected.type), { className: `h-4 w-4 flex-shrink-0 ${getTypeColor(selected.type)}` })}
+                      <h3 className="text-white font-bold text-base sm:text-lg">{selected.title}</h3>
                     </div>
-                    <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm text-gray-400">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${priorityBadges[selectedAnnouncement.priority]}`}>
-                        {selectedAnnouncement.priority.toUpperCase()}
+                    <div className="flex flex-wrap items-center gap-2 text-xs text-gray-500">
+                      <span className={`px-2 py-0.5 rounded-full font-medium ${PRIORITY_BADGE[selected.priority]}`}>
+                        {selected.priority?.toUpperCase()}
                       </span>
-                      <span>By {selectedAnnouncement.createdBy?.firstName} {selectedAnnouncement.createdBy?.lastName}</span>
-                      <span>{formatDate(selectedAnnouncement.createdAt)}</span>
+                      <span>{selected.createdBy?.firstName} {selected.createdBy?.lastName}</span>
+                      <span>{relTime(selected.createdAt)}</span>
                     </div>
                   </div>
-                  <button
-                    onClick={() => setShowModal(false)}
-                    className="text-gray-500 hover:text-white p-1 flex-shrink-0"
-                  >
-                    <XMarkIcon className="h-5 w-5 sm:h-6 sm:w-6" />
+                  <button onClick={() => setShowModal(false)} className="text-gray-600 hover:text-white transition-colors p-1 flex-shrink-0">
+                    <XMarkIcon className="h-5 w-5" />
                   </button>
                 </div>
               </div>
+              {/* Modal body */}
+              <div className="p-4 sm:p-5 overflow-y-auto flex-1 space-y-5">
+                <p className="text-gray-300 text-sm leading-relaxed whitespace-pre-wrap">{selected.content}</p>
 
-              {/* Modal Content */}
-              <div className="p-4 sm:p-6 overflow-y-auto flex-1">
-                <div className="prose prose-invert max-w-none mb-4 sm:mb-6">
-                  <p className="text-sm sm:text-base text-gray-300 whitespace-pre-wrap leading-relaxed">
-                    {selectedAnnouncement.content}
-                  </p>
-                </div>
-
-                {/* Attachments */}
-                {selectedAnnouncement.attachments && selectedAnnouncement.attachments.length > 0 && (
-                  <div className="mb-4 sm:mb-6">
-                    <h4 className="text-sm sm:text-base font-medium text-white mb-3">Attachments</h4>
-                    <div className="space-y-2">
-                      {selectedAnnouncement.attachments.map((attachment, index) => (
-                        <div key={index} className="flex items-center space-x-3 p-3 bg-gray-800/70 rounded-xl">
-                          <PaperClipIcon className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400 flex-shrink-0" />
-                          <span className="text-xs sm:text-sm text-white truncate flex-1">{attachment.originalName}</span>
-                          <span className="text-xs text-gray-500 flex-shrink-0">({attachment.size} bytes)</span>
+                {selected.attachments?.length > 0 && (
+                  <div>
+                    <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Attachments</h4>
+                    <div className="space-y-1.5">
+                      {selected.attachments.map((a, i) => (
+                        <div key={i} className="flex items-center gap-2.5 p-2.5 bg-white/4 rounded-lg">
+                          <PaperClipIcon className="h-4 w-4 text-gray-500 flex-shrink-0" />
+                          <span className="text-sm text-white truncate flex-1">{a.originalName}</span>
+                          <span className="text-xs text-gray-600 flex-shrink-0">({a.size} B)</span>
                         </div>
                       ))}
                     </div>
                   </div>
                 )}
 
-                {/* Like and Comment Actions */}
-                <div className="border-t border-gray-700 pt-4 sm:pt-6">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
-                    <div className="flex flex-wrap items-center gap-4 sm:gap-6">
-                      <button
-                        onClick={() => toggleLike(selectedAnnouncement._id)}
-                        className={`flex items-center space-x-2 px-3 sm:px-4 py-2 rounded-xl transition-colors text-sm ${selectedAnnouncement.hasLiked
-                          ? 'bg-red-900/50 text-red-400 hover:bg-red-900/80'
-                          : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                          }`}
-                      >
-                        {selectedAnnouncement.hasLiked ? (
-                          <HeartIconSolid className="h-4 w-4 sm:h-5 sm:w-5" />
-                        ) : (
-                          <HeartIcon className="h-4 w-4 sm:h-5 sm:w-5" />
-                        )}
-                        <span>{selectedAnnouncement.likeCount || 0} Likes</span>
-                      </button>
+                {/* Actions */}
+                <div className="border-t border-white/8 pt-4">
+                  <div className="flex items-center gap-4 mb-5">
+                    <button onClick={() => toggleLike(selected._id)}
+                      className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-sm transition-colors ${
+                        selected.hasLiked ? 'bg-red-500/15 text-red-400' : 'bg-white/5 text-gray-400 hover:bg-white/10'
+                      }`}>
+                      {selected.hasLiked ? <HeartIconSolid className="h-4 w-4" /> : <HeartIcon className="h-4 w-4" />}
+                      {selected.likeCount || 0} Likes
+                    </button>
+                    <div className="flex items-center gap-2 text-gray-600 text-sm">
+                      <EyeIcon className="h-4 w-4" />{selected.metadata?.views || 0} Views
+                    </div>
+                  </div>
 
-                      <div className="flex items-center space-x-2 text-gray-400 text-sm">
-                        <EyeIcon className="h-4 w-4 sm:h-5 sm:w-5" />
-                        <span>{selectedAnnouncement.metadata?.views || 0} Views</span>
+                  {/* Comments */}
+                  <h4 className="text-sm font-semibold text-white mb-3">Comments ({selected.comments?.length || 0})</h4>
+                  <div className="flex gap-2.5 mb-4">
+                    <div className="w-8 h-8 rounded-full bg-[#CA133E]/20 flex items-center justify-center flex-shrink-0">
+                      <span className="text-xs font-bold text-[#CA133E]">{studentData?.firstName?.[0]}</span>
+                    </div>
+                    <div className="flex-1">
+                      <textarea value={newComment} onChange={e => setNewComment(e.target.value)}
+                        placeholder="Add a comment…" rows={2}
+                        className={`${inputClass} w-full p-2.5 resize-none`} />
+                      <div className="flex justify-end mt-2">
+                        <button onClick={() => addComment(selected._id)}
+                          disabled={!newComment.trim() || submittingComment}
+                          className="px-4 py-1.5 bg-[#CA133E] text-white rounded-xl text-sm font-medium hover:bg-[#A01030] disabled:opacity-40 transition-colors">
+                          {submittingComment ? 'Posting…' : 'Post'}
+                        </button>
                       </div>
                     </div>
                   </div>
 
-                  {/* Comments Section */}
-                  <div className="space-y-4">
-                    <h4 className="text-base sm:text-lg font-medium text-white">
-                      Comments ({selectedAnnouncement.comments?.length || 0})
-                    </h4>
-
-                    {/* Add Comment */}
-                    <div className="flex space-x-2 sm:space-x-3">
-                      <div className="w-8 h-8 bg-blue-500/20 rounded-full flex items-center justify-center ring-2 ring-blue-500/50 flex-shrink-0">
-                        <span className="text-sm font-medium text-blue-300">
-                          {studentData?.firstName?.charAt(0)}
-                        </span>
-                      </div>
-                      <div className="flex-1">
-                        <textarea
-                          value={newComment}
-                          onChange={(e) => setNewComment(e.target.value)}
-                          placeholder="Add a comment..."
-                          className="w-full p-2 sm:p-3 border border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-800/90 text-white resize-none text-sm sm:text-base"
-                          rows={3}
-                        />
-                        <div className="mt-2 flex justify-end">
-                          <button
-                            onClick={() => addComment(selectedAnnouncement._id)}
-                            disabled={!newComment.trim() || submittingComment}
-                            className="px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:bg-gray-500 disabled:cursor-not-allowed transition-colors text-sm"
-                          >
-                            {submittingComment ? 'Posting...' : 'Post Comment'}
-                          </button>
+                  <div className="space-y-3 max-h-48 overflow-y-auto">
+                    {selected.comments?.map((c, i) => (
+                      <div key={i} className="flex gap-2.5">
+                        <div className="w-7 h-7 rounded-full bg-white/8 flex items-center justify-center flex-shrink-0">
+                          <span className="text-xs text-gray-300">{c.user?.firstName?.[0]}</span>
+                        </div>
+                        <div className="flex-1 bg-white/4 rounded-xl p-2.5">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="text-xs font-medium text-white">{c.user?.firstName} {c.user?.lastName}</span>
+                            <span className="text-[10px] text-gray-600">{relTime(c.createdAt)}</span>
+                          </div>
+                          <p className="text-xs text-gray-300">{c.content}</p>
                         </div>
                       </div>
-                    </div>
-
-                    {/* Comments List */}
-                    <div className="space-y-3 sm:space-y-4 max-h-60 sm:max-h-80 overflow-y-auto">
-                      {selectedAnnouncement.comments?.map((comment, index) => (
-                        <div key={index} className="flex space-x-2 sm:space-x-3">
-                          <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gray-700/80 rounded-full flex items-center justify-center ring-2 ring-gray-600/50 flex-shrink-0">
-                            <span className="text-xs sm:text-sm font-medium text-gray-300">
-                              {comment.user?.firstName?.charAt(0)}
-                            </span>
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="bg-gray-800/70 rounded-xl p-2 sm:p-3">
-                              <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mb-1">
-                                <span className="text-xs sm:text-sm font-medium text-white">
-                                  {comment.user?.firstName} {comment.user?.lastName}
-                                </span>
-                                <span className="text-xs text-gray-500">
-                                  {formatDate(comment.createdAt)}
-                                </span>
-                              </div>
-                              <p className="text-xs sm:text-sm text-gray-300">{comment.content}</p>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
+                    ))}
                   </div>
                 </div>
               </div>
@@ -586,4 +338,4 @@ const AnnouncementsTab = ({ studentData }) => {
   );
 };
 
-export default AnnouncementsTab; 
+export default AnnouncementsTab;

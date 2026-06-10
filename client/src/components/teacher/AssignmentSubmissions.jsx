@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { API_ENDPOINTS } from '../../config/api';
 import { showError } from '../../utils/toast';
@@ -121,8 +121,8 @@ const AssignmentSubmissions = ({ assignmentId, onClose }) => {
 
   if (loading) {
     return (
-      <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50">
-        <div className="bg-gray-900/90 border border-gray-700 text-white rounded-xl p-8">
+      <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
+        <div className="bg-[#161616] border border-white/10 text-white rounded-xl p-8">
           <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-400 mx-auto"></div>
           <p className="text-center mt-4">Loading submissions...</p>
         </div>
@@ -131,9 +131,9 @@ const AssignmentSubmissions = ({ assignmentId, onClose }) => {
   }
 
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-gray-900/90 border border-gray-700 text-white rounded-xl shadow-2xl max-w-6xl w-full max-h-[90vh] flex flex-col">
-        <div className="p-6 border-b border-gray-700">
+    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+      <div className="bg-[#161616] border border-white/10 text-white rounded-xl max-w-6xl w-full max-h-[90vh] flex flex-col">
+        <div className="p-6 border-b border-white/5">
           <h3 className="text-2xl font-bold text-white">Assignment Submissions</h3>
           <button onClick={onClose} className="text-gray-400 hover:text-white">
             Close

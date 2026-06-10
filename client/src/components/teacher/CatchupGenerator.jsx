@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+﻿import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   SparklesIcon,
@@ -155,7 +155,7 @@ const CatchupGenerator = () => {
   }, [cs, ed, jd, spd]);
 
   const ready = cs && ed && jd;
-  const inputCls = "w-full px-4 py-2.5 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-500 focus:border-[#CA133E] focus:outline-none text-sm";
+  const inputCls = "w-full px-4 py-2.5 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-600 focus:border-[#CA133E] focus:outline-none text-sm";
   const labelCls = "block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2";
 
   return (

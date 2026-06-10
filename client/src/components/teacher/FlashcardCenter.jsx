@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { API_ENDPOINTS } from '../../config/api';
 import { showSuccess, showError, showWarning } from '../../utils/toast';
@@ -245,7 +245,7 @@ const FlashcardCenter = () => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-gray-800/70 rounded-xl border border-gray-700/50 p-4 sm:p-6 shadow-md transition-all hover:bg-gray-700/90 hover:border-gray-600"
+        className="bg-[#161616] rounded-xl border border-white/5 p-4 sm:p-6 shadow-md transition-all hover:bg-white/8 hover:border-white/10"
       >
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
           <div className="flex-1 min-w-0">
@@ -341,10 +341,10 @@ const FlashcardCenter = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4 bg-gray-800/60 rounded-xl p-4 sm:p-6 shadow-2xl backdrop-blur-sm border-2 border-gray-600/50">
+      <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4 bg-[#161616] border border-white/5 rounded-xl p-4 sm:p-6">
         <div className="flex-1">
-          <h2 className="text-lg sm:text-xl lg:text-[20pt] font-bold text-white">Flashcard Center</h2>
-          <p className="text-sm lg:text-[14pt] text-gray-300 mt-1">Create and manage flashcard stacks for enhanced learning</p>
+          <h2 className="text-lg sm:text-xl lg:text-xl font-bold text-white">Flashcard Center</h2>
+          <p className="text-sm lg:text-sm text-gray-400 mt-1">Create and manage flashcard stacks for enhanced learning</p>
         </div>
         <div className="flex items-center space-x-4">
           <div className="bg-blue-500/30 text-blue-300 px-3 py-1 rounded-full text-sm font-medium">
@@ -352,7 +352,7 @@ const FlashcardCenter = () => {
           </div>
           <motion.button
             onClick={handleCreateStack}
-            className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl transition-all duration-300 font-medium"
+            className="flex items-center space-x-2 bg-[#CA133E] hover:bg-[#A01030] text-white px-4 py-2 rounded-xl transition-all duration-300 font-medium"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
@@ -364,7 +364,7 @@ const FlashcardCenter = () => {
 
       {/* Statistics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-gray-800/60 rounded-xl p-4 border border-gray-700/50">
+        <div className="bg-[#161616] rounded-xl p-4 border border-white/5">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-400">Total Stacks</p>
@@ -373,7 +373,7 @@ const FlashcardCenter = () => {
             <DocumentTextIcon className="h-8 w-8 text-blue-400" />
           </div>
         </div>
-        <div className="bg-gray-800/60 rounded-xl p-4 border border-gray-700/50">
+        <div className="bg-[#161616] rounded-xl p-4 border border-white/5">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-400">Teacher Stacks</p>
@@ -382,7 +382,7 @@ const FlashcardCenter = () => {
             <AcademicCapIcon className="h-8 w-8 text-blue-400" />
           </div>
         </div>
-        <div className="bg-gray-800/60 rounded-xl p-4 border border-gray-700/50">
+        <div className="bg-[#161616] rounded-xl p-4 border border-white/5">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-400">Student Stacks</p>
@@ -391,7 +391,7 @@ const FlashcardCenter = () => {
             <UsersIcon className="h-8 w-8 text-green-400" />
           </div>
         </div>
-        <div className="bg-gray-800/60 rounded-xl p-4 border border-gray-700/50">
+        <div className="bg-[#161616] rounded-xl p-4 border border-white/5">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-400">Total Cards</p>
@@ -403,7 +403,7 @@ const FlashcardCenter = () => {
       </div>
 
       {/* Filters */}
-      <div className="bg-gray-800/60 rounded-xl p-4 sm:p-6 shadow-2xl backdrop-blur-sm border-2 border-gray-600/50">
+      <div className="bg-[#161616] border border-white/5 rounded-xl p-4 sm:p-6">
         <div className="space-y-4">
           {/* Search and Filter Toggle */}
           <div className="flex flex-col sm:flex-row gap-4">
@@ -412,14 +412,14 @@ const FlashcardCenter = () => {
               <input
                 type="text"
                 placeholder="Search flashcard stacks..."
-                className="w-full pl-10 pr-4 py-2 sm:py-3 border border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-900/70 text-white text-sm sm:text-base"
+                className="w-full pl-10 pr-4 py-2 sm:py-3 border border-white/10 rounded-xl focus:outline-none focus:border-[#CA133E] transition-colors bg-[#161616] text-white text-sm sm:text-base"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className="flex items-center space-x-2 px-4 py-2 sm:py-3 bg-gray-700/50 hover:bg-gray-700/70 text-white rounded-xl transition-colors text-sm sm:text-base"
+              className="flex items-center space-x-2 px-4 py-2 sm:py-3 bg-white/5 hover:bg-white/8/70 text-white rounded-xl transition-colors text-sm sm:text-base"
             >
               <FunnelIcon className="h-4 w-4 sm:h-5 sm:w-5" />
               <span className="hidden sm:inline">Filters</span>
@@ -437,7 +437,7 @@ const FlashcardCenter = () => {
                 className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
               >
                 <select
-                  className="px-3 py-2 border border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-900/70 text-white text-sm sm:text-base"
+                  className="px-3 py-2 border border-white/10 rounded-xl focus:outline-none focus:border-[#CA133E] transition-colors bg-[#161616] text-white text-sm sm:text-base"
                   value={filterCategory}
                   onChange={(e) => setFilterCategory(e.target.value)}
                 >
@@ -448,7 +448,7 @@ const FlashcardCenter = () => {
                   ))}
                 </select>
                 <select
-                  className="px-3 py-2 border border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-900/70 text-white text-sm sm:text-base"
+                  className="px-3 py-2 border border-white/10 rounded-xl focus:outline-none focus:border-[#CA133E] transition-colors bg-[#161616] text-white text-sm sm:text-base"
                   value={filterCreator}
                   onChange={(e) => setFilterCreator(e.target.value)}
                 >
@@ -469,8 +469,8 @@ const FlashcardCenter = () => {
             onClick={() => setActiveTab('all')}
             className={`flex items-center px-3 sm:px-4 py-2 sm:py-3 rounded-xl font-medium transition-all text-sm sm:text-base whitespace-nowrap ${
               activeTab === 'all'
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-700/50 text-gray-300 hover:bg-gray-700/70 hover:text-white'
+                ? 'bg-[#CA133E] text-white'
+                : 'bg-white/5 text-gray-400 hover:bg-white/8/70 hover:text-white'
             }`}
           >
             <DocumentTextIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2 flex-shrink-0" />
@@ -485,7 +485,7 @@ const FlashcardCenter = () => {
             className={`flex items-center px-3 sm:px-4 py-2 sm:py-3 rounded-xl font-medium transition-all text-sm sm:text-base whitespace-nowrap ${
               activeTab === 'my'
                 ? 'bg-green-600 text-white'
-                : 'bg-gray-700/50 text-gray-300 hover:bg-gray-700/70 hover:text-white'
+                : 'bg-white/5 text-gray-400 hover:bg-white/8/70 hover:text-white'
             }`}
           >
             <UsersIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2 flex-shrink-0" />
@@ -500,7 +500,7 @@ const FlashcardCenter = () => {
             className={`flex items-center px-3 sm:px-4 py-2 sm:py-3 rounded-xl font-medium transition-all text-sm sm:text-base whitespace-nowrap ${
               activeTab === 'teachers'
                 ? 'bg-purple-600 text-white'
-                : 'bg-gray-700/50 text-gray-300 hover:bg-gray-700/70 hover:text-white'
+                : 'bg-white/5 text-gray-400 hover:bg-white/8/70 hover:text-white'
             }`}
           >
             <AcademicCapIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2 flex-shrink-0" />
@@ -567,7 +567,7 @@ const FlashcardCenter = () => {
          {/* Delete Confirmation Modal */}
          {showDeleteModal && stackToDelete && (
            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-             <div className="bg-gray-800 rounded-xl p-6 max-w-md w-full mx-4 border border-gray-700">
+             <div className="bg-[#1A1A1A] rounded-xl p-6 max-w-md w-full mx-4 border border-white/10">
                <div className="flex items-center space-x-3 mb-4">
                  <div className="flex-shrink-0">
                    <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
@@ -581,7 +581,7 @@ const FlashcardCenter = () => {
                </div>
                
                <div className="mb-6">
-                 <p className="text-gray-300 mb-2">
+                 <p className="text-gray-400 mb-2">
                    Are you sure you want to delete <span className="font-semibold text-white">"{stackToDelete.title}"</span>?
                  </p>
                  <p className="text-sm text-gray-400">
@@ -595,7 +595,7 @@ const FlashcardCenter = () => {
                      setShowDeleteModal(false);
                      setStackToDelete(null);
                    }}
-                   className="flex-1 px-4 py-2 bg-gray-600 text-white rounded-xl hover:bg-gray-700 transition-colors"
+                   className="flex-1 px-4 py-2 bg-gray-600 text-white rounded-xl hover:bg-white/8 transition-colors"
                  >
                    Cancel
                  </button>

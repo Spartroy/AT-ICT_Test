@@ -31,6 +31,7 @@ module.exports = {
       },
       fontFamily: {
         pop: ["Poppins"],
+        display: ["Jumper", "Poppins", "sans-serif"],
       },
       colors: {
         brand: {

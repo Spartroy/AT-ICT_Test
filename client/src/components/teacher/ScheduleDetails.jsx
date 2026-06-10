@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { API_ENDPOINTS } from '../../config/api';
 import { getValidToken, clearAuth, redirectToLogin, setAuthHeaders } from '../../utils/auth';
@@ -230,7 +230,7 @@ const ScheduleDetails = ({ scheduleId, onClose }) => {
 
   if (loading) {
     return (
-      <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
         <div className="bg-[#2a1a1a] rounded-xl p-8 text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#CA133E] mx-auto mb-4"></div>
           <p className="text-white">Loading schedule details...</p>
@@ -241,7 +241,7 @@ const ScheduleDetails = ({ scheduleId, onClose }) => {
 
   if (!schedule) {
     return (
-      <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
         <div className="bg-[#2a1a1a] rounded-xl p-8 text-center">
           <p className="text-white mb-4">Schedule not found</p>
           <button
@@ -256,13 +256,13 @@ const ScheduleDetails = ({ scheduleId, onClose }) => {
   }
 
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-start justify-center z-50 p-4 overflow-y-auto">
+    <div className="fixed inset-0 bg-black/80 flex items-start justify-center z-50 p-4 overflow-y-auto">
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 50 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 50 }}
         transition={{ type: "spring", stiffness: 300, damping: 30 }}
-        className="bg-[#2a1a1a] rounded-xl shadow-2xl max-w-6xl w-full max-h-[95vh] overflow-y-auto border border-[#CA133E]/30 mt-4"
+        className="bg-[#2a1a1a] rounded-xl max-w-6xl w-full max-h-[95vh] overflow-y-auto border border-[#CA133E]/30 mt-4"
       >
         {/* Header */}
         <div className="p-6 border-b border-[#CA133E]/30">
@@ -270,7 +270,7 @@ const ScheduleDetails = ({ scheduleId, onClose }) => {
             <div className="flex-1">
               <h3 className="text-2xl font-bold text-white">{schedule.title}</h3>
               {schedule.description && (
-                <p className="text-gray-300 mt-2">{schedule.description}</p>
+                <p className="text-gray-400 mt-2">{schedule.description}</p>
               )}
               <div className="flex flex-wrap gap-4 mt-3 text-sm text-gray-300">
                 <div className="flex items-center gap-2">
@@ -292,7 +292,7 @@ const ScheduleDetails = ({ scheduleId, onClose }) => {
             <div className="flex gap-3">
               <button
                 onClick={() => setShowEditModal(true)}
-                className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-xl hover:bg-blue-700 transition-colors font-semibold"
+                className="flex items-center gap-2 bg-[#CA133E] text-white px-4 py-2 rounded-xl hover:bg-blue-700 transition-colors font-semibold"
               >
                 <PencilIcon className="h-4 w-4" />
                 Edit Schedule
@@ -324,7 +324,7 @@ const ScheduleDetails = ({ scheduleId, onClose }) => {
                         <p className="text-white font-semibold">
                           {assignment.student.firstName} {assignment.student.lastName}
                         </p>
-                        <p className="text-gray-300 text-sm">
+                        <p className="text-gray-400 text-sm">
                           {assignment.student.email}
                         </p>
                         {assignment.student.studentInfo?.studentId && (
@@ -351,7 +351,7 @@ const ScheduleDetails = ({ scheduleId, onClose }) => {
               <div key={day.day} className="border border-white/20 rounded-xl p-6 bg-white/5">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
                   <h5 className="text-xl font-bold text-white">{day.day}</h5>
-                  <span className="text-sm text-gray-300 bg-white/10 px-3 py-1 rounded-xl">
+                  <span className="text-sm text-gray-400 bg-white/10 px-3 py-1 rounded-xl">
                     {day.sessions?.length || 0} session{(day.sessions?.length || 0) !== 1 ? 's' : ''}
                   </span>
                 </div>
@@ -365,7 +365,7 @@ const ScheduleDetails = ({ scheduleId, onClose }) => {
                       return (
                         <div
                           key={sessionIndex}
-                          className={`p-4 rounded-xl border-l-4 border-${config.color}-500 bg-${config.color}-900/20 backdrop-blur-sm`}
+                          className={`p-4 rounded-xl border-l-4 border-${config.color}-500 bg-${config.color}-900/20`}
                         >
                           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                             <div className="flex-1">
@@ -404,13 +404,13 @@ const ScheduleDetails = ({ scheduleId, onClose }) => {
         {/* Edit Schedule Modal */}
         <AnimatePresence>
           {showEditModal && (
-            <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-start justify-center z-50 p-4">
+            <div className="fixed inset-0 bg-black/80 flex items-start justify-center z-50 p-4">
               <motion.div
                 initial={{ opacity: 0, scale: 0.95, y: 50 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: 50 }}
                 transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                className="bg-[#2a1a1a] rounded-xl shadow-2xl max-w-7xl w-full max-h-[95vh] overflow-y-auto border border-[#CA133E]/30 mt-4"
+                className="bg-[#2a1a1a] rounded-xl max-w-7xl w-full max-h-[95vh] overflow-y-auto border border-[#CA133E]/30 mt-4"
               >
                 <div className="p-6 border-b border-[#CA133E]/30">
                   <div className="flex justify-between items-center">
@@ -433,7 +433,7 @@ const ScheduleDetails = ({ scheduleId, onClose }) => {
                         type="text"
                         value={formData.title}
                         onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                        className="w-full px-4 py-3 border border-white/20 rounded-xl focus:ring-2 focus:ring-[#CA133E] focus:border-transparent bg-white/10 text-white placeholder-gray-400"
+                        className="w-full px-4 py-3 border border-white/20 rounded-xl focus:outline-none focus:border-[#CA133E] transition-colors focus:border-transparent bg-white/10 text-white placeholder-gray-400"
                         placeholder="Schedule Title"
                       />
                     </div>
@@ -444,7 +444,7 @@ const ScheduleDetails = ({ scheduleId, onClose }) => {
                         type="text"
                         value={formData.description}
                         onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                        className="w-full px-4 py-3 border border-white/20 rounded-xl focus:ring-2 focus:ring-[#CA133E] focus:border-transparent bg-white/10 text-white placeholder-gray-400"
+                        className="w-full px-4 py-3 border border-white/20 rounded-xl focus:outline-none focus:border-[#CA133E] transition-colors focus:border-transparent bg-white/10 text-white placeholder-gray-400"
                         placeholder="Schedule Description"
                       />
                     </div>
@@ -564,7 +564,7 @@ const ScheduleDetails = ({ scheduleId, onClose }) => {
         {/* QR Modal */}
         <AnimatePresence>
           {showQr && (
-            <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
               <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -573,7 +573,7 @@ const ScheduleDetails = ({ scheduleId, onClose }) => {
               >
                 <div className="flex justify-between items-center mb-4">
                   <h3 className="text-white font-bold text-lg">Attendance QR Code</h3>
-                  <button onClick={() => setShowQr(false)} className="text-gray-300 hover:text-white">
+                  <button onClick={() => setShowQr(false)} className="text-gray-400 hover:text-white">
                     <XMarkIcon className="h-6 w-6" />
                   </button>
                 </div>
@@ -587,7 +587,7 @@ const ScheduleDetails = ({ scheduleId, onClose }) => {
                       </div>
                     </div>
                     <div className="bg-white rounded-xl p-3 text-black text-xs break-all select-all">{qrToken}</div>
-                    <p className="text-gray-300 text-sm">Students can scan this code from their Attendance tab to check in.</p>
+                    <p className="text-gray-400 text-sm">Students can scan this code from their Attendance tab to check in.</p>
                   </div>
                 ) : (
                   <p className="text-gray-300">No token</p>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { API_ENDPOINTS } from '../../config/api';
 import { showSuccess, showError } from '../../utils/toast';
@@ -88,7 +88,7 @@ const ViewFlashcardModal = ({ isOpen, onClose, stack }) => {
                initial={{ opacity: 0 }}
                animate={{ opacity: 1 }}
                exit={{ opacity: 0 }}
-               className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
+               className="fixed inset-0 bg-black/80"
                onClick={onClose}
                style={{ zIndex: 40 }}
              />
@@ -96,21 +96,21 @@ const ViewFlashcardModal = ({ isOpen, onClose, stack }) => {
                initial={{ opacity: 0, scale: 0.95, y: 20 }}
                animate={{ opacity: 1, scale: 1, y: 0 }}
                exit={{ opacity: 0, scale: 0.95, y: 20 }}
-               className="inline-block w-full max-w-4xl p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-xl"
+               className="inline-block w-full max-w-4xl p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-[#161616] border border-white/10 rounded-xl"
                style={{ zIndex: 50, position: 'relative' }}
                onClick={(e) => e.stopPropagation()}
              >
                              {/* Header */}
                <div className="flex items-center justify-between mb-6">
                  <div className="flex items-center gap-3">
-                   <div className="p-2 bg-red-100 rounded-xl">
-                     <BookOpenIcon className="h-6 w-6 text-red-600" />
+                   <div className="p-2 bg-[#CA133E]/20 rounded-xl">
+                     <BookOpenIcon className="h-6 w-6 text-[#CA133E]" />
                    </div>
                    <div>
-                     <h3 className="text-lg font-semibold text-gray-900">
+                     <h3 className="text-lg font-semibold text-white">
                        {stack.title}
                      </h3>
-                     <p className="text-sm text-gray-600">
+                     <p className="text-sm text-gray-500">
                        {stack.subject} • {stack.totalCards} cards
                      </p>
                    </div>
@@ -121,7 +121,7 @@ const ViewFlashcardModal = ({ isOpen, onClose, stack }) => {
                      whileTap={{ scale: 0.95 }}
                      onClick={shuffleCards}
                      disabled={isShuffling}
-                     className="p-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                     className="p-2 bg-white/5 border border-white/10 text-gray-400 hover:text-white rounded-xl hover:bg-white/8 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                      title="Shuffle Cards"
                    >
                      {isShuffling ? (
@@ -135,14 +135,14 @@ const ViewFlashcardModal = ({ isOpen, onClose, stack }) => {
                        <ArrowPathIcon className="h-4 w-4" />
                      )}
                    </motion.button>
-                   <button onClick={onClose} className="p-2 text-gray-400 hover:text-gray-600">
+                   <button onClick={onClose} className="p-2 text-gray-400 hover:text-white transition-colors rounded-xl hover:bg-white/8">
                      <XMarkIcon className="h-6 w-6" />
                    </button>
                  </div>
                </div>
 
                              {/* Stack Info */}
-               <div className="bg-gray-50 rounded-xl p-4 mb-6">
+               <div className="bg-[#1A1A1A] rounded-xl p-4 mb-6">
                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                    <div className="flex items-center gap-2">
                      <AcademicCapIcon className="h-4 w-4 text-red-600" />
@@ -154,7 +154,7 @@ const ViewFlashcardModal = ({ isOpen, onClose, stack }) => {
                    </div>
                  </div>
                  {stack.description && (
-                   <p className="text-sm text-gray-600 mt-3">{stack.description}</p>
+                   <p className="text-sm text-gray-500 mt-3">{stack.description}</p>
                  )}
                </div>
 
@@ -185,7 +185,7 @@ const ViewFlashcardModal = ({ isOpen, onClose, stack }) => {
                       <div className="absolute inset-0 bg-white border-2 border-gray-200 rounded-xl shadow-lg p-6 flex items-center justify-center text-center flashcard-front"
                       style={{ backfaceVisibility: 'hidden' }}>
                         <div>
-                          <h4 className="text-lg font-semibold text-gray-900 mb-2">
+                          <h4 className="text-lg font-semibold text-white mb-2">
                             Card {currentCardIndex + 1}
                           </h4>
                           <p className="text-gray-700 whitespace-pre-wrap">
@@ -201,7 +201,7 @@ const ViewFlashcardModal = ({ isOpen, onClose, stack }) => {
                       <div className="absolute inset-0 bg-gradient-to-br from-red-50 to-red-100 border-2 border-red-200 rounded-xl shadow-lg p-6 flex items-center justify-center text-center flashcard-back"
                       style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}>
                         <div>
-                          <h4 className="text-lg font-semibold text-gray-900 mb-2">
+                          <h4 className="text-lg font-semibold text-white mb-2">
                             Answer
                           </h4>
                           <p className="text-gray-700 whitespace-pre-wrap">
@@ -223,13 +223,13 @@ const ViewFlashcardModal = ({ isOpen, onClose, stack }) => {
                   whileTap={{ scale: 0.95 }}
                   onClick={prevCard}
                   disabled={currentCardIndex === 0}
-                  className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 text-gray-400 hover:text-white rounded-xl hover:bg-white/8 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                   <ChevronLeftIcon className="h-5 w-5" />
                   Previous
                 </motion.button>
 
-                                 <div className="text-sm text-gray-600">
+                                 <div className="text-sm text-gray-500">
                    {currentCardIndex + 1} of {cards.length}
                  </div>
 
@@ -238,7 +238,7 @@ const ViewFlashcardModal = ({ isOpen, onClose, stack }) => {
                    whileTap={{ scale: 0.95 }}
                    onClick={nextCard}
                    disabled={currentCardIndex === cards.length - 1}
-                   className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                   className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 text-gray-400 hover:text-white rounded-xl hover:bg-white/8 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                  >
                    Next
                    <ChevronRightIcon className="h-5 w-5" />
@@ -246,10 +246,10 @@ const ViewFlashcardModal = ({ isOpen, onClose, stack }) => {
                </div>
 
               {/* Footer */}
-              <div className="flex items-center justify-end gap-4 pt-6 border-t border-gray-200">
+              <div className="flex items-center justify-end gap-4 pt-6 border-t border-white/10">
                 <button
                   onClick={onClose}
-                  className="px-6 py-2 text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200 transition-colors"
+                  className="px-6 py-2 text-gray-400 bg-white/5 border border-white/10 rounded-xl hover:bg-white/8 transition-colors"
                 >
                   Close
                 </button>

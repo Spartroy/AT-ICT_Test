@@ -31,7 +31,7 @@ const Hero = () => {
           >
             {/* Top Badge */}
             <motion.div
-              className="inline-block bg-[#CA133E] text-white px-4 sm:px-6 py-4 sm:py-6 rounded-full text-[12pt] sm:text-[14pt] font-semibold mt-6 mb-[-60px] sm:mb-[-80px]"
+              className="inline-block bg-[#CA133E] text-white px-4 sm:px-6 py-3 sm:py-4 rounded-full text-xs sm:text-sm font-semibold mt-6 mb-[-50px] sm:mb-[-70px]"
               variants={itemVariants}
             >
               92% Average Across Students. Grade 9? Our Standard!
@@ -39,7 +39,8 @@ const Hero = () => {
 
             {/* Main Heading */}
             <motion.h1
-              className="text-[28pt] sm:text-[36pt] lg:text-[42pt] xl:text-[52pt] font-bold leading-tight"
+              className="font-display font-bold text-4xl sm:text-5xl lg:text-6xl xl:text-7xl leading-tight"
+              style={{ letterSpacing: '-0.02em' }}
               variants={itemVariants}
             >
               Struggling with{' '}
@@ -51,7 +52,7 @@ const Hero = () => {
 
             {/* Subtext */}
             <motion.p
-              className="text-gray-300 text-[14pt] sm:text-[16pt] max-w-lg leading-relaxed"
+              className="text-gray-300 text-base sm:text-lg max-w-lg leading-relaxed"
               variants={itemVariants}
             >
               The only ICT tutoring course built on interactive sessions.
@@ -68,14 +69,14 @@ const Hero = () => {
                 href="https://drive.google.com/file/d/1ECbYVvxmOv89e9ifF34_ozVzsd-EHiq2/view?usp=sharing"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex justify-center items-center bg-[#CA133E] text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl text-[14pt] sm:text-[16pt] font-semibold hover:bg-[#A01030] transition-all"
+                className="inline-flex justify-center items-center bg-[#CA133E] text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl text-sm sm:text-base font-semibold hover:bg-[#A01030] transition-all"
               >
                 Watch a Free Lesson
               </a>
 
               <Link
                 to="/register"
-                className="inline-flex justify-center items-center border-2 border-gray-500 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl text-[14pt] sm:text-[16pt] font-semibold hover:bg-gray-500 hover:text-white transition-all"
+                className="inline-flex justify-center items-center border-2 border-gray-500 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl text-sm sm:text-base font-semibold hover:bg-gray-500 hover:text-white transition-all"
               >
                 Start Learning
               </Link>
@@ -92,7 +93,7 @@ const Hero = () => {
                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                   </svg>
                 </div>
-                <span className="text-gray-300 text-[12pt] sm:text-[14pt]">Scoring A+</span>
+                <span className="text-gray-300 text-xs sm:text-sm">Scoring A+</span>
               </div>
               
               <div className="flex items-center space-x-2">
@@ -101,7 +102,7 @@ const Hero = () => {
                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                   </svg>
                 </div>
-                <span className="text-gray-300 text-[12pt] sm:text-[14pt]">No Coding Required</span>
+                <span className="text-gray-300 text-xs sm:text-sm">No Coding Required</span>
               </div>
               
               <div className="flex items-center space-x-2">
@@ -110,7 +111,7 @@ const Hero = () => {
                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                   </svg>
                 </div>
-                <span className="text-gray-300 text-[12pt] sm:text-[14pt]">24/7 Support</span>
+                <span className="text-gray-300 text-xs sm:text-sm">24/7 Support</span>
               </div>
             </motion.div>
 
@@ -126,8 +127,8 @@ const Hero = () => {
                   </svg>
                 ))}
               </div>
-              <span className="text-[#CA133E] text-[12pt] sm:text-[14pt] font-semibold">400+</span>
-              <span className="text-gray-300 text-[12pt] sm:text-[14pt]">Satisfied Students</span>
+              <span className="text-[#CA133E] text-xs sm:text-sm font-semibold">400+</span>
+              <span className="text-gray-300 text-xs sm:text-sm">Satisfied Students</span>
             </motion.div>
           </motion.div>
 
@@ -139,7 +140,7 @@ const Hero = () => {
             whileInView="visible"
             viewport={{ once: true }}
           >
-            <div className="relative bg-gray-800 rounded-xl overflow-hidden border-4 h-[300px] sm:h-[400px] md:h-[500px] lg:h-[600px] w-full max-w-[750px] border-[#CA133E]">
+            <div className="relative bg-gray-800 rounded-xl overflow-hidden border-4 h-[300px] sm:h-[400px] md:h-[500px] lg:h-[600px] w-full max-w-[750px] border-[#CA133E]" style={{ boxShadow: '0 8px 24px rgba(202,19,62,0.35)' }}>
               {/* Inline Instagram embed when playing */}
               {showVideo ? (
                 <iframe

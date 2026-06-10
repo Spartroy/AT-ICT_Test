@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+﻿import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { API_ENDPOINTS } from '../../config/api';
 import { showError, showSuccess } from '../../utils/toast';
@@ -321,7 +321,7 @@ const VideoManagement = () => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-gray-800/70 rounded-xl border border-gray-700/50 p-4 shadow-md transition-all hover:bg-gray-700/90 hover:border-gray-600"
+        className="bg-[#161616] rounded-xl border border-white/5 p-4 shadow-md transition-all hover:bg-white/8 hover:border-white/10"
       >
         <div className="flex items-start justify-between">
           <div className="flex-1">
@@ -377,10 +377,10 @@ const VideoManagement = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4 bg-gray-800/60 rounded-xl p-4 sm:p-6 shadow-2xl backdrop-blur-sm border-2 border-gray-600/50">
+      <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4 bg-[#161616] border border-white/5 rounded-xl p-4 sm:p-6">
         <div className="flex-1">
-          <h2 className="text-lg sm:text-xl lg:text-[20pt] font-bold text-white">Video Management</h2>
-          <p className="text-sm lg:text-[14pt] text-gray-300 mt-1">Manage and organize your video library</p>
+          <h2 className="text-lg sm:text-xl lg:text-xl font-bold text-white">Video Management</h2>
+          <p className="text-sm lg:text-sm text-gray-400 mt-1">Manage and organize your video library</p>
         </div>
         <div className="flex items-center space-x-4">
           <div className="bg-blue-500/30 text-blue-300 px-3 py-1 rounded-full text-sm font-medium">
@@ -388,7 +388,7 @@ const VideoManagement = () => {
           </div>
           <motion.button
             onClick={() => setShowCreateModal(true)}
-            className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl transition-all duration-300 font-medium"
+            className="flex items-center space-x-2 bg-[#CA133E] hover:bg-[#A01030] text-white px-4 py-2 rounded-xl transition-all duration-300 font-medium"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
@@ -400,7 +400,7 @@ const VideoManagement = () => {
 
       {/* Statistics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-gray-800/60 rounded-xl p-4 border border-gray-700/50">
+        <div className="bg-[#161616] rounded-xl p-4 border border-white/5">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-400">Total Videos</p>
@@ -409,7 +409,7 @@ const VideoManagement = () => {
             <PlayIcon className="h-8 w-8 text-blue-400" />
           </div>
         </div>
-        <div className="bg-gray-800/60 rounded-xl p-4 border border-gray-700/50">
+        <div className="bg-[#161616] rounded-xl p-4 border border-white/5">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-400">Theory Videos</p>
@@ -418,7 +418,7 @@ const VideoManagement = () => {
             <AcademicCapIcon className="h-8 w-8 text-blue-400" />
           </div>
         </div>
-        <div className="bg-gray-800/60 rounded-xl p-4 border border-gray-700/50">
+        <div className="bg-[#161616] rounded-xl p-4 border border-white/5">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-400">Practical Videos</p>
@@ -427,7 +427,7 @@ const VideoManagement = () => {
             <ComputerDesktopIcon className="h-8 w-8 text-green-400" />
           </div>
         </div>
-        <div className="bg-gray-800/60 rounded-xl p-4 border border-gray-700/50">
+        <div className="bg-[#161616] rounded-xl p-4 border border-white/5">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-400">Active Videos</p>
@@ -439,7 +439,7 @@ const VideoManagement = () => {
       </div>
 
       {/* Filters */}
-      <div className="bg-gray-800/60 rounded-xl p-4 sm:p-6 shadow-2xl backdrop-blur-sm border-2 border-gray-600/50">
+      <div className="bg-[#161616] border border-white/5 rounded-xl p-4 sm:p-6">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div className="flex-1">
             <div className="relative">
@@ -449,7 +449,7 @@ const VideoManagement = () => {
                 placeholder="Search videos..."
                 value={filters.search}
                 onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
-                className="w-full pl-10 pr-4 py-2 bg-gray-700/50 border border-gray-600/50 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full pl-10 pr-4 py-2 bg-white/5 border border-white/5 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-[#CA133E] transition-colors"
               />
             </div>
           </div>
@@ -457,7 +457,7 @@ const VideoManagement = () => {
           <div className="flex items-center space-x-2">
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className="flex items-center space-x-2 px-4 py-2 bg-gray-700/50 text-gray-300 rounded-xl hover:bg-gray-600/50 transition-colors"
+              className="flex items-center space-x-2 px-4 py-2 bg-white/5 text-gray-400 rounded-xl hover:bg-gray-600/50 transition-colors"
             >
               <FunnelIcon className="h-5 w-5" />
               <span>Filters</span>
@@ -477,7 +477,7 @@ const VideoManagement = () => {
               <select
                 value={filters.type}
                 onChange={(e) => setFilters(prev => ({ ...prev, type: e.target.value }))}
-                className="px-3 py-2 bg-gray-700/50 border border-gray-600/50 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="px-3 py-2 bg-white/5 border border-white/5 rounded-xl text-white focus:outline-none focus:border-[#CA133E] transition-colors"
               >
                 <option value="">All Types</option>
                 <option value="theory">Theory</option>
@@ -487,7 +487,7 @@ const VideoManagement = () => {
               <select
                 value={filters.program}
                 onChange={(e) => setFilters(prev => ({ ...prev, program: e.target.value }))}
-                className="px-3 py-2 bg-gray-700/50 border border-gray-600/50 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="px-3 py-2 bg-white/5 border border-white/5 rounded-xl text-white focus:outline-none focus:border-[#CA133E] transition-colors"
               >
                 <option value="">All Programs</option>
                 <option value="word">Word</option>
@@ -500,7 +500,7 @@ const VideoManagement = () => {
               <select
                 value={filters.contentType}
                 onChange={(e) => setFilters(prev => ({ ...prev, contentType: e.target.value }))}
-                className="px-3 py-2 bg-gray-700/50 border border-gray-600/50 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="px-3 py-2 bg-white/5 border border-white/5 rounded-xl text-white focus:outline-none focus:border-[#CA133E] transition-colors"
               >
                 <option value="">All Content Types</option>
                 <option value="guide">Guide</option>
@@ -510,7 +510,7 @@ const VideoManagement = () => {
               <select
                 value={filters.phase}
                 onChange={(e) => setFilters(prev => ({ ...prev, phase: e.target.value }))}
-                className="px-3 py-2 bg-gray-700/50 border border-gray-600/50 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="px-3 py-2 bg-white/5 border border-white/5 rounded-xl text-white focus:outline-none focus:border-[#CA133E] transition-colors"
               >
                 <option value="">All Phases</option>
                 <option value="1">Phase 1</option>
@@ -550,7 +550,7 @@ const VideoManagement = () => {
           <button
             onClick={() => setPagination(prev => ({ ...prev, current: prev.current - 1 }))}
             disabled={!pagination.hasPrev}
-            className="px-4 py-2 bg-gray-700/50 text-gray-300 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-600/50 transition-colors"
+            className="px-4 py-2 bg-white/5 text-gray-400 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-600/50 transition-colors"
           >
             Previous
           </button>
@@ -560,7 +560,7 @@ const VideoManagement = () => {
           <button
             onClick={() => setPagination(prev => ({ ...prev, current: prev.current + 1 }))}
             disabled={!pagination.hasNext}
-            className="px-4 py-2 bg-gray-700/50 text-gray-300 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-600/50 transition-colors"
+            className="px-4 py-2 bg-white/5 text-gray-400 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-600/50 transition-colors"
           >
             Next
           </button>
@@ -574,13 +574,13 @@ const VideoManagement = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
           >
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-gray-800 rounded-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto"
+              className="bg-[#1A1A1A] rounded-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto"
             >
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-xl font-bold text-white">
@@ -601,22 +601,22 @@ const VideoManagement = () => {
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">Title</label>
+                    <label className="block text-sm font-medium text-gray-400 mb-2">Title</label>
                     <input
                       type="text"
                       value={formData.title}
                       onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-                      className="w-full px-3 py-2 bg-gray-700/50 border border-gray-600/50 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 bg-white/5 border border-white/5 rounded-xl text-white focus:outline-none focus:border-[#CA133E] transition-colors"
                       placeholder="Enter video title"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">Type</label>
+                    <label className="block text-sm font-medium text-gray-400 mb-2">Type</label>
                     <select
                       value={formData.type}
                       onChange={(e) => setFormData(prev => ({ ...prev, type: e.target.value }))}
-                      className="w-full px-3 py-2 bg-gray-700/50 border border-gray-600/50 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 bg-white/5 border border-white/5 rounded-xl text-white focus:outline-none focus:border-[#CA133E] transition-colors"
                     >
                       <option value="theory">Theory</option>
                       <option value="practical">Practical</option>
@@ -626,23 +626,23 @@ const VideoManagement = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">Description (Optional)</label>
+                  <label className="block text-sm font-medium text-gray-400 mb-2">Description (Optional)</label>
                   <textarea
                     value={formData.description}
                     onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
                     rows={3}
-                    className="w-full px-3 py-2 bg-gray-700/50 border border-gray-600/50 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 bg-white/5 border border-white/5 rounded-xl text-white focus:outline-none focus:border-[#CA133E] transition-colors"
                     placeholder="Enter video description (optional)"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">Video URL (Google Drive) *</label>
+                  <label className="block text-sm font-medium text-gray-400 mb-2">Video URL (Google Drive) *</label>
                   <input
                     type="url"
                     value={formData.videoUrl}
                     onChange={(e) => setFormData(prev => ({ ...prev, videoUrl: e.target.value }))}
-                    className="w-full px-3 py-2 bg-gray-700/50 border border-gray-600/50 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 bg-white/5 border border-white/5 rounded-xl text-white focus:outline-none focus:border-[#CA133E] transition-colors"
                     placeholder="https://drive.google.com/file/d/..."
                     required
                   />
@@ -651,11 +651,11 @@ const VideoManagement = () => {
                 {formData.type === 'theory' && (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-2">Phase</label>
+                      <label className="block text-sm font-medium text-gray-400 mb-2">Phase</label>
                       <select
                         value={formData.phase}
                         onChange={(e) => setFormData(prev => ({ ...prev, phase: e.target.value }))}
-                        className="w-full px-3 py-2 bg-gray-700/50 border border-gray-600/50 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-3 py-2 bg-white/5 border border-white/5 rounded-xl text-white focus:outline-none focus:border-[#CA133E] transition-colors"
                       >
                         <option value="">Select Phase</option>
                         <option value="1">Phase 1</option>
@@ -665,12 +665,12 @@ const VideoManagement = () => {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-2">Chapter</label>
+                      <label className="block text-sm font-medium text-gray-400 mb-2">Chapter</label>
                       <input
                         type="number"
                         value={formData.chapter}
                         onChange={(e) => setFormData(prev => ({ ...prev, chapter: e.target.value }))}
-                        className="w-full px-3 py-2 bg-gray-700/50 border border-gray-600/50 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-3 py-2 bg-white/5 border border-white/5 rounded-xl text-white focus:outline-none focus:border-[#CA133E] transition-colors"
                         placeholder="1"
                       />
                     </div>
@@ -680,7 +680,7 @@ const VideoManagement = () => {
                 {formData.type === 'practical' && (
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-2">Program *</label>
+                      <label className="block text-sm font-medium text-gray-400 mb-2">Program *</label>
                       <select
                         value={formData.program}
                         onChange={(e) => {
@@ -689,7 +689,7 @@ const VideoManagement = () => {
                             fetchNextOrder(e.target.value, formData.contentType);
                           }
                         }}
-                        className="w-full px-3 py-2 bg-gray-700/50 border border-gray-600/50 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-3 py-2 bg-white/5 border border-white/5 rounded-xl text-white focus:outline-none focus:border-[#CA133E] transition-colors"
                         required
                       >
                         <option value="">Select Program</option>
@@ -702,7 +702,7 @@ const VideoManagement = () => {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-2">Type *</label>
+                      <label className="block text-sm font-medium text-gray-400 mb-2">Type *</label>
                       <select
                         value={formData.contentType}
                         onChange={(e) => {
@@ -711,7 +711,7 @@ const VideoManagement = () => {
                             fetchNextOrder(formData.program, e.target.value);
                           }
                         }}
-                        className="w-full px-3 py-2 bg-gray-700/50 border border-gray-600/50 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-3 py-2 bg-white/5 border border-white/5 rounded-xl text-white focus:outline-none focus:border-[#CA133E] transition-colors"
                         required
                       >
                         <option value="">Select Type</option>
@@ -721,12 +721,12 @@ const VideoManagement = () => {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-2">Order *</label>
+                      <label className="block text-sm font-medium text-gray-400 mb-2">Order *</label>
                       <input
                         type="number"
                         value={formData.order}
                         onChange={(e) => setFormData(prev => ({ ...prev, order: e.target.value }))}
-                        className="w-full px-3 py-2 bg-gray-700/50 border border-gray-600/50 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-3 py-2 bg-white/5 border border-white/5 rounded-xl text-white focus:outline-none focus:border-[#CA133E] transition-colors"
                         placeholder="1"
                         min="1"
                         required
@@ -737,11 +737,11 @@ const VideoManagement = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">Access Level</label>
+                    <label className="block text-sm font-medium text-gray-400 mb-2">Access Level</label>
                     <select
                       value={formData.accessLevel}
                       onChange={(e) => setFormData(prev => ({ ...prev, accessLevel: e.target.value }))}
-                      className="w-full px-3 py-2 bg-gray-700/50 border border-gray-600/50 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 bg-white/5 border border-white/5 rounded-xl text-white focus:outline-none focus:border-[#CA133E] transition-colors"
                     >
                       <option value="all">All Students</option>
                       <option value="year10">Year 10</option>
@@ -756,12 +756,12 @@ const VideoManagement = () => {
 
                 {formData.accessLevel === 'specific' && (
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">Specific Students (comma-separated IDs)</label>
+                    <label className="block text-sm font-medium text-gray-400 mb-2">Specific Students (comma-separated IDs)</label>
                     <input
                       type="text"
                       value={formData.specificStudents}
                       onChange={(e) => setFormData(prev => ({ ...prev, specificStudents: e.target.value }))}
-                      className="w-full px-3 py-2 bg-gray-700/50 border border-gray-600/50 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 bg-white/5 border border-white/5 rounded-xl text-white focus:outline-none focus:border-[#CA133E] transition-colors"
                       placeholder="student1_id, student2_id"
                     />
                   </div>
@@ -774,7 +774,7 @@ const VideoManagement = () => {
                         type="checkbox"
                         checked={formData.isActive}
                         onChange={(e) => setFormData(prev => ({ ...prev, isActive: e.target.checked }))}
-                        className="rounded border-gray-600 bg-gray-700 text-blue-500 focus:ring-blue-500"
+                        className="rounded border-white/10 bg-white/5 accent-[#CA133E]"
                       />
                       <span className="text-sm font-medium text-gray-300">Active</span>
                     </label>
@@ -789,13 +789,13 @@ const VideoManagement = () => {
                     setShowEditModal(false);
                     resetForm();
                   }}
-                  className="px-4 py-2 bg-gray-600 text-white rounded-xl hover:bg-gray-700 transition-colors"
+                  className="px-4 py-2 bg-gray-600 text-white rounded-xl hover:bg-white/8 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={showCreateModal ? handleCreateVideo : handleUpdateVideo}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors"
+                  className="px-4 py-2 bg-[#CA133E] text-white rounded-xl hover:bg-[#A01030] transition-colors"
                 >
                   {showCreateModal ? 'Create Video' : 'Update Video'}
                 </button>
@@ -812,13 +812,13 @@ const VideoManagement = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
           >
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-gray-800 rounded-xl p-6 w-full max-w-md"
+              className="bg-[#1A1A1A] rounded-xl p-6 w-full max-w-md"
             >
               <div className="text-center">
                 <TrashIcon className="h-12 w-12 text-red-500 mx-auto mb-4" />
@@ -829,7 +829,7 @@ const VideoManagement = () => {
                 <div className="flex justify-center space-x-3">
                   <button
                     onClick={() => setShowDeleteModal(false)}
-                    className="px-4 py-2 bg-gray-600 text-white rounded-xl hover:bg-gray-700 transition-colors"
+                    className="px-4 py-2 bg-gray-600 text-white rounded-xl hover:bg-white/8 transition-colors"
                   >
                     Cancel
                   </button>

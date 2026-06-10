@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+﻿import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { API_ENDPOINTS } from '../../config/api';
 import { getValidToken, clearAuth, redirectToLogin, setAuthHeaders } from '../../utils/auth';
@@ -266,17 +266,17 @@ const MaterialsCenter = () => {
   // ── Loading ──────────────────────────────────────────────────────────────────
   if (loading) {
     return (
-      <div className="space-y-6 bg-gray-800/60 rounded-2xl p-6 border border-gray-700/50">
+      <div className="space-y-6 bg-[#161616] rounded-2xl p-6 border border-white/5">
         <div className="flex items-center justify-between">
-          <div className="h-8 bg-gray-700/50 rounded-xl w-48 animate-pulse" />
-          <div className="h-10 bg-gray-700/50 rounded-xl w-36 animate-pulse" />
+          <div className="h-8 bg-white/5 rounded-xl w-48 animate-pulse" />
+          <div className="h-10 bg-white/5 rounded-xl w-36 animate-pulse" />
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {[...Array(6)].map((_, i) => (
             <div key={i} className="bg-gray-700/30 rounded-2xl overflow-hidden animate-pulse">
-              <div className="h-40 bg-gray-700/50" />
+              <div className="h-40 bg-white/5" />
               <div className="p-4 space-y-2">
-                <div className="h-4 bg-gray-700/50 rounded w-3/4" />
+                <div className="h-4 bg-white/5 rounded w-3/4" />
                 <div className="h-3 bg-gray-700/30 rounded w-1/2" />
               </div>
             </div>
@@ -288,7 +288,7 @@ const MaterialsCenter = () => {
 
   // ── Main ─────────────────────────────────────────────────────────────────────
   return (
-    <div className="space-y-6 bg-gray-800/60 rounded-2xl p-6 shadow-2xl backdrop-blur-sm border border-gray-700/50">
+    <div className="space-y-6 bg-[#161616] rounded-2xl p-6 border border-white/5">
 
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
@@ -310,7 +310,7 @@ const MaterialsCenter = () => {
               placeholder="Search materials…"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 bg-gray-900/70 border border-gray-700/50 rounded-xl text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#CA133E]/50 transition-all"
+              className="w-full pl-10 pr-4 py-2.5 bg-[#161616] border border-white/5 rounded-xl text-sm text-white placeholder-gray-600 focus:outline-none focus:border-[#CA133E] transition-colors/50 transition-all"
             />
           </div>
           <button
@@ -330,7 +330,7 @@ const MaterialsCenter = () => {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="bg-gray-900/80 rounded-xl p-4 border border-gray-700/50"
+            className="bg-[#161616] rounded-xl p-4 border border-white/5"
           >
             <div className="flex justify-between text-sm mb-2">
               <span className="text-white font-medium">Uploading…</span>
@@ -364,7 +364,7 @@ const MaterialsCenter = () => {
                   ? type === 'all'
                     ? 'bg-[#CA133E]/20 text-[#CA133E] border-[#CA133E]/40'
                     : `${cfg.tab} border-current`
-                  : 'text-gray-400 border-gray-700/50 hover:text-white bg-gray-900/40 hover:border-gray-600/50'
+                  : 'text-gray-400 border-white/10 hover:text-white bg-[#1A1A1A] hover:border-white/20'
                 }`}
             >
               {TypeIcon && <TypeIcon className="h-4 w-4" />}
@@ -385,7 +385,7 @@ const MaterialsCenter = () => {
 
       {/* Materials grid */}
       {filteredMaterials.length === 0 ? (
-        <div className="py-20 text-center rounded-2xl border-2 border-dashed border-gray-700/50 bg-gray-900/30">
+        <div className="py-20 text-center rounded-2xl border border-dashed border-white/10 bg-white/3">
           <FolderIcon className="h-14 w-14 mx-auto text-gray-600 mb-4" />
           <h3 className="text-base font-semibold text-white mb-1">
             {searchTerm || filter !== 'all' ? 'No matching materials' : 'No Materials Yet'}
@@ -416,7 +416,7 @@ const MaterialsCenter = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.05 }}
-                className="group bg-gray-900/70 rounded-2xl overflow-hidden border border-gray-700/40 hover:border-gray-600/60 shadow-md hover:shadow-xl transition-all duration-300"
+                className="group bg-[#161616] rounded-2xl overflow-hidden border border-white/5 hover:border-white/5 shadow-md hover:shadow-xl transition-all duration-300"
               >
                 {/* Cover */}
                 <div className="relative h-40 overflow-hidden">
@@ -441,7 +441,7 @@ const MaterialsCenter = () => {
                   <div className="absolute inset-0 bg-gradient-to-t from-gray-900/80 via-transparent to-transparent" />
 
                   {/* Type badge */}
-                  <div className={`absolute top-3 left-3 px-2.5 py-1 rounded-lg text-xs font-semibold border backdrop-blur-sm ${cfg.badge}`}>
+                  <div className={`absolute top-3 left-3 px-2.5 py-1 rounded-lg text-xs font-semibold border ${cfg.badge}`}>
                     {cfg.label}
                   </div>
 
@@ -450,21 +450,21 @@ const MaterialsCenter = () => {
                     <button
                       onClick={() => downloadMaterial(material)}
                       title="Download"
-                      className="p-2 bg-black/50 hover:bg-emerald-600/80 rounded-xl backdrop-blur-sm transition-colors"
+                      className="p-2 bg-black/50 hover:bg-emerald-600/80 rounded-xl transition-colors"
                     >
                       <ArrowDownTrayIcon className="h-4 w-4 text-white" />
                     </button>
                     <button
                       onClick={() => openEditModal(material)}
                       title="Edit"
-                      className="p-2 bg-black/50 hover:bg-blue-600/80 rounded-xl backdrop-blur-sm transition-colors"
+                      className="p-2 bg-black/50 hover:bg-blue-600/80 rounded-xl transition-colors"
                     >
                       <PencilIcon className="h-4 w-4 text-white" />
                     </button>
                     <button
                       onClick={() => setDeleteTarget(material)}
                       title="Delete"
-                      className="p-2 bg-black/50 hover:bg-red-600/80 rounded-xl backdrop-blur-sm transition-colors"
+                      className="p-2 bg-black/50 hover:bg-red-600/80 rounded-xl transition-colors"
                     >
                       <TrashIcon className="h-4 w-4 text-white" />
                     </button>
@@ -489,7 +489,7 @@ const MaterialsCenter = () => {
                       {material.fileSize > 0 && <span>{formatFileSize(material.fileSize)}</span>}
                     </div>
                   </div>
-                  <div className="text-xs text-gray-600 mt-2 pt-2 border-t border-gray-800">
+                  <div className="text-xs text-gray-600 mt-2 pt-2 border-t border-white/5">
                     {new Date(material.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                   </div>
                 </div>
@@ -506,18 +506,18 @@ const MaterialsCenter = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+            className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
             onClick={closeModal}
           >
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-gray-900 border border-gray-700/60 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col"
+              className="bg-[#161616] border border-white/10 rounded-2xl w-full max-w-2xl max-h-[90vh] flex flex-col"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Modal header */}
-              <div className="flex items-center justify-between p-6 border-b border-gray-800">
+              <div className="flex items-center justify-between p-6 border-b border-white/5">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-[#CA133E]/20 rounded-xl border border-[#CA133E]/30">
                     <CloudArrowUpIcon className="h-5 w-5 text-[#CA133E]" />
@@ -526,7 +526,7 @@ const MaterialsCenter = () => {
                     {editingMaterial ? 'Edit Material' : 'Upload New Material'}
                   </h3>
                 </div>
-                <button onClick={closeModal} className="p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-xl transition-colors">
+                <button onClick={closeModal} className="p-2 text-gray-400 hover:text-white hover:bg-[#1A1A1A] rounded-xl transition-colors">
                   <XMarkIcon className="h-5 w-5" />
                 </button>
               </div>
@@ -535,32 +535,32 @@ const MaterialsCenter = () => {
 
                 {/* Title */}
                 <div>
-                  <label className="block text-sm font-semibold text-gray-300 mb-1.5">Title <span className="text-[#CA133E]">*</span></label>
+                  <label className="block text-sm font-semibold text-gray-400 mb-1.5">Title <span className="text-[#CA133E]">*</span></label>
                   <input
                     type="text"
                     required
                     value={formData.title}
                     onChange={(e) => setFormData(f => ({ ...f, title: e.target.value }))}
-                    className="w-full px-4 py-2.5 bg-gray-800/80 border border-gray-700/60 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#CA133E]/50 focus:border-transparent text-sm"
+                    className="w-full px-4 py-2.5 bg-[#1A1A1A] border border-white/10 rounded-xl text-white placeholder-gray-600 focus:outline-none focus:border-[#CA133E] transition-colors text-sm"
                     placeholder="e.g. Introduction to Programming"
                   />
                 </div>
 
                 {/* Description */}
                 <div>
-                  <label className="block text-sm font-semibold text-gray-300 mb-1.5">Description <span className="text-gray-500 font-normal">(optional)</span></label>
+                  <label className="block text-sm font-semibold text-gray-400 mb-1.5">Description <span className="text-gray-500 font-normal">(optional)</span></label>
                   <textarea
                     value={formData.description}
                     onChange={(e) => setFormData(f => ({ ...f, description: e.target.value }))}
                     rows={2}
-                    className="w-full px-4 py-2.5 bg-gray-800/80 border border-gray-700/60 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#CA133E]/50 focus:border-transparent text-sm resize-none"
+                    className="w-full px-4 py-2.5 bg-[#1A1A1A] border border-white/10 rounded-xl text-white placeholder-gray-600 focus:outline-none focus:border-[#CA133E] transition-colors text-sm resize-none"
                     placeholder="Brief description visible to students…"
                   />
                 </div>
 
                 {/* Type */}
                 <div>
-                  <label className="block text-sm font-semibold text-gray-300 mb-2">Type <span className="text-[#CA133E]">*</span></label>
+                  <label className="block text-sm font-semibold text-gray-400 mb-2">Type <span className="text-[#CA133E]">*</span></label>
                   <div className="flex gap-2">
                     {Object.entries(typeConfig).map(([key, cfg]) => {
                       const Icon = cfg.icon;
@@ -570,7 +570,7 @@ const MaterialsCenter = () => {
                           type="button"
                           onClick={() => setFormData(f => ({ ...f, type: key }))}
                           className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold border transition-all
-                            ${formData.type === key ? `${cfg.tab} border-current` : 'text-gray-400 border-gray-700/50 bg-gray-800/40 hover:border-gray-600'}`}
+                            ${formData.type === key ? `${cfg.tab} border-current` : 'text-gray-400 border-white/10 bg-[#1A1A1A] hover:border-white/20'}`}
                         >
                           <Icon className="h-4 w-4" />
                           {cfg.label}
@@ -582,13 +582,13 @@ const MaterialsCenter = () => {
 
                 {/* File source toggle */}
                 <div>
-                  <label className="block text-sm font-semibold text-gray-300 mb-2">Content Source <span className="text-[#CA133E]">*</span></label>
+                  <label className="block text-sm font-semibold text-gray-400 mb-2">Content Source <span className="text-[#CA133E]">*</span></label>
                   <div className="flex gap-2 mb-4">
                     <button
                       type="button"
                       onClick={() => setUseExternalUrl(false)}
                       className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold border transition-all
-                        ${!useExternalUrl ? 'bg-[#CA133E]/20 text-[#CA133E] border-[#CA133E]/40' : 'text-gray-400 border-gray-700/50 bg-gray-800/40 hover:border-gray-600'}`}
+                        ${!useExternalUrl ? 'bg-[#CA133E]/20 text-[#CA133E] border-[#CA133E]/40' : 'text-gray-400 border-white/10 bg-[#1A1A1A] hover:border-white/20'}`}
                     >
                       <CloudArrowUpIcon className="h-4 w-4" />
                       Upload File
@@ -597,7 +597,7 @@ const MaterialsCenter = () => {
                       type="button"
                       onClick={() => setUseExternalUrl(true)}
                       className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold border transition-all
-                        ${useExternalUrl ? 'bg-violet-500/20 text-violet-300 border-violet-500/40' : 'text-gray-400 border-gray-700/50 bg-gray-800/40 hover:border-gray-600'}`}
+                        ${useExternalUrl ? 'bg-violet-500/20 text-violet-300 border-violet-500/40' : 'text-gray-400 border-white/10 bg-[#1A1A1A] hover:border-white/20'}`}
                     >
                       <LinkIcon className="h-4 w-4" />
                       External Link
@@ -609,12 +609,12 @@ const MaterialsCenter = () => {
                       type="url"
                       value={formData.externalUrl}
                       onChange={(e) => setFormData(f => ({ ...f, externalUrl: e.target.value }))}
-                      className="w-full px-4 py-2.5 bg-gray-800/80 border border-gray-700/60 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-transparent text-sm"
+                      className="w-full px-4 py-2.5 bg-[#1A1A1A] border border-white/10 rounded-xl text-white placeholder-gray-600 focus:outline-none focus:border-violet-500 transition-colors text-sm"
                       placeholder="https://drive.google.com/…"
                     />
                   ) : (
                     <div
-                      className="border-2 border-dashed border-gray-700/60 rounded-xl p-5 text-center hover:border-[#CA133E]/40 transition-colors cursor-pointer"
+                      className="border-2 border-dashed border-white/5 rounded-xl p-5 text-center hover:border-[#CA133E]/40 transition-colors cursor-pointer"
                       onClick={() => fileInputRef.current?.click()}
                     >
                       <input
@@ -655,9 +655,9 @@ const MaterialsCenter = () => {
 
                 {/* Thumbnail */}
                 <div>
-                  <label className="block text-sm font-semibold text-gray-300 mb-1.5">Thumbnail <span className="text-gray-500 font-normal">(optional · shown as cover image)</span></label>
+                  <label className="block text-sm font-semibold text-gray-400 mb-1.5">Thumbnail <span className="text-gray-500 font-normal">(optional · shown as cover image)</span></label>
                   <div
-                    className="border-2 border-dashed border-gray-700/60 rounded-xl p-4 text-center hover:border-[#CA133E]/30 transition-colors cursor-pointer"
+                    className="border-2 border-dashed border-white/5 rounded-xl p-4 text-center hover:border-[#CA133E]/30 transition-colors cursor-pointer"
                     onClick={() => thumbnailInputRef.current?.click()}
                   >
                     <input
@@ -716,7 +716,7 @@ const MaterialsCenter = () => {
                     type="button"
                     onClick={closeModal}
                     disabled={uploading}
-                    className="px-5 py-2.5 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-xl font-semibold transition-colors disabled:opacity-50"
+                    className="px-5 py-2.5 bg-[#1A1A1A] hover:bg-white/8 text-gray-400 rounded-xl font-semibold transition-colors disabled:opacity-50"
                   >
                     Cancel
                   </button>
@@ -746,14 +746,14 @@ const MaterialsCenter = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+            className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
             onClick={() => setDeleteTarget(null)}
           >
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-gray-900 border border-gray-700/60 rounded-2xl shadow-2xl w-full max-w-sm p-6"
+              className="bg-[#161616] border border-white/10 rounded-2xl w-full max-w-sm p-6"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center gap-3 mb-4">
@@ -768,7 +768,7 @@ const MaterialsCenter = () => {
               <div className="flex gap-3">
                 <button
                   onClick={() => setDeleteTarget(null)}
-                  className="flex-1 py-2.5 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-xl font-semibold transition-colors"
+                  className="flex-1 py-2.5 bg-[#1A1A1A] hover:bg-white/8 text-gray-400 rounded-xl font-semibold transition-colors"
                 >
                   Cancel
                 </button>

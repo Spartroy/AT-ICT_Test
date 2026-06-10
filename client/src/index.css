@@ -2,6 +2,22 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: "Jumper";
+  src: url("./assets/fonts/jumper-regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Jumper";
+  src: url("./assets/fonts/jumper-bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 html{
     scroll-behavior: smooth;
 }
@@ -105,6 +121,18 @@ body {
 /* Custom utility classes */
 .shadow-glow {
   box-shadow: 0 0 20px rgba(202, 19, 62, 0.5);
+}
+
+/* Subtle hover backgrounds that Tailwind doesn't generate by default */
+.hover\:bg-white\/3:hover  { background-color: rgba(255,255,255,0.03); }
+.hover\:bg-white\/6:hover  { background-color: rgba(255,255,255,0.06); }
+.hover\:bg-white\/8:hover  { background-color: rgba(255,255,255,0.08); }
+.bg-white\/2  { background-color: rgba(255,255,255,0.02); }
+.bg-white\/3  { background-color: rgba(255,255,255,0.03); }
+
+/* Portal dark background */
+.portal-bg {
+  background-color: #0B0B0B;
 }
 
 /* Scrollbar utilities */

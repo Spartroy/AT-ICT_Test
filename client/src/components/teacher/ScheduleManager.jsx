@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { API_ENDPOINTS } from '../../config/api';
 import { getValidToken, clearAuth, redirectToLogin, setAuthHeaders } from '../../utils/auth';
@@ -251,7 +251,7 @@ const ScheduleManager = () => {
           <div className="h-12 bg-gray-300/20 rounded-xl w-32 animate-pulse"></div>
         </div>
         {[...Array(3)].map((_, i) => (
-          <div key={i} className="bg-white/10 rounded-xl shadow-xl p-8 animate-pulse">
+          <div key={i} className="bg-white/10 rounded-xl p-8 animate-pulse">
             <div className="h-6 bg-gray-300/20 rounded-xl w-3/4 mb-6"></div>
             <div className="h-24 bg-gray-300/20 rounded-xl"></div>
           </div>
@@ -265,11 +265,11 @@ const ScheduleManager = () => {
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 lg:gap-6">
         <div className="flex-1">
-          <h2 className="text-lg sm:text-xl lg:text-[20pt] font-bold text-white flex items-center">
+          <h2 className="text-lg sm:text-xl lg:text-xl font-bold text-white flex items-center">
             <CalendarDaysIcon className="h-6 w-6 sm:h-8 sm:w-8 lg:h-10 lg:w-10 mr-2 sm:mr-4 text-[#CA133E]" />
             Schedule Manager
           </h2>
-          <p className="text-sm lg:text-[14pt] text-gray-300 mt-2">Create and manage multiple schedules for different student groups</p>
+          <p className="text-sm lg:text-sm text-gray-400 mt-2">Create and manage multiple schedules for different student groups</p>
         </div>
 
         <button
@@ -282,7 +282,7 @@ const ScheduleManager = () => {
       </div>
 
       {/* Student Classification Summary */}
-      <div className="bg-white/10 backdrop-blur-sm rounded-xl shadow-xl border border-white/20 p-6">
+      <div className="bg-white/10 rounded-xl border border-white/20 p-6">
         <h3 className="text-xl font-bold text-white mb-4 flex items-center">
           <UsersIcon className="h-6 w-6 mr-2 text-[#CA133E]" />
           Student Classifications
@@ -300,7 +300,7 @@ const ScheduleManager = () => {
                     </div>
                     <div>
                       <p className="text-white font-semibold">{group.label}</p>
-                      <p className="text-gray-300 text-sm">{count} students</p>
+                      <p className="text-gray-400 text-sm">{count} students</p>
                     </div>
                   </div>
                   <div className={`text-2xl font-bold text-${group.color}-400`}>
@@ -327,7 +327,7 @@ const ScheduleManager = () => {
             className={`px-4 py-2 rounded-xl font-semibold transition-colors ${
               activeTab === tab.value
                 ? 'bg-[#CA133E] text-white'
-                : 'bg-white/10 text-gray-300 hover:bg-white/20'
+                : 'bg-white/10 text-gray-400 hover:bg-white/20'
             }`}
           >
             {tab.label} ({tab.count})
@@ -338,10 +338,10 @@ const ScheduleManager = () => {
       {/* Schedules List */}
       <div className="space-y-4">
         {filteredSchedules.length === 0 ? (
-          <div className="bg-white/10 backdrop-blur-sm rounded-xl shadow-xl p-12 text-center border border-white/20">
+          <div className="bg-white/10 rounded-xl p-12 text-center border border-white/20">
             <CalendarDaysIcon className="h-16 w-16 text-gray-400 mx-auto mb-4" />
             <h3 className="text-xl font-bold text-white mb-2">No Schedules Found</h3>
-            <p className="text-gray-300 mb-6">
+            <p className="text-gray-400 mb-6">
               {activeTab === 'all' 
                 ? 'Create your first schedule to get started.'
                 : `No schedules found for ${activeTab} students.`
@@ -364,7 +364,7 @@ const ScheduleManager = () => {
                 key={schedule._id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-white/10 backdrop-blur-sm rounded-xl shadow-xl border border-white/20 p-6"
+                className="bg-white/10 rounded-xl border border-white/20 p-6"
               >
                 <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                   <div className="flex-1">
@@ -376,7 +376,7 @@ const ScheduleManager = () => {
                     </div>
                     
                     {schedule.description && (
-                      <p className="text-gray-300 mb-3">{schedule.description}</p>
+                      <p className="text-gray-400 mb-3">{schedule.description}</p>
                     )}
 
                     <div className="flex flex-wrap gap-4 text-sm text-gray-300">
@@ -422,7 +422,7 @@ const ScheduleManager = () => {
                         setSelectedSchedule(schedule);
                         setShowAssignModal(true);
                       }}
-                      className="flex items-center justify-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-xl hover:bg-blue-700 transition-colors font-semibold text-sm"
+                      className="flex items-center justify-center space-x-2 bg-[#CA133E] text-white px-4 py-2 rounded-xl hover:bg-blue-700 transition-colors font-semibold text-sm"
                     >
                       <UserPlusIcon className="h-4 w-4" />
                       <span>Assign Students</span>
@@ -449,13 +449,13 @@ const ScheduleManager = () => {
       {/* Create Schedule Modal */}
       <AnimatePresence>
         {showCreateModal && (
-          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 50 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 50 }}
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              className="bg-[#2a1a1a] rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-[#CA133E]/30"
+              className="bg-[#2a1a1a] rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-[#CA133E]/30"
             >
               <div className="p-6 border-b border-[#CA133E]/30">
                 <div className="flex justify-between items-center">
@@ -478,7 +478,7 @@ const ScheduleManager = () => {
                       type="text"
                       value={formData.title}
                       onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                      className="w-full px-4 py-3 border border-white/20 rounded-xl focus:ring-2 focus:ring-[#CA133E] focus:border-transparent bg-white/10 text-white placeholder-gray-400"
+                      className="w-full px-4 py-3 border border-white/20 rounded-xl focus:outline-none focus:border-[#CA133E] transition-colors focus:border-transparent bg-white/10 text-white placeholder-gray-400"
                       placeholder="e.g., 9H Advanced Schedule"
                     />
                   </div>
@@ -488,7 +488,7 @@ const ScheduleManager = () => {
                     <select
                       value={formData.scheduleType}
                       onChange={(e) => setFormData({ ...formData, scheduleType: e.target.value })}
-                      className="w-full px-4 py-3 border border-white/20 rounded-xl focus:ring-2 focus:ring-[#CA133E] focus:border-transparent bg-white/10 text-white"
+                      className="w-full px-4 py-3 border border-white/20 rounded-xl focus:outline-none focus:border-[#CA133E] transition-colors focus:border-transparent bg-white/10 text-white"
                     >
                       {scheduleTypes.map(type => (
                         <option key={type.value} value={type.value} className="bg-[#2a1a1a] text-white">
@@ -504,7 +504,7 @@ const ScheduleManager = () => {
                   <textarea
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    className="w-full px-4 py-3 border border-white/20 rounded-xl focus:ring-2 focus:ring-[#CA133E] focus:border-transparent bg-white/10 text-white placeholder-gray-400"
+                    className="w-full px-4 py-3 border border-white/20 rounded-xl focus:outline-none focus:border-[#CA133E] transition-colors focus:border-transparent bg-white/10 text-white placeholder-gray-400"
                     placeholder="Describe the purpose of this schedule..."
                     rows="3"
                   />
@@ -558,7 +558,7 @@ const ScheduleManager = () => {
                             </div>
                             <div>
                               <p className="text-white font-semibold">{group.label}</p>
-                              <p className="text-gray-300 text-sm">{getStudentGroupCount(group.value)} students available</p>
+                              <p className="text-gray-400 text-sm">{getStudentGroupCount(group.value)} students available</p>
                             </div>
                           </div>
                         </label>
@@ -575,7 +575,7 @@ const ScheduleManager = () => {
                       type="date"
                       value={formData.startDate}
                       onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
-                      className="w-full px-4 py-3 border border-white/20 rounded-xl focus:ring-2 focus:ring-[#CA133E] focus:border-transparent bg-white/10 text-white"
+                      className="w-full px-4 py-3 border border-white/20 rounded-xl focus:outline-none focus:border-[#CA133E] transition-colors focus:border-transparent bg-white/10 text-white"
                     />
                   </div>
 
@@ -585,7 +585,7 @@ const ScheduleManager = () => {
                       type="date"
                       value={formData.endDate}
                       onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
-                      className="w-full px-4 py-3 border border-white/20 rounded-xl focus:ring-2 focus:ring-[#CA133E] focus:border-transparent bg-white/10 text-white"
+                      className="w-full px-4 py-3 border border-white/20 rounded-xl focus:outline-none focus:border-[#CA133E] transition-colors focus:border-transparent bg-white/10 text-white"
                     />
                   </div>
                 </div>
@@ -595,7 +595,7 @@ const ScheduleManager = () => {
                   <textarea
                     value={formData.notes}
                     onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                    className="w-full px-4 py-3 border border-white/20 rounded-xl focus:ring-2 focus:ring-[#CA133E] focus:border-transparent bg-white/10 text-white placeholder-gray-400"
+                    className="w-full px-4 py-3 border border-white/20 rounded-xl focus:outline-none focus:border-[#CA133E] transition-colors focus:border-transparent bg-white/10 text-white placeholder-gray-400"
                     placeholder="Additional notes about this schedule..."
                     rows="2"
                   />
@@ -626,18 +626,18 @@ const ScheduleManager = () => {
       {/* Assign Students Modal */}
       <AnimatePresence>
         {showAssignModal && selectedSchedule && (
-          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-[#2a1a1a] rounded-xl shadow-2xl max-w-4xl w-full max-h-[80vh] overflow-y-auto border border-[#CA133E]/30"
+              className="bg-[#2a1a1a] rounded-xl max-w-4xl w-full max-h-[80vh] overflow-y-auto border border-[#CA133E]/30"
             >
               <div className="p-6 border-b border-[#CA133E]/30">
                 <div className="flex justify-between items-center">
                   <div>
                     <h3 className="text-xl font-bold text-white">Assign Students to Schedule</h3>
-                    <p className="text-gray-300 mt-1">{selectedSchedule.title}</p>
+                    <p className="text-gray-400 mt-1">{selectedSchedule.title}</p>
                   </div>
                   <button
                     onClick={() => {
@@ -664,7 +664,7 @@ const ScheduleManager = () => {
                         className={`flex items-center gap-2 px-4 py-2 rounded-xl font-semibold transition-colors ${
                           activeTab === group.value
                             ? 'bg-[#CA133E] text-white'
-                            : 'bg-white/10 text-gray-300 hover:bg-white/20'
+                            : 'bg-white/10 text-gray-400 hover:bg-white/20'
                         }`}
                       >
                         <Icon className="h-4 w-4" />
@@ -702,7 +702,7 @@ const ScheduleManager = () => {
                           <p className="text-white font-semibold">
                             {student.firstName} {student.lastName}
                           </p>
-                          <p className="text-gray-300 text-sm">
+                          <p className="text-gray-400 text-sm">
                             {student.email}
                           </p>
                           {student.studentInfo?.studentId && (
@@ -723,7 +723,7 @@ const ScheduleManager = () => {
                   )}
 
                   <div className="flex justify-between items-center pt-4 border-t border-white/20">
-                    <p className="text-gray-300 text-sm">
+                    <p className="text-gray-400 text-sm">
                       {selectedStudents.length} student{selectedStudents.length !== 1 ? 's' : ''} selected
                     </p>
                     <div className="flex gap-3">
@@ -732,7 +732,7 @@ const ScheduleManager = () => {
                           setShowAssignModal(false);
                           setSelectedStudents([]);
                         }}
-                        className="px-4 py-2 text-gray-300 hover:text-white transition-colors"
+                        className="px-4 py-2 text-gray-400 hover:text-white transition-colors"
                       >
                         Cancel
                       </button>

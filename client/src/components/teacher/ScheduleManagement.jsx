@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import ScheduleManager from './ScheduleManager';
 import ScheduleBuilder from './ScheduleBuilder';
@@ -24,9 +24,9 @@ const ScheduleManagement = () => {
   return (
     <div className="space-y-6">
       {/* View Selector */}
-      <div className="bg-white/10 backdrop-blur-sm rounded-xl shadow-xl border border-white/20 p-6">
+      <div className="bg-white/10 rounded-xl border border-white/20 p-6">
         <h2 className="text-xl font-bold text-white mb-4">Schedule Management</h2>
-        <p className="text-gray-300 mb-6">Choose how you want to manage schedules</p>
+        <p className="text-gray-400 mb-6">Choose how you want to manage schedules</p>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {views.map((view) => (
@@ -45,7 +45,7 @@ const ScheduleManagement = () => {
                 <div className="text-3xl">{view.icon}</div>
                 <div>
                   <h3 className="text-lg font-bold text-white mb-2">{view.label}</h3>
-                  <p className="text-gray-300 text-sm">{view.description}</p>
+                  <p className="text-gray-400 text-sm">{view.description}</p>
                 </div>
               </div>
             </motion.button>

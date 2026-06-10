@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { API_ENDPOINTS } from '../../config/api';
 import { showSuccess, showError } from '../../utils/toast';
@@ -140,15 +140,15 @@ const RegistrationActionModal = ({ activity, onClose, onApproved, onRejected }) 
     : null;
 
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
-        className="bg-gray-900/95 border border-gray-700 rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col"
+        className="bg-[#161616] border border-white/10 rounded-xl max-w-2xl w-full max-h-[90vh] flex flex-col"
       >
         {/* Header */}
-        <div className="p-5 border-b border-gray-700 flex items-center justify-between">
+        <div className="p-5 border-b border-white/5 flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <div className="h-10 w-10 rounded-xl bg-orange-500/20 border border-orange-500/30 flex items-center justify-center">
               <UserIcon className="h-5 w-5 text-orange-400" />
@@ -170,7 +170,7 @@ const RegistrationActionModal = ({ activity, onClose, onApproved, onRejected }) 
         <div className="flex-1 overflow-y-auto p-5 space-y-5">
           {loading ? (
             <div className="space-y-3 animate-pulse">
-              {[...Array(5)].map((_, i) => <div key={i} className="h-12 bg-gray-700/50 rounded-xl" />)}
+              {[...Array(5)].map((_, i) => <div key={i} className="h-12 bg-white/5 rounded-xl" />)}
             </div>
           ) : registration ? (
             <>
@@ -215,7 +215,7 @@ const RegistrationActionModal = ({ activity, onClose, onApproved, onRejected }) 
                   { label: 'Tech Knowledge', value: registration.techKnowledge != null ? `${registration.techKnowledge}/10` : 'N/A' },
                   { label: 'English Level', value: registration.englishLevel != null ? `${registration.englishLevel}/10` : 'N/A' },
                 ].map(({ label, value }) => (
-                  <div key={label} className="bg-gray-800/60 rounded-xl p-3">
+                  <div key={label} className="bg-[#161616] rounded-xl p-3">
                     <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">{label}</p>
                     <p className="text-sm font-semibold text-white">{value}</p>
                   </div>
@@ -223,7 +223,7 @@ const RegistrationActionModal = ({ activity, onClose, onApproved, onRejected }) 
               </div>
 
               {/* Contact */}
-              <div className="bg-gray-800/60 rounded-xl p-4 space-y-3">
+              <div className="bg-[#161616] rounded-xl p-4 space-y-3">
                 <p className="text-xs text-gray-500 uppercase tracking-wide font-semibold">Contact Information</p>
                 <div className="flex items-center space-x-3">
                   <EnvelopeIcon className="h-4 w-4 text-gray-400 flex-shrink-0" />
@@ -249,7 +249,7 @@ const RegistrationActionModal = ({ activity, onClose, onApproved, onRejected }) 
                     value={rejectReason}
                     onChange={(e) => setRejectReason(e.target.value)}
                     placeholder="Provide a reason for rejection (minimum 5 characters)..."
-                    className="w-full bg-gray-800 border border-gray-600 text-white placeholder-gray-500 rounded-xl p-3 text-sm focus:outline-none focus:border-red-500 resize-none h-24"
+                    className="w-full bg-[#1A1A1A] border border-white/10 text-white placeholder-gray-600 rounded-xl p-3 text-sm focus:outline-none focus:border-red-500 resize-none h-24"
                   />
                 </div>
               )}
@@ -267,12 +267,12 @@ const RegistrationActionModal = ({ activity, onClose, onApproved, onRejected }) 
         </div>
 
         {/* Footer */}
-        <div className="p-5 border-t border-gray-700 flex items-center justify-end space-x-3">
+        <div className="p-5 border-t border-white/5 flex items-center justify-end space-x-3">
           {showRejectForm ? (
             <>
               <button
                 onClick={() => setShowRejectForm(false)}
-                className="px-4 py-2 text-gray-300 bg-gray-700/80 rounded-xl hover:bg-gray-700 transition-colors text-sm"
+                className="px-4 py-2 text-gray-400 bg-white/5 border border-white/10 rounded-xl hover:bg-white/8 transition-colors text-sm"
               >
                 Cancel
               </button>
@@ -289,7 +289,7 @@ const RegistrationActionModal = ({ activity, onClose, onApproved, onRejected }) 
             <>
               <button
                 onClick={onClose}
-                className="px-4 py-2 text-gray-300 bg-gray-700/80 rounded-xl hover:bg-gray-700 transition-colors text-sm"
+                className="px-4 py-2 text-gray-400 bg-white/5 border border-white/10 rounded-xl hover:bg-white/8 transition-colors text-sm"
               >
                 Close
               </button>
@@ -415,15 +415,15 @@ const SubmissionModal = ({ activity, onClose }) => {
   const attachments = data?.submission?.submission?.attachments || [];
 
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
-        className="bg-gray-900/95 border border-gray-700 rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col"
+        className="bg-[#161616] border border-white/10 rounded-xl max-w-2xl w-full max-h-[90vh] flex flex-col"
       >
         {/* Header */}
-        <div className="p-5 border-b border-gray-700 flex items-center justify-between">
+        <div className="p-5 border-b border-white/5 flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <div className={`h-10 w-10 rounded-xl flex items-center justify-center border ${
               isQuiz ? 'bg-purple-500/20 border-purple-500/30' : 'bg-blue-500/20 border-blue-500/30'
@@ -445,7 +445,7 @@ const SubmissionModal = ({ activity, onClose }) => {
         {/* Body */}
         <div className="flex-1 overflow-y-auto p-5 space-y-5">
           {/* Student Card */}
-          <div className="flex items-center space-x-4 bg-gray-800/60 rounded-xl p-4">
+          <div className="flex items-center space-x-4 bg-[#161616] rounded-xl p-4">
             <div className={`h-14 w-14 rounded-xl flex items-center justify-center ring-2 flex-shrink-0 ${
               isQuiz
                 ? 'bg-gradient-to-br from-purple-500 to-purple-700 ring-purple-500/30'
@@ -469,13 +469,13 @@ const SubmissionModal = ({ activity, onClose }) => {
 
           {/* Metadata Badges */}
           <div className="grid grid-cols-3 gap-3">
-            <div className="bg-gray-800/60 rounded-xl p-3 text-center">
+            <div className="bg-[#161616] rounded-xl p-3 text-center">
               <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Status</p>
               <p className={`text-sm font-bold ${isLate ? 'text-red-400' : 'text-green-400'}`}>
                 {isLate ? '⚠️ Late' : '✓ On Time'}
               </p>
             </div>
-            <div className="bg-gray-800/60 rounded-xl p-3 text-center">
+            <div className="bg-[#161616] rounded-xl p-3 text-center">
               <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">
                 {isQuiz ? 'Questions' : 'Attachments'}
               </p>
@@ -483,7 +483,7 @@ const SubmissionModal = ({ activity, onClose }) => {
                 {isQuiz ? (data?.item?.questions?.length ?? '—') : `${attachmentsCount} file(s)`}
               </p>
             </div>
-            <div className="bg-gray-800/60 rounded-xl p-3 text-center">
+            <div className="bg-[#161616] rounded-xl p-3 text-center">
               <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Submitted</p>
               <p className="text-sm font-bold text-white">
                 {new Date(activity.createdAt).toLocaleDateString()}
@@ -500,12 +500,12 @@ const SubmissionModal = ({ activity, onClose }) => {
 
           {loading ? (
             <div className="space-y-3 animate-pulse">
-              <div className="h-32 bg-gray-700/50 rounded-xl" />
+              <div className="h-32 bg-white/5 rounded-xl" />
             </div>
           ) : data?.item ? (
             <>
               {/* Assignment / Quiz details */}
-              <div className="bg-gray-800/60 rounded-xl p-4 space-y-4">
+              <div className="bg-[#161616] rounded-xl p-4 space-y-4">
                 <p className="text-xs text-gray-500 uppercase tracking-wide font-semibold">
                   {isQuiz ? 'Quiz Details' : 'Assignment Details'}
                 </p>
@@ -547,7 +547,7 @@ const SubmissionModal = ({ activity, onClose }) => {
 
                 {/* Student result */}
                 {data.submission && (
-                  <div className="pt-3 border-t border-gray-700 space-y-2">
+                  <div className="pt-3 border-t border-white/5 space-y-2">
                     <p className="text-xs text-gray-500 uppercase tracking-wide font-semibold">Student's Result</p>
                     {data.submission.score !== undefined && (
                       <div className="flex items-center space-x-2">
@@ -572,7 +572,7 @@ const SubmissionModal = ({ activity, onClose }) => {
 
               {/* Attachments */}
               {!isQuiz && attachments.length > 0 && (
-                <div className="bg-gray-800/60 rounded-xl p-4 space-y-3">
+                <div className="bg-[#161616] rounded-xl p-4 space-y-3">
                   <p className="text-xs text-gray-500 uppercase tracking-wide font-semibold flex items-center gap-2">
                     <PaperClipIcon className="h-4 w-4" />
                     Submitted Files ({attachments.length})
@@ -581,7 +581,7 @@ const SubmissionModal = ({ activity, onClose }) => {
                     {attachments.map((file, idx) => (
                       <div
                         key={idx}
-                        className="flex items-center justify-between bg-gray-900/60 rounded-xl px-4 py-3 border border-gray-700/50"
+                        className="flex items-center justify-between bg-[#1A1A1A] rounded-xl px-4 py-3 border border-white/5"
                       >
                         <div className="flex items-center gap-3 min-w-0">
                           <PaperClipIcon className="h-4 w-4 text-blue-400 flex-shrink-0" />
@@ -614,10 +614,10 @@ const SubmissionModal = ({ activity, onClose }) => {
         </div>
 
         {/* Footer */}
-        <div className="p-5 border-t border-gray-700 flex justify-end">
+        <div className="p-5 border-t border-white/5 flex justify-end">
           <button
             onClick={onClose}
-            className="px-5 py-2 text-gray-300 bg-gray-700/80 rounded-xl hover:bg-gray-700 transition-colors text-sm font-medium"
+            className="px-5 py-2 text-gray-400 bg-white/5 border border-white/10 rounded-xl hover:bg-white/8 transition-colors text-sm font-medium"
           >
             Close
           </button>
@@ -760,15 +760,15 @@ const RecentActivities = ({ onStudentClick, onRegistrationUpdate }) => {
 
   if (loading) {
     return (
-      <div className="bg-white/10 backdrop-blur-sm rounded-xl shadow-xl p-6 lg:p-8 border border-white/20">
-        <h3 className="text-xl lg:text-2xl font-bold text-white mb-6">Recent Activity</h3>
-        <div className="space-y-4">
+      <div className="bg-[#161616] border border-white/5 rounded-xl p-5">
+        <h3 className="text-base font-bold text-white mb-4">Recent Activity</h3>
+        <div className="space-y-3">
           {[...Array(3)].map((_, i) => (
-            <div key={i} className="flex items-center space-x-4 p-3 animate-pulse">
-              <div className="h-10 w-10 rounded-xl bg-gray-300/20" />
+            <div key={i} className="flex items-center gap-3 p-3 animate-pulse">
+              <div className="h-10 w-10 rounded-xl bg-white/5" />
               <div className="flex-1">
-                <div className="h-4 bg-gray-300/20 rounded w-3/4 mb-2" />
-                <div className="h-3 bg-gray-300/20 rounded w-1/2" />
+                <div className="h-4 bg-white/5 rounded-xl w-3/4 mb-2" />
+                <div className="h-3 bg-white/5 rounded-xl w-1/2" />
               </div>
             </div>
           ))}
@@ -779,7 +779,7 @@ const RecentActivities = ({ onStudentClick, onRegistrationUpdate }) => {
 
   return (
     <>
-      <div className="bg-white/10 backdrop-blur-sm rounded-xl shadow-xl p-6 lg:p-8 border border-white/20">
+      <div className="bg-[#161616] border border-white/5 rounded-xl p-5">
         {/* Header */}
         <div className="flex items-center justify-between mb-6 lg:mb-8">
           <h3 className="text-xl lg:text-2xl font-bold text-white">Recent Activity</h3>

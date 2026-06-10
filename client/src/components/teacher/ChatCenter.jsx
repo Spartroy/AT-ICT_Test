@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+﻿import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { API_ENDPOINTS } from '../../config/api';
 import {
@@ -289,11 +289,11 @@ const ChatCenter = () => {
   }
 
   return (
-    <div className="flex flex-col lg:flex-row h-[70vh] lg:h-[80vh] bg-gray-900/70 rounded-xl border border-gray-700/50 overflow-hidden shadow-2xl backdrop-blur-md">
+    <div className="flex flex-col lg:flex-row h-[70vh] lg:h-[80vh] bg-[#161616] rounded-xl border border-white/5 overflow-hidden">
       {/* Students Sidebar */}
-      <div className={`${selectedStudent ? 'hidden lg:flex' : 'flex'} w-full lg:w-1/3 border-r border-gray-700/50 flex-col bg-gray-900/50`}>
+      <div className={`${selectedStudent ? 'hidden lg:flex' : 'flex'} w-full lg:w-1/3 border-r border-white/5/50 flex-col bg-[#161616]`}>
         {/* Search Header */}
-        <div className="p-3 sm:p-4 border-b border-gray-700/50">
+        <div className="p-3 sm:p-4 border-b border-white/5/50">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-base sm:text-lg font-semibold text-white">Student Chats</h3>
             <div className="flex items-center space-x-2">
@@ -310,7 +310,7 @@ const ChatCenter = () => {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search students..."
-              className="w-full pl-10 pr-3 py-2 border border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm bg-gray-800/90 text-white"
+              className="w-full pl-10 pr-3 py-2 border border-white/10 rounded-xl focus:outline-none focus:border-[#CA133E] transition-colors text-sm bg-[#1A1A1A] text-white"
             />
           </div>
         </div>
@@ -327,7 +327,7 @@ const ChatCenter = () => {
               <button
                 key={student.id}
                 onClick={() => setSelectedStudent(student)}
-                className={`w-full p-3 sm:p-4 text-left hover:bg-gray-700/50 border-b border-gray-800/70 transition-colors ${
+                className={`w-full p-3 sm:p-4 text-left hover:bg-white/5 border-b border-white/5/70 transition-colors ${
                   selectedStudent?.id === student.id
                     ? 'bg-blue-900/50'
                     : ''
@@ -335,7 +335,7 @@ const ChatCenter = () => {
               >
                 <div className="flex items-center space-x-3">
                   <div className="relative">
-                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-700/80 rounded-full flex items-center justify-center shadow-sm ring-2 ring-gray-600/50">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-700/80 rounded-full flex items-center justify-center ring-2 ring-gray-600/50">
                       <UserIcon className="h-5 w-5 sm:h-6 sm:w-6 text-gray-400" />
                     </div>
                     {student.unreadCount > 0 && (
@@ -385,19 +385,19 @@ const ChatCenter = () => {
         {selectedStudent ? (
           <>
             {/* Chat Header */}
-            <div className="p-3 sm:p-4 border-b border-gray-700/50">
+            <div className="p-3 sm:p-4 border-b border-white/5/50">
               <div className="flex items-center justify-between">
                 {/* Back button for mobile */}
                 <button
                   onClick={() => setSelectedStudent(null)}
-                  className="lg:hidden p-2 text-gray-400 hover:text-white hover:bg-gray-700/50 rounded-xl transition-colors"
+                  className="lg:hidden p-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-xl transition-colors"
                 >
                   <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                   </svg>
                 </button>
                 
-                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-700/80 rounded-full flex items-center justify-center shadow-sm ring-2 ring-gray-600/50">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-700/80 rounded-full flex items-center justify-center ring-2 ring-gray-600/50">
                   <UserIcon className="h-5 w-5 sm:h-6 sm:w-6 text-gray-400" />
                 </div>
                 <div className="min-w-0">
@@ -415,7 +415,7 @@ const ChatCenter = () => {
             <div className="flex-1 overflow-y-auto p-3 sm:p-6">
               {messages.length === 0 ? (
                 <div className="text-center text-gray-400 mt-8 sm:mt-12">
-                  <div className="bg-gray-800/60 rounded-full p-4 sm:p-6 shadow-lg inline-block mb-4 border border-gray-700/50">
+                  <div className="bg-[#161616] rounded-full p-4 sm:p-6 shadow-lg inline-block mb-4 border border-white/5">
                     <ChatBubbleLeftRightIcon className="h-12 w-12 sm:h-16 sm:w-16 text-gray-500" />
                   </div>
                   <h3 className="text-base sm:text-lg font-medium text-white mb-2">No messages yet</h3>
@@ -499,7 +499,7 @@ const ChatCenter = () => {
                                       <button
                                         onClick={() => downloadFile(message._id, attachment.filename, attachment.originalName)}
                                         className={`p-1 sm:p-2 rounded-xl transition-colors ${
-                                          isOwnMessage ? 'text-blue-200 hover:bg-white/20' : 'text-gray-300 hover:bg-gray-400/50'
+                                          isOwnMessage ? 'text-blue-200 hover:bg-white/20' : 'text-gray-400 hover:bg-gray-400/50'
                                         }`}
                                       >
                                         <ArrowDownTrayIcon className="h-3 w-3 sm:h-4 sm:w-4" />
@@ -539,13 +539,13 @@ const ChatCenter = () => {
 
             {/* File Preview */}
             {selectedFiles.length > 0 && (
-              <div className="px-3 sm:px-6 py-3 sm:py-4 bg-gray-900/50 border-t border-gray-700/50">
+              <div className="px-3 sm:px-6 py-3 sm:py-4 bg-[#161616] border-t border-white/5/50">
                 <p className="text-sm font-medium text-blue-400 mb-3">Files to send:</p>
                 <div className="flex flex-wrap gap-2 sm:gap-3">
                   {selectedFiles.map((file, index) => {
                     const FileIcon = getFileIcon(file.type);
                     return (
-                      <div key={index} className="flex items-center space-x-2 sm:space-x-3 bg-gray-700/70 rounded-xl p-2 sm:p-3 border border-gray-600/50 shadow-md hover:shadow-lg transition-shadow">
+                      <div key={index} className="flex items-center space-x-2 sm:space-x-3 bg-gray-700/70 rounded-xl p-2 sm:p-3 border border-white/5 shadow-md hover:shadow-lg transition-shadow">
                         <div className="p-1 sm:p-2 bg-blue-500/20 rounded-xl">
                           <FileIcon className="h-4 w-4 sm:h-5 sm:w-5 text-blue-300" />
                         </div>
@@ -567,7 +567,7 @@ const ChatCenter = () => {
             )}
 
             {/* Message Input */}
-            <div className="p-3 sm:p-4 border-t border-gray-700/50">
+            <div className="p-3 sm:p-4 border-t border-white/5/50">
               {/* File previews */}
               <form onSubmit={sendMessage} className="flex flex-col sm:flex-row items-end space-y-2 sm:space-y-0 sm:space-x-2 lg:space-x-4">
                 <div className="flex-1 w-full">
@@ -575,7 +575,7 @@ const ChatCenter = () => {
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
                     placeholder="Type your message..."
-                    className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-gray-800/90 border border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white placeholder-gray-400 resize-none text-sm sm:text-base"
+                    className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-[#1A1A1A] border border-white/10 rounded-xl focus:outline-none focus:border-[#CA133E] transition-colors text-white placeholder-gray-400 resize-none text-sm sm:text-base"
                     rows={2}
                     disabled={sendingMessage}
                   />
@@ -592,7 +592,7 @@ const ChatCenter = () => {
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
-                    className="flex-1 sm:flex-none p-2 sm:p-3 bg-gray-700/50 text-gray-300 rounded-xl hover:bg-gray-600/50 transition-colors"
+                    className="flex-1 sm:flex-none p-2 sm:p-3 bg-white/5 text-gray-400 rounded-xl hover:bg-gray-600/50 transition-colors"
                   >
                     <PaperClipIcon className="h-4 w-4 sm:h-5 sm:w-5" />
                   </button>
@@ -600,7 +600,7 @@ const ChatCenter = () => {
                   <button
                     type="submit"
                     disabled={(!newMessage.trim() && selectedFiles.length === 0) || sendingMessage}
-                    className="flex-1 sm:flex-none p-2 sm:p-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    className="flex-1 sm:flex-none p-2 sm:p-3 bg-[#CA133E] text-white rounded-xl hover:bg-[#A01030] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
                     <PaperAirplaneIcon className="h-4 w-4 sm:h-5 sm:w-5" />
                   </button>

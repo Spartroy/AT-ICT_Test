@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-toastify';
 import { API_ENDPOINTS } from '../../config/api';
@@ -6,48 +6,71 @@ import Leaderboard from '../shared/Leaderboard';
 import {
   AcademicCapIcon,
   DocumentTextIcon,
-  ChartBarIcon,
   CalendarDaysIcon,
   TrophyIcon,
-  StarIcon,
   MegaphoneIcon,
   ExclamationTriangleIcon,
-  ChevronRightIcon,
   BookOpenIcon,
   ComputerDesktopIcon,
-  SparklesIcon
+  SparklesIcon,
+  ChevronRightIcon,
+  PlayCircleIcon
 } from '@heroicons/react/24/outline';
 
+// ── Colour map for progress rings ──────────────────────────────────────────
 const RING_COLORS = {
-  blue: '#3b82f6',
-  green: '#22c55e',
+  blue:   '#3b82f6',
+  green:  '#22c55e',
   purple: '#a855f7',
   yellow: '#eab308',
-  red: '#ef4444'
+  red:    '#CA133E'
 };
 
-const ProgressRing = ({ percentage, color }) => {
-  const radius = 28;
-  const circumference = 2 * Math.PI * radius;
-  const strokeDashoffset = circumference - (percentage / 100) * circumference;
+// ── Circular progress ring ─────────────────────────────────────────────────
+const ProgressRing = ({ percentage, color, size = 72 }) => {
+  const r = (size - 10) / 2;
+  const circ = 2 * Math.PI * r;
+  const offset = circ - (percentage / 100) * circ;
   const stroke = RING_COLORS[color] || RING_COLORS.blue;
-
   return (
-    <svg width="68" height="68" className="transform -rotate-90" aria-hidden="true">
-      <circle cx="34" cy="34" r={radius} fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="5" />
+    <svg width={size} height={size} className="-rotate-90" aria-hidden="true">
+      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="rgba(255,255,255,0.07)" strokeWidth="5" />
       <circle
-        cx="34" cy="34" r={radius} fill="none"
+        cx={size / 2} cy={size / 2} r={r} fill="none"
         stroke={stroke} strokeWidth="5"
-        strokeDasharray={circumference}
-        strokeDashoffset={strokeDashoffset}
+        strokeDasharray={circ} strokeDashoffset={offset}
         strokeLinecap="round"
-        style={{ transition: 'stroke-dashoffset 0.6s ease' }}
+        style={{ transition: 'stroke-dashoffset 0.7s ease' }}
       />
     </svg>
   );
 };
 
-const DashboardOverview = ({ studentData, stats, socket }) => {
+// ── Announcement tag colour ────────────────────────────────────────────────
+const tagColor = (priority, isPinned) => {
+  if (priority === 'urgent') return 'bg-red-500/20 text-red-400';
+  if (isPinned) return 'bg-yellow-500/20 text-yellow-400';
+  return 'bg-blue-500/20 text-blue-400';
+};
+
+// ── Announcement tag label ─────────────────────────────────────────────────
+const tagLabel = (priority, isPinned) => {
+  if (priority === 'urgent') return 'Urgent';
+  if (isPinned) return 'Pinned';
+  return 'Notice';
+};
+
+// ── Relative time helper ───────────────────────────────────────────────────
+const relativeTime = (date) => {
+  const diff = (Date.now() - new Date(date)) / 1000;
+  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+  if (diff < 172800) return 'Yesterday';
+  return new Date(date).toLocaleDateString();
+};
+
+// ══════════════════════════════════════════════════════════════════════════
+const DashboardOverview = ({ studentData, stats, socket, onNavigate }) => {
   const [recentAnnouncements, setRecentAnnouncements] = useState([]);
   const [pointsFlash, setPointsFlash] = useState(null);
   const [sessionPoints, setSessionPoints] = useState(
@@ -58,30 +81,19 @@ const DashboardOverview = ({ studentData, stats, socket }) => {
     setSessionPoints(studentData?.studentInfo?.points?.currentSession || 0);
   }, [studentData]);
 
-  useEffect(() => {
-    fetchRecentAnnouncements();
-  }, []);
+  useEffect(() => { fetchRecentAnnouncements(); }, []);
 
-  // Join personal socket room and listen for points_awarded events
   useEffect(() => {
     if (!socket || !studentData?._id) return;
-
     socket.emit('join_user_room', studentData._id);
-
     const handlePointsAwarded = (data) => {
       const gained = data.total || 0;
-      setSessionPoints((prev) => prev + gained);
+      setSessionPoints(prev => prev + gained);
       setPointsFlash(data);
-
       const bonusMsg = data.bonusPoints > 0 ? ` (+${data.bonusPoints} bonus)` : '';
-      toast.success(
-        `+${gained} pts earned — ${data.title}${bonusMsg}`,
-        { icon: '⭐', autoClose: 4000 }
-      );
-
+      toast.success(`+${gained} pts earned — ${data.title}${bonusMsg}`, { icon: '⭐', autoClose: 4000 });
       setTimeout(() => setPointsFlash(null), 3000);
     };
-
     socket.on('points_awarded', handlePointsAwarded);
     return () => socket.off('points_awarded', handlePointsAwarded);
   }, [socket, studentData?._id]);
@@ -90,20 +102,19 @@ const DashboardOverview = ({ studentData, stats, socket }) => {
     try {
       const token = localStorage.getItem('token');
       const response = await fetch(API_ENDPOINTS.ANNOUNCEMENTS.BASE, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
       });
-
       if (response.ok) {
         const data = await response.json();
-        setRecentAnnouncements((data.data.announcements || []).slice(0, 3));
+        setRecentAnnouncements((data.data.announcements || []).slice(0, 4));
       }
     } catch (error) {
       console.error('Error fetching recent announcements:', error);
     }
   };
+
+  const overallProgress = studentData?.studentInfo?.overallProgress || 0;
+  const sessionLabel = studentData?.studentInfo?.points?.sessionLabel || studentData?.studentInfo?.session || '';
 
   const summaryCards = [
     {
@@ -123,15 +134,15 @@ const DashboardOverview = ({ studentData, stats, socket }) => {
       color: 'green'
     },
     {
-      title: 'Announcements',
-      completed: (stats?.announcements?.totalAnnouncements || 0) - (stats?.announcements?.unreadAnnouncements || 0),
-      total: stats?.announcements?.totalAnnouncements || 0,
-      pending: stats?.announcements?.unreadAnnouncements || 0,
-      icon: MegaphoneIcon,
+      title: 'Attendance',
+      completed: stats?.attendance?.attended || stats?.assignments?.completedAssignments || 0,
+      total: stats?.attendance?.total || stats?.assignments?.totalAssignments || 1,
+      pending: 0,
+      icon: CalendarDaysIcon,
       color: 'purple'
     },
     {
-      title: 'Avg Score',
+      title: 'Avg. score',
       completed: Math.round(stats?.assignments?.avgScore || 0),
       total: 100,
       pending: 0,
@@ -140,23 +151,38 @@ const DashboardOverview = ({ studentData, stats, socket }) => {
     }
   ];
 
-  const overallProgress = studentData?.studentInfo?.overallProgress || 0;
-  const sessionLabel = studentData?.studentInfo?.points?.sessionLabel || studentData?.studentInfo?.session || '';
-
   return (
-    <div className="space-y-4 sm:space-y-6 lg:space-y-8">
+    <div className="space-y-5 sm:space-y-6">
 
-      {/* Points Badge + Progress Bar */}
-      <motion.div
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-gradient-to-r from-[#CA133E]/20 to-gray-800/60 rounded-xl p-4 border border-[#CA133E]/40 shadow-lg"
-      >
+      {/* ── Welcome section ─────────────────────────────────────────────── */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <span className="inline-block bg-[#CA133E]/15 text-[#CA133E] text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full mb-3">
+            Welcome Back
+          </span>
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white leading-tight">
+            Hi {studentData?.firstName} — let's get that <span className="text-[#CA133E]">A*.</span>
+          </h2>
+          <p className="text-gray-400 text-sm sm:text-base mt-2">
+            You're {overallProgress}% through this term's plan. Keep the streak alive.
+          </p>
+        </div>
+        <motion.button
+          onClick={() => onNavigate?.('schedule')}
+          whileHover={{ scale: 1.03 }}
+          whileTap={{ scale: 0.97 }}
+          className="flex-shrink-0 flex items-center gap-2 bg-[#CA133E] hover:bg-[#A01030] text-white font-semibold px-5 py-2.5 rounded-xl transition-colors shadow-lg shadow-[#CA133E]/20 whitespace-nowrap text-sm sm:text-base"
+        >
+          <PlayCircleIcon className="h-5 w-5" />
+          Resume last lesson
+        </motion.button>
+      </div>
+
+      {/* ── Points flash + overall progress pill ────────────────────────── */}
+      <div className="flex items-center justify-between gap-4 bg-[#161616] border border-white/5 rounded-xl px-4 py-3">
         <div className="flex items-center gap-3">
-          <div className="relative">
-            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#CA133E] to-[#A01030] flex items-center justify-center shadow-lg">
-              <StarIcon className="h-6 w-6 text-white" />
-            </div>
+          <div className="relative w-10 h-10 rounded-full bg-[#CA133E]/20 flex items-center justify-center flex-shrink-0">
+            <span className="text-lg">⭐</span>
             <AnimatePresence>
               {pointsFlash && (
                 <motion.span
@@ -164,7 +190,7 @@ const DashboardOverview = ({ studentData, stats, socket }) => {
                   initial={{ opacity: 0, y: 0, scale: 0.8 }}
                   animate={{ opacity: 1, y: -24, scale: 1 }}
                   exit={{ opacity: 0 }}
-                  className="absolute -top-1 -right-2 bg-yellow-400 text-gray-900 text-xs font-bold px-1.5 py-0.5 rounded-full pointer-events-none"
+                  className="absolute -top-1 -right-2 bg-yellow-400 text-gray-900 text-[10px] font-bold px-1.5 py-0.5 rounded-full pointer-events-none"
                 >
                   +{pointsFlash.total}
                 </motion.span>
@@ -172,380 +198,271 @@ const DashboardOverview = ({ studentData, stats, socket }) => {
             </AnimatePresence>
           </div>
           <div>
-            <div className="text-xs text-gray-400 font-medium uppercase tracking-wide">
+            <p className="text-[11px] text-gray-500 uppercase tracking-wider font-medium">
               My Points {sessionLabel ? `· ${sessionLabel}` : ''}
-            </div>
-            <div className="text-2xl font-bold text-white flex items-baseline gap-1">
-              {sessionPoints.toLocaleString()}
-              <span className="text-sm text-gray-400 font-normal">pts</span>
-            </div>
+            </p>
+            <p className="text-xl font-bold text-white">
+              {sessionPoints.toLocaleString()} <span className="text-gray-500 text-sm font-normal">pts</span>
+            </p>
           </div>
         </div>
-
-        {/* Overall Progress */}
         <div className="flex items-center gap-3">
           <div className="text-right hidden sm:block">
-            <div className="text-xs text-gray-400 uppercase tracking-wide">Overall Progress</div>
-            <div className="text-lg font-bold text-white">{overallProgress}%</div>
+            <p className="text-[11px] text-gray-500 uppercase tracking-wider">Overall</p>
+            <p className="text-lg font-bold text-white">{overallProgress}%</p>
           </div>
-          <div className="relative flex items-center justify-center">
-            <ProgressRing percentage={overallProgress} color="red" />
+          <div className="relative flex items-center justify-center flex-shrink-0">
+            <ProgressRing percentage={overallProgress} color="red" size={64} />
             <span className="absolute text-xs font-bold text-white">{overallProgress}%</span>
           </div>
         </div>
-      </motion.div>
-
-      {/* Summary Cards */}
-      <div className="w-full">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-          {summaryCards.map((card, index) => {
-            const IconComponent = card.icon;
-            const percentage = card.total > 0 ? (card.completed / card.total) * 100 : 0;
-
-            return (
-              <motion.div
-                key={card.title}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.08 }}
-                className="bg-gray-800/60 rounded-xl p-4 sm:p-5 shadow-2xl backdrop-blur-sm border border-gray-600/50 flex flex-col items-center"
-              >
-                <div className="relative flex items-center justify-center mb-2">
-                  <ProgressRing percentage={Math.min(100, Math.round(percentage))} color={card.color} />
-                  <IconComponent className={`absolute h-5 w-5 text-${card.color}-400`} />
-                </div>
-                <div className="text-center w-full">
-                  <div className="text-lg sm:text-xl font-bold text-white">
-                    {card.title === 'Avg Score' ? `${card.completed}%` : `${card.completed}/${card.total}`}
-                  </div>
-                  <div className="text-xs text-gray-400 mt-0.5">{card.title}</div>
-                </div>
-                {card.pending > 0 && (
-                  <div className="mt-2 text-xs text-red-400 font-medium">
-                    {card.title === 'Announcements' ? `${card.pending} unread` : `${card.pending} pending`}
-                  </div>
-                )}
-                {card.pending === 0 && card.total > 0 && (
-                  <div className="mt-2 text-xs text-green-400 font-medium">All done!</div>
-                )}
-              </motion.div>
-            );
-          })}
-        </div>
       </div>
 
-      {/* Leaderboard */}
-      <Leaderboard
-        currentUserId={studentData?._id}
-        session={studentData?.studentInfo?.session}
-      />
-
-      {/* Recent Announcements */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-        className="bg-gray-800/60 rounded-xl p-4 sm:p-5 lg:p-6 shadow-2xl backdrop-blur-sm border-2 border-gray-600/50 w-full"
-      >
-        <div className="flex items-center justify-between mb-3 sm:mb-4">
-          <h3 className="text-base sm:text-lg font-semibold text-white flex items-center">
-            <MegaphoneIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 text-purple-400" />
-            Recent Announcements
-          </h3>
-          {stats?.announcements?.unreadAnnouncements > 0 && (
-            <span className="bg-red-500/30 text-red-300 px-2 py-1 rounded-full text-xs font-medium">
-              {stats.announcements.unreadAnnouncements} unread
-            </span>
-          )}
-        </div>
-        
-        {recentAnnouncements.length === 0 ? (
-          <div className="text-center py-6 sm:py-8 text-gray-400">
-            <MegaphoneIcon className="h-10 w-10 sm:h-12 sm:w-12 mx-auto mb-2 text-gray-600" />
-            <p className="text-sm sm:text-base">No recent announcements</p>
-          </div>
-        ) : (
-          <div className="space-y-2 sm:space-y-3">
-            {recentAnnouncements.map((announcement, index) => (
-              <div
-                key={announcement._id}
-                className={`p-3 sm:p-4 border-l-4 rounded-xl ${
-                  announcement.priority === 'urgent' 
-                    ? 'border-l-red-400 bg-red-500/20' 
-                    : announcement.isPinned
-                    ? 'border-l-yellow-400 bg-yellow-500/20'
-                    : 'border-l-blue-400 bg-blue-500/20'
-                }`}
-              >
-                <div className="flex items-start justify-between">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center space-x-2 mb-1">
-                      <h4 className="text-sm sm:text-base font-medium text-white truncate">
-                        {announcement.title}
-                      </h4>
-                      {announcement.priority === 'urgent' && (
-                        <ExclamationTriangleIcon className="h-4 w-4 text-red-400 flex-shrink-0" />
-                      )}
-                      {announcement.isPinned && (
-                        <span className="text-xs flex-shrink-0">📌</span>
-                      )}
-                    </div>
-                    <p className="text-xs sm:text-sm text-gray-300 line-clamp-2">
-                      {announcement.content}
-                    </p>
-                    <p className="text-xs text-gray-400 mt-1">
-                      {new Date(announcement.createdAt).toLocaleDateString()}
-                    </p>
-                  </div>
-                  <ChevronRightIcon className="h-4 w-4 text-gray-400 ml-2 flex-shrink-0" />
+      {/* ── Summary cards ────────────────────────────────────────────────── */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        {summaryCards.map((card, index) => {
+          const Icon = card.icon;
+          const percentage = card.total > 0 ? (card.completed / card.total) * 100 : 0;
+          const pct = Math.min(100, Math.round(percentage));
+          return (
+            <motion.div
+              key={card.title}
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.07 }}
+              className="bg-[#161616] border border-white/5 rounded-xl p-4 sm:p-5 flex items-center justify-between gap-3 hover:border-white/10 transition-colors"
+            >
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5 mb-1">
+                  <Icon className="h-4 w-4 text-gray-500 flex-shrink-0" />
+                  <span className="text-gray-400 text-xs truncate">{card.title}</span>
                 </div>
+                <p className="text-xl sm:text-2xl font-bold text-white leading-none">
+                  {card.title === 'Avg. score' ? `${card.completed}%` : `${card.completed}/${card.total}`}
+                </p>
+                {card.pending > 0 ? (
+                  <p className="text-xs text-red-400 mt-1.5 font-medium">{card.pending} pending</p>
+                ) : card.total > 0 ? (
+                  <p className="text-xs text-green-400 mt-1.5 font-medium">All done ✓</p>
+                ) : null}
               </div>
-            ))}
-            
-            
-          </div>
-        )}
-      </motion.div>
+              <div className="relative flex items-center justify-center flex-shrink-0">
+                <ProgressRing percentage={pct} color={card.color} size={68} />
+                <span className="absolute text-xs font-bold text-white">{pct}%</span>
+              </div>
+            </motion.div>
+          );
+        })}
+      </div>
 
-      {/* Weekly Schedule */}
+      {/* ── Leaderboard + Announcements side by side ─────────────────────── */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5">
+        {/* Leaderboard */}
+        <Leaderboard
+          currentUserId={studentData?._id}
+          session={studentData?.studentInfo?.session}
+        />
+
+        {/* Announcements */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="bg-[#161616] border border-white/5 rounded-xl p-4 sm:p-5"
+        >
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-base font-semibold text-white flex items-center gap-2">
+              <MegaphoneIcon className="h-4 w-4 text-[#CA133E]" />
+              Announcements
+            </h3>
+            {stats?.announcements?.unreadAnnouncements > 0 && (
+              <span className="text-xs bg-[#CA133E]/20 text-[#CA133E] px-2 py-0.5 rounded-full font-medium">
+                {stats.announcements.unreadAnnouncements} unread
+              </span>
+            )}
+          </div>
+
+          {recentAnnouncements.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-10 text-gray-600">
+              <MegaphoneIcon className="h-10 w-10 mb-2" />
+              <p className="text-sm">No announcements yet</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {recentAnnouncements.map((ann) => (
+                <div key={ann._id} className="group">
+                  <div className="flex items-start gap-2 mb-0.5">
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0 ${tagColor(ann.priority, ann.isPinned)}`}>
+                      {tagLabel(ann.priority, ann.isPinned)}
+                    </span>
+                    <span className="text-gray-500 text-[11px] mt-0.5">
+                      {relativeTime(ann.createdAt)}
+                    </span>
+                    {ann.priority === 'urgent' && (
+                      <ExclamationTriangleIcon className="h-3.5 w-3.5 text-red-400 flex-shrink-0 mt-0.5" />
+                    )}
+                  </div>
+                  <p className="text-white text-sm font-medium leading-snug line-clamp-2">{ann.title}</p>
+                </div>
+              ))}
+              <button
+                onClick={() => onNavigate?.('announcements')}
+                className="w-full flex items-center justify-center gap-1 text-xs text-gray-500 hover:text-[#CA133E] pt-1 transition-colors"
+              >
+                View all <ChevronRightIcon className="h-3 w-3" />
+              </button>
+            </div>
+          )}
+        </motion.div>
+      </div>
+
+      {/* ── Weekly Schedule widget ───────────────────────────────────────── */}
       <DashboardScheduleWidget />
     </div>
   );
 };
 
-// Helper functions for schedule functionality
-const getSessionTypeConfig = (type) => {
-  const types = {
-    theory: { 
-      icon: BookOpenIcon, 
-      color: 'Theory',
-      bgColor: 'bg-blue-600', 
-      lightBg: 'bg-blue-900/30',
-      textColor: 'text-white',
-      borderColor: 'border-blue-400'
-    },
-    practical: { 
-      icon: ComputerDesktopIcon, 
-      color: 'Practical',
-      bgColor: 'bg-green-600', 
-      lightBg: 'bg-green-900/30',
-      textColor: 'text-white',
-      borderColor: 'border-green-400'
-    },
-    revision: { 
-      icon: AcademicCapIcon, 
-      color: 'Revision',
-      bgColor: 'bg-purple-600', 
-      lightBg: 'bg-purple-900/30',
-      textColor: 'text-white',
-      borderColor: 'border-purple-400'
-    },
-    quiz: { 
-      icon: DocumentTextIcon, 
-      color: 'Quiz',
-      bgColor: 'bg-[#CA133E]', 
-      lightBg: 'bg-red-900/30',
-      textColor: 'text-white',
-      borderColor: 'border-red-500'
-    }
-  };
-  return types[type] || types.theory;
+// ── Session type config ────────────────────────────────────────────────────
+const SESSION_TYPES = {
+  theory:    { label: 'Theory',    bg: 'bg-blue-600',     light: 'bg-blue-900/20',   border: 'border-blue-500' },
+  practical: { label: 'Practical', bg: 'bg-green-600',    light: 'bg-green-900/20',  border: 'border-green-500' },
+  revision:  { label: 'Revision',  bg: 'bg-purple-600',   light: 'bg-purple-900/20', border: 'border-purple-500' },
+  quiz:      { label: 'Quiz',      bg: 'bg-[#CA133E]',    light: 'bg-red-900/20',    border: 'border-red-500' }
 };
 
-const formatTime = (timeString) => {
-  return new Date(`2000-01-01T${timeString}`).toLocaleTimeString('en-US', {
-    hour: 'numeric',
-    minute: '2-digit',
-    hour12: true
-  });
-};
+const formatTime = (t) =>
+  new Date(`2000-01-01T${t}`).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
 
-const getCurrentDay = () => {
-  return new Date().toLocaleDateString('en-US', { weekday: 'long' });
-};
+const getCurrentDay = () =>
+  new Date().toLocaleDateString('en-US', { weekday: 'long' });
 
-// Dashboard Schedule Session Card Component
 const DashboardSessionCard = ({ session }) => {
-  const config = getSessionTypeConfig(session.type);
-
+  const cfg = SESSION_TYPES[session.type] || SESSION_TYPES.theory;
   return (
-    <div className={`${config.lightBg} rounded-xl p-2 sm:p-3 shadow-md border-l-4 ${config.borderColor} transition-all hover:shadow-lg`}>
-      <div className="text-center space-y-1 sm:space-y-2">
-        <span className={`${config.bgColor} ${config.textColor} px-2 py-1 rounded-xl text-xs font-bold block`}>
-          {config.color}
-        </span>
-        <div className="text-sm sm:text-base font-bold text-white">
-          {formatTime(session.startTime)}
-        </div>
-
-      </div>
+    <div className={`${cfg.light} rounded-lg p-2 border-l-2 ${cfg.border}`}>
+      <span className={`${cfg.bg} text-white text-[10px] font-bold px-1.5 py-0.5 rounded-md block text-center mb-1`}>
+        {cfg.label}
+      </span>
+      <p className="text-white text-xs font-semibold text-center">{formatTime(session.startTime)}</p>
     </div>
   );
 };
 
-// Dashboard Schedule Widget Component
 const DashboardScheduleWidget = () => {
   const [schedule, setSchedule] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  const days      = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
   const shortDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
-  useEffect(() => {
-    fetchSchedule();
-  }, []);
+  useEffect(() => { fetchSchedule(); }, []);
 
   const fetchSchedule = async () => {
     try {
-      setLoading(true);
-      setError('');
+      setLoading(true); setError('');
       const token = localStorage.getItem('token');
-      const response = await fetch(API_ENDPOINTS.STUDENT.SCHEDULE, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+      const res = await fetch(API_ENDPOINTS.STUDENT.SCHEDULE, {
+        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
       });
-
-      if (response.ok) {
-        const data = await response.json();
+      if (res.ok) {
+        const data = await res.json();
         setSchedule(data.data.schedule);
       } else {
-        const errorData = await response.json();
-        setError(errorData.message || 'Failed to fetch schedule');
+        setError((await res.json()).message || 'Failed to fetch schedule');
       }
-    } catch (error) {
-      console.error('Error fetching schedule:', error);
-      setError('Error fetching schedule');
-    } finally {
-      setLoading(false);
-    }
+    } catch { setError('Error fetching schedule'); }
+    finally { setLoading(false); }
   };
 
-  if (loading) {
-    return (
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4 }}
-        className="bg-gray-800/60 rounded-xl p-4 sm:p-5 lg:p-6 shadow-2xl backdrop-blur-sm border-2 border-gray-600/50 w-full"
-      >
-        <h3 className="text-base sm:text-lg font-semibold text-white mb-3 sm:mb-4 flex items-center">
-          <CalendarDaysIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 text-[#CA133E]" />
-          Weekly Schedule
-        </h3>
-        <div className="animate-pulse">
-          <div className="grid grid-cols-7 gap-2 mb-4">
-            {shortDays.map((day) => (
-              <div key={day} className="h-8 bg-gray-700/50 rounded"></div>
-            ))}
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-7 gap-2">
-            {Array.from({ length: 7 }, (_, i) => (
-              <div key={i} className="space-y-2">
-                <div className="h-16 bg-gray-700/50 rounded"></div>
-                <div className="h-16 bg-gray-700/50 rounded"></div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </motion.div>
-    );
-  }
+  const wrapperClass = 'bg-[#161616] border border-white/5 rounded-xl p-4 sm:p-5';
 
-  if (error || !schedule) {
-    return (
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4 }}
-        className="bg-gray-800/60 rounded-xl p-4 sm:p-5 lg:p-6 shadow-2xl backdrop-blur-sm border-2 border-gray-600/50 w-full"
-      >
-        <h3 className="text-base sm:text-lg font-semibold text-white mb-3 sm:mb-4 flex items-center">
-          <CalendarDaysIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 text-[#CA133E]" />
-          Weekly Schedule
-        </h3>
-        <div className="text-center py-8">
-          <CalendarDaysIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-          <p className="text-gray-400">{error || 'No schedule available'}</p>
-          {error && (
-            <button
-              onClick={fetchSchedule}
-              className="mt-4 px-4 py-2 bg-[#CA133E] text-white rounded-xl hover:bg-[#A01030] transition-colors"
-            >
-              Try Again
-            </button>
-          )}
+  if (loading) return (
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className={wrapperClass}>
+      <h3 className="text-base font-semibold text-white mb-4 flex items-center gap-2">
+        <CalendarDaysIcon className="h-4 w-4 text-[#CA133E]" /> Weekly Schedule
+      </h3>
+      <div className="animate-pulse space-y-3">
+        <div className="grid grid-cols-7 gap-2">
+          {shortDays.map(d => <div key={d} className="h-7 bg-white/5 rounded-lg" />)}
         </div>
-      </motion.div>
-    );
-  }
+        <div className="grid grid-cols-7 gap-2">
+          {Array.from({ length: 7 }, (_, i) => <div key={i} className="h-24 bg-white/5 rounded-lg" />)}
+        </div>
+      </div>
+    </motion.div>
+  );
+
+  if (error || !schedule) return (
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className={wrapperClass}>
+      <h3 className="text-base font-semibold text-white mb-4 flex items-center gap-2">
+        <CalendarDaysIcon className="h-4 w-4 text-[#CA133E]" /> Weekly Schedule
+      </h3>
+      <div className="text-center py-8">
+        <CalendarDaysIcon className="h-10 w-10 text-gray-600 mx-auto mb-3" />
+        <p className="text-gray-500 text-sm">{error || 'No schedule available'}</p>
+        {error && (
+          <button onClick={fetchSchedule} className="mt-3 px-4 py-2 bg-[#CA133E] text-white rounded-xl text-sm hover:bg-[#A01030] transition-colors">
+            Try again
+          </button>
+        )}
+      </div>
+    </motion.div>
+  );
+
+  const today = getCurrentDay();
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.4 }}
-      className="bg-gray-800/90 backdrop-blur-sm rounded-xl p-4 sm:p-5 lg:p-6 shadow-2xl border-2 border-gray-700 w-full"
+      transition={{ delay: 0.3 }}
+      className={wrapperClass}
     >
-      <h3 className="text-base sm:text-lg font-semibold text-white mb-3 sm:mb-4 flex items-center">
-        <CalendarDaysIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 text-[#CA133E]" />
-        Weekly Schedule
+      <h3 className="text-base font-semibold text-white mb-4 flex items-center gap-2">
+        <CalendarDaysIcon className="h-4 w-4 text-[#CA133E]" /> Weekly Schedule
       </h3>
-      
-      {/* Day Headers */}
-      <div className="grid grid-cols-7 gap-1 sm:gap-2 mb-3 sm:mb-4">
-        {shortDays.map((day, index) => (
+
+      {/* Day headers */}
+      <div className="grid grid-cols-7 gap-1 sm:gap-2 mb-2 sm:mb-3">
+        {shortDays.map((short, i) => (
           <div
-            key={day}
-            className={`text-center py-1 sm:py-2 px-1 rounded-xl font-medium text-xs sm:text-sm transition-all ${
-              days[index] === getCurrentDay()
-                ? 'bg-[#CA133E] text-white shadow-lg'
-                : 'bg-gray-700 text-gray-200'
+            key={short}
+            className={`text-center py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+              days[i] === today ? 'bg-[#CA133E] text-white' : 'bg-white/5 text-gray-400'
             }`}
           >
-            <span className="hidden sm:inline">{day}</span>
-            <span className="sm:hidden">{day.substring(0, 1)}</span>
+            <span className="hidden sm:inline">{short}</span>
+            <span className="sm:hidden">{short[0]}</span>
           </div>
         ))}
       </div>
 
-      {/* Schedule Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-7 gap-2 sm:gap-3">
-        {days.map((day, dayIndex) => {
-          const daySchedule = schedule.schedule?.find(d => d.day === day) || { day, sessions: [] };
-          const isToday = day === getCurrentDay();
-          
+      {/* Schedule grid */}
+      <div className="grid grid-cols-7 gap-1 sm:gap-2">
+        {days.map((day) => {
+          const daySched = schedule.schedule?.find(d => d.day === day) || { day, sessions: [] };
+          const isToday = day === today;
           return (
             <div
               key={day}
-              className={`rounded-xl border-2 transition-all min-h-[120px] sm:min-h-[140px] flex flex-col p-2 sm:p-3 space-y-2 ${
-                isToday 
-                  ? 'bg-[#CA133E]/20 border-[#CA133E] shadow-lg' 
-                  : 'bg-gray-900/40 border-gray-700/80'
+              className={`rounded-xl border p-1.5 sm:p-2 min-h-[90px] sm:min-h-[110px] flex flex-col gap-1 transition-all ${
+                isToday ? 'border-[#CA133E]/40 bg-[#CA133E]/8' : 'border-white/5 bg-white/2'
               }`}
             >
-              {/* Day name for mobile/tablet */}
-              <div className="md:hidden text-center">
-                <h4 className="font-bold text-white text-xs sm:text-sm">{day.substring(0, 3)}</h4>
-              </div>
-              
-              {daySchedule.sessions.length === 0 ? (
-                <div className="flex-grow flex items-center justify-center">
-                  <p className="text-gray-400 font-medium text-xs text-center">No classes</p>
+              {daySched.sessions.length === 0 ? (
+                <div className="flex-1 flex items-center justify-center">
+                  <p className="text-gray-700 text-[10px] text-center">—</p>
                 </div>
               ) : (
-                <div className="space-y-1 sm:space-y-2">
-                  {daySchedule.sessions.slice(0, 2).map((session, sessionIndex) => (
-                    <DashboardSessionCard key={sessionIndex} session={session} />
+                <>
+                  {daySched.sessions.slice(0, 2).map((s, si) => (
+                    <DashboardSessionCard key={si} session={s} />
                   ))}
-                  {daySchedule.sessions.length > 2 && (
-                    <div className="text-center py-1">
-                      <span className="text-xs text-gray-400">+{daySchedule.sessions.length - 2} more</span>
-                    </div>
+                  {daySched.sessions.length > 2 && (
+                    <p className="text-gray-500 text-[10px] text-center">+{daySched.sessions.length - 2}</p>
                   )}
-                </div>
+                </>
               )}
             </div>
           );
@@ -555,4 +472,4 @@ const DashboardScheduleWidget = () => {
   );
 };
 
-export default DashboardOverview; 
+export default DashboardOverview;

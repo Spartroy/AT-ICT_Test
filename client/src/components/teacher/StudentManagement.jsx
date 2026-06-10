@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { showOperationToast, showError } from '../../utils/toast';
 import { API_ENDPOINTS } from '../../config/api';
@@ -516,7 +516,7 @@ const StudentManagement = () => {
     pending: 'bg-yellow-900/30 text-yellow-300 border border-yellow-700/50',
     paid: 'bg-green-900/30 text-green-300 border border-green-700/50',
     overdue: 'bg-red-900/30 text-red-300 border border-red-700/50',
-    cancelled: 'bg-gray-700/50 text-gray-400 border border-gray-600/50',
+    cancelled: 'bg-white/5 text-gray-400 border border-white/5',
   };
 
   const getStatusBadge = (status) => {
@@ -559,16 +559,16 @@ const StudentManagement = () => {
     return (
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <div className="h-8 bg-gray-700/50 rounded w-64 animate-pulse"></div>
-          <div className="h-10 bg-gray-700/50 rounded w-32 animate-pulse"></div>
+          <div className="h-8 bg-white/5 rounded w-64 animate-pulse"></div>
+          <div className="h-10 bg-white/5 rounded w-32 animate-pulse"></div>
         </div>
         {[...Array(5)].map((_, i) => (
-          <div key={i} className="bg-gray-800/60 rounded-xl shadow-sm p-6 animate-pulse backdrop-blur-sm border-2 border-gray-600/50">
+          <div key={i} className="bg-[#161616] border border-white/5 rounded-xl p-5 animate-pulse">
             <div className="flex items-center space-x-4">
-              <div className="h-12 w-12 bg-gray-700/50 rounded-full"></div>
+              <div className="h-12 w-12 bg-white/5 rounded-full"></div>
               <div className="flex-1">
-                <div className="h-4 bg-gray-700/50 rounded w-1/4 mb-2"></div>
-                <div className="h-3 bg-gray-700/50 rounded w-1/2"></div>
+                <div className="h-4 bg-white/5 rounded w-1/4 mb-2"></div>
+                <div className="h-3 bg-white/5 rounded w-1/2"></div>
               </div>
             </div>
           </div>
@@ -580,10 +580,10 @@ const StudentManagement = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4 bg-gray-800/60 rounded-xl p-4 sm:p-6 shadow-2xl backdrop-blur-sm border-2 border-gray-600/50">
+      <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4 bg-[#161616] border border-white/5 rounded-xl p-4 sm:p-6">
         <div className="flex-1">
-          <h2 className="text-lg sm:text-xl lg:text-[20pt] font-bold text-white">Student Management</h2>
-          <p className="text-sm lg:text-[14pt] text-gray-300 mt-1">Manage and monitor student progress and information</p>
+          <h2 className="text-lg sm:text-xl lg:text-xl font-bold text-white">Student Management</h2>
+          <p className="text-sm lg:text-sm text-gray-400 mt-1">Manage and monitor student progress and information</p>
         </div>
         <div className="flex items-center gap-4">
           <Link
@@ -607,20 +607,20 @@ const StudentManagement = () => {
       </div>
 
       {/* Filters */}
-      <div className="bg-gray-800/60 rounded-xl p-4 sm:p-6 shadow-2xl backdrop-blur-sm border-2 border-gray-600/50">
+      <div className="bg-[#161616] border border-white/5 rounded-xl p-4 sm:p-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
           <div className="relative">
             <MagnifyingGlassIcon className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
             <input
               type="text"
               placeholder="Search students..."
-              className="w-full pl-10 pr-4 py-2 border border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-900/70 text-white"
+              className="w-full pl-10 pr-4 py-2 border border-white/10 rounded-xl focus:outline-none focus:border-[#CA133E] transition-colors bg-[#161616] text-white"
               value={filters.search}
               onChange={(e) => setFilters({ ...filters, search: e.target.value })}
             />
           </div>
           <select
-            className="px-3 py-2 border border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-900/70 text-white"
+            className="px-3 py-2 border border-white/10 rounded-xl focus:outline-none focus:border-[#CA133E] transition-colors bg-[#161616] text-white"
             value={filters.session}
             onChange={(e) => setFilters({ ...filters, session: e.target.value })}
           >
@@ -629,7 +629,7 @@ const StudentManagement = () => {
             <option value="JUN 26">JUN 26</option>
           </select>
           <select
-            className="px-3 py-2 border border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-900/70 text-white"
+            className="px-3 py-2 border border-white/10 rounded-xl focus:outline-none focus:border-[#CA133E] transition-colors bg-[#161616] text-white"
             value={filters.year}
             onChange={(e) => setFilters({ ...filters, year: e.target.value })}
           >
@@ -639,7 +639,7 @@ const StudentManagement = () => {
             <option value="12">Year 12</option>
           </select>
           <select
-            className="px-3 py-2 border border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-900/70 text-white"
+            className="px-3 py-2 border border-white/10 rounded-xl focus:outline-none focus:border-[#CA133E] transition-colors bg-[#161616] text-white"
             value={filters.status}
             onChange={(e) => setFilters({ ...filters, status: e.target.value })}
           >
@@ -649,7 +649,7 @@ const StudentManagement = () => {
             <option value="rejected">Rejected</option>
           </select>
           <select
-            className="px-3 py-2 border border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-900/70 text-white"
+            className="px-3 py-2 border border-white/10 rounded-xl focus:outline-none focus:border-[#CA133E] transition-colors bg-[#161616] text-white"
             value={filters.schoolType}
             onChange={(e) => setFilters({ ...filters, schoolType: e.target.value })}
           >
@@ -659,7 +659,7 @@ const StudentManagement = () => {
           </select>
           {filters.schoolType === 'royal' && (
             <select
-              className="px-3 py-2 border border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-900/70 text-white"
+              className="px-3 py-2 border border-white/10 rounded-xl focus:outline-none focus:border-[#CA133E] transition-colors bg-[#161616] text-white"
               value={filters.royalClass}
               onChange={(e) => setFilters({ ...filters, royalClass: e.target.value })}
             >
@@ -674,7 +674,7 @@ const StudentManagement = () => {
       {/* Students List */}
       <div className="space-y-4">
         {!students || students.length === 0 ? (
-          <div className="bg-gray-800/60 rounded-xl p-8 sm:p-12 text-center shadow-2xl backdrop-blur-sm border-2 border-dashed border-gray-600/50">
+          <div className="bg-[#161616] rounded-xl p-8 sm:p-12 text-center border border-dashed border-white/10">
             <UserIcon className="h-12 w-12 text-gray-500 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-white mb-2">No Students Found</h3>
             <p className="text-gray-400">Try adjusting your search filters.</p>
@@ -686,7 +686,7 @@ const StudentManagement = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
-              className="bg-gray-900/70 backdrop-blur-md rounded-xl overflow-hidden hover:shadow-xl transition-shadow border border-gray-700/50"
+              className="bg-[#161616] rounded-xl overflow-hidden hover:shadow-xl transition-shadow border border-white/5"
             >
               <div className="p-4 sm:p-6">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -697,7 +697,7 @@ const StudentManagement = () => {
                       </span>
                     </div>
                     <div className="min-w-0 flex-1">
-                      <h3 className="text-base sm:text-lg lg:text-[18pt] font-semibold text-white truncate">
+                      <h3 className="text-base sm:text-lg lg:text-lg font-semibold text-white truncate">
                         {student.fullName}
                       </h3>
                       <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 text-xs sm:text-sm lg:text-[12pt] text-gray-400 mt-1">
@@ -727,7 +727,7 @@ const StudentManagement = () => {
                       <button
                         onClick={() => fetchStudentDetails(student._id)}
                         disabled={detailsLoading}
-                        className="flex items-center space-x-2 px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 transition-colors text-sm"
+                        className="flex items-center space-x-2 px-3 sm:px-4 py-2 bg-[#CA133E] text-white rounded-xl hover:bg-[#A01030] disabled:opacity-50 transition-colors text-sm"
                       >
                         <EyeIcon className="h-4 w-4 sm:h-5 sm:w-5" />
                         <span className="hidden sm:inline">View Details</span>
@@ -778,7 +778,7 @@ const StudentManagement = () => {
                   </div>
                 </div>
 
-                <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-4 p-3 sm:p-4 bg-gray-800/70 rounded-xl">
+                <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-4 p-3 sm:p-4 bg-[#161616] rounded-xl">
                   <div>
                     <p className="text-xs text-gray-500 uppercase tracking-wide">School</p>
                     <p className="text-sm font-medium text-white truncate">{student.school}</p>
@@ -802,7 +802,7 @@ const StudentManagement = () => {
           <button
             onClick={() => setPagination({ ...pagination, current: pagination.current - 1 })}
             disabled={!pagination.hasPrev}
-            className="w-full sm:w-auto px-4 py-2 bg-gray-800/70 border border-gray-700/50 text-white rounded-xl disabled:opacity-50 hover:bg-gray-700/90 text-sm"
+            className="w-full sm:w-auto px-4 py-2 bg-[#161616] border border-white/5 text-white rounded-xl disabled:opacity-50 hover:bg-white/8 text-sm"
           >
             Previous
           </button>
@@ -812,7 +812,7 @@ const StudentManagement = () => {
           <button
             onClick={() => setPagination({ ...pagination, current: pagination.current + 1 })}
             disabled={!pagination.hasNext}
-            className="w-full sm:w-auto px-4 py-2 bg-gray-800/70 border border-gray-700/50 text-white rounded-xl disabled:opacity-50 hover:bg-gray-700/90 text-sm"
+            className="w-full sm:w-auto px-4 py-2 bg-[#161616] border border-white/5 text-white rounded-xl disabled:opacity-50 hover:bg-white/8 text-sm"
           >
             Next
           </button>
@@ -822,14 +822,14 @@ const StudentManagement = () => {
       {/* Student Details Modal */}
       <AnimatePresence>
         {showModal && selectedStudent && (
-          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-start justify-center z-50 p-2 sm:p-4 pt-4 sm:pt-8">
+          <div className="fixed inset-0 bg-black/80 flex items-start justify-center z-50 p-2 sm:p-4 pt-4 sm:pt-8">
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: -20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: -20 }}
-              className="bg-gray-900/90 border border-gray-700 text-white rounded-xl shadow-2xl w-full max-w-sm sm:max-w-md md:max-w-4xl lg:max-w-6xl xl:max-w-7xl max-h-[90vh] sm:max-h-[95vh] flex flex-col"
+              className="bg-[#161616] border border-white/10 text-white rounded-xl w-full max-w-sm sm:max-w-md md:max-w-4xl lg:max-w-6xl xl:max-w-7xl max-h-[90vh] sm:max-h-[95vh] flex flex-col"
             >
-              <div className="p-3 sm:p-4 lg:p-6 border-b border-gray-700/80">
+              <div className="p-3 sm:p-4 lg:p-6 border-b border-white/5">
                 <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-4">
                   <div className="flex items-center space-x-3 sm:space-x-4 min-w-0 flex-1">
                     <div className="h-10 w-10 sm:h-12 sm:w-12 lg:h-16 lg:w-16 rounded-full bg-gradient-to-r from-blue-500 to-blue-700 flex items-center justify-center ring-2 ring-blue-500/50 flex-shrink-0">
@@ -864,7 +864,7 @@ const StudentManagement = () => {
               </div>
 
               {/* Tab Navigation — all tabs in one row (scroll on narrow screens) */}
-              <div className="border-b border-gray-700/80 bg-gray-800/30 flex-shrink-0">
+              <div className="border-b border-white/5 bg-white/3 flex-shrink-0">
                 <nav className="flex overflow-x-auto gap-0 px-2 sm:px-4 lg:px-6 scrollbar-thin [-webkit-overflow-scrolling:touch]">
                   {tabs.map((tab) => {
                     const IconComponent = tab.icon;
@@ -879,7 +879,7 @@ const StudentManagement = () => {
                         }}
                         className={`flex-shrink-0 py-3 sm:py-4 px-2.5 sm:px-3 lg:px-4 border-b-2 font-medium text-xs sm:text-sm lg:text-base transition-colors whitespace-nowrap ${activeTab === tab.id
                             ? 'border-blue-500 text-blue-400 bg-blue-500/10'
-                            : 'border-transparent text-gray-400 hover:text-white hover:border-gray-500 hover:bg-gray-700/30'
+                            : 'border-transparent text-gray-400 hover:text-white hover:border-white/10 hover:bg-white/5'
                           }`}
                       >
                         <div className="flex items-center gap-1.5 sm:gap-2">
@@ -929,7 +929,7 @@ const StudentManagement = () => {
                           </div>
                         </div>
                       </div>
-                      <div className="bg-purple-900/40 rounded-xl sm:rounded-xl p-3 sm:p-4 border border-purple-700/50">
+                      <div className="bg-purple-900/40 rounded-xl sm:rounded-xl p-3 sm:p-4 border border-purple-500/20">
                         <div className="flex flex-col sm:flex-row sm:items-center">
                           <QuestionMarkCircleIcon className="h-6 w-6 sm:h-8 sm:w-8 text-purple-400 mb-2 sm:mb-0" />
                           <div className="sm:ml-3">
@@ -954,7 +954,7 @@ const StudentManagement = () => {
 
                       {/* Parent Information Card */}
                       {selectedStudent.parentInfo && (
-                        <div className="bg-purple-900/40 rounded-xl sm:rounded-xl p-3 sm:p-4 border border-purple-700/50">
+                        <div className="bg-purple-900/40 rounded-xl sm:rounded-xl p-3 sm:p-4 border border-purple-500/20">
                           <p className="text-xs sm:text-sm font-medium text-purple-400 mb-2">Parent Contact</p>
                           <div className="space-y-1">
                             <p className="text-sm text-white font-semibold">{selectedStudent.parentInfo.name}</p>
@@ -980,7 +980,7 @@ const StudentManagement = () => {
 
                     {/* Personal Information */}
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
-                      <div className="bg-gray-800/70 p-4 sm:p-6 rounded-xl border border-gray-700/50">
+                      <div className="bg-[#161616] p-4 sm:p-6 rounded-xl border border-white/5">
                         <h4 className="text-base sm:text-lg font-semibold text-white mb-3 sm:mb-4 flex items-center">
                           <UserIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
                           Personal Information
@@ -988,7 +988,7 @@ const StudentManagement = () => {
                         <div className="space-y-2 sm:space-y-3">
                           <div className="flex items-center space-x-2 sm:space-x-3">
                             <EnvelopeIcon className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400 flex-shrink-0" />
-                            <span className="text-xs sm:text-sm text-gray-300 break-all">{selectedStudent.student.email}</span>
+                            <span className="text-xs sm:text-sm text-gray-400 break-all">{selectedStudent.student.email}</span>
                           </div>
                           <div className="flex items-center space-x-2 sm:space-x-3">
                             <PhoneIcon className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400 flex-shrink-0" />
@@ -1005,7 +1005,7 @@ const StudentManagement = () => {
                         </div>
                       </div>
 
-                      <div className="bg-gray-800/70 p-4 sm:p-6 rounded-xl border border-gray-700/50">
+                      <div className="bg-[#161616] p-4 sm:p-6 rounded-xl border border-white/5">
                         <h4 className="text-base sm:text-lg font-semibold text-white mb-3 sm:mb-4 flex items-center">
                           <AcademicCapIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
                           Academic Information
@@ -1042,14 +1042,14 @@ const StudentManagement = () => {
                 )}
                 {activeTab === 'attendance' && (
                   <div className="space-y-4">
-                    <div className="bg-gray-800/70 p-4 rounded-xl border border-gray-700/50">
+                    <div className="bg-[#161616] p-4 rounded-xl border border-white/5">
                       <h4 className="text-white font-semibold mb-2">Attendance Summary</h4>
-                      <div className="text-gray-300 text-sm">Total present: {attendance.summary?.present || 0} / {attendance.summary?.total || 0}</div>
+                      <div className="text-gray-400 text-sm">Total present: {attendance.summary?.present || 0} / {attendance.summary?.total || 0}</div>
                       {attendance.summary?.latestDate && (
                         <div className="text-gray-400 text-xs mt-1">Last attendance: {new Date(attendance.summary.latestDate).toLocaleDateString()}</div>
                       )}
                     </div>
-                    <div className="bg-gray-800/70 p-4 rounded-xl border border-gray-700/50">
+                    <div className="bg-[#161616] p-4 rounded-xl border border-white/5">
                       <h4 className="text-white font-semibold mb-2">Recent Records</h4>
                       <div className="space-y-2 max-h-64 overflow-auto pr-1">
                         {attendance.records.length === 0 && (
@@ -1057,7 +1057,7 @@ const StudentManagement = () => {
                         )}
                         {attendance.records.map((r, idx) => (
                           <div key={idx} className="flex items-center justify-between bg-white/5 rounded-xl px-3 py-2">
-                            <div className="text-gray-300 text-sm">{r.session?.day} {r.session?.startTime}-{r.session?.endTime} • {r.session?.topic || 'Session'}</div>
+                            <div className="text-gray-400 text-sm">{r.session?.day} {r.session?.startTime}-{r.session?.endTime} • {r.session?.topic || 'Session'}</div>
                             <div className="text-green-400 text-xs font-bold">{r.status}</div>
                           </div>
                         ))}
@@ -1086,11 +1086,11 @@ const StudentManagement = () => {
                             )
                             : null;
                           return (
-                            <div key={assignment._id} className="bg-gray-800/70 border border-gray-700/50 rounded-xl p-6">
+                            <div key={assignment._id} className="bg-[#161616] border border-white/5 rounded-xl p-6">
                               <div className="flex justify-between items-start mb-4">
                                 <div className="flex-1">
                                   <h4 className="text-lg font-semibold text-white">{assignment.title}</h4>
-                                  <p className="text-gray-300 mt-1">{assignment.description}</p>
+                                  <p className="text-gray-400 mt-1">{assignment.description}</p>
                                   <div className="flex items-center space-x-4 mt-2 text-sm text-gray-400">
                                     <span>Due: {new Date(assignment.dueDate).toLocaleDateString()}</span>
                                     <span>Max Score: {assignment.maxScore}</span>
@@ -1100,7 +1100,7 @@ const StudentManagement = () => {
                                 <span className={`px-3 py-1 rounded-full text-sm font-medium ${studentAssignment?.status === 'graded' ? 'bg-green-900/50 text-green-300' :
                                     studentAssignment?.status === 'submitted' ? 'bg-blue-900/50 text-blue-300' :
                                       studentAssignment?.status === 'in_progress' ? 'bg-yellow-900/50 text-yellow-300' :
-                                        'bg-gray-700 text-gray-300'
+                                        'bg-white/5 text-gray-300'
                                   }`}>
                                   {studentAssignment?.status || 'assigned'}
                                 </span>
@@ -1108,7 +1108,7 @@ const StudentManagement = () => {
 
                               {/* Submission Details */}
                               {studentAssignment && studentAssignment.status === 'submitted' && (
-                                <div className="border-t border-gray-700 pt-3 sm:pt-4">
+                                <div className="border-t border-white/5 pt-3 sm:pt-4">
                                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                                     <div>
                                       <h5 className="text-sm sm:text-base font-medium text-white mb-2">Submission Info</h5>
@@ -1125,11 +1125,11 @@ const StudentManagement = () => {
                                           <h6 className="text-xs sm:text-sm font-medium text-white mb-2">Submitted Files:</h6>
                                           <div className="space-y-2">
                                             {studentAssignment.submission.attachments.map((file, idx) => (
-                                              <div key={idx} className="flex flex-col sm:flex-row sm:items-center sm:justify-between bg-gray-900/70 p-2 sm:p-3 rounded border border-gray-700 gap-2">
+                                              <div key={idx} className="flex flex-col sm:flex-row sm:items-center sm:justify-between bg-[#161616] p-2 sm:p-3 rounded border border-white/10 gap-2">
                                                 <div className="flex items-center min-w-0 flex-1">
                                                   <DocumentTextIcon className="h-4 w-4 text-blue-400 mr-2 flex-shrink-0" />
                                                   <div className="min-w-0 flex-1">
-                                                    <span className="text-xs sm:text-sm text-gray-300 block truncate">{file.originalName}</span>
+                                                    <span className="text-xs sm:text-sm text-gray-400 block truncate">{file.originalName}</span>
                                                     <span className="text-xs text-gray-500">
                                                       ({(file.size / 1024).toFixed(1)} KB)
                                                     </span>
@@ -1150,7 +1150,7 @@ const StudentManagement = () => {
                                       {studentAssignment.submission?.text && (
                                         <div className="mt-3">
                                           <p className="text-xs sm:text-sm text-gray-400 mb-1">Text Submission:</p>
-                                          <div className="bg-gray-900/70 p-2 sm:p-3 rounded mt-1 max-h-24 sm:max-h-32 overflow-y-auto border border-gray-700">
+                                          <div className="bg-[#161616] p-2 sm:p-3 rounded mt-1 max-h-24 sm:max-h-32 overflow-y-auto border border-white/10">
                                             <p className="text-xs sm:text-sm text-gray-300">{studentAssignment.submission.text}</p>
                                           </div>
                                         </div>
@@ -1161,24 +1161,24 @@ const StudentManagement = () => {
                                       <h5 className="text-sm sm:text-base font-medium text-white mb-2">Grading</h5>
                                       <div className="space-y-3">
                                         <div>
-                                          <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-1">Score</label>
+                                          <label className="block text-xs sm:text-sm font-medium text-gray-400 mb-1">Score</label>
                                           <input
                                             type="number"
                                             min="0"
                                             max={assignment.maxScore}
                                             defaultValue={studentAssignment.score || ''}
                                             id={`score-${assignment._id}`}
-                                            className="w-full px-2 sm:px-3 py-2 border border-gray-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-gray-800/90 text-white text-sm"
+                                            className="w-full px-2 sm:px-3 py-2 border border-white/10 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-[#1A1A1A] text-white text-sm"
                                             placeholder={`Max: ${assignment.maxScore}`}
                                           />
                                         </div>
                                         <div>
-                                          <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-1">Feedback</label>
+                                          <label className="block text-xs sm:text-sm font-medium text-gray-400 mb-1">Feedback</label>
                                           <textarea
                                             rows="3"
                                             defaultValue={studentAssignment.feedback || ''}
                                             id={`feedback-${assignment._id}`}
-                                            className="w-full px-2 sm:px-3 py-2 border border-gray-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-gray-800/90 text-white text-xs sm:text-sm"
+                                            className="w-full px-2 sm:px-3 py-2 border border-white/10 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-[#1A1A1A] text-white text-xs sm:text-sm"
                                             placeholder="Provide feedback to the student..."
                                           />
                                         </div>
@@ -1201,7 +1201,7 @@ const StudentManagement = () => {
 
                               {/* Show graded info */}
                               {studentAssignment && studentAssignment.status === 'graded' && (
-                                <div className="border-t border-gray-700 pt-4">
+                                <div className="border-t border-white/5 pt-4">
                                   <div className="bg-green-900/40 p-4 rounded-xl border border-green-700/50">
                                     <h5 className="font-medium text-green-300 mb-2">Graded Assignment</h5>
                                     <div className="space-y-2">
@@ -1212,7 +1212,7 @@ const StudentManagement = () => {
                                       {studentAssignment.feedback && (
                                         <div>
                                           <span className="text-sm text-green-400">Feedback: </span>
-                                          <p className="text-sm bg-gray-800/70 p-2 rounded mt-1 text-gray-300">{studentAssignment.feedback}</p>
+                                          <p className="text-sm bg-[#161616] p-2 rounded mt-1 text-gray-300">{studentAssignment.feedback}</p>
                                         </div>
                                       )}
                                     </div>
@@ -1224,7 +1224,7 @@ const StudentManagement = () => {
                         })}
                       </div>
                     ) : (
-                      <div className="text-center py-12 bg-gray-800/60 rounded-xl border-2 border-dashed border-gray-700/50">
+                      <div className="text-center py-12 bg-[#161616] rounded-xl border border-dashed border-white/10">
                         <DocumentTextIcon className="h-12 w-12 text-gray-500 mx-auto mb-4" />
                         <p className="text-gray-400">No assignments found for this student</p>
                       </div>
@@ -1252,11 +1252,11 @@ const StudentManagement = () => {
                             )
                             : null;
                           return (
-                            <div key={quiz._id} className="bg-gray-800/70 border border-gray-700/50 rounded-xl p-6">
+                            <div key={quiz._id} className="bg-[#161616] border border-white/5 rounded-xl p-6">
                               <div className="flex justify-between items-start mb-4">
                                 <div className="flex-1">
                                   <h4 className="text-lg font-semibold text-white">{quiz.title}</h4>
-                                  <p className="text-gray-300 mt-1">{quiz.description}</p>
+                                  <p className="text-gray-400 mt-1">{quiz.description}</p>
                                   <div className="flex items-center space-x-4 mt-2 text-sm text-gray-400">
                                     <span>Duration: {quiz.duration} min</span>
                                     <span>Max Score: {quiz.maxScore}</span>
@@ -1266,7 +1266,7 @@ const StudentManagement = () => {
                                 <span className={`px-3 py-1 rounded-full text-sm font-medium ${studentQuiz?.status === 'graded' ? 'bg-green-900/50 text-green-300' :
                                     studentQuiz?.status === 'submitted' ? 'bg-blue-900/50 text-blue-300' :
                                       studentQuiz?.status === 'in_progress' ? 'bg-yellow-900/50 text-yellow-300' :
-                                        'bg-gray-700 text-gray-300'
+                                        'bg-white/5 text-gray-300'
                                   }`}>
                                   {studentQuiz?.status || 'assigned'}
                                 </span>
@@ -1274,7 +1274,7 @@ const StudentManagement = () => {
 
                               {/* Submission Details */}
                               {studentQuiz && studentQuiz.status === 'submitted' && (
-                                <div className="border-t border-gray-700 pt-4">
+                                <div className="border-t border-white/5 pt-4">
                                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
                                       <h5 className="font-medium text-white mb-2">Submission Info</h5>
@@ -1296,7 +1296,7 @@ const StudentManagement = () => {
                                           <h6 className="text-sm font-medium text-white mb-2">Submitted Files:</h6>
                                           <div className="space-y-2">
                                             {studentQuiz.submission.attachments.map((file, idx) => (
-                                              <div key={idx} className="flex items-center justify-between bg-gray-900/70 p-2 rounded border border-gray-700">
+                                              <div key={idx} className="flex items-center justify-between bg-[#161616] p-2 rounded border border-white/10">
                                                 <div className="flex items-center">
                                                   <DocumentTextIcon className="h-4 w-4 text-blue-400 mr-2" />
                                                   <span className="text-sm text-gray-300">{file.originalName}</span>
@@ -1319,7 +1319,7 @@ const StudentManagement = () => {
                                       {studentQuiz.submission?.text && (
                                         <div className="mt-3">
                                           <p className="text-sm text-gray-400">Text Submission:</p>
-                                          <div className="bg-gray-900/70 p-3 rounded mt-1 max-h-32 overflow-y-auto border border-gray-700">
+                                          <div className="bg-[#161616] p-3 rounded mt-1 max-h-32 overflow-y-auto border border-white/10">
                                             <p className="text-sm text-gray-300">{studentQuiz.submission.text}</p>
                                           </div>
                                         </div>
@@ -1337,7 +1337,7 @@ const StudentManagement = () => {
                                             max={quiz.maxScore}
                                             defaultValue={studentQuiz.score || ''}
                                             id={`quiz-score-${quiz._id}`}
-                                            className="mt-1 w-full px-3 py-2 border border-gray-600 rounded-md focus:ring-purple-500 focus:border-purple-500 bg-gray-800/90 text-white"
+                                            className="mt-1 w-full px-3 py-2 border border-white/10 rounded-md focus:ring-purple-500 focus:border-purple-500 bg-[#1A1A1A] text-white"
                                             placeholder={`Max: ${quiz.maxScore}`}
                                           />
                                         </div>
@@ -1347,7 +1347,7 @@ const StudentManagement = () => {
                                             rows="3"
                                             defaultValue={studentQuiz.feedback || ''}
                                             id={`quiz-feedback-${quiz._id}`}
-                                            className="mt-1 w-full px-3 py-2 border border-gray-600 rounded-md focus:ring-purple-500 focus:border-purple-500 bg-gray-800/90 text-white"
+                                            className="mt-1 w-full px-3 py-2 border border-white/10 rounded-md focus:ring-purple-500 focus:border-purple-500 bg-[#1A1A1A] text-white"
                                             placeholder="Provide feedback to the student..."
                                           />
                                         </div>
@@ -1370,8 +1370,8 @@ const StudentManagement = () => {
 
                               {/* Show graded info */}
                               {studentQuiz && studentQuiz.status === 'graded' && (
-                                <div className="border-t border-gray-700 pt-4">
-                                  <div className="bg-purple-900/40 p-4 rounded-xl border border-purple-700/50">
+                                <div className="border-t border-white/5 pt-4">
+                                  <div className="bg-purple-900/40 p-4 rounded-xl border border-purple-500/20">
                                     <h5 className="font-medium text-purple-300 mb-2">Graded Quiz</h5>
                                     <div className="grid grid-cols-2 gap-4">
                                       <div>
@@ -1402,7 +1402,7 @@ const StudentManagement = () => {
                                     {studentQuiz.feedback && (
                                       <div className="mt-4">
                                         <span className="text-sm text-purple-400">Feedback: </span>
-                                        <p className="text-sm bg-gray-800/70 p-2 rounded mt-1 text-gray-300">{studentQuiz.feedback}</p>
+                                        <p className="text-sm bg-[#161616] p-2 rounded mt-1 text-gray-300">{studentQuiz.feedback}</p>
                                       </div>
                                     )}
 
@@ -1412,7 +1412,7 @@ const StudentManagement = () => {
                                         <h6 className="text-sm font-medium text-purple-300 mb-2">Submitted Files:</h6>
                                         <div className="space-y-2">
                                           {studentQuiz.submission.attachments.map((file, idx) => (
-                                            <div key={idx} className="flex items-center justify-between bg-gray-800/70 p-2 rounded border border-purple-700/50">
+                                            <div key={idx} className="flex items-center justify-between bg-[#161616] p-2 rounded border border-purple-500/20">
                                               <div className="flex items-center">
                                                 <DocumentTextIcon className="h-4 w-4 text-purple-400 mr-2" />
                                                 <span className="text-sm text-gray-300">{file.originalName}</span>
@@ -1439,7 +1439,7 @@ const StudentManagement = () => {
                         })}
                       </div>
                     ) : (
-                      <div className="text-center py-12 bg-gray-800/60 rounded-xl border-2 border-dashed border-gray-700/50">
+                      <div className="text-center py-12 bg-[#161616] rounded-xl border border-dashed border-white/10">
                         <QuestionMarkCircleIcon className="h-12 w-12 text-gray-500 mx-auto mb-4" />
                         <p className="text-gray-400">No quizzes found for this student</p>
                       </div>
@@ -1460,7 +1460,7 @@ const StudentManagement = () => {
                           type="button"
                           onClick={handleResetStudentPassword}
                           disabled={resettingPassword}
-                          className="flex items-center gap-2 px-3 py-2 bg-gray-700/80 hover:bg-gray-700 text-gray-300 rounded-xl text-sm font-medium transition-colors border border-gray-600/50"
+                          className="flex items-center gap-2 px-3 py-2 bg-gray-700/80 hover:bg-white/8 text-gray-400 rounded-xl text-sm font-medium transition-colors border border-white/5"
                         >
                           <KeyIcon className="h-4 w-4" />
                           {resettingPassword ? 'Resetting…' : 'Reset Password'}
@@ -1501,7 +1501,7 @@ const StudentManagement = () => {
                                     sessions: planType === 'per_session' || planType === 'package' ? f.sessions : '',
                                   }));
                                 }}
-                                className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-xl text-white text-sm focus:border-[#CA133E] focus:outline-none"
+                                className="w-full px-3 py-2 bg-[#1A1A1A] border border-white/10 rounded-xl text-white text-sm focus:border-[#CA133E] focus:outline-none"
                               >
                                 <option value="monthly">Monthly</option>
                                 <option value="weekly">Weekly</option>
@@ -1529,7 +1529,7 @@ const StudentManagement = () => {
                                       setPaymentForm(f => ({ ...f, perSessionRate, amount: total }));
                                     }}
                                     placeholder="e.g. 150"
-                                    className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-xl text-white text-sm focus:border-[#CA133E] focus:outline-none"
+                                    className="w-full px-3 py-2 bg-[#1A1A1A] border border-white/10 rounded-xl text-white text-sm focus:border-[#CA133E] focus:outline-none"
                                   />
                                 </div>
                                 <div>
@@ -1549,12 +1549,12 @@ const StudentManagement = () => {
                                       setPaymentForm(f => ({ ...f, sessions, amount: total }));
                                     }}
                                     placeholder="e.g. 8"
-                                    className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-xl text-white text-sm focus:border-[#CA133E] focus:outline-none"
+                                    className="w-full px-3 py-2 bg-[#1A1A1A] border border-white/10 rounded-xl text-white text-sm focus:border-[#CA133E] focus:outline-none"
                                   />
                                 </div>
                                 <div className="sm:col-span-2">
                                   <label className="block text-xs text-gray-400 mb-1.5 font-medium uppercase tracking-wide">Total (calculated)</label>
-                                  <div className="w-full px-3 py-2 bg-gray-900/80 border border-[#CA133E]/40 rounded-xl text-white text-sm font-bold">
+                                  <div className="w-full px-3 py-2 bg-[#161616] border border-[#CA133E]/40 rounded-xl text-white text-sm font-bold">
                                     {paymentForm.amount ? `${paymentForm.amount} EGP` : '—'}
                                   </div>
                                   <p className="text-xs text-gray-500 mt-1">Total = rate per session × number of sessions (saved with the plan).</p>
@@ -1570,7 +1570,7 @@ const StudentManagement = () => {
                                   value={paymentForm.amount}
                                   onChange={e => setPaymentForm(f => ({ ...f, amount: e.target.value }))}
                                   placeholder="e.g. 500"
-                                  className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-xl text-white text-sm focus:border-[#CA133E] focus:outline-none"
+                                  className="w-full px-3 py-2 bg-[#1A1A1A] border border-white/10 rounded-xl text-white text-sm focus:border-[#CA133E] focus:outline-none"
                                 />
                               </div>
                             )}
@@ -1580,7 +1580,7 @@ const StudentManagement = () => {
                                 type="date"
                                 value={paymentForm.dueDate}
                                 onChange={e => setPaymentForm(f => ({ ...f, dueDate: e.target.value }))}
-                                className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-xl text-white text-sm focus:border-[#CA133E] focus:outline-none"
+                                className="w-full px-3 py-2 bg-[#1A1A1A] border border-white/10 rounded-xl text-white text-sm focus:border-[#CA133E] focus:outline-none"
                               />
                             </div>
                             <div className="sm:col-span-2">
@@ -1590,7 +1590,7 @@ const StudentManagement = () => {
                                 value={paymentForm.description}
                                 onChange={e => setPaymentForm(f => ({ ...f, description: e.target.value }))}
                                 placeholder="e.g. November package"
-                                className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-xl text-white text-sm focus:border-[#CA133E] focus:outline-none"
+                                className="w-full px-3 py-2 bg-[#1A1A1A] border border-white/10 rounded-xl text-white text-sm focus:border-[#CA133E] focus:outline-none"
                               />
                             </div>
                             <div className="sm:col-span-2">
@@ -1600,12 +1600,12 @@ const StudentManagement = () => {
                                 value={paymentForm.notes}
                                 onChange={e => setPaymentForm(f => ({ ...f, notes: e.target.value }))}
                                 placeholder="Optional notes"
-                                className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-xl text-white text-sm focus:border-[#CA133E] focus:outline-none"
+                                className="w-full px-3 py-2 bg-[#1A1A1A] border border-white/10 rounded-xl text-white text-sm focus:border-[#CA133E] focus:outline-none"
                               />
                             </div>
                           </div>
                           <div className="flex gap-2 justify-end">
-                            <button type="button" onClick={() => setShowPaymentForm(false)} className="px-4 py-2 bg-gray-700 rounded-xl text-sm text-gray-300 hover:bg-gray-600 transition-colors">Cancel</button>
+                            <button type="button" onClick={() => setShowPaymentForm(false)} className="px-4 py-2 bg-white/5 rounded-xl text-sm text-gray-400 hover:bg-gray-600 transition-colors">Cancel</button>
                             <button
                               type="button"
                               onClick={savePayment}
@@ -1639,7 +1639,7 @@ const StudentManagement = () => {
                             <div className="flex-1 min-w-0">
                               <div className="flex flex-wrap items-center gap-2 mb-1">
                                 <span className="text-white font-semibold text-sm">{p.description || PLAN_LABELS[p.planType]}</span>
-                                <span className="text-xs px-2 py-0.5 rounded-full bg-white/10 text-gray-300 border border-white/15">{PLAN_LABELS[p.planType]}</span>
+                                <span className="text-xs px-2 py-0.5 rounded-full bg-white/10 text-gray-400 border border-white/15">{PLAN_LABELS[p.planType]}</span>
                                 <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${STATUS_COLORS[p.status]}`}>{p.status}</span>
                               </div>
                               <div className="flex flex-wrap gap-3 text-xs text-gray-400">
@@ -1683,10 +1683,10 @@ const StudentManagement = () => {
                 )}
               </div>
 
-              <div className="p-3 sm:p-4 lg:p-6 border-t border-gray-700/80 flex justify-end space-x-3 mt-auto">
+              <div className="p-3 sm:p-4 lg:p-6 border-t border-white/5 flex justify-end space-x-3 mt-auto">
                 <button
                   onClick={() => setShowModal(false)}
-                  className="px-3 sm:px-4 py-2 text-gray-300 bg-gray-700/80 rounded-xl hover:bg-gray-700 transition-colors text-sm font-medium"
+                  className="px-3 sm:px-4 py-2 text-gray-400 bg-white/5 border border-white/10 rounded-xl hover:bg-white/8 transition-colors text-sm font-medium"
                 >
                   Close
                 </button>
@@ -1705,16 +1705,16 @@ const StudentManagement = () => {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-gray-900 text-white rounded-xl shadow-2xl w-full max-w-md border border-gray-700"
+              className="bg-[#161616] text-white rounded-xl w-full max-w-md border border-white/10"
             >
-              <div className="p-5 border-b border-gray-800">
+              <div className="p-5 border-b border-white/5">
                 <h3 className="text-xl font-semibold">Parent Account Created</h3>
                 <p className="text-gray-400 text-sm mt-1">Share these credentials with the parent of {parentCredentials.studentName}.</p>
               </div>
               <div className="p-5 space-y-4">
                 <div>
                   <label className="block text-sm text-gray-400 mb-1">Email</label>
-                  <div className="flex items-center bg-gray-800 rounded-xl px-3 py-2 border border-gray-700">
+                  <div className="flex items-center bg-[#1A1A1A] rounded-xl px-3 py-2 border border-white/10">
                     <span className="truncate">{parentCredentials.email}</span>
                     <button
                       className="ml-auto text-blue-400 hover:text-blue-300 text-sm"
@@ -1726,7 +1726,7 @@ const StudentManagement = () => {
                 </div>
                 <div>
                   <label className="block text-sm text-gray-400 mb-1">Temporary Password</label>
-                  <div className="flex items-center bg-gray-800 rounded-xl px-3 py-2 border border-gray-700">
+                  <div className="flex items-center bg-[#1A1A1A] rounded-xl px-3 py-2 border border-white/10">
                     <span className="truncate">{parentCredentials.password}</span>
                     <button
                       className="ml-auto text-blue-400 hover:text-blue-300 text-sm"
@@ -1738,9 +1738,9 @@ const StudentManagement = () => {
                 </div>
                 <p className="text-xs text-gray-500">Parent can log in at the Sign In page to access the Parent Portal.</p>
               </div>
-              <div className="p-4 border-t border-gray-800 flex justify-end">
+              <div className="p-4 border-t border-white/5 flex justify-end">
                 <button
-                  className="px-4 py-2 bg-gray-700 rounded-xl hover:bg-gray-600"
+                  className="px-4 py-2 bg-white/5 rounded-xl hover:bg-gray-600"
                   onClick={() => {
                     setShowParentModal(false);
                     setParentCredentials(null);
@@ -1764,9 +1764,9 @@ const StudentManagement = () => {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-gray-900 text-white rounded-xl shadow-2xl w-full max-w-md border border-gray-700"
+              className="bg-[#161616] text-white rounded-xl w-full max-w-md border border-white/10"
             >
-              <div className="p-5 border-b border-gray-800">
+              <div className="p-5 border-b border-white/5">
                 <h3 className="text-xl font-semibold text-red-400 flex items-center">
                   <TrashIcon className="h-6 w-6 mr-2" />
                   Remove Student
@@ -1784,7 +1784,7 @@ const StudentManagement = () => {
                     setShowDeleteModal(false);
                     setStudentToDelete(null);
                   }}
-                  className="px-4 py-2 bg-gray-700 rounded-xl hover:bg-gray-600 transition-colors"
+                  className="px-4 py-2 bg-white/5 rounded-xl hover:bg-gray-600 transition-colors"
                   disabled={deleting}
                 >
                   Cancel
@@ -1820,9 +1820,9 @@ const StudentManagement = () => {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-gray-900 text-white rounded-xl shadow-2xl w-full max-w-md border border-gray-700"
+              className="bg-[#161616] text-white rounded-xl w-full max-w-md border border-white/10"
             >
-              <div className="p-5 border-b border-gray-800 flex items-center gap-3">
+              <div className="p-5 border-b border-white/5 flex items-center gap-3">
                 <KeyIcon className="h-6 w-6 text-yellow-400" />
                 <div>
                   <h3 className="text-lg font-semibold">Password Reset</h3>
@@ -1833,7 +1833,7 @@ const StudentManagement = () => {
                 <p className="text-sm text-gray-300">Hand this temporary password to the student. They should change it immediately from their profile.</p>
                 <div>
                   <label className="block text-xs text-gray-400 mb-1.5 uppercase font-bold tracking-wide">Temporary Password</label>
-                  <div className="flex items-center bg-gray-800 rounded-xl px-4 py-3 border border-yellow-700/40">
+                  <div className="flex items-center bg-[#1A1A1A] rounded-xl px-4 py-3 border border-yellow-700/40">
                     <span className="font-mono text-yellow-300 font-bold text-lg tracking-widest flex-1">{tempPasswordData.tempPassword}</span>
                     <button
                       type="button"
@@ -1846,10 +1846,10 @@ const StudentManagement = () => {
                 </div>
                 <p className="text-xs text-gray-500">⚠️ This password is shown only once and will not be stored.</p>
               </div>
-              <div className="p-4 border-t border-gray-800 flex justify-end">
+              <div className="p-4 border-t border-white/5 flex justify-end">
                 <button
                   type="button"
-                  className="px-4 py-2 bg-gray-700 rounded-xl hover:bg-gray-600 transition-colors"
+                  className="px-4 py-2 bg-white/5 rounded-xl hover:bg-gray-600 transition-colors"
                   onClick={() => { setShowTempPasswordModal(false); setTempPasswordData(null); }}
                 >
                   Done
@@ -1863,14 +1863,14 @@ const StudentManagement = () => {
       {/* Legacy Student Modal */}
       <AnimatePresence>
         {showLegacyModal && (
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
-              className="bg-gray-800 rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto"
+              className="bg-[#1A1A1A] rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto"
             >
-              <div className="p-6 border-b border-gray-700">
+              <div className="p-6 border-b border-white/5">
                 <div className="flex items-center justify-between">
                   <h3 className="text-xl font-bold text-white">Classify Student</h3>
                   <button
@@ -1887,10 +1887,10 @@ const StudentManagement = () => {
 
               <form onSubmit={handleLegacyStudentSubmit} className="p-6 space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">Select Student *</label>
+                  <label className="block text-sm font-medium text-gray-400 mb-2">Select Student *</label>
                   <select
                     required
-                    className="w-full px-3 py-2 border border-gray-600 rounded-xl bg-gray-900 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-white/10 rounded-xl bg-[#161616] text-white focus:outline-none focus:border-[#CA133E] transition-colors"
                     value={legacyStudent.studentId}
                     onChange={(e) => setLegacyStudent({ ...legacyStudent, studentId: e.target.value })}
                   >
@@ -1907,10 +1907,10 @@ const StudentManagement = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">Assign to Royal Class *</label>
+                  <label className="block text-sm font-medium text-gray-400 mb-2">Assign to Royal Class *</label>
                   <select
                     required
-                    className="w-full px-3 py-2 border border-gray-600 rounded-xl bg-gray-900 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-white/10 rounded-xl bg-[#161616] text-white focus:outline-none focus:border-[#CA133E] transition-colors"
                     value={legacyStudent.royalClass}
                     onChange={(e) => setLegacyStudent({ ...legacyStudent, royalClass: e.target.value })}
                   >
@@ -1924,7 +1924,7 @@ const StudentManagement = () => {
                   <button
                     type="button"
                     onClick={() => setShowLegacyModal(false)}
-                    className="px-4 py-2 bg-gray-700 rounded-xl hover:bg-gray-600 transition-colors"
+                    className="px-4 py-2 bg-white/5 rounded-xl hover:bg-gray-600 transition-colors"
                   >
                     Cancel
                   </button>

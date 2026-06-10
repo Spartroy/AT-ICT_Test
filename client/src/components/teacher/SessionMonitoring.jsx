@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { API_ENDPOINTS } from '../../config/api';
 import { showError, showSuccess, showWarning, showInfo } from '../../utils/toast';
@@ -173,7 +173,7 @@ const SessionMonitoring = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-gray-800 rounded-xl p-4 sm:p-6 border border-gray-700">
+      <div className="bg-[#1A1A1A] rounded-xl p-4 sm:p-6 border border-white/10">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4 sm:mb-6">
           <div className="flex items-center space-x-3">
             <div className="p-2 bg-red-600/20 rounded-xl">
@@ -184,7 +184,7 @@ const SessionMonitoring = () => {
               <p className="text-sm sm:text-base text-gray-400">Monitor student device sessions and login activity</p>
             </div>
           </div>
-          <div className="flex items-center space-x-2 bg-gray-700/50 px-3 py-1 rounded-xl">
+          <div className="flex items-center space-x-2 bg-white/5 px-3 py-1 rounded-xl">
             <ChartBarIcon className="h-4 w-4 text-blue-400" />
             <span className="text-sm text-gray-300">Live Monitoring</span>
           </div>
@@ -192,7 +192,7 @@ const SessionMonitoring = () => {
 
         {/* Stats Grid - Improved Responsiveness */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-          <div className="bg-gray-700/50 rounded-xl p-3 sm:p-4 border border-gray-600">
+          <div className="bg-white/5 rounded-xl p-3 sm:p-4 border border-white/10">
             <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
               <UsersIcon className="h-5 w-5 sm:h-6 sm:w-6 text-blue-400 flex-shrink-0" />
               <div className="min-w-0">
@@ -202,7 +202,7 @@ const SessionMonitoring = () => {
             </div>
           </div>
           
-          <div className="bg-gray-700/50 rounded-xl p-3 sm:p-4 border border-gray-600">
+          <div className="bg-white/5 rounded-xl p-3 sm:p-4 border border-white/10">
             <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
               <WifiIcon className="h-5 w-5 sm:h-6 sm:w-6 text-green-400 flex-shrink-0" />
               <div className="min-w-0">
@@ -212,7 +212,7 @@ const SessionMonitoring = () => {
             </div>
           </div>
           
-          <div className="bg-gray-700/50 rounded-xl p-3 sm:p-4 border border-gray-600">
+          <div className="bg-white/5 rounded-xl p-3 sm:p-4 border border-white/10">
             <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
               <CheckCircleIcon className="h-5 w-5 sm:h-6 sm:w-6 text-green-400 flex-shrink-0" />
               <div className="min-w-0">
@@ -222,7 +222,7 @@ const SessionMonitoring = () => {
             </div>
           </div>
           
-          <div className="bg-gray-700/50 rounded-xl p-3 sm:p-4 border border-gray-600">
+          <div className="bg-white/5 rounded-xl p-3 sm:p-4 border border-white/10">
             <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
               <NoSymbolIcon className="h-5 w-5 sm:h-6 sm:w-6 text-gray-400 flex-shrink-0" />
               <div className="min-w-0">
@@ -235,15 +235,15 @@ const SessionMonitoring = () => {
       </div>
 
       {/* Students List - Improved Responsiveness */}
-      <div className="bg-gray-800 rounded-xl border border-gray-700">
-        <div className="p-4 sm:p-6 border-b border-gray-700">
+      <div className="bg-[#1A1A1A] rounded-xl border border-white/10">
+        <div className="p-4 sm:p-6 border-b border-white/5">
           <h3 className="text-base sm:text-lg font-semibold text-white">Student Sessions</h3>
           <p className="text-sm sm:text-base text-gray-400">Monitor individual student device activity</p>
         </div>
         
         <div className="divide-y divide-gray-700">
           {students.map((student) => (
-            <div key={student.id} className="p-4 sm:p-6 hover:bg-gray-700/30 transition-colors">
+            <div key={student.id} className="p-4 sm:p-6 hover:bg-white/5 transition-colors">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div className="flex items-center space-x-3 sm:space-x-4 min-w-0 flex-1">
                   <div className="w-10 h-10 bg-blue-600/20 rounded-full flex items-center justify-center flex-shrink-0">
@@ -332,7 +332,7 @@ const SessionMonitoring = () => {
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-gray-800 rounded-xl p-4 sm:p-6 max-w-2xl w-full mx-4 border border-gray-700 max-h-[90vh] overflow-y-auto"
+              className="bg-[#1A1A1A] rounded-xl p-4 sm:p-6 max-w-2xl w-full mx-4 border border-white/10 max-h-[90vh] overflow-y-auto"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
@@ -351,7 +351,7 @@ const SessionMonitoring = () => {
                 </div>
                 <button
                   onClick={() => setShowStudentDetails(false)}
-                  className="p-2 bg-gray-700/50 text-gray-400 rounded-xl hover:bg-gray-700 transition-colors self-start sm:self-auto"
+                  className="p-2 bg-white/5 text-gray-400 rounded-xl hover:bg-white/8 transition-colors self-start sm:self-auto"
                 >
                   <XMarkIcon className="h-5 w-5" />
                 </button>
@@ -363,7 +363,7 @@ const SessionMonitoring = () => {
                 </h4>
                 
                 {selectedStudent.sessions.map((session) => (
-                  <div key={session.id} className="bg-gray-700/50 rounded-xl p-4 border border-gray-600">
+                  <div key={session.id} className="bg-white/5 rounded-xl p-4 border border-white/10">
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                       <div className="flex items-center space-x-3 min-w-0 flex-1">
                         {getDeviceIcon(session.deviceName)}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { API_ENDPOINTS } from '../../config/api';
 import { showSuccess, showError, showWarning } from '../../utils/toast';
@@ -248,14 +248,14 @@ const CreateAssignmentModal = ({ isOpen, onClose, onSuccess }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
-        className="bg-gray-900/90 border border-gray-700 text-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col"
+        className="bg-[#161616] border border-white/10 text-white rounded-xl max-w-2xl w-full max-h-[90vh] flex flex-col"
       >
-        <div className="p-6 border-b border-gray-700">
+        <div className="p-6 border-b border-white/5">
           <div className="flex justify-between items-center">
             <h3 className="text-xl font-semibold flex items-center">
               <ClipboardDocumentListIcon className="h-6 w-6 mr-2 text-blue-400" />
@@ -272,7 +272,7 @@ const CreateAssignmentModal = ({ isOpen, onClose, onSuccess }) => {
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4 overflow-y-auto">
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">
+            <label className="block text-sm font-medium text-gray-400 mb-1">
               Assignment Title *
             </label>
             <input
@@ -280,33 +280,33 @@ const CreateAssignmentModal = ({ isOpen, onClose, onSuccess }) => {
               required
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-800/90 text-white"
+              className="w-full px-3 py-2 border border-white/10 rounded-xl focus:outline-none focus:border-[#CA133E] transition-colors bg-[#1A1A1A] text-white"
               placeholder="Enter assignment title"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">
+            <label className="block text-sm font-medium text-gray-400 mb-1">
               Description
             </label>
             <textarea
               rows={3}
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-800/90 text-white"
+              className="w-full px-3 py-2 border border-white/10 rounded-xl focus:outline-none focus:border-[#CA133E] transition-colors bg-[#1A1A1A] text-white"
               placeholder="Describe the assignment (optional)"
             />
           </div>
 
           <div className="grid grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">
+              <label className="block text-sm font-medium text-gray-400 mb-1">
                 Type
               </label>
               <select
                 value={formData.type}
                 onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-800/90 text-white"
+                className="w-full px-3 py-2 border border-white/10 rounded-xl focus:outline-none focus:border-[#CA133E] transition-colors bg-[#1A1A1A] text-white"
               >
                 {assignmentTypes.map(type => (
                   <option key={type.value} value={type.value}>{type.label}</option>
@@ -315,13 +315,13 @@ const CreateAssignmentModal = ({ isOpen, onClose, onSuccess }) => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">
+              <label className="block text-sm font-medium text-gray-400 mb-1">
                 Section
               </label>
               <select
                 value={formData.section}
                 onChange={(e) => setFormData({ ...formData, section: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-800/90 text-white"
+                className="w-full px-3 py-2 border border-white/10 rounded-xl focus:outline-none focus:border-[#CA133E] transition-colors bg-[#1A1A1A] text-white"
               >
                 {sectionTypes.map(section => (
                   <option key={section.value} value={section.value}>{section.label}</option>
@@ -330,13 +330,13 @@ const CreateAssignmentModal = ({ isOpen, onClose, onSuccess }) => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">
+              <label className="block text-sm font-medium text-gray-400 mb-1">
                 Difficulty
               </label>
               <select
                 value={formData.difficulty}
                 onChange={(e) => setFormData({ ...formData, difficulty: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-800/90 text-white"
+                className="w-full px-3 py-2 border border-white/10 rounded-xl focus:outline-none focus:border-[#CA133E] transition-colors bg-[#1A1A1A] text-white"
               >
                 {difficulties.map(diff => (
                   <option key={diff.value} value={diff.value}>{diff.label}</option>
@@ -347,7 +347,7 @@ const CreateAssignmentModal = ({ isOpen, onClose, onSuccess }) => {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">
+              <label className="block text-sm font-medium text-gray-400 mb-1">
                 Due Date *
               </label>
               <input
@@ -355,12 +355,12 @@ const CreateAssignmentModal = ({ isOpen, onClose, onSuccess }) => {
                 required
                 value={formData.dueDate}
                 onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-800/90 text-white"
+                className="w-full px-3 py-2 border border-white/10 rounded-xl focus:outline-none focus:border-[#CA133E] transition-colors bg-[#1A1A1A] text-white"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">
+              <label className="block text-sm font-medium text-gray-400 mb-1">
                 Max Score *
               </label>
               <input
@@ -369,30 +369,30 @@ const CreateAssignmentModal = ({ isOpen, onClose, onSuccess }) => {
                 min="1"
                 value={formData.maxScore}
                 onChange={(e) => setFormData({ ...formData, maxScore: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-800/90 text-white"
+                className="w-full px-3 py-2 border border-white/10 rounded-xl focus:outline-none focus:border-[#CA133E] transition-colors bg-[#1A1A1A] text-white"
                 placeholder="e.g., 100"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">
+            <label className="block text-sm font-medium text-gray-400 mb-1">
               Instructions (Optional)
             </label>
             <textarea
               rows={3}
               value={formData.instructions}
               onChange={(e) => setFormData({ ...formData, instructions: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-800/90 text-white"
+              className="w-full px-3 py-2 border border-white/10 rounded-xl focus:outline-none focus:border-[#CA133E] transition-colors bg-[#1A1A1A] text-white"
               placeholder="Additional instructions for students"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-gray-400 mb-2">
               Attachment Files (Optional)
             </label>
-            <div className="border-2 border-dashed border-gray-600 rounded-xl p-4 hover:border-gray-500 transition-colors">
+            <div className="border border-dashed border-white/10 rounded-xl p-4 hover:border-white/10 transition-colors">
               <input
                 type="file"
                 multiple
@@ -414,7 +414,7 @@ const CreateAssignmentModal = ({ isOpen, onClose, onSuccess }) => {
             {files.length > 0 && (
               <div className="mt-2 space-y-2">
                 {files.map((file, index) => (
-                  <div key={index} className="flex items-center justify-between bg-gray-800/70 p-2 rounded-xl border border-gray-700">
+                  <div key={index} className="flex items-center justify-between bg-[#161616] p-2 rounded-xl border border-white/10">
                     <span className="text-sm text-gray-300">{file.name}</span>
                     <button
                       type="button"
@@ -430,7 +430,7 @@ const CreateAssignmentModal = ({ isOpen, onClose, onSuccess }) => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-gray-400 mb-2">
               Student Assignment
             </label>
 
@@ -440,8 +440,8 @@ const CreateAssignmentModal = ({ isOpen, onClose, onSuccess }) => {
                 type="button"
                 onClick={() => setFormData({ ...formData, assignToAll: true, selectedStudents: [] })}
                 className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${formData.assignToAll
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                  ? 'bg-[#CA133E] text-white'
+                  : 'bg-white/5 text-gray-400 hover:bg-gray-600'
                   }`}
               >
                 All Students
@@ -450,8 +450,8 @@ const CreateAssignmentModal = ({ isOpen, onClose, onSuccess }) => {
                 type="button"
                 onClick={() => setFormData({ ...formData, assignToAll: false })}
                 className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${!formData.assignToAll
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                  ? 'bg-[#CA133E] text-white'
+                  : 'bg-white/5 text-gray-400 hover:bg-gray-600'
                   }`}
               >
                 Select Students
@@ -464,7 +464,7 @@ const CreateAssignmentModal = ({ isOpen, onClose, onSuccess }) => {
                 <button
                   type="button"
                   onClick={() => setShowStudentDropdown(!showStudentDropdown)}
-                  className="w-full px-3 py-2 border border-gray-600 rounded-xl bg-gray-800/90 text-white text-left flex items-center justify-between"
+                  className="w-full px-3 py-2 border border-white/10 rounded-xl bg-[#1A1A1A] text-white text-left flex items-center justify-between"
                 >
                   <span className="flex items-center">
                     <UserGroupIcon className="h-4 w-4 mr-2 text-gray-400" />
@@ -481,7 +481,7 @@ const CreateAssignmentModal = ({ isOpen, onClose, onSuccess }) => {
 
                 {/* Dropdown List */}
                 {showStudentDropdown && (
-                  <div className="absolute top-full left-0 right-0 mt-1 bg-gray-800 border border-gray-600 rounded-xl shadow-lg z-50 max-h-60 overflow-hidden flex flex-col">
+                  <div className="absolute top-full left-0 right-0 mt-1 bg-[#1A1A1A] border border-white/10 rounded-xl shadow-lg z-50 max-h-60 overflow-hidden flex flex-col">
                     {loadingStudents ? (
                       <div className="p-3 text-center text-gray-400">
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500 mx-auto mb-2"></div>
@@ -494,13 +494,13 @@ const CreateAssignmentModal = ({ isOpen, onClose, onSuccess }) => {
                     ) : (
                       <>
                         {/* Search Input */}
-                        <div className="p-2 border-b border-gray-700 sticky top-0 bg-gray-800">
+                        <div className="p-2 border-b border-white/5 sticky top-0 bg-[#161616]">
                           <input
                             type="text"
                             placeholder="Search by name..."
                             value={studentSearchQuery}
                             onChange={(e) => setStudentSearchQuery(e.target.value)}
-                            className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-xl text-white text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-white text-sm placeholder-gray-400 focus:outline-none focus:border-[#CA133E] transition-colors"
                             onClick={(e) => e.stopPropagation()}
                           />
                         </div>
@@ -525,7 +525,7 @@ const CreateAssignmentModal = ({ isOpen, onClose, onSuccess }) => {
                             return (
                               <>
                                 {/* Select All Students Option */}
-                                <div className="p-2 border-b border-gray-700">
+                                <div className="p-2 border-b border-white/5">
                                   <button
                                     type="button"
                                     onClick={() => {
@@ -551,7 +551,7 @@ const CreateAssignmentModal = ({ isOpen, onClose, onSuccess }) => {
                                         setFormData({ ...formData, selectedStudents: newSelection });
                                       }
                                     }}
-                                    className="w-full text-left px-3 py-2 hover:bg-gray-700 rounded-xl transition-colors flex items-center"
+                                    className="w-full text-left px-3 py-2 hover:bg-white/8 rounded-xl transition-colors flex items-center"
                                   >
                                     <input
                                       type="checkbox"
@@ -559,7 +559,7 @@ const CreateAssignmentModal = ({ isOpen, onClose, onSuccess }) => {
                                         formData.selectedStudents.includes(s._id)
                                       )}
                                       onChange={() => { }} // Handled by button click
-                                      className="h-4 w-4 text-blue-500 border-gray-600 rounded mr-3"
+                                      className="h-4 w-4 accent-[#CA133E] border-white/10 rounded mr-3"
                                     />
                                     <span className="font-medium text-blue-400">
                                       {studentSearchQuery ? 'Select All Filtered' : 'Select All'}
@@ -573,13 +573,13 @@ const CreateAssignmentModal = ({ isOpen, onClose, onSuccess }) => {
                                     <button
                                       type="button"
                                       onClick={() => handleStudentSelection(student._id)}
-                                      className="w-full text-left px-3 py-2 hover:bg-gray-700 rounded-xl transition-colors flex items-center"
+                                      className="w-full text-left px-3 py-2 hover:bg-white/8 rounded-xl transition-colors flex items-center"
                                     >
                                       <input
                                         type="checkbox"
                                         checked={formData.selectedStudents.includes(student._id)}
                                         onChange={() => { }} // Handled by button click
-                                        className="h-4 w-4 text-blue-500 border-gray-600 rounded mr-3"
+                                        className="h-4 w-4 accent-[#CA133E] border-white/10 rounded mr-3"
                                       />
                                       <div className="flex-1">
                                         <div className="text-white">
@@ -627,7 +627,7 @@ const CreateAssignmentModal = ({ isOpen, onClose, onSuccess }) => {
                 <span>Uploading Assignment...</span>
                 <span>{uploadProgress}%</span>
               </div>
-              <div className="w-full bg-gray-700 rounded-full h-2">
+              <div className="w-full bg-white/5 rounded-full h-2">
                 <div
                   className="bg-blue-500 h-2 rounded-full transition-all duration-300 ease-out"
                   style={{ width: `${uploadProgress}%` }}
@@ -640,14 +640,14 @@ const CreateAssignmentModal = ({ isOpen, onClose, onSuccess }) => {
             <button
               type="button"
               onClick={handleClose}
-              className="px-4 py-2 text-gray-300 bg-gray-700/80 rounded-xl hover:bg-gray-700 transition-colors"
+              className="px-4 py-2 text-gray-400 bg-white/5 border border-white/10 rounded-xl hover:bg-white/8 transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:bg-gray-600 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors flex items-center"
+              className="px-4 py-2 bg-[#CA133E] text-white rounded-xl hover:bg-[#A01030] disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex items-center"
             >
               {loading ? (
                 <>

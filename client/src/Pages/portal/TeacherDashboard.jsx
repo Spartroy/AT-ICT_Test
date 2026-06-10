@@ -11,13 +11,10 @@ import {
   ChatBubbleLeftRightIcon,
   MegaphoneIcon,
   ChartBarIcon,
-  CheckCircleIcon,
   ClockIcon,
-  ExclamationTriangleIcon,
   ArrowRightOnRectangleIcon,
   ClipboardDocumentListIcon,
   QuestionMarkCircleIcon,
-  UsersIcon,
   PlusIcon,
   CalendarDaysIcon,
   FolderIcon,
@@ -26,10 +23,10 @@ import {
   PlayIcon,
   TrophyIcon,
   ArrowPathIcon,
-  SparklesIcon
+  SparklesIcon,
+  BellIcon
 } from '@heroicons/react/24/outline';
 
-// Import tab components
 import PendingRegistrations from '../../components/teacher/PendingRegistrations';
 import StudentManagement from '../../components/teacher/StudentManagement';
 import AnnouncementCenter from '../../components/teacher/AnnouncementCenter';
@@ -54,15 +51,8 @@ const TeacherDashboard = () => {
   });
   const [pendingRegistrationsCount, setPendingRegistrationsCount] = useState(0);
   const [stats, setStats] = useState({
-    overview: {
-      totalStudents: 0,
-      activeAnnouncements: 0
-    },
-    performance: {
-      avgScore: 0,
-      avgAttendance: 0,
-      avgProgress: 0
-    }
+    overview: { totalStudents: 0, activeAnnouncements: 0 },
+    performance: { avgScore: 0, avgAttendance: 0, avgProgress: 0 }
   });
   const [loading, setLoading] = useState(true);
   const [showCreateAssignment, setShowCreateAssignment] = useState(false);
@@ -70,145 +60,46 @@ const TeacherDashboard = () => {
   const [showProfile, setShowProfile] = useState(false);
   const [currentTabPage, setCurrentTabPage] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
-
-  
-  // Responsive tabs per page
   const [tabsPerPage, setTabsPerPage] = useState(4);
 
-  // Update tabs per page based on screen size
   useEffect(() => {
-    const updateTabsPerPage = () => {
-      if (window.innerWidth < 640) { // mobile
-        setTabsPerPage(2);
-      } else { // tablet and desktop - always 4 tabs per page for optimal distribution
-        setTabsPerPage(4);
-      }
+    const update = () => {
+      if (window.innerWidth < 480)      setTabsPerPage(2);
+      else if (window.innerWidth < 768) setTabsPerPage(3);
+      else                              setTabsPerPage(4);
     };
-
-    updateTabsPerPage();
-    window.addEventListener('resize', updateTabsPerPage);
-    return () => window.removeEventListener('resize', updateTabsPerPage);
+    update();
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
   }, []);
 
   const tabs = [
-    {
-      id: 'overview',
-      name: 'Dashboard Overview',
-      shortName: 'Dashboard',
-      icon: ChartBarIcon,
-      color: 'bg-[#CA133E]'
-    },
-    {
-      id: 'registrations',
-      name: 'New Registrations',
-      shortName: 'New Requests',
-      icon: ClockIcon,
-      color: 'bg-orange-600',
-      badge: pendingRegistrationsCount
-    },
-    {
-      id: 'students',
-      name: 'Student Management',
-      shortName: 'Students',
-      icon: UserGroupIcon,
-      color: 'bg-green-600'
-    },
-    {
-      id: 'schedule',
-      name: 'Schedule Builder',
-      shortName: 'Schedule',
-      icon: CalendarDaysIcon,
-      color: 'bg-indigo-600'
-    },
-    {
-      id: 'catchup',
-      name: 'Catchup generator',
-      shortName: 'Catch-Up',
-      icon: SparklesIcon,
-      color: 'bg-rose-600'
-    },
-    {
-      id: 'materials',
-      name: 'Materials Center',
-      shortName: 'Materials',
-      icon: FolderIcon,
-      color: 'bg-teal-600'
-    },
-    {
-      id: 'videos',
-      name: 'Video Management',
-      shortName: 'Videos',
-      icon: PlayIcon,
-      color: 'bg-blue-600'
-    },
-    {
-      id: 'notes',
-      name: 'Interactive Notes',
-      shortName: 'Notes',
-      icon: FolderIcon,
-      color: 'bg-teal-600'
-    },
-    {
-      id: 'flashcards',
-      name: 'Flashcard Center',
-      shortName: 'Flashcards',
-      icon: MegaphoneIcon,
-      color: 'bg-yellow-600'
-    },
-    {
-      id: 'sessions',
-      name: 'Session Monitoring',
-      shortName: 'Sessions',
-      icon: ArrowRightOnRectangleIcon,
-      color: 'bg-red-600'
-    },
-    {
-      id: 'announcements',
-      name: 'Announcements',
-      shortName: 'News',
-      icon: MegaphoneIcon,
-      color: 'bg-purple-600'
-    },
-    {
-      id: 'chat',
-      name: 'Communication',
-      shortName: 'Chat',
-      icon: ChatBubbleLeftRightIcon,
-      color: 'bg-pink-600'
-    },
-    {
-      id: 'content',
-      name: 'Content Management',
-      shortName: 'Content',
-      icon: AcademicCapIcon,
-      color: 'bg-cyan-600'
-    }
+    { id: 'overview',       name: 'Dashboard Overview', shortName: 'Dashboard',  icon: ChartBarIcon,              color: 'bg-[#CA133E]'  },
+    { id: 'registrations',  name: 'New Registrations',  shortName: 'Requests',   icon: ClockIcon,                 color: 'bg-orange-600', badge: pendingRegistrationsCount },
+    { id: 'students',       name: 'Students',           shortName: 'Students',   icon: UserGroupIcon,             color: 'bg-green-600'  },
+    { id: 'schedule',       name: 'Schedule Builder',   shortName: 'Schedule',   icon: CalendarDaysIcon,          color: 'bg-indigo-600' },
+    { id: 'catchup',        name: 'Catchup Generator',  shortName: 'Catch-Up',   icon: SparklesIcon,              color: 'bg-rose-600'   },
+    { id: 'materials',      name: 'Materials',          shortName: 'Materials',  icon: FolderIcon,                color: 'bg-teal-600'   },
+    { id: 'videos',         name: 'Videos',             shortName: 'Videos',     icon: PlayIcon,                  color: 'bg-blue-600'   },
+    { id: 'notes',          name: 'Interactive Notes',  shortName: 'Notes',      icon: FolderIcon,                color: 'bg-teal-600'   },
+    { id: 'flashcards',     name: 'Flashcards',         shortName: 'Flashcards', icon: MegaphoneIcon,             color: 'bg-yellow-600' },
+    { id: 'sessions',       name: 'Session Monitoring', shortName: 'Sessions',   icon: ArrowRightOnRectangleIcon, color: 'bg-red-600'    },
+    { id: 'announcements',  name: 'Announcements',      shortName: 'News',       icon: MegaphoneIcon,             color: 'bg-purple-600' },
+    { id: 'chat',           name: 'Communication',      shortName: 'Chat',       icon: ChatBubbleLeftRightIcon,   color: 'bg-pink-600'   },
+    { id: 'content',        name: 'Content Management', shortName: 'Content',    icon: AcademicCapIcon,           color: 'bg-cyan-600'   }
   ];
 
   const totalPages = Math.ceil(tabs.length / tabsPerPage);
   const visibleTabs = tabs.slice(currentTabPage * tabsPerPage, (currentTabPage + 1) * tabsPerPage);
 
-  // Animation variants for tab transitions
   const tabPageVariants = {
-    enter: (direction) => ({
-      x: direction > 0 ? 1000 : -1000,
-      opacity: 0
-    }),
-    center: {
-      zIndex: 1,
-      x: 0,
-      opacity: 1
-    },
-    exit: (direction) => ({
-      zIndex: 0,
-      x: direction < 0 ? 1000 : -1000,
-      opacity: 0
-    })
+    enter: () => ({ x: 60, opacity: 0 }),
+    center: { zIndex: 1, x: 0, opacity: 1 },
+    exit:  () => ({ zIndex: 0, x: -60, opacity: 0 })
   };
-
   const tabPageTransition = {
-    x: { type: "spring", stiffness: 300, damping: 30 },
-    opacity: { duration: 0.4 }
+    x: { type: 'spring', stiffness: 300, damping: 30 },
+    opacity: { duration: 0.2 }
   };
 
   useEffect(() => {
@@ -216,30 +107,20 @@ const TeacherDashboard = () => {
     fetchPendingRegistrationsCount();
   }, []);
 
-  // Auto-navigate to page containing active tab when activeTab changes
   useEffect(() => {
-    const activeTabIndex = tabs.findIndex(tab => tab.id === activeTab);
+    const activeTabIndex = tabs.findIndex(t => t.id === activeTab);
     if (activeTabIndex !== -1) {
       const requiredPage = Math.floor(activeTabIndex / tabsPerPage);
-      if (requiredPage !== currentTabPage) {
-        setCurrentTabPage(requiredPage);
-      }
+      if (requiredPage !== currentTabPage) setCurrentTabPage(requiredPage);
     }
   }, [activeTab, tabsPerPage]);
 
   const fetchDashboardStats = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(API_ENDPOINTS.TEACHER.DASHBOARD, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      const data = await response.json();
-
-      if (data.status === 'success') {
-        setStats(data.data);
-      }
+      const res = await fetch(API_ENDPOINTS.TEACHER.DASHBOARD, { headers: { Authorization: `Bearer ${token}` } });
+      const data = await res.json();
+      if (data.status === 'success') setStats(data.data);
     } catch (error) {
       console.error('Error fetching dashboard stats:', error);
     } finally {
@@ -250,354 +131,275 @@ const TeacherDashboard = () => {
   const fetchPendingRegistrationsCount = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${API_ENDPOINTS.REGISTRATION.BASE}/pending`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      const data = await response.json();
-
-      if (data.status === 'success') {
-        setPendingRegistrationsCount(data.data.registrations.length);
-      }
+      const res = await fetch(`${API_ENDPOINTS.REGISTRATION.BASE}/pending`, { headers: { Authorization: `Bearer ${token}` } });
+      const data = await res.json();
+      if (data.status === 'success') setPendingRegistrationsCount(data.data.registrations.length);
     } catch (error) {
-      console.error('Error fetching pending registrations count:', error);
+      console.error('Error fetching pending registrations:', error);
     }
   };
 
   const handleLogout = () => {
-    // Clear all stored authentication data
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-
-    // Redirect to sign-in page
     navigate('/signin');
   };
 
-  const handlePrevPage = async () => {
+  const handlePrevPage = () => {
     if (currentTabPage > 0 && !isTransitioning) {
       setIsTransitioning(true);
       setCurrentTabPage(prev => prev - 1);
-      setTimeout(() => setIsTransitioning(false), 400);
+      setTimeout(() => setIsTransitioning(false), 300);
     }
   };
 
-  const handleNextPage = async () => {
+  const handleNextPage = () => {
     if (currentTabPage < totalPages - 1 && !isTransitioning) {
       setIsTransitioning(true);
       setCurrentTabPage(prev => prev + 1);
-      setTimeout(() => setIsTransitioning(false), 400);
+      setTimeout(() => setIsTransitioning(false), 300);
     }
   };
 
-  const handleTabClick = (tabId) => {
-    setActiveTab(tabId);
-    // The useEffect will handle navigating to the correct page
-  };
+  const handleTabClick = (tabId) => setActiveTab(tabId);
 
-  const handlePageIndicatorClick = async (pageIndex) => {
+  const handlePageIndicatorClick = (pageIndex) => {
     if (pageIndex !== currentTabPage && !isTransitioning) {
       setIsTransitioning(true);
       setCurrentTabPage(pageIndex);
-      setTimeout(() => setIsTransitioning(false), 400);
+      setTimeout(() => setIsTransitioning(false), 300);
     }
   };
 
   const renderTabContent = () => {
     switch (activeTab) {
-      case 'overview':
-        return <DashboardOverview stats={stats} loading={loading} setActiveTab={setActiveTab} setShowCreateAssignment={setShowCreateAssignment} setShowCreateQuiz={setShowCreateQuiz} onRegistrationUpdate={fetchPendingRegistrationsCount} />;
-      case 'registrations':
-        return <PendingRegistrations onRegistrationUpdate={fetchPendingRegistrationsCount} />;
-      case 'students':
-        return <StudentManagement />;
-      case 'schedule':
-        return <ScheduleBuilder />;
-      case 'catchup':
-        return <CatchupGenerator />;
-      case 'materials':
-        return <MaterialsCenter />;
-      case 'videos':
-        return <VideoManagement />;
-      case 'notes':
-        return <NotesManagement />;
-      case 'flashcards':
-        return <FlashcardCenter />;
-      case 'sessions':
-        return <SessionMonitoring />;
-      case 'announcements':
-        return <AnnouncementCenter />;
-      case 'chat':
-        return <ChatCenter />;
-      case 'content':
-        return <ContentManagementCenter />;
-      default:
-        return <DashboardOverview stats={stats} loading={loading} setActiveTab={setActiveTab} setShowCreateAssignment={setShowCreateAssignment} setShowCreateQuiz={setShowCreateQuiz} onRegistrationUpdate={fetchPendingRegistrationsCount} />;
+      case 'overview':       return <DashboardOverview stats={stats} loading={loading} setActiveTab={setActiveTab} setShowCreateAssignment={setShowCreateAssignment} setShowCreateQuiz={setShowCreateQuiz} onRegistrationUpdate={fetchPendingRegistrationsCount} />;
+      case 'registrations':  return <PendingRegistrations onRegistrationUpdate={fetchPendingRegistrationsCount} />;
+      case 'students':       return <StudentManagement />;
+      case 'schedule':       return <ScheduleBuilder />;
+      case 'catchup':        return <CatchupGenerator />;
+      case 'materials':      return <MaterialsCenter />;
+      case 'videos':         return <VideoManagement />;
+      case 'notes':          return <NotesManagement />;
+      case 'flashcards':     return <FlashcardCenter />;
+      case 'sessions':       return <SessionMonitoring />;
+      case 'announcements':  return <AnnouncementCenter />;
+      case 'chat':           return <ChatCenter />;
+      case 'content':        return <ContentManagementCenter />;
+      default:               return <DashboardOverview stats={stats} loading={loading} setActiveTab={setActiveTab} setShowCreateAssignment={setShowCreateAssignment} setShowCreateQuiz={setShowCreateQuiz} onRegistrationUpdate={fetchPendingRegistrationsCount} />;
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#1a1a1a] via-[#2a1a1a] to-[#3a1a1a] overflow-x-hidden">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-[#0F0F0F] via-[#4A0D0D] to-[#C70039] shadow-xl border-b border-[#CA133E]">
-        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-          {/* Welcome Message - Full width on top */}
-          <div className="">
-            <div className="text-center sm:text-left">
-             
-            </div>
-          </div>
-          
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center py-4 sm:py-6 gap-4">
-            <div className="flex-1">
-              <h2 className="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-bold text-white">
-                Welcome back, El Grande Maestro Del Mundo!
-              </h2>
-            </div>
-            
-            {/* Desktop user info and logout */}
-            <div className="hidden sm:flex items-center space-x-4 lg:space-x-6">
-              <button
-                type="button"
-                onClick={() => setShowProfile(true)}
-                className="h-12 w-12 lg:h-16 lg:w-16 rounded-xl bg-[#CA133E] flex items-center justify-center shadow-lg hover:bg-[#A01030] transition-colors cursor-pointer"
-                title="View Profile"
-              >
-                <span className="text-white font-bold text-lg lg:text-2xl">
-                  {currentUser.firstName?.[0] || 'T'}{currentUser.lastName?.[0] || ''}
-                </span>
-              </button>
-              <motion.button
-                onClick={handleLogout}
-                className="flex items-center space-x-2 sm:space-x-3 px-4 sm:px-6 lg:px-8 py-3 sm:py-4 lg:py-5 bg-red-600/80 hover:bg-red-600 text-white rounded-xl transition-all duration-300 font-bold text-sm sm:text-base lg:text-lg shadow-lg hover:shadow-xl"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <ArrowRightOnRectangleIcon className="h-5 w-5 sm:h-6 sm:w-6 lg:h-7 lg:w-7" />
-                <span>Logout</span>
-              </motion.button>
+    <div className="min-h-screen bg-[#0B0B0B]">
+
+      {/* ── Top Header ── */}
+      <header className="bg-[#111111] border-b border-white/5 sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-14 sm:h-16">
+
+            {/* Brand */}
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 bg-[#CA133E] rounded-lg flex items-center justify-center flex-shrink-0">
+                <span className="text-white font-black text-xs tracking-tight">A+</span>
+              </div>
+              <div className="hidden sm:block">
+                <p className="text-white font-bold text-sm leading-none">AT-ICT</p>
+                <p className="text-gray-500 text-[10px] mt-0.5">Teacher Portal</p>
+              </div>
             </div>
 
-            {/* Mobile user info - always visible */}
-            <div className="sm:hidden w-full bg-white/10 rounded-xl p-3 mt-2">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <div className="h-10 w-10 rounded-xl bg-[#CA133E] flex items-center justify-center shadow-lg">
-                    <span className="text-white font-bold text-sm">AT</span>
-                  </div>
-                  <div>
-                    <p className="text-sm font-bold text-white">
-                      {currentUser.firstName ? `${currentUser.firstName} ${currentUser.lastName || ''}`.trim() : 'Teacher'}
-                    </p>
-                    <p className="text-xs text-gray-300 capitalize">{currentUser.role || 'ICT Instructor'}</p>
-                  </div>
-                </div>
-                <motion.button
-                  onClick={handleLogout}
-                  className="flex items-center space-x-2 px-3 py-2 bg-red-600/80 hover:bg-red-600 text-white rounded-xl transition-all duration-300 text-sm font-bold shadow-lg"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
+            {/* Right controls */}
+            <div className="flex items-center gap-2 sm:gap-3">
+
+              {/* Pending registrations badge */}
+              {pendingRegistrationsCount > 0 && (
+                <button
+                  onClick={() => handleTabClick('registrations')}
+                  className="flex items-center gap-1.5 bg-orange-500/15 border border-orange-500/25 text-orange-400 text-xs font-semibold px-3 py-1.5 rounded-full hover:bg-orange-500/25 transition-colors"
                 >
-                  <ArrowRightOnRectangleIcon className="h-4 w-4" />
-                  <span>Logout</span>
-                </motion.button>
-              </div>
+                  <BellIcon className="h-3.5 w-3.5" />
+                  {pendingRegistrationsCount} pending
+                </button>
+              )}
+
+              {/* Logout */}
+              <button
+                onClick={handleLogout}
+                className="p-2 rounded-full hover:bg-white/8 transition-colors text-gray-400 hover:text-white"
+                title="Logout"
+              >
+                <ArrowRightOnRectangleIcon className="h-5 w-5" />
+              </button>
+
+              {/* Profile */}
+              <button
+                onClick={() => setShowProfile(true)}
+                className="flex items-center gap-2.5 hover:opacity-80 transition-opacity"
+              >
+                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#CA133E] flex items-center justify-center flex-shrink-0">
+                  <span className="text-white font-bold text-xs sm:text-sm">
+                    {currentUser.firstName?.[0] || 'T'}{currentUser.lastName?.[0] || ''}
+                  </span>
+                </div>
+                <div className="hidden md:block text-left">
+                  <p className="text-white text-sm font-semibold leading-none">
+                    {currentUser.firstName
+                      ? `${currentUser.firstName} ${currentUser.lastName || ''}`.trim()
+                      : 'Teacher'}
+                  </p>
+                  <p className="text-gray-400 text-xs mt-0.5 capitalize">{currentUser.role || 'ICT Instructor'}</p>
+                </div>
+              </button>
             </div>
           </div>
         </div>
-      </div>
+      </header>
 
-      {/* Navigation Tabs with Pagination */}
-      <div className="bg-[#2a1a1a]/50 backdrop-blur-sm border-b border-[#CA133E]/30 min-h-[90px] sm:min-h-[100px] lg:min-h-[110px] overflow-hidden">
-        <div className="max-w-7xl mx-auto px-1 sm:px-4 lg:px-6">
-          {/* Main Navigation */}
-          <div className="hidden sm:flex items-center py-4 sm:py-5 lg:py-6 gap-3 sm:gap-4 lg:gap-6">
-            {/* Left Arrow - Always visible */}
-            <motion.button
+      {/* ── Tab Navigation (sm+ screens: paginated) ── */}
+      <div className="hidden sm:block bg-[#0F0F0F] border-b border-white/5">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center gap-1 sm:gap-2 py-2 sm:py-3">
+
+            {/* Prev */}
+            <button
               onClick={handlePrevPage}
               disabled={currentTabPage === 0 || isTransitioning}
-              className={`flex-shrink-0 p-2 sm:p-3 lg:p-4 rounded-xl transition-all duration-300 ${currentTabPage === 0 || isTransitioning
-                ? 'bg-gray-700/30 text-gray-500 cursor-not-allowed opacity-50'
-                : 'bg-[#CA133E]/20 text-[#CA133E] hover:bg-[#CA133E]/40 hover:scale-110'
-                }`}
-              whileHover={currentTabPage > 0 && !isTransitioning ? { scale: 1.1 } : {}}
-              whileTap={currentTabPage > 0 && !isTransitioning ? { scale: 0.95 } : {}}
+              className={`flex-shrink-0 p-1.5 sm:p-2 rounded-lg transition-all ${
+                currentTabPage === 0 || isTransitioning
+                  ? 'text-gray-700 cursor-not-allowed'
+                  : 'text-gray-400 hover:text-white hover:bg-white/8'
+              }`}
             >
-              <ChevronLeftIcon className="h-5 w-5 sm:h-6 sm:w-6 lg:h-8 lg:w-8" />
-            </motion.button>
+              <ChevronLeftIcon className="h-4 w-4 sm:h-5 sm:w-5" />
+            </button>
 
-            {/* Tabs Container */}
-            <div className="flex-1 flex justify-center">
-              <div className="relative w-full max-w-7xl">
-                <AnimatePresence mode="wait" custom={1}>
-                  <motion.nav
-                    key={currentTabPage}
-                    custom={1}
-                    variants={tabPageVariants}
-                    initial="enter"
-                    animate="center"
-                    exit="exit"
-                    transition={tabPageTransition}
-                    className="flex flex-nowrap gap-2 sm:gap-3 md:gap-4 lg:gap-6 xl:gap-8 justify-center items-center px-2"
-                  >
-                    {visibleTabs.map((tab, index) => {
-                      const Icon = tab.icon;
-                      return (
-                        <motion.button
-                          key={tab.id}
-                          onClick={() => handleTabClick(tab.id)}
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: index * 0.1 }}
-                          className={`flex items-center space-x-1 sm:space-x-2 px-3 sm:px-4 md:px-5 lg:px-6 xl:px-7 py-3 sm:py-3.5 md:py-4 lg:py-4 rounded-xl font-bold text-sm sm:text-base md:text-lg lg:text-xl whitespace-nowrap transition-all duration-300 shadow-lg justify-center min-w-0 relative ${activeTab === tab.id
-                            ? 'bg-[#CA133E] text-white shadow-[#CA133E]/50 scale-105'
-                            : 'text-gray-300 hover:text-white hover:bg-white/10'
-                            }`}
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                        >
-                          <Icon className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7 lg:h-8 lg:w-8 flex-shrink-0" />
-                          <span className="text-center">
-                            <span className="sm:hidden">
-                              {tab.shortName}
-                            </span>
-                            <span className="hidden sm:inline lg:hidden">{tab.shortName}</span>
-                            <span className="hidden lg:inline">{tab.name}</span>
+            {/* Tabs */}
+            <div className="flex-1 overflow-hidden">
+              <AnimatePresence mode="wait">
+                <motion.nav
+                  key={currentTabPage}
+                  variants={tabPageVariants}
+                  initial="enter"
+                  animate="center"
+                  exit="exit"
+                  transition={tabPageTransition}
+                  className="flex gap-1 justify-center"
+                >
+                  {visibleTabs.map((tab) => {
+                    const Icon = tab.icon;
+                    return (
+                      <button
+                        key={tab.id}
+                        onClick={() => handleTabClick(tab.id)}
+                        className={`relative flex items-center gap-1.5 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl font-medium text-sm transition-all whitespace-nowrap ${
+                          activeTab === tab.id
+                            ? 'bg-[#CA133E] text-white shadow-lg shadow-[#CA133E]/20'
+                            : 'text-gray-400 hover:text-white hover:bg-white/6'
+                        }`}
+                      >
+                        <Icon className="h-4 w-4 flex-shrink-0" />
+                        <span className="hidden md:inline">{tab.name}</span>
+                        <span className="md:hidden">{tab.shortName}</span>
+                        {tab.badge > 0 && (
+                          <span className={`flex items-center justify-center min-w-[18px] h-[18px] rounded-full text-[10px] font-bold px-1 ${
+                            activeTab === tab.id ? 'bg-white text-[#CA133E]' : 'bg-orange-500 text-white'
+                          }`}>
+                            {tab.badge > 9 ? '9+' : tab.badge}
                           </span>
-                          {tab.badge > 0 && (
-                            <motion.span
-                              initial={{ scale: 0 }}
-                              animate={{ scale: 1 }}
-                              className="bg-orange-500 text-white rounded-full px-1.5 py-0.5 text-xs font-bold shadow-lg ml-1 min-w-[20px] text-center absolute -top-1 -right-1"
-                            >
-                              {tab.badge > 99 ? '99+' : tab.badge}
-                            </motion.span>
-                          )}
-                        </motion.button>
-                      );
-                    })}
-                  </motion.nav>
-                </AnimatePresence>
-              </div>
+                        )}
+                      </button>
+                    );
+                  })}
+                </motion.nav>
+              </AnimatePresence>
             </div>
 
-            {/* Right Arrow - Always visible */}
-            <motion.button
+            {/* Next */}
+            <button
               onClick={handleNextPage}
               disabled={currentTabPage === totalPages - 1 || isTransitioning}
-              className={`flex-shrink-0 p-2 sm:p-3 lg:p-4 rounded-xl transition-all duration-300 ${currentTabPage === totalPages - 1 || isTransitioning
-                ? 'bg-gray-700/30 text-gray-500 cursor-not-allowed opacity-50'
-                : 'bg-[#CA133E]/20 text-[#CA133E] hover:bg-[#CA133E]/40 hover:scale-110'
-                }`}
-              whileHover={currentTabPage < totalPages - 1 && !isTransitioning ? { scale: 1.1 } : {}}
-              whileTap={currentTabPage < totalPages - 1 && !isTransitioning ? { scale: 0.95 } : {}}
+              className={`flex-shrink-0 p-1.5 sm:p-2 rounded-lg transition-all ${
+                currentTabPage === totalPages - 1 || isTransitioning
+                  ? 'text-gray-700 cursor-not-allowed'
+                  : 'text-gray-400 hover:text-white hover:bg-white/8'
+              }`}
             >
-              <ChevronRightIcon className="h-5 w-5 sm:h-6 sm:w-6 lg:h-8 lg:w-8" />
-            </motion.button>
+              <ChevronRightIcon className="h-4 w-4 sm:h-5 sm:w-5" />
+            </button>
           </div>
 
-          {/* Mobile-only tab section title */}
-          <div className="sm:hidden py-2 px-2">
-            <h2 className="text-lg font-bold text-white text-center">Teacher Dashboard</h2>
-          </div>
-
-          {/* Mobile Quick Tab Navigation */}
-          <div className="sm:hidden pb-4 overflow-hidden">
-            <div className="w-full flex justify-center">
-              <div className="flex space-x-2 px-4 py-2 overflow-x-auto scrollbar-hide snap-x snap-mandatory justify-center">
-                {tabs.map((tab, index) => {
-                  const IconComponent = tab.icon;
-                  return (
-                    <motion.button
-                      key={tab.id}
-                      onClick={() => handleTabClick(tab.id)}
-                      className={`flex-shrink-0 flex items-center justify-center w-14 h-14 rounded-[12px] transition-all duration-300 relative snap-center ${
-                        activeTab === tab.id
-                          ? 'bg-[#CA133E] text-white shadow-lg'
-                          : 'bg-gray-700/30 text-gray-400 hover:bg-gray-600/50 hover:text-white'
-                      }`}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      title={tab.name}
-                    >
-                      <IconComponent className="h-7 w-7" />
-                      {/* Notification dot for mobile */}
-                      {tab.badge > 0 && (
-                        <span className="absolute -top-1 -right-1 w-4 h-4 bg-orange-500 rounded-full flex items-center justify-center border border-[#2a1a1a]">
-                          <span className="text-[11px] text-white font-bold">{tab.badge > 9 ? '9+' : tab.badge}</span>
-                        </span>
-                      )}
-                    </motion.button>
-                  );
-                })}
-              </div>
-            </div>
-            
-            {/* Active tab name display */}
-            <div className="text-center mt-3 px-4">
-              <span className="text-white font-semibold text-sm">
-                {tabs.find(tab => tab.id === activeTab)?.name || ''}
-              </span>
-            </div>
-          </div>
-
-
-
-          {/* Page Indicator for larger screens */}
+          {/* Page dots */}
           {totalPages > 1 && (
-            <div className="hidden sm:flex justify-center pb-3 sm:pb-4 lg:pb-5">
-              <div className="flex space-x-2 sm:space-x-3">
-                {Array.from({ length: totalPages }, (_, index) => (
-                  <motion.button
-                    key={index}
-                    onClick={() => handlePageIndicatorClick(index)}
-                    className={`w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5 rounded-full transition-all duration-300 ${index === currentTabPage
-                      ? 'bg-[#CA133E] scale-125 shadow-lg shadow-[#CA133E]/50'
-                      : 'bg-gray-600 hover:bg-gray-500'
-                      }`}
-                    whileHover={{ scale: 1.2 }}
-                    whileTap={{ scale: 1.1 }}
-                    layout
-                  />
-                ))}
-              </div>
+            <div className="flex justify-center gap-1.5 pb-2">
+              {Array.from({ length: totalPages }, (_, i) => (
+                <button
+                  key={i}
+                  onClick={() => handlePageIndicatorClick(i)}
+                  className={`rounded-full transition-all ${
+                    i === currentTabPage
+                      ? 'w-4 h-1.5 bg-[#CA133E]'
+                      : 'w-1.5 h-1.5 bg-gray-600 hover:bg-gray-500'
+                  }`}
+                />
+              ))}
             </div>
           )}
         </div>
       </div>
 
-      {/* Tab Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
-        <motion.div
-          key={activeTab}
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-          className="bg-[#2a1a1a]/50 backdrop-blur-sm rounded-xl p-4 sm:p-6 lg:p-8 border border-[#CA133E]/20"
-        >
-          {renderTabContent()}
-        </motion.div>
+      {/* ── Mobile Tab Navigation ── */}
+      <div className="sm:hidden bg-[#0F0F0F] border-b border-white/5 overflow-x-auto scrollbar-hide">
+        <div className="flex gap-1 p-2 min-w-max">
+          {tabs.map((tab) => {
+            const Icon = tab.icon;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => handleTabClick(tab.id)}
+                className={`relative flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all flex-shrink-0 ${
+                  activeTab === tab.id
+                    ? 'bg-[#CA133E] text-white'
+                    : 'text-gray-400 hover:text-white hover:bg-white/6'
+                }`}
+              >
+                <Icon className="h-5 w-5" />
+                <span className="text-[10px] font-medium">{tab.shortName}</span>
+                {tab.badge > 0 && (
+                  <span className="absolute top-1 right-1 w-2 h-2 bg-orange-500 rounded-full" />
+                )}
+              </button>
+            );
+          })}
+        </div>
       </div>
+
+      {/* ── Tab Content ── */}
+      <main className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-5 sm:py-6 lg:py-8">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeTab}
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.25 }}
+          >
+            {renderTabContent()}
+          </motion.div>
+        </AnimatePresence>
+      </main>
 
       {/* Modals */}
       <CreateAssignmentModal
         isOpen={showCreateAssignment}
         onClose={() => setShowCreateAssignment(false)}
-        onSuccess={() => {
-          // Refresh data if needed
-          showOperationToast.operationSuccess('Assignment creation');
-        }}
+        onSuccess={() => showOperationToast.operationSuccess('Assignment creation')}
       />
-
       <CreateQuizModal
         isOpen={showCreateQuiz}
         onClose={() => setShowCreateQuiz(false)}
-        onSuccess={() => {
-          // Refresh data if needed
-          showOperationToast.operationSuccess('Quiz creation');
-        }}
+        onSuccess={() => showOperationToast.operationSuccess('Quiz creation')}
       />
-
       <AnimatePresence>
         {showProfile && (
           <ProfileModal user={currentUser} onClose={() => setShowProfile(false)} />
@@ -607,7 +409,7 @@ const TeacherDashboard = () => {
   );
 };
 
-// Dashboard Overview Component
+// ── Teacher Dashboard Overview ─────────────────────────────────────────────
 const DashboardOverview = ({ stats, loading, setActiveTab, setShowCreateAssignment, setShowCreateQuiz, onRegistrationUpdate }) => {
   const [showResetModal, setShowResetModal] = useState(false);
   const [newSessionLabel, setNewSessionLabel] = useState('');
@@ -620,15 +422,11 @@ const DashboardOverview = ({ stats, loading, setActiveTab, setShowCreateAssignme
   const handleResetSession = async () => {
     if (!newSessionLabel.trim()) return;
     try {
-      setResetLoading(true);
-      setResetMsg('');
+      setResetLoading(true); setResetMsg('');
       const token = localStorage.getItem('token');
       const res = await fetch(API_ENDPOINTS.TEACHER.RESET_SESSION_POINTS, {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({ newSessionLabel: newSessionLabel.trim() })
       });
       const data = await res.json();
@@ -638,34 +436,23 @@ const DashboardOverview = ({ stats, loading, setActiveTab, setShowCreateAssignme
       } else {
         setResetMsg(data.message || 'Reset failed');
       }
-    } catch {
-      setResetMsg('Network error');
-    } finally {
-      setResetLoading(false);
-    }
+    } catch { setResetMsg('Network error'); }
+    finally { setResetLoading(false); }
   };
 
   const handleAddHallOfFameStudent = async (e) => {
     e.preventDefault();
     if (!hallOfFameForm.name.trim() || !hallOfFameForm.year.trim()) return;
-
     try {
       setHallOfFameLoading(true);
       const token = localStorage.getItem('token');
-      const response = await fetch(API_ENDPOINTS.TEACHER.HALL_OF_FAME, {
+      const res = await fetch(API_ENDPOINTS.TEACHER.HALL_OF_FAME, {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          name: hallOfFameForm.name.trim(),
-          year: hallOfFameForm.year.trim()
-        })
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: hallOfFameForm.name.trim(), year: hallOfFameForm.year.trim() })
       });
-
-      const data = await response.json();
-      if (response.ok) {
+      const data = await res.json();
+      if (res.ok) {
         showOperationToast.operationSuccess('Hall of Fame update');
         setShowHallOfFameModal(false);
         setHallOfFameForm({ name: '', year: '' });
@@ -681,103 +468,96 @@ const DashboardOverview = ({ stats, loading, setActiveTab, setShowCreateAssignme
 
   if (loading) {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
-        {[...Array(4)].map((_, i) => (
-          <div key={i} className="bg-white/10 rounded-xl shadow-xl p-6 lg:p-8 animate-pulse backdrop-blur-sm border border-white/20">
-            <div className="h-6 bg-gray-300 rounded-xl w-3/4 mb-6"></div>
-            <div className="h-10 bg-gray-300 rounded-xl w-1/2"></div>
-          </div>
-        ))}
+      <div className="space-y-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="bg-[#161616] rounded-xl p-5 h-24 animate-pulse border border-white/5" />
+          ))}
+        </div>
+        <div className="bg-[#161616] rounded-xl p-5 h-40 animate-pulse border border-white/5" />
       </div>
     );
   }
 
-  const cards = [
-    {
-      title: 'Total Students',
-      value: stats.overview.totalStudents,
-      icon: UserGroupIcon,
-      color: 'bg-blue-600',
-    }
-  ];
+  const inputClass = "w-full bg-[#1A1A1A] border border-white/10 rounded-xl px-4 py-2.5 text-white placeholder-gray-600 focus:outline-none focus:border-[#CA133E] transition-colors text-sm";
+  const modalClass = "bg-[#161616] rounded-xl p-5 sm:p-6 w-full max-w-md border border-white/10 shadow-2xl";
 
   return (
-    <div className="space-y-8 lg:space-y-12">
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
-        {cards.map((card, index) => {
+    <div className="space-y-5 sm:space-y-6">
+
+      {/* ── Welcome header ── */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div>
+          <span className="inline-block bg-[#CA133E]/15 text-[#CA133E] text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full mb-2">
+            Teacher View
+          </span>
+          <h2 className="text-2xl sm:text-3xl font-bold text-white">
+            Welcome back, <span className="text-[#CA133E]">Maestro.</span>
+          </h2>
+          <p className="text-gray-500 text-sm mt-1">
+            {stats?.overview?.totalStudents || 0} students enrolled
+          </p>
+        </div>
+      </div>
+
+      {/* ── Stats card ── */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        {[
+          { title: 'Total Students', value: stats.overview.totalStudents, icon: UserGroupIcon, accent: 'text-blue-400', bg: 'bg-blue-500/10' },
+          { title: 'Active Announcements', value: stats.overview.activeAnnouncements || 0, icon: MegaphoneIcon, accent: 'text-purple-400', bg: 'bg-purple-500/10' },
+          { title: 'Avg. Score', value: `${Math.round(stats.performance?.avgScore || 0)}%`, icon: TrophyIcon, accent: 'text-yellow-400', bg: 'bg-yellow-500/10' },
+          { title: 'Avg. Progress', value: `${Math.round(stats.performance?.avgProgress || 0)}%`, icon: ChartBarIcon, accent: 'text-green-400', bg: 'bg-green-500/10' }
+        ].map((card, i) => {
           const Icon = card.icon;
           return (
             <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 30 }}
+              key={card.title}
+              initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-              className="bg-white/10 backdrop-blur-sm rounded-xl shadow-xl p-6 lg:p-8 hover:shadow-2xl transition-all duration-300 border border-white/20 hover:border-[#CA133E]/50"
+              transition={{ delay: i * 0.07 }}
+              className="bg-[#161616] border border-white/5 rounded-xl p-4 sm:p-5 flex items-center justify-between hover:border-white/10 transition-colors"
             >
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm sm:text-base lg:text-[16pt] font-bold text-white">{card.title}</p>
-                  <p className="text-lg sm:text-xl lg:text-[20pt] font-bold text-white mt-2">{card.value}</p>
-                </div>
-                <div className={`p-3 lg:p-4 rounded-xl ${card.color} shadow-lg`}>
-                  <Icon className="h-6 w-6 lg:h-8 lg:w-8 text-white" />
-                </div>
+              <div>
+                <p className="text-gray-500 text-xs mb-1">{card.title}</p>
+                <p className="text-2xl font-bold text-white">{card.value}</p>
+              </div>
+              <div className={`w-11 h-11 rounded-xl ${card.bg} flex items-center justify-center flex-shrink-0`}>
+                <Icon className={`h-5 w-5 ${card.accent}`} />
               </div>
             </motion.div>
           );
         })}
       </div>
 
-      {/* Quick Actions */}
-      <div className="bg-white/10 backdrop-blur-sm rounded-xl shadow-xl p-6 lg:p-8 border border-white/20">
-        <h3 className="text-xl lg:text-2xl font-bold text-white mb-6 lg:mb-8">Quick Actions</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
-          <button
-            onClick={() => setShowCreateAssignment(true)}
-            className="min-h-[92px] flex items-center p-4 lg:p-6 bg-blue-600/20 backdrop-blur-sm rounded-xl hover:bg-blue-600/30 transition-all duration-300 group border border-blue-500/30"
-          >
-            <ClipboardDocumentListIcon className="h-8 w-8 lg:h-10 lg:w-10 text-blue-400 group-hover:text-blue-300" />
-            <div className="ml-3 lg:ml-4 text-left">
-              <p className="text-base lg:text-[18pt] font-bold text-white">Create H.W</p>
-            </div>
-          </button>
-
-          <button
-            onClick={() => setShowCreateQuiz(true)}
-            className="min-h-[92px] flex items-center p-4 lg:p-6 bg-purple-600/20 backdrop-blur-sm rounded-xl hover:bg-purple-600/30 transition-all duration-300 group border border-purple-500/30"
-          >
-            <QuestionMarkCircleIcon className="h-8 w-8 lg:h-10 lg:w-10 text-purple-400 group-hover:text-purple-300" />
-            <div className="ml-3 lg:ml-4 text-left">
-              <p className="text-base lg:text-[18pt] font-bold text-white">Create Quiz</p>
-            </div>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('announcements')}
-            className="min-h-[92px] flex items-center p-4 lg:p-6 bg-green-600/20 backdrop-blur-sm rounded-xl hover:bg-green-600/30 transition-all duration-300 group border border-green-500/30"
-          >
-            <MegaphoneIcon className="h-8 w-8 lg:h-10 lg:w-10 text-green-400 group-hover:text-green-300" />
-            <div className="ml-3 lg:ml-4 text-left flex-1 min-w-0">
-              <p className="text-base lg:text-[18pt] font-bold text-white">Send Announcement</p>
-            </div>
-          </button>
-
-          <button
-            onClick={() => setShowResetModal(true)}
-            className="min-h-[92px] flex items-center p-4 lg:p-6 bg-[#CA133E]/20 backdrop-blur-sm rounded-xl hover:bg-[#CA133E]/30 transition-all duration-300 group border border-[#CA133E]/30"
-          >
-            <ArrowPathIcon className="h-8 w-8 lg:h-10 lg:w-10 text-[#CA133E] group-hover:text-red-400" />
-            <div className="ml-3 lg:ml-4 text-left">
-              <p className="text-base lg:text-[18pt] font-bold text-white">Reset Season</p>
-              <p className="text-xs text-gray-400 mt-0.5">New session points</p>
-            </div>
-          </button>
+      {/* ── Quick Actions ── */}
+      <div className="bg-[#161616] border border-white/5 rounded-xl p-4 sm:p-5">
+        <h3 className="text-base font-semibold text-white mb-4">Quick Actions</h3>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          {[
+            { label: 'Create H.W',          icon: ClipboardDocumentListIcon, accent: 'text-blue-400',   bg: 'bg-blue-500/8   hover:bg-blue-500/15',   border: 'border-blue-500/15',   action: () => setShowCreateAssignment(true) },
+            { label: 'Create Quiz',          icon: QuestionMarkCircleIcon,    accent: 'text-purple-400', bg: 'bg-purple-500/8 hover:bg-purple-500/15', border: 'border-purple-500/15', action: () => setShowCreateQuiz(true) },
+            { label: 'Send Announcement',    icon: MegaphoneIcon,             accent: 'text-green-400',  bg: 'bg-green-500/8  hover:bg-green-500/15',  border: 'border-green-500/15',  action: () => setActiveTab('announcements') },
+            { label: 'Reset Season',         icon: ArrowPathIcon,             accent: 'text-[#CA133E]',  bg: 'bg-[#CA133E]/8  hover:bg-[#CA133E]/15', border: 'border-[#CA133E]/15',  action: () => setShowResetModal(true) }
+          ].map((btn) => {
+            const Icon = btn.icon;
+            return (
+              <button
+                key={btn.label}
+                onClick={btn.action}
+                className={`flex items-center gap-3 p-3 sm:p-4 rounded-xl border transition-all ${btn.bg} ${btn.border}`}
+              >
+                <div className={`w-9 h-9 rounded-lg bg-white/5 flex items-center justify-center flex-shrink-0`}>
+                  <Icon className={`h-5 w-5 ${btn.accent}`} />
+                </div>
+                <span className="text-white text-sm font-medium text-left leading-tight">{btn.label}</span>
+              </button>
+            );
+          })}
         </div>
       </div>
 
-      {/* Leaderboard */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {/* ── Leaderboard + Recent Activity ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-5">
         <div className="lg:col-span-1">
           <Leaderboard className="h-full" />
         </div>
@@ -786,59 +566,39 @@ const DashboardOverview = ({ stats, loading, setActiveTab, setShowCreateAssignme
         </div>
       </div>
 
-      {/* Reset Session Modal */}
+      {/* ── Modals ── */}
       <AnimatePresence>
         {showHallOfFameModal && (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4"
           >
             <motion.div
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-gray-800 rounded-xl p-6 w-full max-w-md border border-gray-600 shadow-2xl"
+              initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
+              className={modalClass}
             >
-              <h3 className="text-lg font-bold text-white mb-4">Add Hall of Fame Student</h3>
-              <form onSubmit={handleAddHallOfFameStudent} className="space-y-4">
+              <h3 className="text-base font-bold text-white mb-4">Add Hall of Fame Student</h3>
+              <form onSubmit={handleAddHallOfFameStudent} className="space-y-3">
                 <div>
-                  <label className="block text-sm text-gray-300 mb-2">Student Name</label>
-                  <input
-                    type="text"
-                    value={hallOfFameForm.name}
-                    onChange={(e) => setHallOfFameForm((prev) => ({ ...prev, name: e.target.value }))}
-                    placeholder="Student full name"
-                    className="w-full bg-gray-700 border border-gray-600 rounded-xl px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-[#CA133E] transition-colors"
-                    required
-                  />
+                  <label className="block text-xs text-gray-400 mb-1.5">Student Name</label>
+                  <input type="text" value={hallOfFameForm.name}
+                    onChange={(e) => setHallOfFameForm(p => ({ ...p, name: e.target.value }))}
+                    placeholder="Student full name" className={inputClass} required />
                 </div>
                 <div>
-                  <label className="block text-sm text-gray-300 mb-2">Year</label>
-                  <input
-                    type="text"
-                    value={hallOfFameForm.year}
-                    onChange={(e) => setHallOfFameForm((prev) => ({ ...prev, year: e.target.value }))}
-                    placeholder="2026"
-                    className="w-full bg-gray-700 border border-gray-600 rounded-xl px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-[#CA133E] transition-colors"
-                    required
-                  />
+                  <label className="block text-xs text-gray-400 mb-1.5">Year</label>
+                  <input type="text" value={hallOfFameForm.year}
+                    onChange={(e) => setHallOfFameForm(p => ({ ...p, year: e.target.value }))}
+                    placeholder="2026" className={inputClass} required />
                 </div>
-                <div className="flex gap-3 pt-2">
-                  <button
-                    type="button"
-                    onClick={() => setShowHallOfFameModal(false)}
-                    className="flex-1 py-2.5 px-4 rounded-xl border border-gray-600 text-gray-300 hover:bg-gray-700 transition-colors"
-                  >
+                <div className="flex gap-2 pt-1">
+                  <button type="button" onClick={() => setShowHallOfFameModal(false)}
+                    className="flex-1 py-2.5 rounded-xl border border-white/10 text-gray-300 hover:bg-white/5 transition-colors text-sm">
                     Cancel
                   </button>
-                  <button
-                    type="submit"
-                    disabled={hallOfFameLoading || !hallOfFameForm.name.trim() || !hallOfFameForm.year.trim()}
-                    className="flex-1 py-2.5 px-4 rounded-xl bg-[#CA133E] text-white font-semibold hover:bg-[#A01030] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {hallOfFameLoading ? 'Adding...' : 'Add Student'}
+                  <button type="submit" disabled={hallOfFameLoading || !hallOfFameForm.name.trim() || !hallOfFameForm.year.trim()}
+                    className="flex-1 py-2.5 rounded-xl bg-[#CA133E] text-white font-semibold hover:bg-[#A01030] transition-colors disabled:opacity-50 text-sm">
+                    {hallOfFameLoading ? 'Adding…' : 'Add Student'}
                   </button>
                 </div>
               </form>
@@ -848,65 +608,41 @@ const DashboardOverview = ({ stats, loading, setActiveTab, setShowCreateAssignme
 
         {showResetModal && (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4"
           >
             <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-gray-800 rounded-xl p-6 w-full max-w-md border border-gray-600 shadow-2xl"
+              initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
+              className={modalClass}
             >
-              <div className="flex items-center gap-3 mb-4">
-                <div className="p-2 rounded-xl bg-[#CA133E]/20">
-                  <ArrowPathIcon className="h-6 w-6 text-[#CA133E]" />
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 rounded-xl bg-[#CA133E]/15">
+                  <ArrowPathIcon className="h-5 w-5 text-[#CA133E]" />
                 </div>
-                <h3 className="text-lg font-bold text-white">Reset Session Points</h3>
+                <h3 className="text-base font-bold text-white">Reset Session Points</h3>
               </div>
-
-              <p className="text-gray-400 text-sm mb-4">
-                This will reset all students' current-session points to 0 and start a new season. All-time totals are preserved.
+              <p className="text-gray-500 text-sm mb-4">
+                This resets all students' current-session points to 0 and starts a new season. All-time totals are preserved.
               </p>
-
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  New Session Label (e.g. "NOV 26", "JUN 27")
-                </label>
-                <input
-                  type="text"
-                  value={newSessionLabel}
-                  onChange={(e) => setNewSessionLabel(e.target.value)}
-                  placeholder="NOV 26"
-                  className="w-full bg-gray-700 border border-gray-600 rounded-xl px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-[#CA133E] transition-colors"
-                />
+                <label className="block text-xs text-gray-400 mb-1.5">New Session Label (e.g. "NOV 26")</label>
+                <input type="text" value={newSessionLabel} onChange={(e) => setNewSessionLabel(e.target.value)}
+                  placeholder="NOV 26" className={inputClass} />
               </div>
-
               {resetMsg && (
                 <p className={`text-sm mb-4 ${resetMsg.includes('error') || resetMsg.includes('fail') ? 'text-red-400' : 'text-green-400'}`}>
                   {resetMsg}
                 </p>
               )}
-
-              <div className="flex gap-3">
-                <button
-                  onClick={() => { setShowResetModal(false); setResetMsg(''); setNewSessionLabel(''); }}
-                  className="flex-1 py-2.5 px-4 rounded-xl border border-gray-600 text-gray-300 hover:bg-gray-700 transition-colors"
-                >
+              <div className="flex gap-2">
+                <button onClick={() => { setShowResetModal(false); setResetMsg(''); setNewSessionLabel(''); }}
+                  className="flex-1 py-2.5 rounded-xl border border-white/10 text-gray-300 hover:bg-white/5 transition-colors text-sm">
                   Cancel
                 </button>
-                <button
-                  onClick={handleResetSession}
-                  disabled={resetLoading || !newSessionLabel.trim()}
-                  className="flex-1 py-2.5 px-4 rounded-xl bg-[#CA133E] text-white font-semibold hover:bg-[#A01030] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                >
-                  {resetLoading ? (
-                    <ArrowPathIcon className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <TrophyIcon className="h-4 w-4" />
-                  )}
-                  {resetLoading ? 'Resetting...' : 'Confirm Reset'}
+                <button onClick={handleResetSession} disabled={resetLoading || !newSessionLabel.trim()}
+                  className="flex-1 py-2.5 rounded-xl bg-[#CA133E] text-white font-semibold hover:bg-[#A01030] transition-colors disabled:opacity-50 flex items-center justify-center gap-2 text-sm">
+                  {resetLoading ? <ArrowPathIcon className="h-4 w-4 animate-spin" /> : <TrophyIcon className="h-4 w-4" />}
+                  {resetLoading ? 'Resetting…' : 'Confirm Reset'}
                 </button>
               </div>
             </motion.div>
@@ -914,17 +650,18 @@ const DashboardOverview = ({ stats, loading, setActiveTab, setShowCreateAssignme
         )}
       </AnimatePresence>
 
+      {/* FAB */}
       <motion.button
         onClick={() => setShowHallOfFameModal(true)}
-        className="fixed bottom-6 right-6 z-40 w-14 h-14 rounded-full bg-[#CA133E] text-white shadow-xl border border-[#CA133E]/40 flex items-center justify-center"
+        className="fixed bottom-6 right-6 z-40 w-12 h-12 rounded-full bg-[#CA133E] text-white shadow-xl shadow-[#CA133E]/25 flex items-center justify-center hover:bg-[#A01030] transition-colors"
         whileHover={{ scale: 1.08 }}
         whileTap={{ scale: 0.95 }}
         title="Add Hall of Fame Student"
       >
-        <PlusIcon className="h-7 w-7" />
+        <PlusIcon className="h-6 w-6" />
       </motion.button>
     </div>
   );
 };
 
-export default TeacherDashboard; 
+export default TeacherDashboard;

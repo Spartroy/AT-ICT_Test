@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { API_ENDPOINTS } from '../../config/api';
 import { showSuccess, showError, showWarning } from '../../utils/toast';
@@ -166,14 +166,14 @@ const CreateQuizModal = ({ isOpen, onClose, onSuccess }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
-        className="bg-gray-900/90 border border-gray-700 text-white rounded-xl shadow-2xl max-w-3xl w-full max-h-[90vh] flex flex-col"
+        className="bg-[#161616] border border-white/10 text-white rounded-xl max-w-3xl w-full max-h-[90vh] flex flex-col"
       >
-        <div className="p-6 border-b border-gray-700">
+        <div className="p-6 border-b border-white/5">
           <div className="flex justify-between items-center">
             <h3 className="text-xl font-semibold flex items-center">
               <QuestionMarkCircleIcon className="h-6 w-6 mr-2 text-purple-400" />
@@ -190,7 +190,7 @@ const CreateQuizModal = ({ isOpen, onClose, onSuccess }) => {
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4 overflow-y-auto">
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">
+            <label className="block text-sm font-medium text-gray-400 mb-1">
               Quiz Title *
             </label>
             <input
@@ -198,34 +198,34 @@ const CreateQuizModal = ({ isOpen, onClose, onSuccess }) => {
               required
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-600 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-gray-800/90 text-white"
+              className="w-full px-3 py-2 border border-white/10 rounded-xl focus:outline-none focus:border-purple-500 transition-colors focus:border-transparent bg-[#1A1A1A] text-white"
               placeholder="Enter quiz title"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">
+            <label className="block text-sm font-medium text-gray-400 mb-1">
               Description (Optional)
             </label>
             <textarea
               rows={2}
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-600 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-gray-800/90 text-white"
+              className="w-full px-3 py-2 border border-white/10 rounded-xl focus:outline-none focus:border-purple-500 transition-colors focus:border-transparent bg-[#1A1A1A] text-white"
               placeholder="Brief description of the quiz"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">
+              <label className="block text-sm font-medium text-gray-400 mb-1">
                 Type *
               </label>
               <select
                 required
                 value={formData.type}
                 onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-600 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-gray-800/90 text-white"
+                className="w-full px-3 py-2 border border-white/10 rounded-xl focus:outline-none focus:border-purple-500 transition-colors focus:border-transparent bg-[#1A1A1A] text-white"
               >
                 {types.map(type => (
                   <option key={type.value} value={type.value}>{type.label}</option>
@@ -234,14 +234,14 @@ const CreateQuizModal = ({ isOpen, onClose, onSuccess }) => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">
+              <label className="block text-sm font-medium text-gray-400 mb-1">
                 Section *
               </label>
               <select
                 required
                 value={formData.section}
                 onChange={(e) => setFormData({ ...formData, section: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-600 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-gray-800/90 text-white"
+                className="w-full px-3 py-2 border border-white/10 rounded-xl focus:outline-none focus:border-purple-500 transition-colors focus:border-transparent bg-[#1A1A1A] text-white"
               >
                 {sections.map(section => (
                   <option key={section.value} value={section.value}>{section.label}</option>
@@ -251,7 +251,7 @@ const CreateQuizModal = ({ isOpen, onClose, onSuccess }) => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">
+            <label className="block text-sm font-medium text-gray-400 mb-1">
               Quiz Date *
             </label>
             <input
@@ -259,13 +259,13 @@ const CreateQuizModal = ({ isOpen, onClose, onSuccess }) => {
               required
               value={formData.startDate}
               onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-600 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-gray-800/90 text-white"
+              className="w-full px-3 py-2 border border-white/10 rounded-xl focus:outline-none focus:border-purple-500 transition-colors focus:border-transparent bg-[#1A1A1A] text-white"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">
+              <label className="block text-sm font-medium text-gray-400 mb-1">
                 Start Time *
               </label>
               <input
@@ -273,12 +273,12 @@ const CreateQuizModal = ({ isOpen, onClose, onSuccess }) => {
                 required
                 value={formData.startTime}
                 onChange={(e) => setFormData({ ...formData, startTime: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-600 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-gray-800/90 text-white"
+                className="w-full px-3 py-2 border border-white/10 rounded-xl focus:outline-none focus:border-purple-500 transition-colors focus:border-transparent bg-[#1A1A1A] text-white"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">
+              <label className="block text-sm font-medium text-gray-400 mb-1">
                 Duration (minutes) *
               </label>
               <input
@@ -287,7 +287,7 @@ const CreateQuizModal = ({ isOpen, onClose, onSuccess }) => {
                 min="1"
                 value={formData.duration}
                 onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-600 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-gray-800/90 text-white"
+                className="w-full px-3 py-2 border border-white/10 rounded-xl focus:outline-none focus:border-purple-500 transition-colors focus:border-transparent bg-[#1A1A1A] text-white"
                 placeholder="30"
               />
               <p className="text-xs text-gray-400 mt-1">
@@ -298,7 +298,7 @@ const CreateQuizModal = ({ isOpen, onClose, onSuccess }) => {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">
+              <label className="block text-sm font-medium text-gray-400 mb-1">
                 Max Score *
               </label>
               <input
@@ -307,19 +307,19 @@ const CreateQuizModal = ({ isOpen, onClose, onSuccess }) => {
                 min="1"
                 value={formData.maxScore}
                 onChange={(e) => setFormData({ ...formData, maxScore: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-600 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-gray-800/90 text-white"
+                className="w-full px-3 py-2 border border-white/10 rounded-xl focus:outline-none focus:border-purple-500 transition-colors focus:border-transparent bg-[#1A1A1A] text-white"
                 placeholder="100"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">
+              <label className="block text-sm font-medium text-gray-400 mb-1">
                 Difficulty
               </label>
               <select
                 value={formData.difficulty}
                 onChange={(e) => setFormData({ ...formData, difficulty: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-600 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-gray-800/90 text-white"
+                className="w-full px-3 py-2 border border-white/10 rounded-xl focus:outline-none focus:border-purple-500 transition-colors focus:border-transparent bg-[#1A1A1A] text-white"
               >
                 {difficulties.map(diff => (
                   <option key={diff.value} value={diff.value}>{diff.label}</option>
@@ -329,21 +329,21 @@ const CreateQuizModal = ({ isOpen, onClose, onSuccess }) => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">
+            <label className="block text-sm font-medium text-gray-400 mb-1">
               Instructions (Optional)
             </label>
             <textarea
               rows={3}
               value={formData.instructions}
               onChange={(e) => setFormData({ ...formData, instructions: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-600 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-gray-800/90 text-white"
+              className="w-full px-3 py-2 border border-white/10 rounded-xl focus:outline-none focus:border-purple-500 transition-colors focus:border-transparent bg-[#1A1A1A] text-white"
               placeholder="Instructions for students taking the quiz"
             />
           </div>
 
           {/* Student Assignment Section */}
-          <div className="border border-gray-600 rounded-xl p-4 bg-gray-800/50">
-            <h4 className="text-sm font-medium text-gray-300 mb-3 flex items-center">
+          <div className="border border-white/10 rounded-xl p-4 bg-[#1A1A1A]">
+            <h4 className="text-sm font-medium text-gray-400 mb-3 flex items-center">
               <UserGroupIcon className="h-4 w-4 mr-2" />
               Student Assignment
             </h4>
@@ -363,7 +363,7 @@ const CreateQuizModal = ({ isOpen, onClose, onSuccess }) => {
                     setShowStudentDropdown(false);
                   }
                 }}
-                className="h-4 w-4 text-purple-500 focus:ring-purple-500 border-gray-600 rounded bg-gray-800/90"
+                className="h-4 w-4 accent-purple-500 border-white/10 rounded bg-[#1A1A1A]"
               />
               <label htmlFor="assignToAll" className="ml-2 block text-sm text-gray-300">
                 Assign to all active students
@@ -390,7 +390,7 @@ const CreateQuizModal = ({ isOpen, onClose, onSuccess }) => {
                         fetchStudents();
                       }
                     }}
-                    className="w-full px-3 py-2 border border-gray-600 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-gray-800/90 text-white text-left flex items-center justify-between"
+                    className="w-full px-3 py-2 border border-white/10 rounded-xl focus:outline-none focus:border-purple-500 transition-colors focus:border-transparent bg-[#1A1A1A] text-white text-left flex items-center justify-between"
                   >
                     <span className="text-gray-300">
                       {formData.selectedStudents.length === 0 
@@ -406,7 +406,7 @@ const CreateQuizModal = ({ isOpen, onClose, onSuccess }) => {
                   </button>
 
                   {showStudentDropdown && (
-                    <div className="absolute z-10 mt-1 w-full bg-gray-800 border border-gray-600 rounded-xl shadow-lg max-h-60 overflow-y-auto">
+                    <div className="absolute z-10 mt-1 w-full bg-[#1A1A1A] border border-white/10 rounded-xl shadow-lg max-h-60 overflow-y-auto">
                       {studentsLoading ? (
                         <div className="px-3 py-2 text-gray-400 text-center">
                           Loading students...
@@ -417,23 +417,23 @@ const CreateQuizModal = ({ isOpen, onClose, onSuccess }) => {
                         </div>
                       ) : (
                         <>
-                          <div className="border-b border-gray-600">
+                          <div className="border-b border-white/5">
                             <button
                               type="button"
                               onClick={handleSelectAll}
-                              className="w-full px-3 py-2 text-left hover:bg-gray-700 text-purple-400 font-medium"
+                              className="w-full px-3 py-2 text-left hover:bg-white/8 text-purple-400 font-medium"
                             >
                               {formData.selectedStudents.length === students.length ? 'Deselect All' : 'Select All'}
                             </button>
                           </div>
                           {students.map((student) => (
-                            <div key={student._id} className="px-3 py-2 hover:bg-gray-700">
+                            <div key={student._id} className="px-3 py-2 hover:bg-white/8">
                               <label className="flex items-center cursor-pointer">
                                 <input
                                   type="checkbox"
                                   checked={formData.selectedStudents.includes(student._id)}
                                   onChange={() => handleStudentToggle(student._id)}
-                                  className="h-4 w-4 text-purple-500 focus:ring-purple-500 border-gray-600 rounded bg-gray-800/90"
+                                  className="h-4 w-4 accent-purple-500 border-white/10 rounded bg-[#1A1A1A]"
                                 />
                                 <div className="ml-2 flex-1">
                                   <div className="text-white text-sm">
@@ -465,14 +465,14 @@ const CreateQuizModal = ({ isOpen, onClose, onSuccess }) => {
             <button
               type="button"
               onClick={handleClose}
-              className="px-4 py-2 text-gray-300 bg-gray-700/80 rounded-xl hover:bg-gray-700 transition-colors"
+              className="px-4 py-2 text-gray-400 bg-white/5 border border-white/10 rounded-xl hover:bg-white/8 transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="px-4 py-2 bg-purple-600 text-white rounded-xl hover:bg-purple-700 disabled:bg-gray-600 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors flex items-center"
+              className="px-4 py-2 bg-purple-600 text-white rounded-xl hover:bg-purple-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex items-center"
             >
               {loading ? (
                 <>

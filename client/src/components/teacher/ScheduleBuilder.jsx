@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+﻿import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { API_ENDPOINTS } from '../../config/api';
 import QRCode from 'react-qr-code';
@@ -120,12 +120,12 @@ function SessionEditorModal({ schedule, onSave, onClose, saving }) {
   const totalSessions = formData.schedule.reduce((sum, d) => sum + d.sessions.length, 0);
 
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-start justify-center z-50 px-2 py-4 sm:px-4 md:px-6 lg:px-8 overflow-y-auto">
+    <div className="fixed inset-0 bg-black/80 flex items-start justify-center z-50 px-2 py-4 sm:px-4 md:px-6 lg:px-8 overflow-y-auto">
       <motion.div
         initial={{ opacity: 0, scale: 0.98, y: 24 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.98, y: 24 }}
-        className="bg-[#2a1010] rounded-xl shadow-2xl w-full max-w-[min(98vw,1680px)] border border-[#CA133E]/50 my-2 sm:my-4 min-h-0"
+        className="bg-[#2a1010] rounded-xl w-full max-w-[min(98vw,1680px)] border border-[#CA133E]/50 my-2 sm:my-4 min-h-0"
       >
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 sm:px-8 sm:py-5 border-b border-white/20">
@@ -150,7 +150,7 @@ function SessionEditorModal({ schedule, onSave, onClose, saving }) {
                 type="text"
                 value={formData.title}
                 onChange={e => setFormData(f => ({ ...f, title: e.target.value }))}
-                className="w-full px-4 py-2.5 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-500 focus:border-[#CA133E] focus:outline-none"
+                className="w-full px-4 py-2.5 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-600 focus:border-[#CA133E] focus:outline-none"
                 placeholder="e.g. Monday/Wednesday Group"
               />
             </div>
@@ -160,7 +160,7 @@ function SessionEditorModal({ schedule, onSave, onClose, saving }) {
                 type="text"
                 value={formData.notes}
                 onChange={e => setFormData(f => ({ ...f, notes: e.target.value }))}
-                className="w-full px-4 py-2.5 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-500 focus:border-[#CA133E] focus:outline-none"
+                className="w-full px-4 py-2.5 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-600 focus:border-[#CA133E] focus:outline-none"
                 placeholder="Additional notes"
               />
             </div>
@@ -182,7 +182,7 @@ function SessionEditorModal({ schedule, onSave, onClose, saving }) {
 
           {/* Footer */}
           <div className="flex justify-end gap-3 pt-6 border-t border-white/20">
-            <button onClick={onClose} className="px-5 py-2.5 text-gray-300 hover:text-white bg-white/10 rounded-xl hover:bg-white/20 font-semibold transition-colors">
+            <button onClick={onClose} className="px-5 py-2.5 text-gray-400 hover:text-white bg-white/10 rounded-xl hover:bg-white/20 font-semibold transition-colors">
               Cancel
             </button>
             <button
@@ -265,21 +265,21 @@ function SessionRow({ session, onUpdate, onRemove }) {
   return (
     <div className={`grid grid-cols-2 lg:grid-cols-5 gap-3 lg:gap-4 p-4 sm:p-5 rounded-xl border-l-4 ${colors.border} bg-white/[0.06]`}>
       <div>
-        <label className="block text-xs font-bold text-gray-300 mb-1.5">Start</label>
+        <label className="block text-xs font-bold text-gray-400 mb-1.5">Start</label>
         <input type="time" value={session.startTime} onChange={e => onUpdate('startTime', e.target.value)} className={inputCls} />
       </div>
       <div>
-        <label className="block text-xs font-bold text-gray-300 mb-1.5">End</label>
+        <label className="block text-xs font-bold text-gray-400 mb-1.5">End</label>
         <input type="time" value={session.endTime} onChange={e => onUpdate('endTime', e.target.value)} className={inputCls} />
       </div>
       <div>
-        <label className="block text-xs font-bold text-gray-300 mb-1.5">Type</label>
+        <label className="block text-xs font-bold text-gray-400 mb-1.5">Type</label>
         <select value={session.type} onChange={e => onUpdate('type', e.target.value)} className={inputCls}>
           {SESSION_TYPES.map(t => <option key={t.value} value={t.value} className="bg-[#2a1010] text-white">{t.label}</option>)}
         </select>
       </div>
       <div>
-        <label className="block text-xs font-bold text-gray-300 mb-1.5">Topic</label>
+        <label className="block text-xs font-bold text-gray-400 mb-1.5">Topic</label>
         <input type="text" value={session.topic} onChange={e => onUpdate('topic', e.target.value)}
           placeholder="e.g. Chapter 4" className={inputCls} />
       </div>
@@ -320,12 +320,12 @@ function AssignStudentsModal({ schedule, allStudents, onSave, onClose, saving })
   };
 
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
-        className="bg-[#2a1010] rounded-xl shadow-2xl max-w-2xl w-full border border-[#CA133E]/50 max-h-[85vh] flex flex-col"
+        className="bg-[#2a1010] rounded-xl max-w-2xl w-full border border-[#CA133E]/50 max-h-[85vh] flex flex-col"
       >
         <div className="flex items-center justify-between p-5 border-b border-white/20">
           <div>
@@ -345,7 +345,7 @@ function AssignStudentsModal({ schedule, allStudents, onSave, onClose, saving })
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="Search students…"
-              className="w-full pl-9 pr-4 py-2.5 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-500 focus:border-[#CA133E] focus:outline-none text-sm"
+              className="w-full pl-9 pr-4 py-2.5 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-600 focus:border-[#CA133E] focus:outline-none text-sm"
             />
           </div>
           <div className="flex items-center justify-between mt-2">
@@ -390,7 +390,7 @@ function AssignStudentsModal({ schedule, allStudents, onSave, onClose, saving })
         </div>
 
         <div className="flex justify-end gap-3 p-4 border-t border-white/20">
-          <button onClick={onClose} className="px-5 py-2.5 text-gray-300 bg-white/10 rounded-xl hover:bg-white/20 font-semibold">Cancel</button>
+          <button onClick={onClose} className="px-5 py-2.5 text-gray-400 bg-white/10 rounded-xl hover:bg-white/20 font-semibold">Cancel</button>
           <button
             onClick={() => onSave(Array.from(selected))}
             disabled={saving}
@@ -453,7 +453,7 @@ function ScheduleCard({ schedule, onEdit, onDelete, onAssign, onQr }) {
             const s = a.student;
             if (!s) return null;
             return (
-              <span key={s._id} className="flex items-center gap-1 text-xs bg-white/10 text-gray-300 px-2 py-0.5 rounded-full">
+              <span key={s._id} className="flex items-center gap-1 text-xs bg-white/10 text-gray-400 px-2 py-0.5 rounded-full">
                 <UserIcon className="h-3 w-3" />{s.firstName} {s.lastName}
               </span>
             );
@@ -472,7 +472,7 @@ function ScheduleCard({ schedule, onEdit, onDelete, onAssign, onQr }) {
         </button>
         <button
           onClick={() => onQr(schedule)}
-          className="flex items-center gap-1.5 px-3 py-2 bg-white/10 hover:bg-white/20 text-gray-300 rounded-xl text-sm font-semibold transition-colors"
+          className="flex items-center gap-1.5 px-3 py-2 bg-white/10 hover:bg-white/20 text-gray-400 rounded-xl text-sm font-semibold transition-colors"
         >
           <QrCodeIcon className="h-4 w-4" />
         </button>
@@ -555,7 +555,7 @@ function WeeklyOverview({ overview, loading }) {
 
                       {/* Hover tooltip */}
                       {hoveredSession === key && (
-                        <div className="absolute z-20 left-full top-0 ml-2 w-52 bg-[#2a1010] border border-white/30 rounded-xl p-3 shadow-2xl pointer-events-none">
+                        <div className="absolute z-20 left-full top-0 ml-2 w-52 bg-[#2a1010] border border-white/30 rounded-xl p-3 pointer-events-none">
                           <p className="text-white font-bold text-sm mb-1">{session.topic}</p>
                           <p className="text-gray-400 text-xs mb-0.5">{formatTime(session.startTime)} – {formatTime(session.endTime)}</p>
                           <p className="text-gray-400 text-xs mb-2 italic">{session.scheduleTitle}</p>
@@ -888,7 +888,7 @@ const ScheduleBuilder = () => {
         )}
 
         {deleteConfirm && (
-          <div key="delete" className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div key="delete" className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -913,7 +913,7 @@ const ScheduleBuilder = () => {
         )}
 
         {qrModal.open && (
-          <div key="qr" className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div key="qr" className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { API_ENDPOINTS } from '../../config/api';
 import { showSuccess, showError, showWarning } from '../../utils/toast';
@@ -192,7 +192,7 @@ const AnnouncementCenter = () => {
 
   const getTypeColor = (type) => {
     const typeConfig = announcementTypes.find(t => t.value === type);
-    return typeConfig ? typeConfig.color : 'bg-gray-700 text-gray-300';
+    return typeConfig ? typeConfig.color : 'bg-white/5 text-gray-300';
   };
 
   const getPriorityColor = (priority) => {
@@ -214,13 +214,13 @@ const AnnouncementCenter = () => {
     return (
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <div className="h-8 bg-gray-700/50 rounded w-64 animate-pulse"></div>
-          <div className="h-10 bg-gray-700/50 rounded w-32 animate-pulse"></div>
+          <div className="h-8 bg-white/5 rounded-xl w-64 animate-pulse"></div>
+          <div className="h-10 bg-white/5 rounded-xl w-32 animate-pulse"></div>
         </div>
         {[...Array(3)].map((_, i) => (
-          <div key={i} className="bg-gray-800/60 rounded-xl shadow-sm p-6 animate-pulse backdrop-blur-sm border-2 border-gray-600/50">
-            <div className="h-4 bg-gray-700/50 rounded w-3/4 mb-4"></div>
-            <div className="h-20 bg-gray-700/50 rounded"></div>
+          <div key={i} className="bg-[#161616] border border-white/5 rounded-xl p-5 animate-pulse">
+            <div className="h-4 bg-white/5 rounded-xl w-3/4 mb-4"></div>
+            <div className="h-16 bg-white/5 rounded-xl"></div>
           </div>
         ))}
       </div>
@@ -228,7 +228,7 @@ const AnnouncementCenter = () => {
   }
 
   return (
-    <div className="space-y-6 bg-gray-800/60 rounded-xl p-4 sm:p-6 shadow-2xl backdrop-blur-sm border-2 border-gray-600/50">
+    <div className="space-y-5">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <div className="flex-1">
@@ -240,7 +240,7 @@ const AnnouncementCenter = () => {
         </div>
         <button
           onClick={() => setShowCreateModal(true)}
-          className="flex items-center justify-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-xl hover:bg-blue-700 transition-colors whitespace-nowrap"
+          className="flex items-center justify-center space-x-2 bg-[#CA133E] text-white px-4 py-2 rounded-xl hover:bg-[#A01030] transition-colors whitespace-nowrap"
         >
           <PlusIcon className="h-5 w-5" />
           <span>Create Announcement</span>
@@ -248,61 +248,35 @@ const AnnouncementCenter = () => {
       </div>
 
       {/* Statistics Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-        <div className="bg-blue-900/40 rounded-xl p-3 sm:p-4 border border-blue-700/50">
-          <div className="flex items-center">
-            <MegaphoneIcon className="h-6 w-6 sm:h-8 sm:w-8 text-blue-400 flex-shrink-0" />
-            <div className="ml-2 sm:ml-3 min-w-0">
-              <p className="text-xs sm:text-sm font-medium text-blue-400">Total</p>
-              <p className="text-lg sm:text-2xl font-bold text-white">{announcements.length}</p>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        {[
+          { icon: MegaphoneIcon,         label: 'Total',     value: announcements.length,                                          color: 'text-blue-400' },
+          { icon: CheckCircleIcon,       label: 'Published', value: announcements.filter(a => a.isPublished).length,               color: 'text-emerald-400' },
+          { icon: ClockIcon,             label: 'Pinned',    value: announcements.filter(a => a.isPinned).length,                  color: 'text-yellow-400' },
+          { icon: ExclamationTriangleIcon, label: 'Urgent',  value: announcements.filter(a => a.priority === 'urgent').length,    color: 'text-red-400' },
+        ].map(({ icon: Icon, label, value, color }) => (
+          <div key={label} className="bg-[#161616] border border-white/5 rounded-xl p-3 sm:p-4">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <Icon className={`h-5 w-5 sm:h-6 sm:w-6 ${color} flex-shrink-0`} />
+              <div className="min-w-0">
+                <p className={`text-xs font-medium ${color}`}>{label}</p>
+                <p className="text-lg sm:text-2xl font-bold text-white">{value}</p>
+              </div>
             </div>
           </div>
-        </div>
-        <div className="bg-green-900/40 rounded-xl p-3 sm:p-4 border border-green-700/50">
-          <div className="flex items-center">
-            <CheckCircleIcon className="h-6 w-6 sm:h-8 sm:w-8 text-green-400 flex-shrink-0" />
-            <div className="ml-2 sm:ml-3 min-w-0">
-              <p className="text-xs sm:text-sm font-medium text-green-400">Published</p>
-              <p className="text-lg sm:text-2xl font-bold text-white">
-                {announcements.filter(a => a.isPublished).length}
-              </p>
-            </div>
-          </div>
-        </div>
-        <div className="bg-yellow-900/40 rounded-xl p-3 sm:p-4 border border-yellow-700/50">
-          <div className="flex items-center">
-            <ClockIcon className="h-6 w-6 sm:h-8 sm:w-8 text-yellow-400 flex-shrink-0" />
-            <div className="ml-2 sm:ml-3 min-w-0">
-              <p className="text-xs sm:text-sm font-medium text-yellow-400">Pinned</p>
-              <p className="text-lg sm:text-2xl font-bold text-white">
-                {announcements.filter(a => a.isPinned).length}
-              </p>
-            </div>
-          </div>
-        </div>
-        <div className="bg-red-900/40 rounded-xl p-3 sm:p-4 border border-red-700/50">
-          <div className="flex items-center">
-            <ExclamationTriangleIcon className="h-6 w-6 sm:h-8 sm:w-8 text-red-400 flex-shrink-0" />
-            <div className="ml-2 sm:ml-3 min-w-0">
-              <p className="text-xs sm:text-sm font-medium text-red-400">Urgent</p>
-              <p className="text-lg sm:text-2xl font-bold text-white">
-                {announcements.filter(a => a.priority === 'urgent').length}
-              </p>
-            </div>
-          </div>
-        </div>
+        ))}
       </div>
 
       {/* Announcements List */}
       <div className="space-y-4">
         {announcements.length === 0 ? (
-          <div className="bg-gray-900/50 rounded-xl p-8 sm:p-12 text-center border-2 border-dashed border-gray-700/50">
-            <MegaphoneIcon className="h-12 w-12 text-gray-500 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-white mb-2">No Announcements Yet</h3>
-            <p className="text-gray-400 mb-4">Create your first announcement to get started.</p>
+          <div className="py-14 text-center rounded-xl border border-dashed border-white/10 bg-white/2">
+            <MegaphoneIcon className="h-10 w-10 text-gray-600 mx-auto mb-3" />
+            <h3 className="text-sm font-semibold text-white mb-1">No Announcements Yet</h3>
+            <p className="text-gray-500 text-sm mb-4">Create your first announcement to get started.</p>
             <button
               onClick={() => setShowCreateModal(true)}
-              className="bg-blue-600 text-white px-4 py-2 rounded-xl hover:bg-blue-700"
+              className="bg-[#CA133E] text-white px-4 py-2 rounded-xl hover:bg-[#A01030] text-sm transition-colors"
             >
               Create Announcement
             </button>
@@ -314,7 +288,7 @@ const AnnouncementCenter = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
-              className="bg-gray-900/70 backdrop-blur-md rounded-xl p-4 sm:p-6 border border-gray-700/50 hover:shadow-xl transition-shadow"
+              className="bg-[#161616] border border-white/5 rounded-xl p-4 sm:p-5 hover:border-white/10 transition-all"
             >
               <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4">
                 <div className="flex-1 min-w-0">
@@ -333,7 +307,7 @@ const AnnouncementCenter = () => {
                     </span>
                   </div>
                   
-                  <p className="text-sm sm:text-base text-gray-300 mb-3 sm:mb-4 line-clamp-2">{announcement.content}</p>
+                  <p className="text-sm sm:text-base text-gray-400 mb-3 sm:mb-4 line-clamp-2">{announcement.content}</p>
                   
                   <div className="flex flex-wrap items-center gap-3 sm:gap-6 text-xs sm:text-sm text-gray-400">
                     <div className="flex items-center">
@@ -377,14 +351,14 @@ const AnnouncementCenter = () => {
       {/* Create Announcement Modal */}
       <AnimatePresence>
         {showCreateModal && (
-          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-gray-900/90 border border-gray-700 text-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col"
+              className="bg-[#161616] border border-white/10 text-white rounded-xl max-w-2xl w-full max-h-[90vh] flex flex-col"
             >
-              <div className="p-4 sm:p-6 border-b border-gray-700">
+              <div className="p-4 sm:p-6 border-b border-white/5">
                 <div className="flex justify-between items-center">
                   <h3 className="text-lg sm:text-xl font-semibold">Create New Announcement</h3>
                   <button
@@ -398,7 +372,7 @@ const AnnouncementCenter = () => {
 
               <form onSubmit={handleCreateAnnouncement} className="p-4 sm:p-6 space-y-4 overflow-y-auto">
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-1">
+                  <label className="block text-sm font-medium text-gray-400 mb-1">
                     Title * (5-200 characters)
                   </label>
                   <input
@@ -408,10 +382,10 @@ const AnnouncementCenter = () => {
                     maxLength={200}
                     value={formData.title}
                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    className={`w-full px-3 py-2 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-800/90 text-white ${
-                      formData.title.length > 0 && formData.title.length < 5 
-                        ? 'border-red-500/50' 
-                        : 'border-gray-600'
+                    className={`w-full px-3 py-2 border rounded-xl focus:outline-none focus:border-[#CA133E] transition-colors bg-[#1A1A1A] text-white placeholder-gray-600 text-sm ${
+                      formData.title.length > 0 && formData.title.length < 5
+                        ? 'border-red-500/50'
+                        : 'border-white/10'
                     }`}
                     placeholder="Enter announcement title"
                   />
@@ -421,7 +395,7 @@ const AnnouncementCenter = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-1">
+                  <label className="block text-sm font-medium text-gray-400 mb-1">
                     Content * (minimum 10 characters)
                   </label>
                   <textarea
@@ -430,10 +404,10 @@ const AnnouncementCenter = () => {
                     minLength={10}
                     value={formData.content}
                     onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                    className={`w-full px-3 py-2 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-800/90 text-white ${
-                      formData.content.length > 0 && formData.content.length < 10 
-                        ? 'border-red-500/50' 
-                        : 'border-gray-600'
+                    className={`w-full px-3 py-2 border rounded-xl focus:outline-none focus:border-[#CA133E] transition-colors bg-[#1A1A1A] text-white placeholder-gray-600 text-sm ${
+                      formData.content.length > 0 && formData.content.length < 10
+                        ? 'border-red-500/50'
+                        : 'border-white/10'
                     }`}
                     placeholder="Enter announcement content"
                   />
@@ -444,13 +418,13 @@ const AnnouncementCenter = () => {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-1">
+                    <label className="block text-sm font-medium text-gray-400 mb-1">
                       Category
                     </label>
                     <select
                       value={formData.type}
                       onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-800/90 text-white"
+                      className="w-full px-3 py-2 border border-white/10 rounded-xl focus:outline-none focus:border-[#CA133E] transition-colors bg-[#1A1A1A] text-white placeholder-gray-600 text-sm"
                     >
                       {announcementTypes.map(type => (
                         <option key={type.value} value={type.value}>{type.label}</option>
@@ -459,13 +433,13 @@ const AnnouncementCenter = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-1">
+                    <label className="block text-sm font-medium text-gray-400 mb-1">
                       Priority
                     </label>
                     <select
                       value={formData.priority}
                       onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-800/90 text-white"
+                      className="w-full px-3 py-2 border border-white/10 rounded-xl focus:outline-none focus:border-[#CA133E] transition-colors bg-[#1A1A1A] text-white placeholder-gray-600 text-sm"
                     >
                       {priorityLevels.map(priority => (
                         <option key={priority.value} value={priority.value}>{priority.label}</option>
@@ -475,13 +449,13 @@ const AnnouncementCenter = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-1">
+                  <label className="block text-sm font-medium text-gray-400 mb-1">
                     Target Audience
                   </label>
                   <select
                     value={formData.targetAudience}
                     onChange={(e) => setFormData({ ...formData, targetAudience: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-800/90 text-white"
+                    className="w-full px-3 py-2 border border-white/10 rounded-xl focus:outline-none focus:border-[#CA133E] transition-colors bg-[#1A1A1A] text-white placeholder-gray-600 text-sm"
                   >
                     <option value="all">All (Students & Parents)</option>
                     <option value="students">Students Only</option>
@@ -491,26 +465,26 @@ const AnnouncementCenter = () => {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-1">
+                    <label className="block text-sm font-medium text-gray-400 mb-1">
                       Publish Date (Optional)
                     </label>
                     <input
                       type="datetime-local"
                       value={formData.scheduledFor}
                       onChange={(e) => setFormData({ ...formData, scheduledFor: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-800/90 text-white"
+                      className="w-full px-3 py-2 border border-white/10 rounded-xl focus:outline-none focus:border-[#CA133E] transition-colors bg-[#1A1A1A] text-white placeholder-gray-600 text-sm"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-1">
+                    <label className="block text-sm font-medium text-gray-400 mb-1">
                       Expiry Date (Optional)
                     </label>
                     <input
                       type="datetime-local"
                       value={formData.expiresAt}
                       onChange={(e) => setFormData({ ...formData, expiresAt: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-800/90 text-white"
+                      className="w-full px-3 py-2 border border-white/10 rounded-xl focus:outline-none focus:border-[#CA133E] transition-colors bg-[#1A1A1A] text-white placeholder-gray-600 text-sm"
                     />
                   </div>
                 </div>
@@ -521,7 +495,7 @@ const AnnouncementCenter = () => {
                     id="isPinned"
                     checked={formData.isPinned}
                     onChange={(e) => setFormData({ ...formData, isPinned: e.target.checked })}
-                    className="h-4 w-4 text-blue-500 focus:ring-blue-500 border-gray-600 rounded bg-gray-800/90"
+                    className="h-4 w-4 accent-[#CA133E] border-white/10 rounded bg-[#1A1A1A]"
                   />
                   <label htmlFor="isPinned" className="ml-2 block text-sm text-gray-300">
                     Pin this announcement
@@ -532,7 +506,7 @@ const AnnouncementCenter = () => {
                   <button
                     type="button"
                     onClick={() => setShowCreateModal(false)}
-                    className="px-4 py-2 text-gray-300 bg-gray-700/80 rounded-xl hover:bg-gray-700 transition-colors"
+                    className="px-4 py-2 text-gray-400 bg-white/5 border border-white/10 rounded-xl hover:bg-white/8 transition-colors text-sm"
                   >
                     Cancel
                   </button>
@@ -544,7 +518,7 @@ const AnnouncementCenter = () => {
                       !formData.title.trim() ||
                       !formData.content.trim()
                     }
-                    className="px-4 py-2 rounded-xl transition-colors bg-blue-600 text-white hover:bg-blue-700 disabled:bg-gray-600 disabled:text-gray-400 disabled:cursor-not-allowed"
+                    className="px-4 py-2 rounded-xl transition-colors bg-[#CA133E] text-white hover:bg-[#A01030] disabled:opacity-40 disabled:cursor-not-allowed text-sm font-medium"
                   >
                     Create Announcement
                   </button>
@@ -558,14 +532,14 @@ const AnnouncementCenter = () => {
       {/* View Announcement Modal */}
       <AnimatePresence>
         {showViewModal && selectedAnnouncement && (
-          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-gray-900/90 border border-gray-700 text-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+              className="bg-[#161616] border border-white/10 text-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
             >
-              <div className="p-6 border-b border-gray-700">
+              <div className="p-6 border-b border-white/5">
                 <div className="flex justify-between items-center">
                   <h3 className="text-xl font-semibold">Announcement Details</h3>
                   <button
@@ -599,10 +573,10 @@ const AnnouncementCenter = () => {
                   </div>
 
                   <div>
-                    <p className="text-gray-300 whitespace-pre-wrap">{selectedAnnouncement.content}</p>
+                    <p className="text-gray-400 whitespace-pre-wrap">{selectedAnnouncement.content}</p>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4 pt-4 border-t border-gray-700">
+                  <div className="grid grid-cols-2 gap-4 pt-4 border-t border-white/5">
                     <div>
                       <p className="text-sm text-gray-400">Created</p>
                       <p className="font-medium text-white">{formatDate(selectedAnnouncement.createdAt)}</p>
@@ -625,7 +599,7 @@ const AnnouncementCenter = () => {
                 <div className="flex justify-end pt-6">
                   <button
                     onClick={() => setShowViewModal(false)}
-                    className="px-4 py-2 bg-gray-700/80 text-gray-300 rounded-xl hover:bg-gray-700 transition-colors"
+                    className="px-4 py-2 bg-gray-700/80 text-gray-400 rounded-xl hover:bg-white/8 transition-colors"
                   >
                     Close
                   </button>

@@ -36,7 +36,7 @@ export const TestimonialsStrip = () => {
           <span className="inline-block bg-[#CA133E]/15 text-[#CA133E] text-xs font-semibold uppercase tracking-wider px-3 py-1 rounded-full mb-4">
             Student stories
           </span>
-          <h2 className="text-3xl md:text-4xl font-bold mb-3">
+          <h2 className="font-display font-bold text-3xl md:text-4xl mb-3" style={{ letterSpacing: '-0.02em' }}>
             Stories from <span className="text-[#CA133E]">our students</span>
           </h2>
           <p className="text-gray-300 max-w-2xl mx-auto">
@@ -47,7 +47,7 @@ export const TestimonialsStrip = () => {
         <div className="flex items-center justify-between mb-4">
           <button
             onClick={goPrev}
-            className="p-2 rounded-xl border border-gray-700 hover:border-[#CA133E] transition-colors"
+            className="p-2 rounded-xl border border-white/15 hover:border-[#CA133E] transition-colors"
             aria-label="Previous story"
           >
             <ChevronLeft size={18} />
@@ -57,7 +57,7 @@ export const TestimonialsStrip = () => {
           </span>
           <button
             onClick={goNext}
-            className="p-2 rounded-xl border border-gray-700 hover:border-[#CA133E] transition-colors"
+            className="p-2 rounded-xl border border-white/15 hover:border-[#CA133E] transition-colors"
             aria-label="Next story"
           >
             <ChevronRight size={18} />
@@ -76,7 +76,7 @@ export const TestimonialsStrip = () => {
             {stories.map((story, idx) => (
               <div
                 key={story._id || `${story.name}-${idx}`}
-                className="min-w-full snap-center bg-gradient-to-br from-gray-800/60 to-gray-900/60 border border-gray-800 rounded-xl p-6"
+                className="min-w-full snap-center bg-[#161616] border border-white/10 rounded-xl p-6 sm:p-8"
               >
                 <Quote className="text-[#CA133E] mb-3" size={24} />
                 <p className="text-gray-200 leading-relaxed mb-4 text-sm">"{story.text}"</p>
@@ -134,7 +134,7 @@ export const HallOfFameStrip = () => {
           <span className="inline-block bg-[#CA133E]/15 text-[#CA133E] text-xs font-semibold uppercase tracking-wider px-3 py-1 rounded-full mb-4">
             Hall of Fame
           </span>
-          <h2 className="text-3xl md:text-4xl font-bold mb-3">
+          <h2 className="font-display font-bold text-3xl md:text-4xl mb-3" style={{ letterSpacing: '-0.02em' }}>
             Top performers <span className="text-[#CA133E]">right now</span>
           </h2>
           <p className="text-gray-300 max-w-2xl mx-auto">
@@ -146,7 +146,7 @@ export const HallOfFameStrip = () => {
           {(loading ? Array.from({ length: 8 }) : students).map((student, idx) => (
             <div
               key={student?._id || idx}
-              className="bg-[#1a1a1a] border border-gray-800 rounded-xl p-4 text-center"
+              className="bg-[#161616] border border-white/10 rounded-xl p-4 text-center"
             >
               <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#CA133E] to-[#A01030] flex items-center justify-center mx-auto mb-3 font-bold">
                 {loading ? '…' : (student.name?.[0] || '?')}
@@ -186,7 +186,7 @@ export const FeesTeaser = () => (
         className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8 md:p-12 text-center"
       >
         <Sparkles className="mx-auto text-[#CA133E] mb-4" size={36} />
-        <h2 className="text-3xl md:text-4xl font-bold mb-3">
+        <h2 className="font-display font-bold text-3xl md:text-4xl mb-3" style={{ letterSpacing: '-0.02em' }}>
           Plans from <span className="text-[#CA133E]">EGP 4,500</span> / term
         </h2>
         <p className="text-gray-300 max-w-2xl mx-auto mb-6">
@@ -227,7 +227,8 @@ export const FinalCTA = () => (
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.6 }}
-        className="text-3xl md:text-5xl font-bold mb-4"
+        className="font-display font-bold text-3xl md:text-5xl mb-4"
+          style={{ letterSpacing: '-0.02em' }}
       >
         Your A* journey starts today.
       </motion.h2>

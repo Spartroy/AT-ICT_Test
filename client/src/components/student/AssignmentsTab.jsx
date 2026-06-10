@@ -2,629 +2,272 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { API_ENDPOINTS } from '../../config/api';
 import {
-  DocumentTextIcon,
-  PaperClipIcon,
-  CloudArrowUpIcon,
-  CheckCircleIcon,
-  ClockIcon,
-  ExclamationTriangleIcon,
-  TrophyIcon,
-  ArrowPathIcon,
-  XCircleIcon,
-  InformationCircleIcon,
-  ChevronDownIcon,
-  ChevronUpIcon
+  DocumentTextIcon, PaperClipIcon, CloudArrowUpIcon, CheckCircleIcon,
+  ClockIcon, TrophyIcon, ArrowPathIcon, XCircleIcon,
+  ChevronDownIcon, ChevronUpIcon
 } from '@heroicons/react/24/outline';
-
 import io from 'socket.io-client';
+
+const statusBadge = {
+  graded:      'bg-green-500/15 text-green-400',
+  submitted:   'bg-blue-500/15 text-blue-400',
+  in_progress: 'bg-yellow-500/15 text-yellow-400',
+  assigned:    'bg-red-500/15 text-red-400'
+};
+const statusLabel = { graded: 'Graded', submitted: 'Submitted', in_progress: 'In Progress', assigned: 'Not Started' };
+
+const scoreColor = (s, max) => {
+  if (s == null) return 'text-gray-500';
+  const p = (s / max) * 100;
+  return p >= 80 ? 'text-green-400' : p >= 60 ? 'text-yellow-400' : 'text-red-400';
+};
+
+const difficultyBadge = {
+  easy:   'bg-green-500/15 text-green-400 border-green-500/20',
+  medium: 'bg-yellow-500/15 text-yellow-400 border-yellow-500/20',
+  hard:   'bg-red-500/15 text-red-400 border-red-500/20'
+};
+
+const inputClass = 'bg-[#1A1A1A] border border-white/10 rounded-xl text-white placeholder-gray-600 focus:outline-none focus:border-[#CA133E] transition-colors text-sm';
 
 const AssignmentsTab = ({ studentData, stats, fetchUrl, readonly = false }) => {
   const [assignments, setAssignments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [refreshing, setRefreshing] = useState(false);
-  const [expandedAssignments, setExpandedAssignments] = useState(new Set());
-  const [selectedFiles, setSelectedFiles] = useState({});
+  const [expanded, setExpanded] = useState(new Set());
+  const [files, setFiles] = useState({});
   const [submitting, setSubmitting] = useState(false);
-  const [successModal, setSuccessModal] = useState({ open: false, title: '', message: '' });
+  const [modal, setModal] = useState({ open: false, title: '', message: '', isError: false, filesCount: 0 });
 
   useEffect(() => {
-    fetchAssignments();
-
-    // Initialize socket connection
+    fetch_();
     const socket = io(API_ENDPOINTS.BASE_URL);
-
-    // Listen for new assignments
-    socket.on('new_assignment', (newAssignment) => {
-      // Check if the assignment is relevant to the student (assigned to all or specifically to them)
-      // For simplicity, we'll just add it and let the backend filter on next fetch if needed, 
-      // or ideally the backend should only emit to specific rooms. 
-      // For now, we'll assume global announcements/assignments or basic filtering.
-      // A better approach is to fetch again to ensure correct data shape and permissions.
-      console.log('🔔 New assignment received via socket:', newAssignment);
-      fetchAssignments(true);
-    });
-
-    // Set up auto-refresh every 30 seconds to check for grade updates
-    const interval = setInterval(() => {
-      console.log('🔄 Auto-refreshing assignments...');
-      fetchAssignments(true); // Silent refresh
-    }, 30000);
-
-    return () => {
-      clearInterval(interval);
-      socket.disconnect();
-    };
+    socket.on('new_assignment', () => fetch_(true));
+    const interval = setInterval(() => fetch_(true), 30000);
+    return () => { clearInterval(interval); socket.disconnect(); };
   }, []);
 
-  const fetchAssignments = async (silent = false) => {
-    if (!silent) setLoading(true);
-    if (!silent) setRefreshing(true);
-
+  const fetch_ = async (silent = false) => {
+    if (!silent) { setLoading(true); setRefreshing(true); }
     try {
       const token = localStorage.getItem('token');
       const url = fetchUrl || API_ENDPOINTS.STUDENT.ASSIGNMENTS;
-      const response = await fetch(url, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (response.ok) {
-        const ct = response.headers.get('content-type') || '';
-        if (!ct.includes('application/json')) {
-          throw new Error('Unexpected response type');
-        }
-        const data = await response.json();
-        let list = data?.data?.assignments || [];
-        // If using parent progress endpoint, map fields to student shape
+      const res = await fetch(url, { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } });
+      if (res.ok) {
+        let list = (await res.json())?.data?.assignments || [];
         if (fetchUrl && url.includes('/api/parent/child/')) {
-          list = list.map(a => ({
-            _id: a._id,
-            title: a.title,
-            description: a.description,
-            type: a.type,
-            section: a.section,
-            difficulty: a.difficulty,
-            createdAt: a.createdAt,
-            maxScore: a.maxScore,
-            dueDate: a.dueDate,
-            studentData: {
-              status: a.status,
-              submissionDate: a.submissionDate,
-              isLate: a.isLate,
-              feedback: a.feedback,
-              score: a.score,
-              gradedDate: a.gradedDate
-            }
-          }));
+          list = list.map(a => ({ ...a, studentData: { status: a.status, submissionDate: a.submissionDate, isLate: a.isLate, feedback: a.feedback, score: a.score, gradedDate: a.gradedDate } }));
         }
-        console.log('📚 Assignment data received:', list);
-        setAssignments(list);
-        setError('');
-      } else {
-        throw new Error('Failed to fetch assignments');
-      }
-    } catch (error) {
-      console.error('Error fetching assignments:', error);
-      setError('Failed to load assignments');
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
+        setAssignments(list); setError('');
+      } else throw new Error();
+    } catch { setError('Failed to load assignments'); }
+    finally { setLoading(false); setRefreshing(false); }
   };
 
-  const manualRefresh = () => {
-    console.log('🔄 Manual refresh triggered');
-    fetchAssignments();
-  };
+  const toggle = (id) => setExpanded(prev => { const s = new Set(prev); s.has(id) ? s.delete(id) : s.add(id); return s; });
 
-  const toggleAssignmentExpansion = (assignmentId) => {
-    setExpandedAssignments(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(assignmentId)) {
-        newSet.delete(assignmentId);
-      } else {
-        newSet.add(assignmentId);
-      }
-      return newSet;
-    });
-  };
-
-  const handleFileChange = (assignmentId, files) => {
-    setSelectedFiles(prev => ({
-      ...prev,
-      [assignmentId]: Array.from(files)
-    }));
-  };
-
-  const submitAssignment = async (assignmentId) => {
+  const submit = async (assignmentId) => {
     if (readonly) return;
-    const files = selectedFiles[assignmentId] || [];
-
-    if (files.length === 0) {
-      setSuccessModal({
-        open: true,
-        isError: true,
-        title: 'No Files Selected',
-        message: 'Please select at least one file before submitting.'
-      });
-      return;
-    }
-
+    const f = files[assignmentId] || [];
+    if (!f.length) return setModal({ open: true, isError: true, title: 'No Files', message: 'Please select at least one file.' });
     setSubmitting(true);
     try {
       const token = localStorage.getItem('token');
-      const formData = new FormData();
-      files.forEach(file => formData.append('files', file));
-
-      const response = await fetch(`${API_ENDPOINTS.STUDENT.ASSIGNMENTS}/${assignmentId}/submit`, {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` },
-        body: formData
-      });
-
-      if (response.ok) {
-        const assignment = assignments.find(a => a._id === assignmentId);
-        setSelectedFiles(prev => ({ ...prev, [assignmentId]: [] }));
-        setExpandedAssignments(prev => { const s = new Set(prev); s.delete(assignmentId); return s; });
-        fetchAssignments();
-        setSuccessModal({
-          open: true,
-          isError: false,
-          title: 'Assignment Submitted!',
-          message: `"${assignment?.title || 'Your assignment'}" has been submitted successfully. Your teacher will review and grade it shortly.`,
-          filesCount: files.length
-        });
+      const fd = new FormData(); f.forEach(f => fd.append('files', f));
+      const res = await fetch(`${API_ENDPOINTS.STUDENT.ASSIGNMENTS}/${assignmentId}/submit`, { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: fd });
+      if (res.ok) {
+        const title = assignments.find(a => a._id === assignmentId)?.title || 'Your assignment';
+        setFiles(p => ({ ...p, [assignmentId]: [] }));
+        setExpanded(p => { const s = new Set(p); s.delete(assignmentId); return s; });
+        fetch_();
+        setModal({ open: true, isError: false, title: 'Submitted!', message: `"${title}" submitted successfully.`, filesCount: f.length });
       } else {
-        const errorData = await response.json();
-        setSuccessModal({
-          open: true,
-          isError: true,
-          title: 'Submission Failed',
-          message: errorData.message || 'An unexpected error occurred. Please try again.'
-        });
+        const d = await res.json();
+        setModal({ open: true, isError: true, title: 'Failed', message: d.message || 'An error occurred.' });
       }
-    } catch (error) {
-      console.error('Error submitting assignment:', error);
-      setSuccessModal({
-        open: true,
-        isError: true,
-        title: 'Submission Failed',
-        message: 'Could not connect to the server. Please check your connection and try again.'
-      });
-    } finally {
-      setSubmitting(false);
-    }
+    } catch { setModal({ open: true, isError: true, title: 'Error', message: 'Could not connect. Check your connection.' }); }
+    finally { setSubmitting(false); }
   };
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'graded': return 'text-green-400';
-      case 'submitted': return 'text-blue-400';
-      case 'in_progress': return 'text-yellow-400';
-      case 'late': return 'text-red-400';
-      default: return 'text-gray-400';
-    }
-  };
+  const completedCount = assignments.filter(a => ['submitted','graded'].includes(a.studentData?.status)).length;
+  const pendingCount   = assignments.filter(a => ['assigned','in_progress'].includes(a.studentData?.status)).length;
 
-  const getScoreColor = (score, maxScore) => {
-    if (score === undefined || score === null) return 'text-gray-400';
-    const percentage = (score / maxScore) * 100;
-    if (percentage >= 80) return 'text-green-400';
-    if (percentage >= 60) return 'text-yellow-400';
-    return 'text-red-400';
-  };
-
-  const formatScore = (score, maxScore, status) => {
-    if (status === 'graded' && score !== undefined && score !== null) {
-      return `${score}/${maxScore}`;
-    }
-    return `--/${maxScore}`;
-  };
-
-  const getScorePercentage = (score, maxScore) => {
-    if (score === undefined || score === null) return null;
-    return Math.round((score / maxScore) * 100);
-  };
-
-  // Calculate assignment statistics
-  const completedCount = assignments.filter(a =>
-    a.studentData?.status === 'submitted' || a.studentData?.status === 'graded'
-  ).length;
-  const pendingCount = assignments.filter(a =>
-    a.studentData?.status === 'assigned' || a.studentData?.status === 'in_progress'
-  ).length;
-
-  if (loading && assignments.length === 0) {
-    return (
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="h-8 bg-gray-700/50 rounded w-64 animate-pulse"></div>
-          <div className="h-10 bg-gray-700/50 rounded w-32 animate-pulse"></div>
-        </div>
-        {[...Array(3)].map((_, i) => (
-          <div key={i} className="bg-gray-800/60 rounded-xl shadow-sm p-6 animate-pulse backdrop-blur-sm border-2 border-gray-600/50">
-            <div className="h-6 bg-gray-700/50 rounded w-3/4 mb-4"></div>
-            <div className="h-4 bg-gray-700/50 rounded w-1/2 mb-2"></div>
-            <div className="h-4 bg-gray-700/50 rounded w-2/3"></div>
-          </div>
-        ))}
-      </div>
-    );
-  }
+  if (loading && !assignments.length) return (
+    <div className="space-y-3">
+      {[...Array(3)].map((_, i) => <div key={i} className="h-24 bg-white/5 rounded-xl animate-pulse" />)}
+    </div>
+  );
 
   return (
     <>
-    <div className="space-y-4 sm:space-y-6">
-      {/* Header with Stats */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-gray-800/60 rounded-xl p-4 sm:p-6 shadow-2xl backdrop-blur-sm border-2 border-gray-600/50">
-        <div>
-          <h2 className="text-lg sm:text-xl lg:text-[20pt] font-bold text-white">Assignments</h2>
-          <div className="flex flex-wrap items-center gap-2 sm:gap-4 mt-2 text-sm sm:text-base lg:text-[14pt]">
-            <span className="text-green-400 flex items-center">
-              <CheckCircleIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-1" />
-              {completedCount} Completed
-            </span>
-            <span className="text-red-400 flex items-center">
-              <XCircleIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-1" />
-              {pendingCount} Pending
-            </span>
+      <div className="space-y-5">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-[#161616] border border-white/5 rounded-xl p-4 sm:p-5">
+          <div>
+            <h2 className="text-xl font-bold text-white">Assignments</h2>
+            <div className="flex items-center gap-4 mt-1.5 text-sm">
+              <span className="flex items-center gap-1.5 text-green-400"><CheckCircleIcon className="h-4 w-4" />{completedCount} Completed</span>
+              <span className="flex items-center gap-1.5 text-red-400"><XCircleIcon className="h-4 w-4" />{pendingCount} Pending</span>
+            </div>
           </div>
+          <button onClick={() => fetch_()} disabled={refreshing}
+            className="flex items-center gap-2 px-4 py-2 bg-[#CA133E] text-white rounded-xl hover:bg-[#A01030] disabled:opacity-50 transition-colors text-sm font-medium">
+            <ArrowPathIcon className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+            Refresh
+          </button>
         </div>
-        <button
-          onClick={manualRefresh}
-          disabled={refreshing}
-          className="flex items-center space-x-2 px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 transition-colors text-sm sm:text-base w-full sm:w-auto justify-center"
-        >
-          <ArrowPathIcon className={`h-4 w-4 sm:h-5 sm:w-5 ${refreshing ? 'animate-spin' : ''}`} />
-          <span>Refresh</span>
-        </button>
-      </div>
 
-      {error && (
-        <div className="bg-red-900/50 border border-red-700 text-red-100 px-4 py-3 rounded-xl text-sm sm:text-base">
-          {error}
-        </div>
-      )}
+        {error && <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded-xl text-sm">{error}</div>}
 
-      {/* Assignments List */}
-      <div className="space-y-3 sm:space-y-4">
+        {/* List */}
         {assignments.length === 0 ? (
-          <div className="bg-gray-800/60 rounded-xl p-8 sm:p-12 text-center shadow-2xl backdrop-blur-sm border-2 border-dashed border-gray-600/50">
-            <DocumentTextIcon className="h-10 w-10 sm:h-12 sm:w-12 text-gray-500 mx-auto mb-4" />
-            <h3 className="text-base sm:text-lg font-medium text-white mb-2">No Assignments</h3>
-            <p className="text-sm sm:text-base text-gray-400">Your assignments will appear here once they're assigned.</p>
+          <div className="bg-[#161616] border border-dashed border-white/10 rounded-xl p-10 text-center">
+            <DocumentTextIcon className="h-10 w-10 text-gray-700 mx-auto mb-3" />
+            <p className="text-white font-medium text-sm">No Assignments</p>
+            <p className="text-gray-600 text-xs mt-1">Your assignments will appear here once assigned.</p>
           </div>
         ) : (
-          assignments.map((assignment) => {
-            const isExpanded = expandedAssignments.has(assignment._id);
+          <div className="space-y-2.5">
+            {assignments.map((a) => {
+              const isExp = expanded.has(a._id);
+              const s = a.studentData?.status || 'assigned';
+              const pct = a.studentData?.score != null ? Math.round((a.studentData.score / a.maxScore) * 100) : null;
 
-            return (
-              <motion.div
-                key={assignment._id}
-                layout
-                className="bg-gray-900/70 backdrop-blur-md rounded-xl overflow-hidden hover:shadow-xl transition-shadow border border-gray-700/50"
-              >
-                <div className="p-4 sm:p-6">
-                  {/* Condensed Card Header - Always Visible */}
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    <div className="flex items-start sm:items-center space-x-3 sm:space-x-4 flex-1 min-w-0">
-                      <DocumentTextIcon className="h-5 w-5 sm:h-6 sm:w-6 text-blue-400 flex-shrink-0 mt-1 sm:mt-0" />
-
-                      <div className="flex-1 min-w-0">
-                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
-                          <h3 className="text-base sm:text-lg lg:text-[18pt] font-semibold text-white truncate">
-                            {assignment.title}
-                          </h3>
-                          <span className={`px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium self-start sm:self-auto ${assignment.studentData?.status === 'graded' ? 'bg-green-900/50 text-green-300' :
-                              assignment.studentData?.status === 'submitted' ? 'bg-blue-900/50 text-blue-300' :
-                                assignment.studentData?.status === 'in_progress' ? 'bg-yellow-900/50 text-yellow-300' :
-                                  'bg-red-900/50 text-red-300'
-                            }`}>
-                            {assignment.studentData?.status === 'graded' ? 'Graded' :
-                              assignment.studentData?.status === 'submitted' ? 'Submitted' :
-                                assignment.studentData?.status === 'in_progress' ? 'In Progress' :
-                                  'Not Started'}
-                          </span>
-                        </div>
-
-                        {/* Condensed Info Row */}
-                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 text-xs sm:text-sm lg:text-[12pt] text-gray-400">
-                          <span className="flex items-center">
-                            <span className="text-gray-500">Due:</span>
-                            <span className="ml-1 text-red-300">
-                              {new Date(assignment.dueDate).toLocaleDateString('en-US', {
-                                month: 'numeric',
-                                day: 'numeric',
-                                hour: '2-digit',
-                                minute: '2-digit'
-                              })}
-                            </span>
-                          </span>
-                          <span className="hidden sm:flex items-center">
-                            <span className="text-gray-500">Type:</span>
-                            <span className="ml-1 text-gray-300">{assignment.type}</span>
-                          </span>
-                          <span className="hidden lg:flex items-center">
-                            <span className="text-gray-500">Section:</span>
-                            <span className="ml-1 text-gray-300">{assignment.section}</span>
-                          </span>
-                          {assignment.difficulty && (
-                            <span className={`hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold ${
-                              assignment.difficulty === 'easy'
-                                ? 'bg-green-500/20 text-green-400'
-                                : assignment.difficulty === 'medium'
-                                ? 'bg-yellow-500/20 text-yellow-400'
-                                : 'bg-red-500/20 text-red-400'
-                            }`}>
-                              {assignment.difficulty.charAt(0).toUpperCase() + assignment.difficulty.slice(1)}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Score and Expand Button */}
-                    <div className="flex items-center justify-between sm:justify-end gap-4">
-                      {/* Current Score Display */}
-                      <div className="text-left sm:text-right">
-                        <div className="text-xs sm:text-sm text-gray-400 mb-1">Score</div>
-                        <div className={`text-lg sm:text-xl font-bold ${getScoreColor(assignment.studentData?.score, assignment.maxScore)}`}>
-                          {formatScore(assignment.studentData?.score, assignment.maxScore, assignment.studentData?.status)}
-                        </div>
-                        {assignment.studentData?.status === 'graded' && assignment.studentData?.score !== undefined && (
-                          <div className={`text-xs sm:text-sm font-medium ${getScoreColor(assignment.studentData?.score, assignment.maxScore)}`}>
-                            {getScorePercentage(assignment.studentData?.score, assignment.maxScore)} %
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Expand/Collapse Button */}
-                      <button
-                        onClick={() => toggleAssignmentExpansion(assignment._id)}
-                        className="flex items-center space-x-1 px-2 sm:px-3 py-2 bg-gray-700/50 text-gray-300 rounded-xl hover:bg-gray-600/50 transition-colors"
-                      >
-                        <span className="text-xs sm:text-sm">{isExpanded ? 'Hide' : 'Details'}</span>
-                        {isExpanded ? (
-                          <ChevronUpIcon className="h-4 w-4" />
-                        ) : (
-                          <ChevronDownIcon className="h-4 w-4" />
-                        )}
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Expandable Details Section */}
-                  <AnimatePresence>
-                    {isExpanded && (
-                      <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: 'auto' }}
-                        exit={{ opacity: 0, height: 0 }}
-                        transition={{ duration: 0.3 }}
-                        className="border-t border-gray-700 pt-4 mt-4 overflow-hidden"
-                      >
-                        {/* Description */}
-                        {assignment.description && (
-                          <div className="mb-4">
-                            <p className="text-sm sm:text-base text-gray-300">{assignment.description}</p>
-                          </div>
-                        )}
-
-                        {/* Detailed Info Grid */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mb-4 sm:mb-6 text-xs sm:text-sm lg:text-[12pt] text-gray-400">
-                          <div>
-                            <span className="text-gray-500">Max Score:</span>
-                            <span className="ml-1 text-gray-300">{assignment.maxScore}</span>
-                          </div>
-                          <div className="sm:hidden">
-                            <span className="text-gray-500">Type:</span>
-                            <span className="ml-1 text-gray-300">{assignment.type}</span>
-                          </div>
-                          <div className="lg:hidden">
-                            <span className="text-gray-500">Section:</span>
-                            <span className="ml-1 text-gray-300">{assignment.section}</span>
-                          </div>
-                          {assignment.difficulty && (
-                            <div className="flex items-center gap-1.5">
-                              <span className="text-gray-500">Difficulty:</span>
-                              <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
-                                assignment.difficulty === 'easy'
-                                  ? 'bg-green-500/20 text-green-400 border border-green-500/30'
-                                  : assignment.difficulty === 'medium'
-                                  ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30'
-                                  : 'bg-red-500/20 text-red-400 border border-red-500/30'
-                              }`}>
-                                {assignment.difficulty.charAt(0).toUpperCase() + assignment.difficulty.slice(1)}
+              return (
+                <motion.div key={a._id} layout className="bg-[#161616] border border-white/5 rounded-xl overflow-hidden hover:border-white/10 transition-colors">
+                  <div className="p-4 sm:p-5">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                      <div className="flex items-start gap-3 flex-1 min-w-0">
+                        <DocumentTextIcon className="h-5 w-5 text-[#CA133E] flex-shrink-0 mt-0.5" />
+                        <div className="flex-1 min-w-0">
+                          <div className="flex flex-wrap items-center gap-2 mb-1.5">
+                            <h3 className="text-white font-semibold text-sm sm:text-base truncate">{a.title}</h3>
+                            <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${statusBadge[s]}`}>{statusLabel[s]}</span>
+                            {a.difficulty && (
+                              <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium border ${difficultyBadge[a.difficulty]}`}>
+                                {a.difficulty[0].toUpperCase() + a.difficulty.slice(1)}
                               </span>
-                            </div>
-                          )}
-                          <div>
-                            <span className="text-gray-500">Created:</span>
-                            <span className="ml-1 text-gray-300">
-                              {new Date(assignment.createdAt).toLocaleDateString()}
-                            </span>
+                            )}
+                          </div>
+                          <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500">
+                            <span>Due: <span className="text-red-400">{new Date(a.dueDate).toLocaleDateString('en-US',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})}</span></span>
+                            <span>Type: <span className="text-gray-300">{a.type}</span></span>
+                            <span className="hidden sm:inline">Section: <span className="text-gray-300">{a.section}</span></span>
                           </div>
                         </div>
+                      </div>
+                      <div className="flex items-center gap-3 flex-shrink-0">
+                        <div className="text-right">
+                          <p className="text-[10px] text-gray-600 mb-0.5">Score</p>
+                          <p className={`text-base font-bold ${scoreColor(a.studentData?.score, a.maxScore)}`}>
+                            {s === 'graded' && a.studentData?.score != null ? `${a.studentData.score}/${a.maxScore}` : `—/${a.maxScore}`}
+                          </p>
+                          {pct != null && <p className={`text-[10px] font-medium ${scoreColor(a.studentData?.score, a.maxScore)}`}>{pct}%</p>}
+                        </div>
+                        <button onClick={() => toggle(a._id)}
+                          className="flex items-center gap-1 px-3 py-1.5 bg-white/5 text-gray-400 rounded-xl hover:bg-white/10 hover:text-white transition-colors text-xs">
+                          {isExp ? 'Hide' : 'Details'}
+                          {isExp ? <ChevronUpIcon className="h-3.5 w-3.5" /> : <ChevronDownIcon className="h-3.5 w-3.5" />}
+                        </button>
+                      </div>
+                    </div>
 
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-                          {/* Instructions */}
-                          <div>
-                            <h4 className="text-sm sm:text-base lg:text-[14pt] font-medium text-white mb-2">Instructions</h4>
-                            <div className="bg-gray-800/70 p-3 sm:p-4 rounded-xl max-h-32 overflow-y-auto">
-                              <p className="text-xs sm:text-sm lg:text-[12pt] text-gray-300">
-                                {assignment.instructions || 'No specific instructions provided.'}
-                              </p>
-                            </div>
+                    <AnimatePresence>
+                      {isExp && (
+                        <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}
+                          exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.25 }}
+                          className="border-t border-white/8 pt-4 mt-4 overflow-hidden">
+                          {a.description && <p className="text-gray-400 text-sm mb-4">{a.description}</p>}
+
+                          <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-2 mb-4 text-xs text-gray-500">
+                            <span>Max Score: <span className="text-gray-300">{a.maxScore}</span></span>
+                            <span>Type: <span className="text-gray-300">{a.type}</span></span>
+                            <span>Section: <span className="text-gray-300">{a.section}</span></span>
+                            <span>Created: <span className="text-gray-300">{new Date(a.createdAt).toLocaleDateString()}</span></span>
                           </div>
 
-                          {/* Submission Section */}
-                          <div>
-                            <h4 className="text-sm sm:text-base lg:text-[14pt] font-medium text-white mb-2">Submission</h4>
-
-                            {/* Show submission status */}
-                            {assignment.studentData?.status === 'graded' ? (
-                              <div className="bg-green-900/40 p-3 sm:p-4 rounded-xl border border-green-700/50">
-                                <div className="flex items-center space-x-2 mb-2">
-                                  <CheckCircleIcon className="h-4 w-4 sm:h-5 sm:w-5 text-green-400" />
-                                  <span className="text-green-300 font-medium text-sm sm:text-base">Assignment Graded</span>
-                                </div>
-                                <div className="space-y-2 text-xs sm:text-sm">
-                                  <div>
-                                    <span className="text-green-400">Score: </span>
-                                    <span className="font-medium text-white">
-                                      {assignment.studentData?.score}/{assignment.maxScore} :
-                                      ({getScorePercentage(assignment.studentData?.score, assignment.maxScore)} %)
-                                    </span>
-                                  </div>
-                                  {assignment.studentData?.feedback && (
-                                    <div>
-                                      <span className="text-green-400">Feedback: </span>
-                                      <p className="text-gray-300 bg-gray-800/70 p-2 rounded mt-1">
-                                        {assignment.studentData.feedback}
-                                      </p>
-                                    </div>
-                                  )}
-                                  {assignment.studentData?.gradedDate && (
-                                    <div>
-                                      <span className="text-green-400">Graded: </span>
-                                      <span className="text-gray-300">
-                                        {new Date(assignment.studentData.gradedDate).toLocaleDateString()}
-                                      </span>
-                                    </div>
-                                  )}
-                                </div>
+                          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                            <div>
+                              <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Instructions</h4>
+                              <div className="bg-[#1A1A1A] p-3 rounded-xl max-h-32 overflow-y-auto">
+                                <p className="text-gray-300 text-xs leading-relaxed">{a.instructions || 'No instructions provided.'}</p>
                               </div>
-                            ) : assignment.studentData?.status === 'submitted' ? (
-                              <div className="bg-blue-900/40 p-3 sm:p-4 rounded-xl border border-blue-700/50">
-                                <div className="flex items-center space-x-2 mb-2">
-                                  <ClockIcon className="h-4 w-4 sm:h-5 sm:w-5 text-blue-400" />
-                                  <span className="text-blue-300 font-medium text-sm sm:text-base">Awaiting Grade</span>
+                            </div>
+                            <div>
+                              <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Submission</h4>
+                              {s === 'graded' ? (
+                                <div className="bg-green-500/10 border border-green-500/20 p-3 rounded-xl">
+                                  <div className="flex items-center gap-2 mb-2"><CheckCircleIcon className="h-4 w-4 text-green-400" /><span className="text-green-400 font-medium text-sm">Graded</span></div>
+                                  <p className="text-xs text-gray-300">Score: <span className="text-white font-bold">{a.studentData?.score}/{a.maxScore} ({pct}%)</span></p>
+                                  {a.studentData?.feedback && <p className="text-xs text-gray-400 mt-1 bg-white/4 p-2 rounded-lg">{a.studentData.feedback}</p>}
                                 </div>
-                                <p className="text-blue-200 text-xs sm:text-sm">
-                                  Submitted on {new Date(assignment.studentData.submissionDate).toLocaleDateString()}
-                                  {assignment.studentData?.isLate && <span className="text-red-400 ml-2">(Late submission)</span>}
-                                </p>
-                              </div>
-                            ) : (
-                              /* Upload Section */
-                              readonly ? (
-                                <div className="p-4 rounded-xl border border-gray-700 bg-gray-800/50 text-sm text-gray-300">
-                                  Not submitted yet.
+                              ) : s === 'submitted' ? (
+                                <div className="bg-blue-500/10 border border-blue-500/20 p-3 rounded-xl">
+                                  <div className="flex items-center gap-2 mb-1"><ClockIcon className="h-4 w-4 text-blue-400" /><span className="text-blue-400 font-medium text-sm">Awaiting Grade</span></div>
+                                  <p className="text-xs text-gray-400">Submitted {new Date(a.studentData.submissionDate).toLocaleDateString()}{a.studentData?.isLate && <span className="text-red-400 ml-1">(Late)</span>}</p>
                                 </div>
+                              ) : readonly ? (
+                                <div className="bg-white/4 border border-white/8 p-3 rounded-xl text-xs text-gray-500">Not submitted yet.</div>
                               ) : (
-                                <div className="border-2 border-dashed border-gray-600 rounded-xl p-4 sm:p-6 text-center">
-                                  <CloudArrowUpIcon className="h-10 w-10 sm:h-12 sm:w-12 text-gray-500 mx-auto mb-4" />
-                                  <p className="text-gray-400 mb-4 text-sm sm:text-base">Upload your assignment files</p>
-
-                                  <input
-                                    type="file"
-                                    multiple
-                                    onChange={(e) => handleFileChange(assignment._id, e.target.files)}
-                                    className="hidden"
-                                    id={`file-${assignment._id}`}
-                                    accept=".pdf,.doc,.docx,.txt,.jpg,.png"
-                                  />
-                                  <label
-                                    htmlFor={`file-${assignment._id}`}
-                                    className="inline-flex items-center space-x-2 px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 cursor-pointer transition-colors text-sm sm:text-base"
-                                  >
-                                    <PaperClipIcon className="h-4 w-4 sm:h-5 sm:w-5" />
-                                    <span>Choose Files</span>
+                                <div className="border-2 border-dashed border-white/10 rounded-xl p-4 text-center">
+                                  <CloudArrowUpIcon className="h-8 w-8 text-gray-600 mx-auto mb-2" />
+                                  <p className="text-gray-500 text-xs mb-3">Upload your assignment files</p>
+                                  <input type="file" multiple onChange={e => setFiles(p => ({...p,[a._id]:Array.from(e.target.files)}))}
+                                    className="hidden" id={`file-${a._id}`} accept=".pdf,.doc,.docx,.txt,.jpg,.png" />
+                                  <label htmlFor={`file-${a._id}`}
+                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/8 text-gray-300 border border-white/10 rounded-xl cursor-pointer hover:bg-white/15 transition-colors text-xs">
+                                    <PaperClipIcon className="h-3.5 w-3.5" />Choose Files
                                   </label>
-
-                                  {selectedFiles[assignment._id] && selectedFiles[assignment._id].length > 0 && (
-                                    <div className="mt-4">
-                                      <p className="text-xs sm:text-sm text-gray-400 mb-2">Selected files:</p>
-                                      <div className="space-y-1">
-                                        {selectedFiles[assignment._id].map((file, index) => (
-                                          <div key={index} className="text-xs sm:text-sm text-blue-300 bg-blue-900/30 px-2 py-1 rounded">
-                                            {file.name} ({(file.size / 1024).toFixed(1)} KB)
-                                          </div>
-                                        ))}
-                                      </div>
-                                      <button
-                                        onClick={() => submitAssignment(assignment._id)}
-                                        disabled={submitting}
-                                        className="mt-3 px-3 sm:px-4 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 disabled:opacity-50 transition-colors text-sm sm:text-base w-full sm:w-auto"
-                                      >
-                                        {submitting ? 'Submitting...' : 'Submit Assignment'}
+                                  {files[a._id]?.length > 0 && (
+                                    <div className="mt-3 space-y-1">
+                                      {files[a._id].map((f, i) => (
+                                        <div key={i} className="text-[10px] text-blue-400 bg-blue-500/10 px-2 py-1 rounded-lg">{f.name}</div>
+                                      ))}
+                                      <button onClick={() => submit(a._id)} disabled={submitting}
+                                        className="mt-2 w-full py-1.5 bg-[#CA133E] text-white rounded-xl text-xs font-medium hover:bg-[#A01030] disabled:opacity-50 transition-colors">
+                                        {submitting ? 'Submitting…' : 'Submit Assignment'}
                                       </button>
                                     </div>
                                   )}
-
-                                  <p className="text-xs text-gray-500 mt-4">
-                                    Supported formats: PDF, DOC, DOCX, TXT, JPG, PNG
-                                  </p>
+                                  <p className="text-[10px] text-gray-700 mt-2">PDF, DOC, DOCX, TXT, JPG, PNG</p>
                                 </div>
-                              )
-                            )}
+                              )}
+                            </div>
                           </div>
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              </motion.div>
-            );
-          })
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
         )}
       </div>
-    </div>
 
-    {/* Submission result modal */}
-    <AnimatePresence>
-
-      {successModal.open && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            className="bg-gray-900/95 border border-gray-700 rounded-xl shadow-2xl max-w-md w-full p-6 text-center"
-          >
-            <div className={`mx-auto h-16 w-16 rounded-full flex items-center justify-center mb-4 ${
-              successModal.isError ? 'bg-red-500/20' : 'bg-green-500/20'
-            }`}>
-              {successModal.isError ? (
-                <XCircleIcon className="h-9 w-9 text-red-400" />
-              ) : (
-                <CheckCircleIcon className="h-9 w-9 text-green-400" />
-              )}
-            </div>
-
-            <h3 className={`text-xl font-bold mb-2 ${successModal.isError ? 'text-red-300' : 'text-green-300'}`}>
-              {successModal.title}
-            </h3>
-
-            <p className="text-gray-300 text-sm leading-relaxed mb-1">
-              {successModal.message}
-            </p>
-
-            {!successModal.isError && successModal.filesCount > 0 && (
-              <p className="text-gray-500 text-xs mt-2">
-                {successModal.filesCount} file{successModal.filesCount > 1 ? 's' : ''} uploaded successfully
-              </p>
-            )}
-
-            <button
-              onClick={() => setSuccessModal({ open: false, title: '', message: '' })}
-              className={`mt-6 w-full py-3 rounded-xl font-semibold text-white transition-colors ${
-                successModal.isError
-                  ? 'bg-red-600 hover:bg-red-700'
-                  : 'bg-green-600 hover:bg-green-700'
-              }`}
-            >
-              {successModal.isError ? 'Try Again' : 'Done'}
-            </button>
-          </motion.div>
-        </div>
-      )}
-    </AnimatePresence>
+      {/* Result modal */}
+      <AnimatePresence>
+        {modal.open && (
+          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-[#161616] border border-white/10 rounded-xl shadow-2xl max-w-sm w-full p-6 text-center">
+              <div className={`w-14 h-14 rounded-full mx-auto mb-4 flex items-center justify-center ${modal.isError ? 'bg-red-500/15' : 'bg-green-500/15'}`}>
+                {modal.isError ? <XCircleIcon className="h-8 w-8 text-red-400" /> : <CheckCircleIcon className="h-8 w-8 text-green-400" />}
+              </div>
+              <h3 className={`text-lg font-bold mb-2 ${modal.isError ? 'text-red-400' : 'text-green-400'}`}>{modal.title}</h3>
+              <p className="text-gray-400 text-sm mb-1">{modal.message}</p>
+              {!modal.isError && modal.filesCount > 0 && <p className="text-gray-600 text-xs">{modal.filesCount} file{modal.filesCount > 1 ? 's' : ''} uploaded</p>}
+              <button onClick={() => setModal({ open: false, title: '', message: '' })}
+                className={`mt-5 w-full py-2.5 rounded-xl font-semibold text-white text-sm transition-colors ${modal.isError ? 'bg-red-600 hover:bg-red-700' : 'bg-green-600 hover:bg-green-700'}`}>
+                {modal.isError ? 'Try Again' : 'Done'}
+              </button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </>
   );
 };
 
-export default AssignmentsTab; 
+export default AssignmentsTab;

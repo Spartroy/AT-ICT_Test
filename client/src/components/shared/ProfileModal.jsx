@@ -98,7 +98,7 @@ const ProfileModal = ({ user, onClose }) => {
         initial={{ opacity: 0, scale: 0.95, y: -16 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: -16 }}
-        className="bg-gray-900 border border-white/15 rounded-2xl shadow-2xl w-full max-w-md"
+        className="bg-[#161616] border border-white/10 rounded-2xl w-full max-w-md"
       >
         {/* Header */}
         <div className="flex items-center justify-between p-5 border-b border-white/10">
