@@ -24,7 +24,7 @@ export const TestimonialsStrip = () => {
   };
 
   return (
-    <section className="py-20 bg-[#1a1a1a] text-white">
+    <section className="py-24 bg-[#0d0d0d] text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -36,11 +36,11 @@ export const TestimonialsStrip = () => {
           <span className="inline-block bg-[#CA133E]/15 text-[#CA133E] text-xs font-semibold uppercase tracking-wider px-3 py-1 rounded-full mb-4">
             Student stories
           </span>
-          <h2 className="font-display font-bold text-3xl md:text-4xl mb-3" style={{ letterSpacing: '-0.02em' }}>
+          <h2 className="font-display font-black text-4xl md:text-5xl lg:text-6xl mb-3" style={{ letterSpacing: '-0.02em' }}>
             Stories from <span className="text-[#CA133E]">our students</span>
           </h2>
-          <p className="text-gray-300 max-w-2xl mx-auto">
-            Real students, real results. Swipe through their experiences with AT-ICT.
+          <p className="text-gray-400 max-w-2xl mx-auto">
+            Real students, real results.
           </p>
         </motion.div>
 
@@ -76,13 +76,25 @@ export const TestimonialsStrip = () => {
             {stories.map((story, idx) => (
               <div
                 key={story._id || `${story.name}-${idx}`}
-                className="min-w-full snap-center bg-[#161616] border border-white/10 rounded-xl p-6 sm:p-8"
+                className="min-w-full snap-center rounded-2xl p-6 sm:p-8"
+                style={{
+                  background: 'rgba(60,8,18,0.85)',
+                  border: '1px solid rgba(202,19,62,0.25)',
+                }}
               >
-                <Quote className="text-[#CA133E] mb-3" size={24} />
-                <p className="text-gray-200 leading-relaxed mb-4 text-sm">"{story.text}"</p>
-                <div>
-                  <p className="font-semibold">{story.name}</p>
-                  <p className="text-xs text-[#CA133E]">{story.country}</p>
+                <Quote className="text-[#CA133E] mb-4" size={28} />
+                <p className="text-gray-100 leading-relaxed mb-6 text-base">{story.text}</p>
+                <div className="flex items-center gap-3">
+                  <div
+                    className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-base flex-shrink-0"
+                    style={{ background: '#CA133E' }}
+                  >
+                    {story.name?.[0] || '?'}
+                  </div>
+                  <div>
+                    <p className="font-semibold text-white text-sm">{story.name}</p>
+                    <p className="text-xs text-[#CA133E]">{story.country}</p>
+                  </div>
                 </div>
               </div>
             ))}
