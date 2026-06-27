@@ -35,11 +35,6 @@ const StudentManagement = () => {
   const [showModal, setShowModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingStudent, setEditingStudent] = useState(null);
-  const [showLegacyModal, setShowLegacyModal] = useState(false);
-  const [legacyStudent, setLegacyStudent] = useState({
-    studentId: '',
-    royalClass: ''
-  });
   const [unclassifiedStudents, setUnclassifiedStudents] = useState([]);
   const [activeTab, setActiveTab] = useState('summary');
   const [attendance, setAttendance] = useState({ summary: null, records: [] });
@@ -96,11 +91,6 @@ const StudentManagement = () => {
     fetchStudents();
   }, [filters, pagination.current]);
 
-  useEffect(() => {
-    if (showLegacyModal) {
-      fetchUnclassifiedStudents();
-    }
-  }, [showLegacyModal]);
 
   const fetchUnclassifiedStudents = async () => {
     try {
@@ -360,39 +350,6 @@ const StudentManagement = () => {
     setShowDeleteModal(true);
   };
 
-  const handleLegacyStudentSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(API_ENDPOINTS.TEACHER.ADD_LEGACY_STUDENT, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(legacyStudent)
-      });
-
-      const data = await response.json();
-
-      if (data.status === 'success') {
-        showOperationToast('Student classified successfully!');
-        setShowLegacyModal(false);
-        setLegacyStudent({
-          studentId: '',
-          royalClass: ''
-        });
-        fetchStudents();
-        fetchUnclassifiedStudents();
-      } else {
-        showError(data.message || 'Failed to classify student');
-      }
-    } catch (error) {
-      console.error('Classify student error:', error);
-      showError('Failed to classify student');
-    }
-  };
-
   const fetchStudentPayments = async (studentId) => {
     setPaymentsLoading(true);
     try {
@@ -593,13 +550,6 @@ const StudentManagement = () => {
             <PlusCircleIcon className="h-4 w-4" />
             Add New Student
           </Link>
-          <button
-            onClick={() => setShowLegacyModal(true)}
-            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-xl text-sm font-medium transition-colors duration-200 flex items-center gap-2"
-          >
-            <UserIcon className="h-4 w-4" />
-            Add Legacy Student
-          </button>
           <div className="bg-blue-500/30 text-blue-300 px-3 py-1 rounded-full text-sm font-medium">
             {pagination.total} Students
           </div>
@@ -1860,88 +1810,6 @@ const StudentManagement = () => {
         )}
       </AnimatePresence>
 
-      {/* Legacy Student Modal */}
-      <AnimatePresence>
-        {showLegacyModal && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              className="bg-[#1A1A1A] rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto"
-            >
-              <div className="p-6 border-b border-white/5">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-xl font-bold text-white">Classify Student</h3>
-                  <button
-                    onClick={() => setShowLegacyModal(false)}
-                    className="text-gray-400 hover:text-white transition-colors"
-                  >
-                    <XCircleIcon className="h-6 w-6" />
-                  </button>
-                </div>
-                <p className="text-gray-400 text-sm mt-1">
-                  Assign existing students to Royal College classes (9H or 9J)
-                </p>
-              </div>
-
-              <form onSubmit={handleLegacyStudentSubmit} className="p-6 space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-400 mb-2">Select Student *</label>
-                  <select
-                    required
-                    className="w-full px-3 py-2 border border-white/10 rounded-xl bg-[#161616] text-white focus:outline-none focus:border-[#CA133E] transition-colors"
-                    value={legacyStudent.studentId}
-                    onChange={(e) => setLegacyStudent({ ...legacyStudent, studentId: e.target.value })}
-                  >
-                    <option value="">Select a student to classify</option>
-                    {unclassifiedStudents.map((student) => (
-                      <option key={student._id} value={student._id}>
-                        {student.firstName} {student.lastName} ({student.email})
-                      </option>
-                    ))}
-                  </select>
-                  {unclassifiedStudents.length === 0 && (
-                    <p className="text-gray-400 text-sm mt-2">No unclassified students found</p>
-                  )}
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-400 mb-2">Assign to Royal Class *</label>
-                  <select
-                    required
-                    className="w-full px-3 py-2 border border-white/10 rounded-xl bg-[#161616] text-white focus:outline-none focus:border-[#CA133E] transition-colors"
-                    value={legacyStudent.royalClass}
-                    onChange={(e) => setLegacyStudent({ ...legacyStudent, royalClass: e.target.value })}
-                  >
-                    <option value="">Select Class</option>
-                    <option value="9H">9H</option>
-                    <option value="9J">9J</option>
-                  </select>
-                </div>
-
-                <div className="flex justify-end space-x-3 pt-4">
-                  <button
-                    type="button"
-                    onClick={() => setShowLegacyModal(false)}
-                    className="px-4 py-2 bg-white/5 rounded-xl hover:bg-gray-600 transition-colors"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={!legacyStudent.studentId || !legacyStudent.royalClass}
-                    className="px-4 py-2 bg-green-600 rounded-xl hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-2"
-                  >
-                    <UserIcon className="h-4 w-4" />
-                    <span>Classify Student</span>
-                  </button>
-                </div>
-              </form>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
     </div>
   );
 };

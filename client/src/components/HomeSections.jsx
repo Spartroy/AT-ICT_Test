@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   ChevronRight,
   Quote,
@@ -22,6 +22,12 @@ export const TestimonialsStrip = () => {
   const goNext = () => {
     setActiveIndex((prev) => (prev === stories.length - 1 ? 0 : prev + 1));
   };
+
+  useEffect(() => {
+    if (stories.length < 2) return;
+    const timer = setInterval(goNext, 30_000);
+    return () => clearInterval(timer);
+  }, [stories.length, activeIndex]);
 
   return (
     <section className="py-24 bg-[#0d0d0d] text-white">
@@ -64,41 +70,38 @@ export const TestimonialsStrip = () => {
           </button>
         </div>
 
-        <div
-          className="overflow-hidden"
-          aria-live="polite"
-          aria-atomic="true"
-        >
-          <div
-            className="flex transition-transform duration-300"
-            style={{ transform: `translateX(-${activeIndex * 100}%)` }}
-          >
-            {stories.map((story, idx) => (
-              <div
-                key={story._id || `${story.name}-${idx}`}
-                className="min-w-full snap-center rounded-2xl p-6 sm:p-8"
+        <div aria-live="polite" aria-atomic="true">
+          <AnimatePresence mode="wait">
+            {stories[activeIndex] && (
+              <motion.div
+                key={stories[activeIndex]._id || activeIndex}
+                initial={{ opacity: 0, x: 30 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -30 }}
+                transition={{ duration: 0.4, ease: 'easeOut' }}
+                className="rounded-2xl p-6 sm:p-8"
                 style={{
                   background: 'rgba(60,8,18,0.85)',
                   border: '1px solid rgba(202,19,62,0.25)',
                 }}
               >
                 <Quote className="text-[#CA133E] mb-4" size={28} />
-                <p className="text-gray-100 leading-relaxed mb-6 text-base">{story.text}</p>
+                <p className="text-gray-100 leading-relaxed mb-6 text-base">{stories[activeIndex].text}</p>
                 <div className="flex items-center gap-3">
                   <div
                     className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-base flex-shrink-0"
                     style={{ background: '#CA133E' }}
                   >
-                    {story.name?.[0] || '?'}
+                    {stories[activeIndex].name?.[0] || '?'}
                   </div>
                   <div>
-                    <p className="font-semibold text-white text-sm">{story.name}</p>
-                    <p className="text-xs text-[#CA133E]">{story.country}</p>
+                    <p className="font-semibold text-white text-sm">{stories[activeIndex].name}</p>
+                    <p className="text-xs text-[#CA133E]">{stories[activeIndex].country}</p>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
     </section>

@@ -67,15 +67,14 @@ const TYPE_CFG = {
 };
 
 /* ─── BookCard ───────────────────────────────────────────────────────────────── */
-const BookCard = ({ material, index, onPreview, onDownload, onOpenExternal, isDownloading }) => {
+const BookCard = ({ material, index, onPreview, onDownload, isDownloading }) => {
   const cfg       = TYPE_CFG[material.type] || TYPE_CFG.other;
   const hasFile   = !!(material.cloudinaryPublicId || material.fileUrl);
   const isPdf     = !!material.mimeType?.includes('pdf');
   const hasPreview = hasFile && isPdf;
 
   const handleCardClick = () => {
-    if (hasPreview)                onPreview(material);
-    else if (material.externalUrl) onOpenExternal(material);
+    if (hasPreview || material.externalUrl) onPreview(material);
   };
 
   return (
@@ -156,9 +155,9 @@ const BookCard = ({ material, index, onPreview, onDownload, onOpenExternal, isDo
                 </button>
               )}
               {material.externalUrl ? (
-                <button onClick={e => { e.stopPropagation(); onOpenExternal(material); }}
-                  className={`${hasPreview ? 'flex-1' : 'w-full'} flex items-center justify-center gap-1 py-1.5 rounded-lg text-[10px] font-semibold bg-violet-500/15 hover:bg-violet-500/25 text-violet-300 border border-violet-500/20 transition-all`}>
-                  <ArrowTopRightOnSquareIcon className="h-3 w-3" />Open
+                <button onClick={e => { e.stopPropagation(); onPreview(material); }}
+                  className={`${hasPreview ? 'flex-1' : 'w-full'} flex items-center justify-center gap-1 py-1.5 rounded-lg text-[10px] font-semibold bg-blue-500/15 hover:bg-blue-500/25 text-blue-300 border border-blue-500/20 transition-all`}>
+                  <EyeIcon className="h-3 w-3" />View
                 </button>
               ) : hasFile ? (
                 <button onClick={e => { e.stopPropagation(); onDownload(material); }} disabled={isDownloading}
@@ -180,12 +179,35 @@ const BookCard = ({ material, index, onPreview, onDownload, onOpenExternal, isDo
   );
 };
 
+/* ─── Drive URL helpers ──────────────────────────────────────────────────────── */
+const toDriveEmbed = (url = '') => {
+  // Convert any drive share/view URL to the /preview embed URL
+  const m = url.match(/\/d\/([^/?#]+)/);
+  if (m) return `https://drive.google.com/file/d/${m[1]}/preview`;
+  return url.includes('/view') ? url.replace('/view', '/preview') : url;
+};
+const isDriveUrl = (url = '') => url.includes('drive.google.com');
+
 /* ─── PreviewModal ───────────────────────────────────────────────────────────── */
-const PreviewModal = ({ material, blobUrl, loading, previewError, onClose, onDownload, isFullscreen, onToggleFullscreen }) => {
+const PreviewModal = ({
+  material, blobUrl, loading, previewError, onClose, onDownload,
+  isFullscreen, onToggleFullscreen, siblings = [], onNavigate,
+}) => {
+  const [slideDir, setSlideDir] = React.useState(0); // -1 prev, 1 next
   if (!material) return null;
-  const cfg    = TYPE_CFG[material.type] || TYPE_CFG.other;
-  const isPdf  = !!material.mimeType?.includes('pdf');
+  const cfg     = TYPE_CFG[material.type] || TYPE_CFG.other;
+  const isPdf   = !!material.mimeType?.includes('pdf');
   const hasFile = !!(material.cloudinaryPublicId || material.fileUrl);
+  const isDrive = isDriveUrl(material.externalUrl || '');
+  const driveEmbed = isDrive ? toDriveEmbed(material.externalUrl) : null;
+  const sibIdx  = siblings.findIndex(m => m._id === material._id);
+  const hasPrev = sibIdx > 0;
+  const hasNext = sibIdx < siblings.length - 1;
+
+  const go = (dir) => {
+    if (dir === -1 && hasPrev) { setSlideDir(-1); onNavigate(siblings[sibIdx - 1]); }
+    if (dir ===  1 && hasNext) { setSlideDir(1);  onNavigate(siblings[sibIdx + 1]); }
+  };
 
   return (
     <motion.div
@@ -206,15 +228,39 @@ const PreviewModal = ({ material, blobUrl, loading, previewError, onClose, onDow
         {/* Header */}
         <div className="flex items-center justify-between gap-3 px-4 py-3 border-b border-white/5 bg-[#1A1A1A] flex-shrink-0">
           <div className="flex items-center gap-3 min-w-0">
+            {/* prev/next arrows */}
+            {siblings.length > 1 && (
+              <div className="flex gap-1 flex-shrink-0">
+                <button disabled={!hasPrev} onClick={() => go(-1)}
+                  className="p-1.5 rounded-lg text-gray-500 hover:text-white hover:bg-white/8 disabled:opacity-30 disabled:cursor-not-allowed transition-all">
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+                </button>
+                <button disabled={!hasNext} onClick={() => go(1)}
+                  className="p-1.5 rounded-lg text-gray-500 hover:text-white hover:bg-white/8 disabled:opacity-30 disabled:cursor-not-allowed transition-all">
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                </button>
+              </div>
+            )}
             <div className={`flex-shrink-0 w-8 h-8 rounded-lg bg-gradient-to-br ${cfg.coverGradient} flex items-center justify-center shadow-sm`}>
               {React.createElement(cfg.icon, { className: 'h-4 w-4 text-white' })}
             </div>
             <div className="min-w-0">
               <p className="text-sm font-bold text-white truncate">{material.title}</p>
-              <span className={`text-[9px] font-bold uppercase tracking-wider border px-1.5 py-0.5 rounded ${cfg.badge}`}>{cfg.label}</span>
+              <div className="flex items-center gap-2">
+                <span className={`text-[9px] font-bold uppercase tracking-wider border px-1.5 py-0.5 rounded ${cfg.badge}`}>{cfg.label}</span>
+                {siblings.length > 1 && (
+                  <span className="text-[9px] text-gray-500">{sibIdx + 1} / {siblings.length}</span>
+                )}
+              </div>
             </div>
           </div>
           <div className="flex items-center gap-1.5 flex-shrink-0">
+            {isDrive && (
+              <a href={material.externalUrl} target="_blank" rel="noopener noreferrer"
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-500/15 hover:bg-blue-500/25 text-blue-300 border border-blue-500/20 rounded-lg text-xs font-semibold transition-all">
+                <ArrowTopRightOnSquareIcon className="h-3.5 w-3.5" />Drive
+              </a>
+            )}
             {!material.externalUrl && hasFile && (
               <button onClick={() => onDownload(material)}
                 className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/20 rounded-lg text-xs font-semibold transition-all">
@@ -231,43 +277,71 @@ const PreviewModal = ({ material, blobUrl, loading, previewError, onClose, onDow
           </div>
         </div>
 
-        {/* Content */}
-        <div className="flex-1 relative bg-black/50 overflow-hidden">
-          {loading && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 z-10">
-              <div className="w-10 h-10 border-4 border-white/10 border-t-[#CA133E] rounded-full animate-spin" />
-              <p className="text-gray-400 text-sm">Loading preview…</p>
-            </div>
-          )}
-          {!loading && previewError && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 px-8 text-center">
-              <ExclamationCircleIcon className="h-12 w-12 text-red-400" />
-              <p className="text-white font-semibold">Could not load preview</p>
-              <p className="text-gray-400 text-sm">{previewError}</p>
-              {hasFile && (
-                <button onClick={() => onDownload(material)}
-                  className="flex items-center gap-2 px-6 py-2.5 mt-2 bg-[#CA133E] hover:bg-[#A01030] text-white rounded-xl font-semibold transition-colors">
-                  <ArrowDownTrayIcon className="h-4 w-4" />Download instead
-                </button>
+        {/* Content — slide animation between materials */}
+        <div className="flex-1 relative bg-[#0a0a0a] overflow-hidden">
+          <AnimatePresence mode="wait" custom={slideDir}>
+            <motion.div
+              key={material._id}
+              custom={slideDir}
+              initial={{ x: slideDir * 60, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: slideDir * -60, opacity: 0 }}
+              transition={{ duration: 0.28, ease: 'easeOut' }}
+              className="absolute inset-0"
+            >
+              {loading && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 z-10">
+                  <div className="w-10 h-10 border-4 border-white/10 border-t-[#CA133E] rounded-full animate-spin" />
+                  <p className="text-gray-400 text-sm">Loading…</p>
+                </div>
               )}
-            </div>
-          )}
-          {!loading && !previewError && isPdf && blobUrl && (
-            <iframe src={blobUrl} title={material.title} className="absolute inset-0 w-full h-full border-0" allow="fullscreen" />
-          )}
-          {!loading && !previewError && !isPdf && hasFile && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-5 px-8 text-center">
-              <div className="text-7xl select-none">{getFileEmoji(material.mimeType)}</div>
-              <div>
-                <p className="text-white font-bold text-lg mb-1">{material.title}</p>
-                <p className="text-gray-400 text-sm">Preview is not available for this file type.</p>
-              </div>
-              <button onClick={() => onDownload(material)}
-                className="flex items-center gap-2 px-6 py-2.5 bg-[#CA133E] hover:bg-[#A01030] text-white rounded-xl font-semibold transition-colors shadow-lg">
-                <ArrowDownTrayIcon className="h-4 w-4" />Download to view
-              </button>
-            </div>
-          )}
+
+              {/* Google Drive embed */}
+              {!loading && isDrive && driveEmbed && (
+                <iframe
+                  src={driveEmbed}
+                  title={material.title}
+                  className="absolute inset-0 w-full h-full border-0"
+                  allow="autoplay; fullscreen"
+                />
+              )}
+
+              {/* Server blob PDF */}
+              {!loading && !isDrive && isPdf && blobUrl && (
+                <iframe src={blobUrl} title={material.title} className="absolute inset-0 w-full h-full border-0" allow="fullscreen" />
+              )}
+
+              {/* Error */}
+              {!loading && previewError && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 px-8 text-center">
+                  <ExclamationCircleIcon className="h-12 w-12 text-red-400" />
+                  <p className="text-white font-semibold">Could not load preview</p>
+                  <p className="text-gray-400 text-sm">{previewError}</p>
+                  {hasFile && (
+                    <button onClick={() => onDownload(material)}
+                      className="flex items-center gap-2 px-6 py-2.5 mt-2 bg-[#CA133E] hover:bg-[#A01030] text-white rounded-xl font-semibold transition-colors">
+                      <ArrowDownTrayIcon className="h-4 w-4" />Download instead
+                    </button>
+                  )}
+                </div>
+              )}
+
+              {/* Non-PDF server file */}
+              {!loading && !isDrive && !previewError && !isPdf && hasFile && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-5 px-8 text-center">
+                  <div className="text-7xl select-none">{getFileEmoji(material.mimeType)}</div>
+                  <div>
+                    <p className="text-white font-bold text-lg mb-1">{material.title}</p>
+                    <p className="text-gray-400 text-sm">Preview unavailable — download to view.</p>
+                  </div>
+                  <button onClick={() => onDownload(material)}
+                    className="flex items-center gap-2 px-6 py-2.5 bg-[#CA133E] hover:bg-[#A01030] text-white rounded-xl font-semibold transition-colors shadow-lg">
+                    <ArrowDownTrayIcon className="h-4 w-4" />Download to view
+                  </button>
+                </div>
+              )}
+            </motion.div>
+          </AnimatePresence>
         </div>
       </motion.div>
     </motion.div>
@@ -345,16 +419,11 @@ const MaterialsTab = ({ studentData }) => {
     }
   };
 
-  const handleOpenExternal = (material) => {
-    const url = material.externalUrl?.includes('/view')
-      ? material.externalUrl.replace('/view', '/preview')
-      : material.externalUrl;
-    window.open(url, '_blank', 'noopener,noreferrer');
-  };
-
   const openPreview = async (material) => {
     if (previewBlobUrl) { URL.revokeObjectURL(previewBlobUrl); setPreviewBlobUrl(null); }
     setPreviewMaterial(material); setShowPreviewModal(true); setIsFullscreen(false); setPreviewError('');
+    // Google Drive — no blob needed, iframe handles it
+    if (material.externalUrl?.includes('drive.google.com')) return;
     if (material.mimeType?.includes('pdf')) {
       setPreviewLoading(true);
       try {
@@ -366,6 +435,10 @@ const MaterialsTab = ({ studentData }) => {
         setPreviewLoading(false);
       }
     }
+  };
+
+  const handleNavigateMaterial = (material) => {
+    openPreview(material);
   };
 
   const closePreview = () => {
@@ -488,7 +561,6 @@ const MaterialsTab = ({ studentData }) => {
               index={index}
               onPreview={openPreview}
               onDownload={handleDownload}
-              onOpenExternal={handleOpenExternal}
               isDownloading={downloading === material._id}
             />
           ))}
@@ -506,6 +578,8 @@ const MaterialsTab = ({ studentData }) => {
             onDownload={handleDownload}
             isFullscreen={isFullscreen}
             onToggleFullscreen={() => setIsFullscreen(f => !f)}
+            siblings={filteredMaterials}
+            onNavigate={handleNavigateMaterial}
           />
         )}
       </AnimatePresence>

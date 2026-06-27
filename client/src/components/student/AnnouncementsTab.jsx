@@ -56,7 +56,8 @@ const AnnouncementsTab = ({ studentData }) => {
     fetchAnnouncements();
     const socket = io(API_ENDPOINTS.BASE_URL);
     socket.on('new_announcement', (a) => setAnnouncements(prev => [a, ...prev]));
-    return () => socket.disconnect();
+    const poll = setInterval(fetchAnnouncements, 60_000);
+    return () => { socket.disconnect(); clearInterval(poll); };
   }, []);
 
   const fetchAnnouncements = async () => {

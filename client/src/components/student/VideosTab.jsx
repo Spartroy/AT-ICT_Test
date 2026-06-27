@@ -38,6 +38,21 @@ const PROG = {
   SharePoint: { hex: '#818cf8', btn: 'bg-indigo-600  hover:bg-indigo-700',grad: 'from-indigo-900/40  via-indigo-800/30  to-transparent' },
 };
 
+/* ─── Node colour palette (one per video, cycles) ───────────────────────────────── */
+const NODE_PALETTE = [
+  '#3b82f6', // blue
+  '#8b5cf6', // violet
+  '#ec4899', // pink
+  '#f97316', // orange
+  '#22c55e', // emerald
+  '#14b8a6', // teal
+  '#f59e0b', // amber
+  '#06b6d4', // cyan
+  '#a855f7', // purple
+  '#ef4444', // red
+];
+const nodeColor = (i, base) => NODE_PALETTE[i % NODE_PALETTE.length] ?? base;
+
 /* ─── Duolingo winding-path map ─────────────────────────────────────────────────── */
 const DuolingoPath = ({ videos = [], onPlay, color = '#3b82f6', sublabel = null }) => {
   if (!videos.length) return (
@@ -71,15 +86,16 @@ const DuolingoPath = ({ videos = [], onPlay, color = '#3b82f6', sublabel = null 
         </svg>
         {positions.map(({ cx, cy }, i) => {
           const video = videos[i];
+          const nc    = nodeColor(i, color);
           return (
             <div key={video._id || i} className="absolute" style={{ left: cx - NODE_R, top: cy - NODE_R }}>
               {i === 0 && (
-                <span className="absolute inset-0 rounded-full animate-ping pointer-events-none" style={{ background: `${color}22`, animationDuration: '2.5s' }} />
+                <span className="absolute inset-0 rounded-full animate-ping pointer-events-none" style={{ background: `${nc}22`, animationDuration: '2.5s' }} />
               )}
               <button
                 onClick={() => onPlay(video)}
                 className="relative flex items-center justify-center rounded-full transition-all duration-200 hover:scale-110 active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
-                style={{ width: diam, height: diam, background: `linear-gradient(145deg, ${color}, ${color}bb)`, border: `3px solid ${color}70`, boxShadow: `0 0 20px ${color}45, 0 4px 16px rgba(0,0,0,0.5)` }}
+                style={{ width: diam, height: diam, background: `linear-gradient(145deg, ${nc}, ${nc}bb)`, border: `3px solid ${nc}70`, boxShadow: `0 0 20px ${nc}45, 0 4px 16px rgba(0,0,0,0.5)` }}
                 aria-label={`Play: ${video.title}`}
               >
                 <PlayIcon className="h-6 w-6 text-white drop-shadow" />

@@ -133,6 +133,7 @@ const CatchupGenerator = () => {
   const [jd,   setJd]   = useState('');
   const [spd,  setSpd]  = useState(2);
   const [show, setShow] = useState(false);
+  const [step, setStep] = useState(1); // 1 = input, 2 = results
 
   const R = useMemo(() => {
     if (!cs || !ed || !jd) return null;
@@ -155,23 +156,29 @@ const CatchupGenerator = () => {
   }, [cs, ed, jd, spd]);
 
   const ready = cs && ed && jd;
-  const inputCls = "w-full px-4 py-2.5 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-600 focus:border-[#CA133E] focus:outline-none text-sm";
-  const labelCls = "block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2";
+  const pct   = R && !R.error ? Math.round((R.progress / TOTAL) * 100) : 0;
+
+  const inputCls = "w-full px-4 py-3 bg-[#1a1a1a] border border-white/10 rounded-xl text-white placeholder-gray-600 focus:border-[#CA133E] focus:outline-none text-sm transition-colors";
+  const labelCls = "block text-xs font-semibold text-gray-400 uppercase tracking-widest mb-2";
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div>
-          <h2 className="text-xl font-bold text-white flex items-center gap-3">
-            <SparklesIcon className="h-7 w-7 text-[#CA133E]" />
-            Catchup Generator
-          </h2>
-          <p className="text-gray-400 text-sm mt-1">
-            Late-joiner rescheduler — calculates personalised catch-up plans against the full ICT curriculum
+    <div className="space-y-6 max-w-4xl">
+
+      {/* ── Page header ─────────────────────────────────────────────────── */}
+      <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+        <div className="flex-1">
+          <div className="flex items-center gap-3 mb-1">
+            <div className="w-9 h-9 rounded-xl bg-[#CA133E]/15 border border-[#CA133E]/30 flex items-center justify-center flex-shrink-0">
+              <SparklesIcon className="h-5 w-5 text-[#CA133E]" />
+            </div>
+            <h2 className="text-xl font-bold text-white">Late-Joiner Catch-Up Planner</h2>
+          </div>
+          <p className="text-gray-500 text-sm ml-12">
+            Enter three dates and get a day-by-day catch-up schedule built against the full ICT curriculum.
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        {/* legend */}
+        <div className="flex items-center gap-2 flex-shrink-0">
           {['chapter', 'lab', 'quiz'].map(t => {
             const c = TYPE_CFG[t];
             return (
@@ -184,199 +191,241 @@ const CatchupGenerator = () => {
         </div>
       </div>
 
-      {/* Input card */}
-      <div className="bg-white/5 border border-white/15 rounded-2xl p-6 lg:p-8 space-y-6">
-        <p className="text-xs font-bold text-[#CA133E] uppercase tracking-widest">Input Parameters</p>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          <div>
-            <label className={labelCls}>Course Start Date</label>
-            <input type="date" value={cs} onChange={e => { setCs(e.target.value); setShow(false); }} className={inputCls} />
-            <p className="text-gray-500 text-xs mt-1.5">When did the group first meet?</p>
-          </div>
-          <div>
-            <label className={labelCls}>Exam / Final Date</label>
-            <input type="date" value={ed} onChange={e => { setEd(e.target.value); setShow(false); }} className={inputCls} />
-            <p className="text-gray-500 text-xs mt-1.5">Group exam deadline</p>
-          </div>
-          <div>
-            <label className={labelCls}>Student Join Date</label>
-            <input type="date" value={jd} onChange={e => { setJd(e.target.value); setShow(false); }} className={inputCls} />
-            <p className="text-gray-500 text-xs mt-1.5">When does the late student join?</p>
-          </div>
-        </div>
-
-        <div>
-          <label className={labelCls}>Catch-Up Sessions Per Day</label>
-          <div className="flex gap-2 max-w-xs">
-            {[1, 2, 3, 4, 5].map(n => (
-              <button
-                key={n}
-                type="button"
-                onClick={() => { setSpd(n); setShow(false); }}
-                className={`flex-1 py-2.5 rounded-xl font-bold text-sm transition-all border ${
-                  spd === n
-                    ? 'bg-[#CA133E] border-[#CA133E] text-white shadow-lg shadow-[#CA133E]/30'
-                    : 'bg-white/10 border-white/20 text-gray-400 hover:bg-white/15 hover:text-white'
-                }`}
-              >
-                {n}
-              </button>
-            ))}
-          </div>
-          <p className="text-gray-500 text-xs mt-1.5">Sessions the student covers per catch-up day</p>
-        </div>
-
-        {ready && R && !R.error && (
-          <button
-            type="button"
-            onClick={() => setShow(s => !s)}
-            className="w-full py-3 bg-[#CA133E] hover:bg-[#A01030] text-white font-bold rounded-xl transition-colors shadow-lg shadow-[#CA133E]/25 flex items-center justify-center gap-2"
-          >
-            <CalendarDaysIcon className="h-5 w-5" />
-            {show ? 'Hide Catch-Up Schedule' : 'Show Full Catch-Up Schedule'}
-          </button>
-        )}
+      {/* ── Step indicator ──────────────────────────────────────────────── */}
+      <div className="flex items-center gap-3">
+        {[{ n: 1, label: 'Enter Details' }, { n: 2, label: 'View Plan' }].map(({ n, label }) => (
+          <React.Fragment key={n}>
+            <div className={`flex items-center gap-2 ${step === n ? 'opacity-100' : 'opacity-40'}`}>
+              <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${step === n ? 'bg-[#CA133E] text-white' : 'bg-white/10 text-gray-400'}`}>{n}</div>
+              <span className="text-sm font-medium text-gray-300 hidden sm:inline">{label}</span>
+            </div>
+            {n < 2 && <div className="flex-1 h-px bg-white/10 max-w-[60px]" />}
+          </React.Fragment>
+        ))}
       </div>
 
-      {/* Error */}
-      {R?.error && (
-        <div className="flex items-center gap-3 bg-red-900/20 border border-red-500/40 rounded-2xl px-5 py-4">
-          <ExclamationTriangleIcon className="h-5 w-5 text-red-400 flex-shrink-0" />
-          <p className="text-red-300 text-sm font-medium">{R.error}</p>
-        </div>
-      )}
+      {/* ── Step 1: Input ───────────────────────────────────────────────── */}
+      <AnimatePresence mode="wait">
+        {step === 1 && (
+          <motion.div
+            key="step1"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.22 }}
+            className="space-y-5"
+          >
+            <div className="bg-[#161616] border border-white/8 rounded-2xl p-5 sm:p-7 space-y-6">
 
-      {/* Empty state */}
-      {!ready && (
-        <div className="bg-white/5 border border-dashed border-white/15 rounded-2xl py-16 text-center">
-          <CalendarDaysIcon className="h-14 w-14 text-gray-600 mx-auto mb-4" />
-          <p className="text-gray-400 font-semibold mb-1">Fill in the three dates above</p>
-          <p className="text-gray-600 text-sm">The algorithm will instantly generate the student catch-up plan.</p>
-        </div>
-      )}
-
-      {R && !R.error && (
-        <div className="space-y-5">
-          {/* Verdict */}
-          <div className={`rounded-2xl p-5 border flex flex-wrap items-center gap-4 ${
-            R.canMerge
-              ? 'bg-green-900/15 border-green-500/40'
-              : 'bg-[#CA133E]/10 border-[#CA133E]/40'
-          }`}>
-            <div className={`h-14 w-14 rounded-2xl flex items-center justify-center flex-shrink-0 text-2xl border ${
-              R.canMerge ? 'bg-green-900/30 border-green-500/40' : 'bg-[#CA133E]/20 border-[#CA133E]/40'
-            }`}>
-              {R.canMerge ? '✅' : '🔀'}
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-white font-bold text-lg">
-                {R.canMerge
-                  ? `Can Merge With Group — ${R.daysNeeded} catch-up day${R.daysNeeded !== 1 ? 's' : ''} needed`
-                  : 'Recommend: New Group / Parallel Track'}
-              </p>
-              <p className="text-gray-400 text-sm mt-0.5">
-                {R.canMerge
-                  ? `At ${spd} session${spd > 1 ? 's' : ''}/day, catch-up finishes on ${fmt(R.rejoin)} — before the exam on ${fmt(ed)}.`
-                  : `${R.daysNeeded} days needed but only ${R.daysLeft} days until exam. Minimum: ${R.minSpd} sessions/day.${R.minSpd > 5 ? ' A new group is strongly advised.' : ''}`}
-              </p>
-            </div>
-          </div>
-
-          {/* Stats */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-            <StatCard label="Group Progress"  value={`${R.progress}/${TOTAL}`} sub="sessions done"     color="text-[#CA133E]"     />
-            <StatCard label="Sessions Missed" value={R.missed.length}          sub="to cover"           color="text-orange-400"    />
-            <StatCard label="Days Until Exam" value={R.daysLeft}               sub="days remaining"     color="text-violet-400"    />
-            <StatCard label="Catch-Up Days"   value={R.daysNeeded}             sub="days needed"        color={R.canMerge ? 'text-green-400' : 'text-[#CA133E]'} />
-          </div>
-
-          {/* Progress bar */}
-          <div className="bg-white/5 border border-white/10 rounded-2xl p-5">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-sm font-semibold text-gray-300">Course Progress at Join Date</span>
-              <span className="text-sm font-black text-[#CA133E]">{Math.round((R.progress / TOTAL) * 100)}%</span>
-            </div>
-            <div className="h-2.5 bg-white/10 rounded-full overflow-hidden">
-              <motion.div
-                initial={{ width: 0 }}
-                animate={{ width: `${(R.progress / TOTAL) * 100}%` }}
-                transition={{ duration: 0.6, ease: 'easeOut' }}
-                className="h-full bg-gradient-to-r from-[#CA133E] to-pink-500 rounded-full"
-              />
-            </div>
-            <div className="flex justify-between mt-2 text-xs text-gray-600">
-              <span>Course Start</span>
-              <span className="text-[#CA133E] font-semibold">Student joins here</span>
-              <span>Exam Date</span>
-            </div>
-          </div>
-
-          {/* Suggestion */}
-          {!R.canMerge && R.minSpd <= 5 && (
-            <div className="flex items-start gap-4 bg-orange-900/20 border border-orange-500/30 rounded-2xl p-4">
-              <LightBulbIcon className="h-6 w-6 text-orange-400 flex-shrink-0 mt-0.5" />
-              <div>
-                <p className="text-white font-semibold text-sm">
-                  Increase to <span className="text-orange-300">{R.minSpd} sessions/day</span> to catch up in time
-                </p>
-                <p className="text-gray-400 text-xs mt-1">
-                  Try setting sessions/day to {R.minSpd} above to see the rescheduled plan.
-                </p>
-              </div>
-            </div>
-          )}
-
-          {/* Full schedule */}
-          <AnimatePresence>
-            {show && R.sched.length > 0 && (
-              <motion.div
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 8 }}
-                className="bg-white/5 border border-white/15 rounded-2xl overflow-hidden"
-              >
-                <div className="flex items-center justify-between px-6 py-4 border-b border-white/10 bg-white/[0.03]">
-                  <span className="text-xs font-bold text-[#CA133E] uppercase tracking-widest">
-                    Personalised Catch-Up Schedule
-                  </span>
-                  <span className="text-xs text-gray-400">{R.sched.length} days · {R.missed.length} sessions</span>
+              {/* Three date inputs */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+                <div>
+                  <label className={labelCls}>Course Start</label>
+                  <input type="date" value={cs} onChange={e => setCs(e.target.value)} className={inputCls} />
+                  <p className="text-gray-600 text-xs mt-1.5">When the group first met</p>
                 </div>
-                <div className="divide-y divide-white/5">
-                  {R.sched.map((day, di) => (
-                    <div key={di} className="flex gap-4 px-6 py-3 items-start">
-                      <div className="min-w-[100px] text-xs font-semibold text-gray-500 pt-1">{fmt(day.date)}</div>
-                      <div className="flex flex-wrap gap-1.5">
-                        {day.sessions.map((sess, si) => <SessionPill key={si} session={sess} />)}
-                      </div>
-                    </div>
+                <div>
+                  <label className={labelCls}>Exam Date</label>
+                  <input type="date" value={ed} onChange={e => setEd(e.target.value)} className={inputCls} />
+                  <p className="text-gray-600 text-xs mt-1.5">Final exam / deadline</p>
+                </div>
+                <div>
+                  <label className={labelCls}>Student Joins</label>
+                  <input type="date" value={jd} onChange={e => setJd(e.target.value)} className={inputCls} />
+                  <p className="text-gray-600 text-xs mt-1.5">Late joiner's start date</p>
+                </div>
+              </div>
+
+              {/* Sessions per day picker */}
+              <div>
+                <label className={labelCls}>Catch-Up Sessions Per Day</label>
+                <div className="flex gap-2 max-w-[260px]">
+                  {[1, 2, 3, 4, 5].map(n => (
+                    <button
+                      key={n}
+                      type="button"
+                      onClick={() => setSpd(n)}
+                      className={`flex-1 py-2.5 rounded-xl font-bold text-sm transition-all border ${
+                        spd === n
+                          ? 'bg-[#CA133E] border-[#CA133E] text-white shadow-lg shadow-[#CA133E]/20'
+                          : 'bg-white/5 border-white/10 text-gray-400 hover:bg-white/10 hover:text-white'
+                      }`}
+                    >
+                      {n}
+                    </button>
                   ))}
                 </div>
-                {R.canMerge && R.rejoin && (
-                  <div className="mx-6 mb-4 mt-2 flex items-center gap-3 bg-green-900/20 border border-green-500/30 rounded-xl px-4 py-3">
-                    <CheckCircleIcon className="h-5 w-5 text-green-400 flex-shrink-0" />
-                    <p className="text-green-300 text-sm font-semibold">
-                      Student rejoins group on <strong>{fmt(R.rejoin)}</strong>
-                    </p>
-                  </div>
-                )}
-              </motion.div>
-            )}
-          </AnimatePresence>
+                <p className="text-gray-600 text-xs mt-1.5">Sessions covered per catch-up study day</p>
+              </div>
 
-          {/* Remaining sessions */}
-          {R.remaining.length > 0 && (
-            <div className="bg-white/5 border border-white/10 rounded-2xl p-5">
-              <p className="text-xs font-bold text-[#CA133E] uppercase tracking-widest mb-3">
-                Remaining Group Sessions After Catch-Up ({R.remaining.length})
-              </p>
-              <div className="flex flex-wrap gap-1.5">
-                {R.remaining.map(sess => <SessionPill key={sess.id} session={sess} />)}
+              {/* Error */}
+              {R?.error && (
+                <div className="flex items-center gap-3 bg-red-900/15 border border-red-500/30 rounded-xl px-4 py-3">
+                  <ExclamationTriangleIcon className="h-4 w-4 text-red-400 flex-shrink-0" />
+                  <p className="text-red-300 text-sm">{R.error}</p>
+                </div>
+              )}
+
+              {/* Generate button */}
+              <button
+                type="button"
+                disabled={!ready || !!R?.error}
+                onClick={() => setStep(2)}
+                className="w-full py-3 bg-[#CA133E] hover:bg-[#A01030] disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold rounded-xl transition-colors shadow-lg shadow-[#CA133E]/20 flex items-center justify-center gap-2"
+              >
+                <CalendarDaysIcon className="h-5 w-5" />
+                Generate Catch-Up Plan
+              </button>
+            </div>
+          </motion.div>
+        )}
+
+        {/* ── Step 2: Results ───────────────────────────────────────────── */}
+        {step === 2 && R && !R.error && (
+          <motion.div
+            key="step2"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 20 }}
+            transition={{ duration: 0.22 }}
+            className="space-y-4"
+          >
+            {/* Back + verdict banner */}
+            <div className="flex items-start gap-4">
+              <button
+                onClick={() => setStep(1)}
+                className="flex items-center gap-1.5 px-3 py-2 text-sm text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 border border-white/8 rounded-xl transition-all flex-shrink-0"
+              >
+                <ChevronUpIcon className="h-4 w-4 rotate-[-90deg]" />
+                Edit
+              </button>
+              <div className={`flex-1 rounded-2xl p-4 border flex flex-wrap items-center gap-3 ${
+                R.canMerge ? 'bg-green-900/12 border-green-500/35' : 'bg-[#CA133E]/8 border-[#CA133E]/35'
+              }`}>
+                <div className={`h-11 w-11 rounded-xl flex items-center justify-center text-xl flex-shrink-0 ${
+                  R.canMerge ? 'bg-green-900/30' : 'bg-[#CA133E]/20'
+                }`}>
+                  {R.canMerge ? '✅' : '🔀'}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-white font-bold text-base">
+                    {R.canMerge
+                      ? `Can merge with group — ${R.daysNeeded} catch-up day${R.daysNeeded !== 1 ? 's' : ''}`
+                      : 'Recommend a parallel track / new group'}
+                  </p>
+                  <p className="text-gray-400 text-xs mt-0.5">
+                    {R.canMerge
+                      ? `Finishes on ${fmt(R.rejoin)} · exam on ${fmt(ed)}`
+                      : `${R.daysNeeded} days needed, ${R.daysLeft} available · min ${R.minSpd} sessions/day`}
+                  </p>
+                </div>
               </div>
             </div>
-          )}
-        </div>
-      )}
+
+            {/* 4 stat cards */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <StatCard label="Group Progress"  value={`${R.progress}/${TOTAL}`} sub="sessions done"     color="text-[#CA133E]" />
+              <StatCard label="To Catch Up"     value={R.missed.length}          sub="sessions"           color="text-orange-400" />
+              <StatCard label="Days Until Exam" value={R.daysLeft}               sub="days left"          color="text-violet-400" />
+              <StatCard label="Catch-Up Days"   value={R.daysNeeded}             sub="needed"             color={R.canMerge ? 'text-green-400' : 'text-[#CA133E]'} />
+            </div>
+
+            {/* Timeline bar */}
+            <div className="bg-[#161616] border border-white/8 rounded-2xl p-5">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-semibold text-gray-300">Group progress when student joins</span>
+                <span className="text-sm font-black text-[#CA133E]">{pct}%</span>
+              </div>
+              <div className="relative h-3 bg-white/8 rounded-full overflow-hidden">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${pct}%` }}
+                  transition={{ duration: 0.7, ease: 'easeOut', delay: 0.1 }}
+                  className="h-full rounded-full"
+                  style={{ background: 'linear-gradient(90deg,#CA133E,#ff6b8a)' }}
+                />
+              </div>
+              <div className="flex justify-between mt-1.5 text-[10px] text-gray-600">
+                <span>{fmt(cs)}</span>
+                <span className="text-[#CA133E] font-semibold">↑ {fmt(jd)}</span>
+                <span>{fmt(ed)}</span>
+              </div>
+            </div>
+
+            {/* Pace tip */}
+            {!R.canMerge && R.minSpd <= 5 && (
+              <div className="flex items-center gap-3 bg-orange-900/15 border border-orange-500/25 rounded-xl px-4 py-3">
+                <LightBulbIcon className="h-5 w-5 text-orange-400 flex-shrink-0" />
+                <p className="text-sm text-orange-300">
+                  Set pace to <strong>{R.minSpd} sessions/day</strong> to finish before the exam.{' '}
+                  <button onClick={() => { setSpd(R.minSpd); setStep(1); }} className="underline hover:text-orange-200 transition-colors">
+                    Adjust &amp; recalculate
+                  </button>
+                </p>
+              </div>
+            )}
+
+            {/* Day-by-day schedule toggle */}
+            {R.sched.length > 0 && (
+              <div className="bg-[#161616] border border-white/8 rounded-2xl overflow-hidden">
+                <button
+                  onClick={() => setShow(s => !s)}
+                  className="w-full flex items-center justify-between px-5 py-4 hover:bg-white/3 transition-colors"
+                >
+                  <div className="flex items-center gap-2">
+                    <CalendarDaysIcon className="h-4 w-4 text-[#CA133E]" />
+                    <span className="text-sm font-semibold text-white">Day-by-Day Catch-Up Schedule</span>
+                    <span className="text-xs text-gray-500">{R.sched.length} days · {R.missed.length} sessions</span>
+                  </div>
+                  <ChevronDownIcon className={`h-4 w-4 text-gray-500 transition-transform duration-200 ${show ? 'rotate-180' : ''}`} />
+                </button>
+                <AnimatePresence initial={false}>
+                  {show && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.22 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="border-t border-white/6 divide-y divide-white/5 max-h-80 overflow-y-auto">
+                        {R.sched.map((day, di) => (
+                          <div key={di} className="flex gap-4 px-5 py-2.5 items-start">
+                            <div className="min-w-[90px] text-xs font-semibold text-gray-500 pt-0.5">{fmt(day.date)}</div>
+                            <div className="flex flex-wrap gap-1.5">
+                              {day.sessions.map((sess, si) => <SessionPill key={si} session={sess} />)}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                      {R.canMerge && R.rejoin && (
+                        <div className="mx-5 mb-4 mt-2 flex items-center gap-2 bg-green-900/15 border border-green-500/25 rounded-xl px-4 py-2.5">
+                          <CheckCircleIcon className="h-4 w-4 text-green-400 flex-shrink-0" />
+                          <p className="text-green-300 text-xs font-semibold">
+                            Rejoins group on <strong>{fmt(R.rejoin)}</strong>
+                          </p>
+                        </div>
+                      )}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            )}
+
+            {/* Remaining sessions */}
+            {R.remaining.length > 0 && (
+              <div className="bg-[#161616] border border-white/8 rounded-2xl p-5">
+                <p className="text-xs font-bold text-[#CA133E] uppercase tracking-widest mb-3">
+                  Remaining Group Sessions ({R.remaining.length})
+                </p>
+                <div className="flex flex-wrap gap-1.5">
+                  {R.remaining.map(sess => <SessionPill key={sess.id} session={sess} />)}
+                </div>
+              </div>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

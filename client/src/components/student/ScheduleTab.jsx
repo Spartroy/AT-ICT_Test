@@ -39,7 +39,6 @@ const ScheduleTab = ({ studentData }) => {
   const [selectedDayIndex, setSelectedDayIndex] = useState(0);
   const [viewMode, setViewMode]               = useState('week');
   const [selectedSession, setSelectedSession] = useState(null);
-  const [modalPosition, setModalPosition]     = useState({ top: 0, left: 0 });
   const scheduleContainerRef = useRef(null);
   const modalRef             = useRef(null);
 
@@ -54,13 +53,6 @@ const ScheduleTab = ({ studentData }) => {
 
   const handleSessionClick = (e, session) => {
     e.stopPropagation();
-    if (!scheduleContainerRef.current) return;
-    const cardRect      = e.currentTarget.getBoundingClientRect();
-    const containerRect = scheduleContainerRef.current.getBoundingClientRect();
-    setModalPosition({
-      top:  cardRect.bottom - containerRect.top + 10,
-      left: cardRect.left   - containerRect.left + cardRect.width / 2,
-    });
     setSelectedSession(session);
   };
 
@@ -101,44 +93,42 @@ const ScheduleTab = ({ studentData }) => {
 
   const WeekView = () => (
     <div className="bg-[#161616] border border-white/5 rounded-xl p-3 sm:p-4">
-      <div className="grid grid-cols-7 gap-1 sm:gap-2 mb-3 sm:mb-4">
+      {/* Day headers */}
+      <div className="grid grid-cols-7 gap-1 mb-2">
         {shortDays.map((day, index) => (
           <div
             key={day}
-            className={`text-center py-2 px-1 rounded-lg font-semibold text-xs sm:text-sm transition-all ${
+            className={`text-center py-1.5 rounded-lg font-bold text-[10px] sm:text-xs transition-all ${
               days[index] === getCurrentDay()
                 ? 'bg-[#CA133E] text-white'
                 : 'bg-white/5 text-gray-400'
             }`}
           >
-            <span className="hidden sm:inline">{day}</span>
-            <span className="sm:hidden">{day[0]}</span>
+            {day[0]}
           </div>
         ))}
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-2 sm:gap-3">
+      {/* Day columns — always 7 across */}
+      <div className="grid grid-cols-7 gap-1">
         {days.map((day) => {
           const daySchedule = schedule.schedule.find(d => d.day === day) || { day, sessions: [] };
           const isToday = day === getCurrentDay();
           return (
             <div
               key={day}
-              className={`rounded-xl border transition-all min-h-[140px] flex flex-col p-2 sm:p-3 gap-1.5 ${
+              className={`rounded-xl border transition-all min-h-[100px] flex flex-col p-1 sm:p-2 gap-1 ${
                 isToday
                   ? 'bg-[#CA133E]/10 border-[#CA133E]/40'
                   : 'bg-white/2 border-white/5'
               }`}
             >
-              <div className="lg:hidden text-center">
-                <p className="text-xs font-medium text-gray-400">{day}</p>
-              </div>
               {daySchedule.sessions.length === 0 ? (
                 <div className="flex-1 flex items-center justify-center">
-                  <p className="text-gray-600 text-xs text-center">No classes</p>
+                  <p className="text-gray-700 text-[9px] text-center">—</p>
                 </div>
               ) : (
-                <div className="space-y-1.5">
+                <div className="space-y-1">
                   {daySchedule.sessions.map((session, i) => (
                     <button key={i} onClick={(e) => handleSessionClick(e, session)} className="w-full text-left">
                       <SessionChip session={session} />
@@ -254,29 +244,35 @@ const ScheduleTab = ({ studentData }) => {
       </div>
 
       {/* Schedule canvas */}
-      <div ref={scheduleContainerRef} className="relative">
+      <div ref={scheduleContainerRef}>
         {viewMode === 'week' ? <WeekView /> : <DayView />}
+      </div>
 
-        <AnimatePresence>
-          {selectedSession && (
+      {/* Session detail — fixed centered overlay */}
+      <AnimatePresence>
+        {selectedSession && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.18 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            style={{ background: 'rgba(0,0,0,0.6)' }}
+            onClick={handleCloseModal}
+          >
             <motion.div
               ref={modalRef}
-              initial={{ opacity: 0, scale: 0.9, y: -8 }}
+              initial={{ opacity: 0, scale: 0.92, y: 12 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: -8 }}
-              transition={{ type: 'spring', stiffness: 300, damping: 22 }}
-              className="absolute z-50"
-              style={{
-                top: `${modalPosition.top}px`,
-                left: `${modalPosition.left}px`,
-                transform: 'translateX(-50%)',
-              }}
+              exit={{ opacity: 0, scale: 0.92, y: 12 }}
+              transition={{ type: 'spring', stiffness: 320, damping: 26 }}
+              onClick={(e) => e.stopPropagation()}
             >
               <SessionDetailModal session={selectedSession} onClose={handleCloseModal} />
             </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Today + Upcoming */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -336,9 +332,9 @@ const ScheduleTab = ({ studentData }) => {
 const SessionChip = ({ session }) => {
   const cfg = getSessionTypeConfig(session.type);
   return (
-    <div className={`${cfg.lightBg} border-l-2 ${cfg.borderColor} rounded-lg px-2 py-1.5`}>
-      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">{cfg.color}</p>
-      <p className="text-xs text-white font-medium mt-0.5">{formatTime(session.startTime)}</p>
+    <div className={`${cfg.lightBg} border-l-2 ${cfg.borderColor} rounded-md px-1 py-1`}>
+      <p className="text-[8px] sm:text-[9px] font-bold text-gray-400 uppercase leading-none truncate">{cfg.color}</p>
+      <p className="text-[8px] sm:text-[10px] text-white font-semibold mt-0.5 leading-tight">{formatTime(session.startTime)}</p>
     </div>
   );
 };

@@ -167,15 +167,6 @@ const DashboardOverview = ({ studentData, stats, socket, onNavigate }) => {
             You're {overallProgress}% through this term's plan. Keep the streak alive.
           </p>
         </div>
-        <motion.button
-          onClick={() => onNavigate?.('schedule')}
-          whileHover={{ scale: 1.03 }}
-          whileTap={{ scale: 0.97 }}
-          className="flex-shrink-0 flex items-center gap-2 bg-[#CA133E] hover:bg-[#A01030] text-white font-semibold px-5 py-2.5 rounded-xl transition-colors shadow-lg shadow-[#CA133E]/20 whitespace-nowrap text-sm sm:text-base"
-        >
-          <PlayCircleIcon className="h-5 w-5" />
-          Resume last lesson
-        </motion.button>
       </div>
 
       {/* ── Points flash + overall progress pill ────────────────────────── */}
