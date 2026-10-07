@@ -4,6 +4,7 @@ import Hero from '../../components/Hero';
 import WhyChooseATICT from '../../components/WhyChooseATICT';
 import Footer from '../../components/Footer';
 import Seo from '../../components/Seo';
+import StudyGuidePopup from '../../components/StudyGuidePopup';
 import {
   TestimonialsStrip,
   FinalCTA
@@ -18,6 +19,7 @@ const Home = () => {
         path="/"
       />
       <Nav />
+      <StudyGuidePopup />
       <main id="main-content" className="flex-1">
         <Hero />
         <WhyChooseATICT />
