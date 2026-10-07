@@ -20,7 +20,13 @@ export const StoriesProvider = ({ children }) => {
         if (!res.ok) throw new Error('Failed to fetch stories');
         const data = await res.json();
         const fetched = data?.data?.stories || [];
-        if (mounted && fetched.length > 0) setStories(fetched);
+        if (mounted && fetched.length > 0) {
+          // Keep the built-in stories and append the ones added via the dashboard.
+          const key = (st) => `${(st.name || '').trim().toLowerCase()}|${(st.text || '').trim()}`;
+          const seen = new Set(fallbackStories.map(key));
+          const added = fetched.filter((st) => !seen.has(key(st)));
+          setStories([...fallbackStories, ...added]);
+        }
       } catch (err) {
         // keep fallback
       } finally {
