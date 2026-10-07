@@ -105,7 +105,7 @@ const Nav = () => {
         <div className="hidden lg:flex items-center gap-[20px]">
           {[
             { to: '/about', label: 'About' },
-            { to: '/curriculum', label: 'Curriculum' },
+            // { to: '/curriculum', label: 'Curriculum' },
             { to: '/fees', label: 'Fees' },
             { to: '/hall-of-fame', label: 'Hall of Fame' },
             { to: '/samples', label: 'Free Samples' },
@@ -228,9 +228,9 @@ const Nav = () => {
             <Link to="/about" onClick={toggleNav} className="text-white text-[22px] font-medium hover:text-[#CD143F] transition-colors">
               About
             </Link>
-            <Link to="/curriculum" onClick={toggleNav} className="text-white text-[22px] font-medium hover:text-[#CD143F] transition-colors">
+            {/* <Link to="/curriculum" onClick={toggleNav} className="text-white text-[22px] font-medium hover:text-[#CD143F] transition-colors">
               Curriculum
-            </Link>
+            </Link> */}
             <Link to="/fees" onClick={toggleNav} className="text-white text-[22px] font-medium hover:text-[#CD143F] transition-colors">
               Fees
             </Link>

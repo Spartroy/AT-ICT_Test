@@ -53,20 +53,20 @@ export const TestimonialsStrip = () => {
         <div className="flex items-center justify-between mb-4">
           <button
             onClick={goPrev}
-            className="p-2 rounded-xl border border-white/15 hover:border-[#CA133E] transition-colors"
-            aria-label="Previous story"
+            className="p-4 rounded-xl text-white border border-white/15 hover:border-[#CA133E] transition-colors"
+            aria-label="Previous story"                         
           >
-            <ChevronLeft size={18} />
+            <ChevronLeft size={22} />
           </button>
           <span className="text-sm text-gray-300">
             {stories.length ? `${activeIndex + 1} / ${stories.length}` : '0 / 0'}
           </span>
           <button
             onClick={goNext}
-            className="p-2 rounded-xl border border-white/15 hover:border-[#CA133E] transition-colors"
+            className="p-4 rounded-xl border border-white/15 hover:border-[#CA133E] transition-colors"
             aria-label="Next story"
           >
-            <ChevronRight size={18} />
+            <ChevronRight size={22} />
           </button>
         </div>
 

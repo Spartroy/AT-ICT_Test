@@ -292,17 +292,11 @@ const ContactUs = () => {
                   <button
                     type="submit"
                     disabled={submitting}
-                    className="w-full bg-[#CA133E] text-white py-2.5 rounded-xl font-semibold hover:bg-[#A01030] transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed"
+                    className="w-full mt-6 bg-[#37c572] text-white py-2.5 rounded-xl font-semibold hover:bg-[#36b266] transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed"
                   >
                     {submitting ? 'Sending…' : 'Send via WhatsApp'}
                   </button>
-                  <button
-                    type="button"
-                    onClick={handleEmailFallback}
-                    className="w-full bg-gray-100 text-gray-800 py-2.5 rounded-xl font-semibold hover:bg-gray-200 transition-all duration-300 border border-gray-200"
-                  >
-                    Send via Email instead
-                  </button>
+           
                 </div>
               </form>
             </motion.div>

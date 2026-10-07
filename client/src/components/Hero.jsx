@@ -20,7 +20,7 @@ const Hero = () => {
     <div className="min-h-screen bg-gradient-to-br from-[#3a1a1a] via-[#2a1a1a] to-[#1a1a1a] text-white flex items-center pt-32 pb-10">
       <div className="container mx-auto px-4 sm:px-6 lg:px-12">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-          
+
           {/* Left Content */}
           <motion.div
             className="space-y-6 lg:space-y-8"
@@ -31,7 +31,7 @@ const Hero = () => {
           >
             {/* Top Badge */}
             <motion.div
-              className="inline-block bg-[#CA133E] text-white px-4 sm:px-6 py-3 sm:py-4 rounded-full text-xs sm:text-sm font-semibold mt-6 mb-[-50px] sm:mb-[-70px]"
+              className="inline-block bg-[#CA133E] text-white px-4 sm:px-6 py-3 sm:py-4 rounded-full text-lg sm:text-xl font-semibold mt-6 mb-[-50px] sm:mb-[-70px]"
               variants={itemVariants}
             >
               92% Average Across Students. Grade 9? Our Standard!
@@ -95,7 +95,7 @@ const Hero = () => {
                 </div>
                 <span className="text-gray-300 text-xs sm:text-sm">Scoring A+</span>
               </div>
-              
+
               <div className="flex items-center space-x-2">
                 <div className="w-4 h-4 sm:w-5 sm:h-5 bg-green-500 rounded-full flex items-center justify-center">
                   <svg className="w-2 h-2 sm:w-3 sm:h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
@@ -104,7 +104,7 @@ const Hero = () => {
                 </div>
                 <span className="text-gray-300 text-xs sm:text-sm">No Coding Required</span>
               </div>
-              
+
               <div className="flex items-center space-x-2">
                 <div className="w-4 h-4 sm:w-5 sm:h-5 bg-green-500 rounded-full flex items-center justify-center">
                   <svg className="w-2 h-2 sm:w-3 sm:h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
