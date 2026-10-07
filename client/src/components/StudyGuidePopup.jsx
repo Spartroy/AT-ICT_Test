@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 const STORAGE_KEY = 'atict-study-guide-popup-dismissed';
 const STUDY_GUIDE_URL = '/study-guide.html';
 
+// Speech bubble that hangs off the right end of the navbar (nav is max 1200px wide, centered).
 const StudyGuidePopup = () => {
   const [open, setOpen] = useState(false);
 
@@ -12,7 +13,7 @@ const StudyGuidePopup = () => {
     try {
       dismissed = sessionStorage.getItem(STORAGE_KEY) === '1';
     } catch (e) {
-      // storage unavailable; show the popup anyway
+      // storage unavailable; show the bubble anyway
     }
     if (dismissed) return undefined;
     const timer = setTimeout(() => setOpen(true), 800);
@@ -28,70 +29,47 @@ const StudyGuidePopup = () => {
     }
   };
 
-  useEffect(() => {
-    if (!open) return undefined;
-    const onKey = (e) => e.key === 'Escape' && close();
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [open]);
-
   return (
     <AnimatePresence>
       {open && (
         <motion.div
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 px-4"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          onClick={close}
+          role="dialog"
+          aria-label="Complete revision study guide"
+          className="fixed z-[60] w-[calc(100vw-2rem)] max-w-[300px] rounded-2xl bg-white p-4 text-gray-900 shadow-2xl border border-[#CA133E]/30"
+          style={{
+            top: '108px',
+            right: 'max(1rem, calc((100vw - 1200px) / 2 + 1rem))',
+          }}
+          initial={{ opacity: 0, y: -12, scale: 0.95 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: -12, scale: 0.95 }}
+          transition={{ duration: 0.3 }}
         >
-          <motion.div
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="study-guide-popup-title"
-            className="relative w-full max-w-md rounded-2xl bg-[#2a1a1a] p-8 text-center text-white shadow-2xl border border-[#CA133E]/40"
-            initial={{ opacity: 0, y: 40, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 40, scale: 0.95 }}
-            transition={{ duration: 0.3 }}
-            onClick={(e) => e.stopPropagation()}
+          {/* Tail pointing up at the navbar */}
+          <span
+            aria-hidden="true"
+            className="absolute -top-2 right-10 h-4 w-4 rotate-45 border-l border-t border-[#CA133E]/30 bg-white"
+          />
+          <button
+            type="button"
+            onClick={close}
+            aria-label="Close"
+            className="absolute right-3 top-1 text-xl leading-none text-gray-400 hover:text-gray-700"
           >
-            <button
-              type="button"
-              onClick={close}
-              aria-label="Close"
-              className="absolute right-4 top-3 text-2xl leading-none text-gray-400 hover:text-white"
-            >
-              &times;
-            </button>
-            <span className="inline-block rounded-full bg-[#CA133E] px-4 py-1 text-sm font-semibold">
-              New for students
-            </span>
-            <h2 id="study-guide-popup-title" className="mt-4 font-display text-3xl font-bold leading-tight">
-              Complete IGCSE ICT Revision
-            </h2>
-            <p className="mt-3 text-gray-300">
-              Every chapter in one place. Open the full AT-ICT study guide and start revising now.
-            </p>
-            <div className="mt-6 flex flex-col gap-3">
-              <a
-                href={STUDY_GUIDE_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={close}
-                className="rounded-full bg-[#CA133E] px-6 py-3 font-semibold text-white transition hover:bg-[#a30f32]"
-              >
-                Open the Study Guide
-              </a>
-              <button
-                type="button"
-                onClick={close}
-                className="text-sm text-gray-400 hover:text-white"
-              >
-                Maybe later
-              </button>
-            </div>
-          </motion.div>
+            &times;
+          </button>
+          <p className="text-xs font-semibold uppercase tracking-wide text-[#CA133E]">New for students</p>
+          <p className="mt-1 text-base font-bold leading-snug">Complete IGCSE ICT Revision</p>
+          <p className="mt-1 text-sm text-gray-600">Every chapter in one place.</p>
+          <a
+            href={STUDY_GUIDE_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={close}
+            className="mt-3 inline-block rounded-full bg-[#CA133E] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#a30f32]"
+          >
+            Open the Study Guide
+          </a>
         </motion.div>
       )}
     </AnimatePresence>
