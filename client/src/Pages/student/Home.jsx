@@ -58,16 +58,16 @@ export default function Home() {
       <div className="g4">
         <Stat icon={ClipboardCheck} label="Assignments" value={`${a.completedAssignments || 0}/${a.totalAssignments || 0}`}
           note={pending ? <span className="bad">{pending} pending</span> : <span className="ok">All done ✓</span>}
-          ring={<Ring p={pct(a.completedAssignments, a.totalAssignments)} color="var(--phase-1)" size={68} fs=".85rem" w={6} />} />
+          ring={<Ring p={pct(a.completedAssignments, a.totalAssignments)} color="var(--phase-1)" size={72} fs=".95rem" w={6} />} />
         <Stat icon={GraduationCap} label="Quizzes" value={`${q.completedQuizzes || 0}/${q.totalQuizzes || 0}`}
           note={q.totalQuizzes ? (q.pendingQuizzes ? <span className="bad">{q.pendingQuizzes} to take</span> : <span className="ok">All done ✓</span>) : <span className="faint">None yet</span>}
-          ring={<Ring p={pct(q.completedQuizzes, q.totalQuizzes)} color="var(--ink-300)" size={68} fs=".85rem" w={6} />} />
+          ring={<Ring p={pct(q.completedQuizzes, q.totalQuizzes)} color="var(--ink-300)" size={72} fs=".95rem" w={6} />} />
         <Stat icon={Megaphone} label="Announcements" value={`${(ann.totalAnnouncements || 0) - (ann.unreadAnnouncements || 0)}/${ann.totalAnnouncements || 0}`}
           note={ann.unreadAnnouncements ? <span className="bad">{ann.unreadAnnouncements} unread</span> : <span className="ok">All read ✓</span>}
-          ring={<Ring p={pct((ann.totalAnnouncements || 0) - (ann.unreadAnnouncements || 0), ann.totalAnnouncements)} color="var(--phase-3)" size={68} fs=".85rem" w={6} />} />
+          ring={<Ring p={pct((ann.totalAnnouncements || 0) - (ann.unreadAnnouncements || 0), ann.totalAnnouncements)} color="var(--phase-3)" size={72} fs=".95rem" w={6} />} />
         <Stat icon={Trophy} label="Avg. score" value={`${avg}%`}
           note={<span className={graded.length ? 'ok' : 'faint'}>{graded.length ? `${graded.length} graded` : 'Nothing graded yet'}</span>}
-          ring={<Ring p={avg} color="var(--dark-warn)" size={68} fs=".85rem" w={6} />} />
+          ring={<Ring p={avg} color="var(--dark-warn)" size={72} fs=".95rem" w={6} />} />
       </div>
 
       <div className="g2">

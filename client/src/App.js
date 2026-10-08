@@ -11,7 +11,7 @@ import ScrollToTop from "./components/ScrollToTop";
 const AuthPage = lazy(() => import("./Pages/auth/AuthPage"));
 const Privacy = lazy(() => import("./Pages/site/ContentPages").then(m => ({ default: m.Privacy })));
 const Terms = lazy(() => import("./Pages/site/ContentPages").then(m => ({ default: m.Terms })));
-const HallOfFame = lazy(() => import("./Pages/site/ContentPages").then(m => ({ default: m.HallOfFame })));
+const HallOfFame = lazy(() => import("./Pages/site/HallOfFame"));
 const NotFound = lazy(() => import("./Pages/site/ContentPages").then(m => ({ default: m.NotFound })));
 
 const TeacherPortal = lazy(() => import("./Pages/teacher/TeacherPortal"));

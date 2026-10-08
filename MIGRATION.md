@@ -74,3 +74,29 @@
 - A few literal colours remain in generated CSS (decorative only).
 - **Security:** public teacher self-registration; parent "mark paid" endpoint charges nothing;
   `backend/.env` holds committed secrets (rotate them).
+
+## Reader, Hall of Fame and polish (follow-up)
+
+### Database
+- **No manual migration.** `AppSettings.hofSeeded` (new flag) marks that the preset Hall of Fame names were inserted.
+  The first public `GET /api/leaderboard/hall-of-fame` inserts the 5 preset names (Class of 2025) **only when the
+  collection is empty**. A deployment that already has entries is left untouched. After that the teacher owns the list.
+- `HallOfFameEntry.createdBy` is no longer required (preset names have no author).
+- `year` is optional when the teacher adds a name (defaults to the current year). The public list is sorted newest class first.
+
+### Frontend
+- New deps: `pdfjs-dist@3.11.174` (PDF rendering, worker bundled as an asset) and `react-pageflip`.
+- `components/portal/viewer/ResourceViewer`: full-page reader with a Back button (Esc closes only the reader).
+  PDF materials open as a page-turning book; external materials and interactive notes open in a wide iframe.
+  Sites that forbid embedding show an "Open in new tab" fallback. Non-PDF files still download.
+- Videos open the (larger) player straight from the map; "Mark done" pops up on hover/focus and is also in the player.
+  Opening a video no longer marks it done automatically.
+- Interactive notes: clicking a chapter opens its notes in the reader; phase tabs replay the pop-out animation.
+- Public site: light navigation bar with the original logo (transparent PNGs, no white tile), larger hero/results
+  numbers, new Hall of Fame section (`#hall`) and page. **Fees are hidden** with `SHOW_FEES = false` in
+  `Pages/site/siteContent.js` (also hides the nav link, the "See plans" button and the Pricing FAQ).
+- Roadmap labels in the Method section no longer overlap.
+
+### Known issues / notes
+- Only the 5 prototype names are preset; add the rest from the teacher portal (Library, site content).
+- The reader only renders PDFs that the API streams (`/api/student/materials/:id/download`).

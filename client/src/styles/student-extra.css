@@ -36,3 +36,32 @@
 .atp-student .bk-x svg { width: 20px; height: 20px; }
 .atp-student .spine { cursor: pointer; }
 .atp-student .spine:focus-visible { outline: 3px solid var(--white); outline-offset: 3px; }
+
+/* Video map nodes: the circle is a button; "Mark done" pops up smoothly on hover / focus */
+.atp-student .node { position: relative; }
+.atp-student .nbtn { display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100%; padding: 0; background: none; border: 0; color: inherit; font: inherit; cursor: pointer; }
+.atp-student .nbtn:focus-visible { outline: 2px solid var(--white); outline-offset: 6px; border-radius: 18px; }
+.atp-student .nmark { position: absolute; left: 50%; top: 98px; z-index: 3; display: inline-flex; align-items: center; gap: 5px; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--bd2); background: var(--s3); color: var(--white); font: inherit; font-size: 0.74rem; font-weight: 600; white-space: nowrap; cursor: pointer; box-shadow: 0 8px 20px rgb(0 0 0 / 0.45); opacity: 0; transform: translate(-50%, 8px) scale(0.85); pointer-events: none; transition: opacity 0.22s ease, transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.2s; }
+.atp-student .nmark svg { width: 13px; height: 13px; }
+.atp-student .nmark:hover { background: var(--cr); border-color: var(--cr); }
+.atp-student .node:hover .nmark, .atp-student .node:focus-within .nmark { opacity: 1; transform: translate(-50%, 0) scale(1); pointer-events: auto; }
+.atp-student .st-done .nmark { color: var(--mu); }
+@media (max-width: 700px) { .atp-student .nmark { top: 90px; } }
+.atp-student .nl { transition: opacity 0.2s; }
+.atp-student .node:hover .nl, .atp-student .node:focus-within .nl { opacity: 0.3; }
+@media (hover: none) { .atp-student .node:not(:focus-within) .nmark { display: none; } }
+@media (prefers-reduced-motion: reduce) { .atp-student .nmark { transition: opacity 0.1s; transform: translate(-50%, 0); } }
+
+/* Bigger video player */
+.atp .dlg.xl { width: min(1280px, 100%); }
+.atp .player-xl { margin-top: 12px; width: min(100%, max(360px, calc((100vh - 230px) * 16 / 9))); margin-inline: auto; }
+.atp .dlg.xl .node-acts { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 14px; }
+.atp .dlg.xl .node-desc { margin: 0; flex: 1 1 260px; }
+
+/* Interactive notes: chapter details fade in; hub pops when a phase is shown */
+.atp-student .odet { animation: odet-in 0.35s cubic-bezier(0.22, 1, 0.36, 1); }
+@keyframes odet-in { from { opacity: 0; transform: translateY(8px); } }
+.atp-student .hub { transform-box: fill-box; transform-origin: center; animation: hub-pop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); }
+@keyframes hub-pop { from { transform: scale(0.6); opacity: 0; } }
+.atp-student .orb:hover > circle { stroke: var(--white); }
+@media (prefers-reduced-motion: reduce) { .atp-student .odet, .atp-student .hub { animation: none; } }

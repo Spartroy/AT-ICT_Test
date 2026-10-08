@@ -14,10 +14,10 @@ const hallOfFameEntrySchema = new mongoose.Schema(
       trim: true,
       maxlength: [20, 'Year cannot exceed 20 characters']
     },
+    // Empty for the preset names that are seeded on first read.
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
-      required: true
+      ref: 'User'
     }
   },
   { timestamps: true }

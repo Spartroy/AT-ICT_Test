@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Play, FileText, Presentation, Database, Table, Share2, Star, CheckCircle2, X, RotateCcw, PlayCircle } from 'lucide-react';
+import { Play, FileText, Presentation, Database, Table, Share2, Star, CheckCircle2, X, RotateCcw, PlayCircle, Check } from 'lucide-react';
 import useApi from '../../../hooks/useApi';
 import { API_ENDPOINTS } from '../../../config/api';
 import { Accordion, Chips, Empty, ErrorNote, Ic, Loading } from '../../../components/portal/kit';
@@ -22,7 +22,6 @@ export default function VideoMaps() {
   const progress = useProgress();
   const [section, setSection] = useState('theory');
   const [openMap, setOpenMap] = useState({});
-  const [selected, setSelected] = useState(null);
   const [playing, setPlaying] = useState(null);
   const narrow = useMediaQuery('(max-width: 700px)');
   const cols = narrow ? 3 : 4;
@@ -47,11 +46,8 @@ export default function VideoMaps() {
     toast(ok ? (done ? 'Marked as done' : 'Marked as not done') : "Couldn't save your progress. Try again.");
   };
 
-  const watch = (item) => {
-    setSelected(null);
-    setPlaying(item);
-    if (!progress.videos.has(item.id)) progress.setDone('video', item.id, true);
-  };
+  // Clicking a lesson opens the player straight away; marking it done is explicit (hover button / player button).
+  const watch = (item) => setPlaying(item);
 
   return (
     <>
@@ -80,18 +76,26 @@ export default function VideoMaps() {
                     className={`srow ${row.reverse ? 'rev' : ''} ${row.more ? 'more' : ''}`}
                     style={{ '--n': cols, '--k': row.items.length, '--c': g.color }}
                   >
-                    {row.items.map((node, k) => (
-                      <button
-                        key={node.id}
-                        type="button"
-                        className={`node st-${node.state}`}
-                        style={{ '--c': g.color }}
-                        onClick={() => setSelected({ ...node, group: g, index: row.start + k })}
-                        aria-label={`${node.title}${node.state === 'done' ? ', completed' : node.state === 'cur' ? ', start here' : ''}`}
-                      >
-                        <span className="nc"><GroupIcon className="i" aria-hidden="true" /><i className="rr" /></span>
-                        <span className="nl">{node.title}</span>
-                      </button>
+                    {row.items.map((node) => (
+                      <div key={node.id} className={`node st-${node.state}`} style={{ '--c': g.color }}>
+                        <button
+                          type="button"
+                          className="nbtn"
+                          onClick={() => watch({ ...node, group: g })}
+                          aria-label={`${node.title}${node.state === 'done' ? ', completed' : node.state === 'cur' ? ', start here' : ''}`}
+                        >
+                          <span className="nc"><GroupIcon className="i" aria-hidden="true" /><i className="rr" /></span>
+                          <span className="nl">{node.title}</span>
+                        </button>
+                        <button
+                          type="button"
+                          className="nmark"
+                          aria-label={node.state === 'done' ? `Mark ${node.title} as not done` : `Mark ${node.title} as done`}
+                          onClick={() => mark(node, node.state !== 'done')}
+                        >
+                          <Ic as={node.state === 'done' ? RotateCcw : Check} />{node.state === 'done' ? 'Undo' : 'Mark done'}
+                        </button>
+                      </div>
                     ))}
                   </div>
                 ))}
@@ -103,40 +107,28 @@ export default function VideoMaps() {
         );
       })}
 
-      <Dialog open={!!selected} onClose={() => setSelected(null)} labelledBy="node-title">
-        {selected && (
-          <>
-            <button type="button" className="ib x" aria-label="Close" onClick={() => setSelected(null)}><Ic as={X} /></button>
-            <span className="chip" style={{ background: selected.group.color, color: 'var(--ink-990)' }}>{selected.group.title}</span>
-            <h3 id="node-title" className="node-title">{selected.title}</h3>
-            <p className="sub">{selected.group.kind}{selected.state === 'done' ? ' · completed ✓' : ''}</p>
-            {selected.description && <p className="sub" style={{ marginTop: 10 }}>{selected.description}</p>}
-            <div className="node-acts">
-              <button type="button" className="btn p" onClick={() => watch(selected)}>
-                <Ic as={Play} />{selected.state === 'done' ? 'Review' : 'Watch now'}
-              </button>
-              {selected.state === 'done' ? (
-                <button type="button" className="btn o" onClick={() => { mark(selected, false); setSelected(null); }}><Ic as={RotateCcw} />Mark as not done</button>
-              ) : (
-                <button type="button" className="btn o" onClick={() => { mark(selected, true); setSelected(null); }}><Ic as={CheckCircle2} />Mark as done</button>
-              )}
-            </div>
-          </>
-        )}
-      </Dialog>
-
-      <Dialog open={!!playing} onClose={() => setPlaying(null)} size="wide" labelledBy="player-title">
-        {playing && (
-          <>
-            <button type="button" className="ib x" aria-label="Close video" onClick={() => setPlaying(null)}><Ic as={X} /></button>
-            <h3 id="player-title" className="node-title" style={{ marginTop: 0 }}>{playing.title}</h3>
-            <div className="player">
-              {playing.url
-                ? <iframe src={playing.url} title={playing.title} allow="autoplay; fullscreen" allowFullScreen />
-                : <Empty icon={PlayCircle}>This video isn't available yet.</Empty>}
-            </div>
-          </>
-        )}
+      <Dialog open={!!playing} onClose={() => setPlaying(null)} size="xl" labelledBy="player-title">
+        {playing && (() => {
+          const isDone = progress.videos.has(playing.id);
+          return (
+            <>
+              <button type="button" className="ib x" aria-label="Close video" onClick={() => setPlaying(null)}><Ic as={X} /></button>
+              <span className="chip" style={{ background: playing.group.color, color: 'var(--ink-990)' }}>{playing.group.title}</span>
+              <h3 id="player-title" className="node-title">{playing.title}</h3>
+              <div className="player player-xl">
+                {playing.url
+                  ? <iframe src={playing.url} title={playing.title} allow="autoplay; fullscreen; picture-in-picture" />
+                  : <Empty icon={PlayCircle}>This video isn't available yet.</Empty>}
+              </div>
+              <div className="node-acts">
+                <button type="button" className={`btn ${isDone ? 'o' : 'p'}`} onClick={() => mark(playing, !isDone)}>
+                  <Ic as={isDone ? RotateCcw : CheckCircle2} />{isDone ? 'Mark as not done' : 'Mark as done'}
+                </button>
+                {playing.description && <p className="sub node-desc">{playing.description}</p>}
+              </div>
+            </>
+          );
+        })()}
       </Dialog>
     </>
   );

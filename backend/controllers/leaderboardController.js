@@ -1,5 +1,30 @@
 const User = require('../models/User');
 const HallOfFameEntry = require('../models/HallOfFameEntry');
+const AppSettings = require('../models/AppSettings');
+
+// Names every deployment starts with. They are inserted once (first read of the public list),
+// after which the teacher owns the list: edit, delete and add from the portal.
+const PRESET_HALL_OF_FAME = [
+  { name: 'Omar Abdeen', year: '2025' },
+  { name: 'Mostafa El Shaer', year: '2025' },
+  { name: 'Moaz Refai', year: '2025' },
+  { name: 'Zeina Ahmad', year: '2025' },
+  { name: 'Yara Khalafalla', year: '2025' }
+];
+
+const currentYear = () => String(new Date().getFullYear());
+
+const seedHallOfFame = async () => {
+  await AppSettings.getGlobal();
+  // Atomic claim: only one request ever flips the flag, so the preset is inserted exactly once.
+  const claimed = await AppSettings.findOneAndUpdate(
+    { key: 'global', hofSeeded: { $ne: true } },
+    { $set: { hofSeeded: true } }
+  );
+  if (!claimed) return;
+  const existing = await HallOfFameEntry.countDocuments({});
+  if (existing === 0) await HallOfFameEntry.insertMany(PRESET_HALL_OF_FAME);
+};
 
 // @desc    Get top-3 students by currentSession points, filtered by session
 // @route   GET /api/leaderboard?session=NOV+25
@@ -57,10 +82,11 @@ const getLeaderboard = async (req, res) => {
 // @access  Public
 const getHallOfFame = async (req, res) => {
   try {
+    await seedHallOfFame();
     const limit = Number.parseInt(req.query.limit, 10);
     const query = HallOfFameEntry.find({})
       .select('name year createdAt')
-      .sort({ createdAt: -1 });
+      .sort({ year: -1, createdAt: -1 });
 
     if (Number.isFinite(limit) && limit > 0) {
       query.limit(limit);
@@ -106,16 +132,9 @@ const addHallOfFameStudent = async (req, res) => {
       });
     }
 
-    if (!year || !year.trim()) {
-      return res.status(400).json({
-        status: 'error',
-        message: 'Year is required'
-      });
-    }
-
     const entry = await HallOfFameEntry.create({
       name: name.trim(),
-      year: year.trim(),
+      year: (year || '').trim() || currentYear(),
       createdBy: req.user._id
     });
 
@@ -143,10 +162,10 @@ const updateHallOfFameStudent = async (req, res) => {
     const { id } = req.params;
     const { name, year } = req.body;
 
-    if (!name?.trim() || !year?.trim()) {
+    if (!name?.trim()) {
       return res.status(400).json({
         status: 'error',
-        message: 'Student name and year are required'
+        message: 'Student name is required'
       });
     }
 
@@ -155,7 +174,7 @@ const updateHallOfFameStudent = async (req, res) => {
       {
         $set: {
           name: name.trim(),
-          year: year.trim()
+          year: (year || '').trim() || currentYear()
         }
       },
       { new: true, runValidators: true }

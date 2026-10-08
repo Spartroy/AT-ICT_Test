@@ -3,33 +3,20 @@
 .site .lg {
    display: block;
    position: relative;
-   width: 150px;
-   height: 40px;
-   background: var(--white);
-   border-radius: 10px;
-   overflow: hidden;
+   height: 44px;
    flex: none
 }
 
 .site .lg>img.lgi {
-   position: absolute;
-   height: 105px;
+   display: block;
+   height: 100%;
    width: auto;
    max-width: none;
-   left: -17px;
-   top: -32px;
    margin: 0
 }
 
 .site .lg.m {
-   width: 42px;
-   height: 38px
-}
-
-.site .lg.m>img.lgi {
-   height: 84px;
-   left: -8px;
-   top: -18px
+   height: 40px
 }
 
 .site,

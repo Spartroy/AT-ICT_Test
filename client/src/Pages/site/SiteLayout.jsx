@@ -4,7 +4,8 @@ import {
   Award, CheckCircle2, Play, BookOpen, CalendarDays, Video, BarChart3, FileText, Check, Star, Users, Clock,
   MessageCircle, Mail, Phone, MapPin, Instagram, Youtube, Search, Menu, X, ChevronDown, ArrowRight
 } from 'lucide-react';
-import logoFull from '../../assets/brand/logo-full.webp';
+import logoFull from '../../assets/brand/logo-full.png';
+import logoFullLight from '../../assets/brand/logo-full-light.png';
 import { NAV_LINKS, SECTIONS, whatsappLink } from './siteContent';
 import '../../styles/generated/site.css';
 import '../../styles/site-extra.css';
@@ -20,6 +21,24 @@ export const SI = ({ name, ...props }) => {
   const Icon = ICONS[name];
   return Icon ? <Icon className="i" aria-hidden="true" {...props} /> : null;
 };
+
+/** Adds `.in` to `.rv` elements inside `ref` as they scroll into view (reveal-on-scroll). */
+export function useReveal(ref, deps = []) {
+  useEffect(() => {
+    const root = ref.current;
+    if (!root) return undefined;
+    const els = [...root.querySelectorAll('.rv:not(.in)')];
+    if (typeof IntersectionObserver === 'undefined') {
+      els.forEach(e => e.classList.add('in'));
+      return undefined;
+    }
+    const io = new IntersectionObserver(entries => entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+    }), { threshold: 0.15 });
+    els.forEach(e => io.observe(e));
+    return () => io.disconnect();
+  }, deps); // eslint-disable-line react-hooks/exhaustive-deps
+}
 
 /** Link to a home-page section: a plain hash on the home page, a router link elsewhere. */
 export function SectionLink({ id, home, children, ...props }) {
@@ -129,7 +148,7 @@ export default function SiteLayout({ home = false, children }) {
         <div className="wrap">
           <div className="fg">
             <div>
-              <span className="lg" style={{ marginBottom: 16 }}><img className="lgi" src={logoFull} alt="AT-ICT" /></span>
+              <span className="lg" style={{ marginBottom: 16 }}><img className="lgi" src={logoFullLight} alt="AT-ICT" /></span>
               <p>IGCSE ICT mastery built for ambitious students. Interactive notes, live sessions and personalised guidance — all in one platform.</p>
               <div className="soc">
                 <a href={whatsappLink()} target="_blank" rel="noreferrer" aria-label="WhatsApp"><SI name="msg" /></a>
@@ -140,8 +159,7 @@ export default function SiteLayout({ home = false, children }) {
             <div>
               <h4>Explore</h4>
               <ul>
-                {['method', 'samples', 'fees', 'results', 'faq'].map(id => <li key={id}><SectionLink id={id} home={home}>{NAV_LINKS.find(l => l.id === id)?.label}</SectionLink></li>)}
-                <li><Link to="/hall-of-fame">Hall of Fame</Link></li>
+                {NAV_LINKS.filter(l => l.id !== 'contact').map(l => <li key={l.id}><SectionLink id={l.id} home={home}>{l.label}</SectionLink></li>)}
               </ul>
             </div>
             <div>

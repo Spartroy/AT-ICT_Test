@@ -5,27 +5,10 @@ import { useStories } from '../../context/StoriesContext';
 import { useReducedMotion } from '../../hooks/useMediaQuery';
 import tutorPhoto from '../../assets/PP.jpg';
 import videoThumbnail from '../../assets/video-thumbnail.png';
-import SiteLayout, { SI } from './SiteLayout';
+import SiteLayout, { SI, useReveal } from './SiteLayout';
 import Method from './Method';
-import { HERO_STATS, SAMPLES, SAMPLE_FILTERS, PLANS, PERKS, RESULT_COUNTERS, FAQ, CONTACT, whatsappLink } from './siteContent';
-
-/** Adds `.in` to `.rv` elements inside `ref` as they scroll into view (reveal-on-scroll). */
-export function useReveal(ref, deps = []) {
-  useEffect(() => {
-    const root = ref.current;
-    if (!root) return undefined;
-    const els = [...root.querySelectorAll('.rv:not(.in)')];
-    if (typeof IntersectionObserver === 'undefined') {
-      els.forEach(e => e.classList.add('in'));
-      return undefined;
-    }
-    const io = new IntersectionObserver(entries => entries.forEach(e => {
-      if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
-    }), { threshold: 0.15 });
-    els.forEach(e => io.observe(e));
-    return () => io.disconnect();
-  }, deps); // eslint-disable-line react-hooks/exhaustive-deps
-}
+import { HallSection } from './HallOfFame';
+import { SHOW_FEES, HERO_STATS, SAMPLES, SAMPLE_FILTERS, PLANS, PERKS, RESULT_COUNTERS, FAQ, CONTACT, whatsappLink } from './siteContent';
 
 /** Number that counts up (1.4s, ease-out) the first time it is 60% visible. */
 export function CountUp({ to }) {
@@ -75,8 +58,9 @@ export default function Website({ children }) {
         <Method />
         <Tutor />
         <Samples />
-        <Fees />
+        {SHOW_FEES && <Fees />}
         <Results />
+        <HallSection />
         <Faq />
         <Contact />
         <section className="final">
@@ -107,7 +91,7 @@ function Hero() {
             <p className="lead">The only ICT tutoring course built on interactive sessions. No boring sessions. No memorizing.</p>
             <div className="ctas">
               <a className="btn btn-p" href="#samples"><SI name="play" />Watch a free lesson</a>
-              <a className="btn btn-o" href="#fees">See plans</a>
+              {SHOW_FEES ? <a className="btn btn-o" href="#fees">See plans</a> : <a className="btn btn-o" href="#method">See how it works</a>}
             </div>
             <div className="trust">
               {['Scoring A+', 'No coding required', '24/7 support'].map(t => <span key={t}><SI name="cc" />{t}</span>)}

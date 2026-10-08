@@ -137,3 +137,18 @@
 /* Profile pill as a link (teacher → Settings) or button (Change password) */
 .atp .me-link { cursor: pointer; transition: border-color 0.2s; text-align: left; font: inherit; color: inherit; }
 .atp .me-link:hover, .atp .me-link.on { border-color: var(--cr); }
+
+/* Stat cards: calmer numbers that sit comfortably inside their rings. */
+.atp .stat b { font-size: 1.5rem; font-weight: 600; letter-spacing: -0.01em; }
+.atp .stats4 .stat b { font-size: 1.4rem; }
+.atp .ring b { font-weight: 600; letter-spacing: -0.02em; line-height: 1; white-space: nowrap; }
+.atp .ring b i { font-style: normal; font-size: 0.62em; margin-left: 1px; opacity: 0.75; }
+.atp .stat .ring { --fs: 0.95rem; }
+
+/* Stat cards: calmer numbers that fit inside the rings */
+.atp .ring b { font-weight: 600; letter-spacing: -0.01em; white-space: nowrap; }
+.atp .ring b i { font-style: normal; font-size: 0.62em; margin-left: 1px; opacity: 0.75; }
+.atp .stat b { font-size: 1.5rem; font-weight: 600; letter-spacing: -0.01em; }
+.atp .stats4 .stat b { font-size: 1.4rem; }
+.atp .stat small { font-size: 0.8rem; }
+.atp .hero .ring b { font-size: var(--fs, 1.7rem); }

@@ -1,0 +1,92 @@
+const HallOfFameEntry = require('../models/HallOfFameEntry');
+const AppSettings = require('../models/AppSettings');
+const { getHallOfFame, addHallOfFameStudent } = require('../controllers/leaderboardController');
+
+const mockRes = () => {
+  const res = {};
+  res.status = jest.fn(() => res);
+  res.json = jest.fn(() => res);
+  return res;
+};
+
+const listQuery = (rows) => {
+  const q = { select: jest.fn(() => q), sort: jest.fn(() => q), limit: jest.fn(() => q), lean: jest.fn().mockResolvedValue(rows) };
+  return q;
+};
+
+afterEach(() => jest.restoreAllMocks());
+
+describe('public Hall of Fame list', () => {
+  const stubSettings = (claimed) => {
+    jest.spyOn(AppSettings, 'getGlobal').mockResolvedValue({});
+    return jest.spyOn(AppSettings, 'findOneAndUpdate').mockResolvedValue(claimed);
+  };
+
+  it('inserts the preset names once, on the first read of an empty list', async () => {
+    stubSettings({ hofSeeded: false });
+    jest.spyOn(HallOfFameEntry, 'countDocuments').mockResolvedValue(0);
+    const insertMany = jest.spyOn(HallOfFameEntry, 'insertMany').mockResolvedValue([]);
+    jest.spyOn(HallOfFameEntry, 'find').mockReturnValue(listQuery([]));
+
+    await getHallOfFame({ query: {} }, mockRes());
+
+    expect(insertMany).toHaveBeenCalledTimes(1);
+    const names = insertMany.mock.calls[0][0].map(e => e.name);
+    expect(names).toEqual(expect.arrayContaining(['Omar Abdeen', 'Yara Khalafalla']));
+  });
+
+  it('does not insert again once the preset has been claimed (deleting names sticks)', async () => {
+    stubSettings(null);
+    const insertMany = jest.spyOn(HallOfFameEntry, 'insertMany');
+    jest.spyOn(HallOfFameEntry, 'find').mockReturnValue(listQuery([]));
+
+    await getHallOfFame({ query: {} }, mockRes());
+
+    expect(insertMany).not.toHaveBeenCalled();
+  });
+
+  it("leaves an existing deployment's own list untouched", async () => {
+    stubSettings({ hofSeeded: false });
+    jest.spyOn(HallOfFameEntry, 'countDocuments').mockResolvedValue(12);
+    const insertMany = jest.spyOn(HallOfFameEntry, 'insertMany');
+    jest.spyOn(HallOfFameEntry, 'find').mockReturnValue(listQuery([]));
+
+    await getHallOfFame({ query: {} }, mockRes());
+
+    expect(insertMany).not.toHaveBeenCalled();
+  });
+
+  it('returns the entries with their year, newest class first', async () => {
+    stubSettings(null);
+    const q = listQuery([{ _id: 'a', name: 'Zeina Ahmad', year: '2025', createdAt: 'x' }]);
+    jest.spyOn(HallOfFameEntry, 'find').mockReturnValue(q);
+    const res = mockRes();
+
+    await getHallOfFame({ query: {} }, res);
+
+    expect(q.sort).toHaveBeenCalledWith({ year: -1, createdAt: -1 });
+    expect(res.json.mock.calls[0][0].data.hallOfFame[0]).toMatchObject({ name: 'Zeina Ahmad', year: '2025' });
+  });
+});
+
+describe('teacher adds a Hall of Fame student', () => {
+  it('defaults the class year to the current year when none is given', async () => {
+    const create = jest.spyOn(HallOfFameEntry, 'create').mockResolvedValue({});
+    const res = mockRes();
+
+    await addHallOfFameStudent({ body: { name: ' Salma Adel ' }, user: { _id: 'teacher1' } }, res);
+
+    expect(create).toHaveBeenCalledWith({ name: 'Salma Adel', year: String(new Date().getFullYear()), createdBy: 'teacher1' });
+    expect(res.status).toHaveBeenCalledWith(201);
+  });
+
+  it('still requires a name', async () => {
+    const create = jest.spyOn(HallOfFameEntry, 'create');
+    const res = mockRes();
+
+    await addHallOfFameStudent({ body: { name: '  ' }, user: { _id: 'teacher1' } }, res);
+
+    expect(create).not.toHaveBeenCalled();
+    expect(res.status).toHaveBeenCalledWith(400);
+  });
+});

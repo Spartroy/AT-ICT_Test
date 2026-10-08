@@ -1,8 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import Seo from '../../components/Seo';
-import useApi from '../../hooks/useApi';
-import { API_ENDPOINTS } from '../../config/api';
 import SiteLayout from './SiteLayout';
 
 const PageHero = ({ eyebrow, title, lead }) => (
@@ -49,38 +47,6 @@ export function Terms() {
         <h2>Support</h2>
         <p>Questions about these terms can be sent to <Mail />.</p>
       </div>
-    </SiteLayout>
-  );
-}
-
-export function HallOfFame() {
-  const hof = useApi(API_ENDPOINTS.LEADERBOARD.HALL_OF_FAME, b => b.data?.hallOfFame || []);
-  return (
-    <SiteLayout>
-      <Seo title="Hall of Fame" description="AT-ICT students who earned top IGCSE ICT grades." path="/hall-of-fame" />
-      <section className="page-hero dark" style={{ minHeight: '100svh' }}>
-        <div className="wrap">
-          <div className="center">
-            <span className="eyebrow">Hall of Fame</span>
-            <h1 className="h2">Students who made it to the <em>top.</em></h1>
-            <p className="lead">Real AT-ICT students, real A* results.</p>
-          </div>
-          {hof.loading && !hof.data && <p className="lead center" role="status">Loading…</p>}
-          {hof.data && !hof.data.length && <p className="lead center">The first names are coming soon.</p>}
-          <div className="hof-grid">
-            {(hof.data || []).map(s => (
-              <div className="hof-card" key={s._id || s.name}>
-                <span className="av" aria-hidden="true">{(s.name || '?')[0]}</span>
-                <div><b>{s.name}</b><small>Class of {s.year || 'N/A'}</small></div>
-              </div>
-            ))}
-          </div>
-          <div className="center" style={{ marginTop: 48 }}>
-            <p className="lead" style={{ marginBottom: 18 }}>Your name belongs here. Start today.</p>
-            <Link className="btn btn-p" to="/register">Join now</Link>
-          </div>
-        </div>
-      </section>
     </SiteLayout>
   );
 }

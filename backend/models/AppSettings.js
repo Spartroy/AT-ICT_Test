@@ -47,6 +47,11 @@ const appSettingsSchema = new mongoose.Schema({
       message: 'Royal classes must be unique'
     }
   },
+  // Set once the preset Hall of Fame names have been inserted (so deleting them sticks).
+  hofSeeded: {
+    type: Boolean,
+    default: false
+  },
   updatedBy: {
     type: mongoose.Schema.ObjectId,
     ref: 'User'

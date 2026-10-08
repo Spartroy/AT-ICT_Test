@@ -9,9 +9,11 @@
     "@tailwindcss/forms": "^0.5.10",
     "autoprefixer": "^10.4.21",
     "lucide-react": "^0.482.0",
+    "pdfjs-dist": "^3.11.174",
     "postcss": "^8.5.6",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-pageflip": "^2.0.3",
     "react-router-dom": "^6.26.2",
     "react-scripts": "^5.0.1"
   },

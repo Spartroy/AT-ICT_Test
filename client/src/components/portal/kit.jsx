@@ -1,12 +1,12 @@
 import React, { useEffect, useId, useState } from 'react';
 import { ChevronDown, Search as SearchIcon, X, Info } from 'lucide-react';
-import logoFull from '../../assets/brand/logo-full.webp';
-import logoMark from '../../assets/brand/logo-mark.png';
+import logoFull from '../../assets/brand/logo-full-light.png';
+import logoMark from '../../assets/brand/logo-mark-light.png';
 
 /** Lucide icon with the portal's `.i` sizing. */
 export const Ic = ({ as: Icon, ...props }) => <Icon className="i" aria-hidden="true" {...props} />;
 
-/** Logo on a white tile (the PNG is dark on white). mark = compact square. */
+/** Brand logo (transparent PNG, light wordmark for the dark UI). mark = compact AT monogram. */
 export const LogoTile = ({ mark = false, className = '' }) => (
   <span className={`lg ${mark ? 'm' : ''} ${className}`}>
     <img className="lgi" src={mark ? logoMark : logoFull} alt="AT-ICT" />
@@ -31,7 +31,7 @@ export function Ring({ p = 0, color = 'var(--crimson-glow)', size = 76, fs = '1r
         <circle className="t" cx={size / 2} cy={size / 2} r={r} strokeWidth={w} />
         <circle className="v" cx={size / 2} cy={size / 2} r={r} strokeWidth={w} stroke={color} strokeDasharray={L} strokeDashoffset={offset} />
       </svg>
-      <b aria-hidden="true">{pct}%</b>
+      <b aria-hidden="true">{pct}<i>%</i></b>
     </div>
   );
 }

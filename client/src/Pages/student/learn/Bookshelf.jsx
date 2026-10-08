@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { BookOpen, Eye, X, Download, ExternalLink } from 'lucide-react';
+import { BookOpen, X, Download, ExternalLink } from 'lucide-react';
 import useApi from '../../../hooks/useApi';
 import { API_ENDPOINTS } from '../../../config/api';
 import { downloadFile } from '../../../lib/api';
@@ -8,6 +8,7 @@ import { Chips, ErrorNote, Ic, Loading, SearchBox, fmtDate } from '../../../comp
 import { usePortalUI } from '../../../components/portal/PortalUI';
 import { useReducedMotion } from '../../../hooks/useMediaQuery';
 import { useFocusTrap } from '../../../components/ui/Modal';
+import ResourceViewer from '../../../components/portal/viewer/ResourceViewer';
 
 const CATS = [
   { id: 'theory', label: 'Theory' },
@@ -82,6 +83,7 @@ function BookOverlay({ m, spine, style, catLabel, onClosed }) {
   const [on, setOn] = useState(false);
   const [opened, setOpened] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [reading, setReading] = useState(false);
   const closing = useRef(false);
   const timers = useRef([]);
   const later = (fn, ms) => timers.current.push(setTimeout(fn, ms));
@@ -148,14 +150,14 @@ function BookOverlay({ m, spine, style, catLabel, onClosed }) {
     };
   }, [close]);
 
-  const view = async () => {
-    if (m.externalUrl && !m.fileName) {
-      window.open(m.externalUrl, '_blank', 'noopener,noreferrer');
-      return;
-    }
+  const isPdf = /\.pdf$/i.test(m.fileName || '');
+  const isLink = m.externalUrl && !m.fileName;
+  const downloadUrl = `${API_ENDPOINTS.STUDENT.MATERIALS}/${m._id}/download`;
+
+  const download = async () => {
     setBusy(true);
     try {
-      await downloadFile(`${API_ENDPOINTS.STUDENT.MATERIALS}/${m._id}/download`, m.fileName || m.title);
+      await downloadFile(downloadUrl, m.fileName || m.title);
     } catch {
       toast("Couldn't download this material. Please try again.");
     } finally {
@@ -163,7 +165,8 @@ function BookOverlay({ m, spine, style, catLabel, onClosed }) {
     }
   };
 
-  const isLink = m.externalUrl && !m.fileName;
+  // PDFs turn like a book and links open in a wide frame, both inside the portal; other files download.
+  const view = () => (isPdf || isLink ? setReading(true) : download());
 
   return createPortal(
     <div ref={overlayRef} className={`bk-ov ${on ? 'on' : ''}`} role="dialog" aria-modal="true" aria-label={`${m.title} book`} onMouseDown={e => e.target === e.currentTarget && close()}>
@@ -178,7 +181,7 @@ function BookOverlay({ m, spine, style, catLabel, onClosed }) {
               <p className="bk-meta">{m.downloadCount || 0} downloads · {fmtDate(m.createdAt, { day: 'numeric', month: 'short', year: 'numeric' })}</p>
               <div className="pact">
                 <button ref={viewRef} type="button" className="btn p" onClick={view} disabled={busy || !opened}>
-                  <Ic as={isLink ? ExternalLink : busy ? Download : Eye} />{busy ? 'Downloading…' : isLink ? 'Open link' : 'View'}
+                  <Ic as={isLink ? ExternalLink : isPdf ? BookOpen : Download} />{busy ? 'Downloading…' : isLink ? 'Open link' : isPdf ? 'Read' : 'Download'}
                 </button>
                 <button type="button" className="btn o" onClick={close} disabled={!opened}>Close book</button>
               </div>
@@ -191,6 +194,16 @@ function BookOverlay({ m, spine, style, catLabel, onClosed }) {
         </div>
       </div>
       <button type="button" className="bk-x" aria-label="Close book" onClick={close}><Ic as={X} /></button>
+      {reading && (
+        <ResourceViewer
+          kind={isPdf ? 'pdf' : 'web'}
+          src={isPdf ? downloadUrl : m.externalUrl}
+          title={m.title}
+          backLabel="Back to materials"
+          onClose={() => setReading(false)}
+          onDownload={isPdf ? download : undefined}
+        />
+      )}
     </div>,
     layer || document.body
   );

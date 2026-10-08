@@ -3,6 +3,10 @@
 export const WHATSAPP_NUMBER = '201274584000';
 export const whatsappLink = (text) => `https://wa.me/${WHATSAPP_NUMBER}${text ? `?text=${encodeURIComponent(text)}` : ''}`;
 
+// Fees and payment information is hidden for now (one switch brings the section, nav link,
+// "See plans" button and the Pricing FAQ back).
+export const SHOW_FEES = false;
+
 export const SECTIONS = [
   { id: 'top', label: 'Home' },
   { id: 'method', label: 'Method' },
@@ -10,9 +14,10 @@ export const SECTIONS = [
   { id: 'samples', label: 'Free samples' },
   { id: 'fees', label: 'Fees' },
   { id: 'results', label: 'Results' },
+  { id: 'hall', label: 'Hall of Fame' },
   { id: 'faq', label: 'FAQ' },
   { id: 'contact', label: 'Contact' }
-];
+].filter(s => SHOW_FEES || s.id !== 'fees');
 export const NAV_LINKS = SECTIONS.filter(s => !['top', 'about'].includes(s.id));
 
 export const HERO_STATS = [
@@ -60,7 +65,7 @@ export const RESULT_COUNTERS = [
   { n: 12, suffix: '+', label: 'countries' }
 ];
 
-export const FAQ = [
+const FAQ_ALL = [
   ['Getting started', [
     ['How do I know if AT-ICT is right for me?', "AT-ICT is perfect for any IGCSE student who wants to excel. Whether you're struggling with basics or aiming for an A*, our personalised approach adapts to your level. Try our free samples to experience our teaching style risk-free!"],
     ["What if I'm a complete beginner in ICT?", 'No problem — we start from Day one. Every chapter is broken down step by step with interactive notes and recorded sessions you can replay.'],
@@ -87,6 +92,8 @@ export const FAQ = [
     ['Is it suitable for different exam boards?', 'AT-ICT is built for Cambridge IGCSE ICT (0417).']
   ]]
 ];
+
+export const FAQ = FAQ_ALL.filter(([group]) => SHOW_FEES || group !== 'Pricing');
 
 export const CONTACT = {
   emails: ['at.ictofficial@gmail.com', 'ahmad.tamer.ali11@gmail.com'],

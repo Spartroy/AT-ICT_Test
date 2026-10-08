@@ -1,9 +1,8 @@
 /* Portal base (design/portal/portal.css)
    Generated from the prototype by scoping every rule under .atp; colours map to src/styles/tokens.css. */
-.atp .lg{display:block;position:relative;width:150px;height:40px;background:var(--white);border-radius:10px;overflow:hidden;flex:none}
-.atp .lg>img.lgi{position:absolute;height:105px;width:auto;max-width:none;left:-17px;top:-32px;margin:0}
-.atp .lg.m{width:42px;height:38px}
-.atp .lg.m>img.lgi{height:84px;left:-8px;top:-18px}
+.atp .lg{display:block;position:relative;height:36px;flex:none}
+.atp .lg>img.lgi{display:block;height:100%;width:auto;max-width:none;margin:0}
+.atp .lg.m{height:34px}
 
 .atp{--bg:var(--p-bg);--s1:var(--p-s1);--s2:var(--p-s2);--s3:var(--p-s3);--bd:var(--dark-border);--bd2:var(--p-bd2);--tx:var(--p-tx);--mu:var(--ink-300);--fa:var(--ink-400);--cr:var(--crimson-500);--ok:var(--dark-ok);--bl:var(--phase-1);--am:var(--dark-warn);--vi:var(--phase-3)}
 
@@ -351,8 +350,7 @@
 .atp .eb, .atp .btn{white-space:nowrap}
 .atp .hero .acts .btn{flex:0 1 auto}
 .atp .mlogo{display:none}
-.atp .brand .lg{width:170px;height:46px}
-.atp .brand .lg>img.lgi{height:118px;left:-19px;top:-36px}
+.atp .brand .lg{height:42px}
 
 @media(max-width:1100px){.atp .stat .ring{zoom:.88}
 }
