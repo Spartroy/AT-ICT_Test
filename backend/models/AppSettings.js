@@ -47,8 +47,18 @@ const appSettingsSchema = new mongoose.Schema({
       message: 'Royal classes must be unique'
     }
   },
+  // Public website content the teacher can change (see validators/siteSettings.js). Missing keys fall back to defaults.
+  site: {
+    type: mongoose.Schema.Types.Mixed,
+    default: undefined
+  },
   // Set once the preset Hall of Fame names have been inserted (so deleting them sticks).
   hofSeeded: {
+    type: Boolean,
+    default: false
+  },
+  // Same for the 2023/2024 names from the original (hard-coded) Hall of Fame page.
+  hofLegacySeeded: {
     type: Boolean,
     default: false
   },

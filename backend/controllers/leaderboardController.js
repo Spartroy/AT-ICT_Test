@@ -2,28 +2,34 @@ const User = require('../models/User');
 const HallOfFameEntry = require('../models/HallOfFameEntry');
 const AppSettings = require('../models/AppSettings');
 
-// Names every deployment starts with. They are inserted once (first read of the public list),
-// after which the teacher owns the list: edit, delete and add from the portal.
-const PRESET_HALL_OF_FAME = [
-  { name: 'Omar Abdeen', year: '2025' },
-  { name: 'Mostafa El Shaer', year: '2025' },
-  { name: 'Moaz Refai', year: '2025' },
-  { name: 'Zeina Ahmad', year: '2025' },
-  { name: 'Yara Khalafalla', year: '2025' }
-];
+const { PRESET_HALL_OF_FAME, LEGACY_HALL_OF_FAME } = require('../data/hallOfFamePreset');
 
 const currentYear = () => String(new Date().getFullYear());
 
+// Each preset group is inserted once. An atomic claim on a flag means concurrent requests can't
+// insert twice, and names the teacher deletes later stay deleted.
+const claim = async (flag) => AppSettings.findOneAndUpdate(
+  { key: 'global', [flag]: { $ne: true } },
+  { $set: { [flag]: true } }
+);
+
 const seedHallOfFame = async () => {
   await AppSettings.getGlobal();
-  // Atomic claim: only one request ever flips the flag, so the preset is inserted exactly once.
-  const claimed = await AppSettings.findOneAndUpdate(
-    { key: 'global', hofSeeded: { $ne: true } },
-    { $set: { hofSeeded: true } }
-  );
-  if (!claimed) return;
-  const existing = await HallOfFameEntry.countDocuments({});
-  if (existing === 0) await HallOfFameEntry.insertMany(PRESET_HALL_OF_FAME);
+
+  if (await claim('hofSeeded')) {
+    const existing = await HallOfFameEntry.countDocuments({});
+    if (existing === 0) await HallOfFameEntry.insertMany(PRESET_HALL_OF_FAME);
+  }
+
+  if (await claim('hofLegacySeeded')) {
+    const have = new Set((await HallOfFameEntry.find({}).select('name').lean()).map(e => e.name.trim().toLowerCase()));
+    const base = Date.now();
+    // Descending createdAt keeps the original order inside each year.
+    const docs = LEGACY_HALL_OF_FAME
+      .filter(e => !have.has(e.name.toLowerCase()))
+      .map((e, i) => ({ ...e, createdAt: new Date(base - (i + 1) * 1000) }));
+    if (docs.length) await HallOfFameEntry.insertMany(docs);
+  }
 };
 
 // @desc    Get top-3 students by currentSession points, filtered by session

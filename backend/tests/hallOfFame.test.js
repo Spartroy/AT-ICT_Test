@@ -22,17 +22,20 @@ describe('public Hall of Fame list', () => {
     return jest.spyOn(AppSettings, 'findOneAndUpdate').mockResolvedValue(claimed);
   };
 
-  it('inserts the preset names once, on the first read of an empty list', async () => {
-    stubSettings({ hofSeeded: false });
+  it('inserts the preset and the 2023/2024 names once, on the first read of an empty list', async () => {
+    stubSettings({});
     jest.spyOn(HallOfFameEntry, 'countDocuments').mockResolvedValue(0);
     const insertMany = jest.spyOn(HallOfFameEntry, 'insertMany').mockResolvedValue([]);
     jest.spyOn(HallOfFameEntry, 'find').mockReturnValue(listQuery([]));
 
     await getHallOfFame({ query: {} }, mockRes());
 
-    expect(insertMany).toHaveBeenCalledTimes(1);
-    const names = insertMany.mock.calls[0][0].map(e => e.name);
-    expect(names).toEqual(expect.arrayContaining(['Omar Abdeen', 'Yara Khalafalla']));
+    expect(insertMany).toHaveBeenCalledTimes(2);
+    expect(insertMany.mock.calls[0][0].map(e => e.name)).toEqual(expect.arrayContaining(['Omar Abdeen', 'Yara Khalafalla']));
+    const legacy = insertMany.mock.calls[1][0];
+    expect(legacy).toHaveLength(36);
+    expect(legacy.map(e => e.name)).toEqual(expect.arrayContaining(['Nuria Amr', 'Omar Amer']));
+    expect(new Set(legacy.map(e => e.year))).toEqual(new Set(['2023', '2024']));
   });
 
   it('does not insert again once the preset has been claimed (deleting names sticks)', async () => {
@@ -45,15 +48,18 @@ describe('public Hall of Fame list', () => {
     expect(insertMany).not.toHaveBeenCalled();
   });
 
-  it("leaves an existing deployment's own list untouched", async () => {
-    stubSettings({ hofSeeded: false });
+  it("keeps an existing deployment's own entries and only adds the missing 2023/2024 names", async () => {
+    stubSettings({});
     jest.spyOn(HallOfFameEntry, 'countDocuments').mockResolvedValue(12);
-    const insertMany = jest.spyOn(HallOfFameEntry, 'insertMany');
-    jest.spyOn(HallOfFameEntry, 'find').mockReturnValue(listQuery([]));
+    const insertMany = jest.spyOn(HallOfFameEntry, 'insertMany').mockResolvedValue([]);
+    jest.spyOn(HallOfFameEntry, 'find').mockReturnValue(listQuery([{ name: 'nuria amr ' }, { name: 'Someone Else' }]));
 
     await getHallOfFame({ query: {} }, mockRes());
 
-    expect(insertMany).not.toHaveBeenCalled();
+    expect(insertMany).toHaveBeenCalledTimes(1); // no preset: the list wasn't empty
+    const names = insertMany.mock.calls[0][0].map(e => e.name);
+    expect(names).toHaveLength(35);
+    expect(names).not.toContain('Nuria Amr');
   });
 
   it('returns the entries with their year, newest class first', async () => {
