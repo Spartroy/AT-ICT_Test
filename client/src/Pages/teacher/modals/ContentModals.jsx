@@ -214,14 +214,17 @@ export function MaterialModal({ open, onClose, material }) {
   const m = material;
   const f = useForm(open, { title: m?.title || '', description: m?.description || '', type: m?.type || 'theory', externalUrl: m?.externalUrl || '', file: null });
   const { v, set } = f;
+  const isLinkOnly = !!m && !m.fileName; // materials made from a link can have their link edited
   const submit = () => {
     const e = {};
     if (!v.title.trim()) e.title = 'Enter a title';
-    if (!m && !v.file && !v.externalUrl.trim()) e.file = 'Choose a file or paste a link';
+    if ((!m && !v.file && !v.externalUrl.trim()) || (isLinkOnly && !v.externalUrl.trim())) e.file = m ? 'Paste the link' : 'Choose a file or paste a link';
     f.setErrors(e);
     if (Object.keys(e).length) return;
     if (m) {
-      save(f, () => api.put(`${API_ENDPOINTS.TEACHER.MATERIALS}/${m._id}`, { title: v.title.trim(), description: v.description.trim(), type: v.type }), { toast, okMsg: 'Material saved', kind: 'material', onClose });
+      const body = { title: v.title.trim(), description: v.description.trim(), type: v.type };
+      if (isLinkOnly) body.externalUrl = v.externalUrl.trim();
+      save(f, () => api.put(`${API_ENDPOINTS.TEACHER.MATERIALS}/${m._id}`, body), { toast, okMsg: 'Material saved', kind: 'material', onClose });
       return;
     }
     const fd = new FormData();
@@ -237,6 +240,9 @@ export function MaterialModal({ open, onClose, material }) {
       <Fld label="Title *" error={f.errors.title}><input className="inp" value={v.title} onChange={set('title')} placeholder="e.g. Classified" /></Fld>
       <Fld label="Description (optional)"><textarea className="inp" rows={2} value={v.description} onChange={set('description')} /></Fld>
       <Fld label="Type"><select className="inp" value={v.type} onChange={set('type')}><option value="theory">Theory</option><option value="practical">Practical</option><option value="other">Other</option></select></Fld>
+      {isLinkOnly && (
+        <Fld label="Link" error={f.errors.file}><input className="inp" type="url" value={v.externalUrl} onChange={set('externalUrl')} placeholder="https://drive.google.com/…" /></Fld>
+      )}
       {!m && (
         <>
           <label className="drop">

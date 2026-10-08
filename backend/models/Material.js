@@ -37,6 +37,12 @@ const materialSchema = new mongoose.Schema({
     type: String,
     default: null
   },
+  description: {
+    type: String,
+    trim: true,
+    maxlength: [500, 'Description cannot be more than 500 characters'],
+    default: ''
+  },
   // External link for link-only materials
   externalUrl: {
     type: String,

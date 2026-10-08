@@ -5,6 +5,7 @@ import { api } from '../../../lib/api';
 import { Ic } from '../kit';
 import { usePortalUI } from '../PortalUI';
 import { useFocusTrap } from '../../ui/Modal';
+import { toEmbedUrl } from '../../../lib/embedUrl';
 import '../../../styles/viewer.css';
 
 const FlipBook = lazy(() => import('./FlipBook'));
@@ -86,7 +87,7 @@ export default function ResourceViewer({ kind, src, title, onClose, onDownload, 
             <iframe
               className="vw-frame"
               title={title}
-              src={src}
+              src={toEmbedUrl(src)}
               onLoad={() => setFrameLoaded(true)}
               allow="fullscreen; autoplay; clipboard-write"
              

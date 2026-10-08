@@ -65,3 +65,6 @@
 @keyframes hub-pop { from { transform: scale(0.6); opacity: 0; } }
 .atp-student .orb:hover > circle { stroke: var(--white); }
 @media (prefers-reduced-motion: reduce) { .atp-student .odet, .atp-student .hub { animation: none; } }
+
+/* Chapter details sit at the top of the orbit stage, not centred beside it. */
+.atp-student .orbit { align-items: start; }
