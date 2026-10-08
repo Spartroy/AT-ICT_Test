@@ -24,7 +24,7 @@ export default function Work() {
   if (!TABS.some(t => t.id === tab)) return <Navigate to={`${base}/work/assignments`} replace />;
   return (
     <>
-      <PageHead eyebrow="Assignments & quizzes" title="Your work" />
+      <PageHead title="Your work" />
       <Seg tabs={TABS} value={tab} onChange={id => navigate(`${base}/work/${id}`)} label="Work sections" />
       {tab === 'assignments' ? <AssignmentList onChange={dashboard.reload} /> : <QuizList onChange={dashboard.reload} />}
     </>

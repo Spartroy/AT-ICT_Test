@@ -22,7 +22,7 @@ export default function Students() {
   if (!['all', 'registrations'].includes(tab)) return <Navigate to={`${base}/students/all`} replace />;
   return (
     <>
-      <PageHead eyebrow="Student management" title="Students" />
+      <PageHead title="Students" />
       <Seg
         tabs={[{ id: 'all', label: 'All students', icon: Users }, { id: 'registrations', label: 'Registrations', icon: Bell, count: counts.pendingRegs || '' }]}
         value={tab}

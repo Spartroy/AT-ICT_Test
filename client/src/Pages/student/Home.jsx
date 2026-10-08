@@ -44,7 +44,6 @@ export default function Home() {
     <>
       <div className="hero">
         <div>
-          <span className="eb">Welcome back</span>
           <h1 className="big">Hi {me.firstName} — let's get that <em>A*.</em></h1>
           <p className="sub">You're {progress}% through this term's plan. Keep the streak alive.</p>
           <div className="acts">

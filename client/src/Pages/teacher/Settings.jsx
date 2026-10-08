@@ -87,7 +87,7 @@ export default function Settings() {
 
   return (
     <>
-      <PageHead eyebrow="Settings" title="Settings"><p className="sub">Options students see on the registration form, and season tools.</p></PageHead>
+      <PageHead title="Settings"><p className="sub">Options students see on the registration form, and season tools.</p></PageHead>
 
       <section className="card set-card" aria-labelledby="set-sessions">
         <h3 id="set-sessions"><Ic as={CalendarDays} />Exam sessions</h3>

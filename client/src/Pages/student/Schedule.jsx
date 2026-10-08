@@ -19,7 +19,6 @@ export default function Schedule() {
 
   const head = (
     <PageHead
-      eyebrow="Class timetable"
       title="Weekly schedule"
       actions={
         <div className="seg" style={{ margin: 0 }} role="tablist" aria-label="Schedule view">

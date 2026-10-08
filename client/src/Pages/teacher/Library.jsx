@@ -58,7 +58,6 @@ export default function Library() {
   return (
     <>
       <PageHead
-        eyebrow="Content library"
         title="Library"
         actions={current.add && <button type="button" className="btn p" onClick={() => openModal(current.add)}><Ic as={Plus} />Add {addLabel}</button>}
       />

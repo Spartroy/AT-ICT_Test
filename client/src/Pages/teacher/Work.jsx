@@ -22,7 +22,6 @@ export default function Work() {
   return (
     <>
       <PageHead
-        eyebrow="Assignments & quizzes"
         title="Work"
         actions={
           <>

@@ -37,7 +37,7 @@ export default function Schedule() {
 
   return (
     <>
-      <PageHead eyebrow="Class timetable" title="Schedule" actions={<button type="button" className="btn p" onClick={() => openModal('schedule')}><Ic as={Plus} />New schedule</button>} />
+      <PageHead title="Schedule" actions={<button type="button" className="btn p" onClick={() => openModal('schedule')}><Ic as={Plus} />New schedule</button>} />
       <Seg tabs={[{ id: 'list', label: 'Schedules', icon: List, count: schedules.length }, { id: 'week', label: 'Weekly view', icon: CalendarDays }]} value={tab} onChange={id => navigate(`${base}/schedule/${id}`)} label="Schedule views" />
       {list.loading && !list.data && <Loading label="Loading schedules…" />}
       {list.error && <ErrorNote error={list.error} onRetry={list.reload} />}

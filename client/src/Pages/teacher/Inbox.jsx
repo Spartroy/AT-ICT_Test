@@ -20,7 +20,6 @@ export default function Inbox() {
   return (
     <>
       <PageHead
-        eyebrow="Stay in the loop"
         title="Inbox"
         actions={tab === 'announcements' && <button type="button" className="btn p" onClick={() => openModal('announcement')}><Ic as={Plus} />Create announcement</button>}
       />

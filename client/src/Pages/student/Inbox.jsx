@@ -22,7 +22,7 @@ export default function Inbox() {
 
   return (
     <>
-      <PageHead eyebrow="Stay in the loop" title="Inbox" />
+      <PageHead title="Inbox" />
       <Seg tabs={tabs} value={tab} onChange={id => navigate(`${base}/inbox/${id}`)} label="Inbox sections" />
       {tab === 'announcements' ? <AnnouncementFeed /> : <StudentChat onRead={dashboard.reload} />}
     </>

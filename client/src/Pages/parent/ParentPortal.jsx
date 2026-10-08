@@ -52,7 +52,7 @@ export default function ParentPortal() {
         <Route path="homework" element={<WorkList kind="assignments" progress={progress} />} />
         <Route path="quizzes" element={<WorkList kind="quizzes" progress={progress} />} />
         <Route path="payments" element={<Payments payments={payments} />} />
-        <Route path="inbox" element={<><PageHead eyebrow="From the teacher" title="Announcements" /><AnnouncementFeed /></>} />
+        <Route path="inbox" element={<><PageHead title="Announcements" /><AnnouncementFeed /></>} />
         <Route path="*" element={<Navigate to={BASE} replace />} />
       </Routes>
     );
@@ -88,7 +88,6 @@ function ParentHome({ child, childName, stats, progress, payments }) {
     <>
       <div className="hero">
         <div>
-          <span className="eb">Parent view</span>
           <h1 className="big">{childName.split(' ')[0]}'s progress, <em>at a glance.</em></h1>
           <p className="sub">{[child.year && `Year ${child.year}`, child.session, child.studentId && `ID ${child.studentId}`].filter(Boolean).join(' · ')}</p>
           <p className="sub">Target grade <b className="tx">{child.targetGrade}</b>{child.currentGrade && child.currentGrade !== 'N/A' ? <> · Current <b className="tx">{child.currentGrade}</b></> : null}</p>
@@ -134,7 +133,7 @@ function WorkList({ kind, progress }) {
   const done = items.filter(x => DONE.includes(x.status)).length;
   return (
     <>
-      <PageHead eyebrow={isQuiz ? 'Quiz tracking' : 'Homework'} title={isQuiz ? 'Quizzes' : 'Homework'} />
+      <PageHead title={isQuiz ? 'Quizzes' : 'Homework'} />
       {progress.loading && !progress.data && <Loading />}
       {progress.error && <ErrorNote error={progress.error} onRetry={progress.reload} />}
       {progress.data && (
@@ -193,7 +192,7 @@ function Payments({ payments }) {
 
   return (
     <>
-      <PageHead eyebrow="Fees" title="Payments" />
+      <PageHead title="Payments" />
       {payments.loading && !payments.data && <Loading />}
       {payments.error && <ErrorNote error={payments.error} onRetry={payments.reload} />}
       {payments.data && !list.length && <div className="card"><Empty icon={CreditCard}>No payment plans yet.</Empty></div>}

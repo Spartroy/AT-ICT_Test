@@ -123,10 +123,9 @@ export const Stat = ({ icon, label, value, note, ring }) => (
   </div>
 );
 
-export const PageHead = ({ eyebrow, title, children, actions }) => (
+export const PageHead = ({ title, children, actions }) => (
   <div className={`ph ${actions ? 'pr' : ''}`}>
     <div>
-      {eyebrow && <span className="eb">{eyebrow}</span>}
       <h1>{title}</h1>
       {children}
     </div>

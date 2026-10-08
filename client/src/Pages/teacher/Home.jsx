@@ -74,7 +74,7 @@ export default function Home() {
 
   return (
     <>
-      <PageHead eyebrow="Teacher view" title={<>Welcome back, <span className="hl">Maestro.</span></>}>
+      <PageHead title={<>Welcome back, <span className="hl">Maestro.</span></>}>
         <p className="sub">{overview.totalStudents ?? '—'} students enrolled</p>
       </PageHead>
 
