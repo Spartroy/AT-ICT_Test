@@ -1,14 +1,15 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Play, FileText, Presentation, Database, Table, Share2, Star, CheckCircle2, X, RotateCcw, PlayCircle, Check } from 'lucide-react';
 import useApi from '../../../hooks/useApi';
 import { API_ENDPOINTS } from '../../../config/api';
 import { Accordion, Chips, Empty, ErrorNote, Ic, Loading } from '../../../components/portal/kit';
 import { Dialog, useToast } from '../../../components/portal/PortalUI';
-import useMediaQuery from '../../../hooks/useMediaQuery';
 import useProgress from './useProgress';
 import { buildVideoGroups, nodeStates, doneCount, defaultOpenGroup, serpentineRows } from './mapLogic';
 
 export const MAP_ICONS = { play: Play, doc: FileText, slides: Presentation, db: Database, grid: Table, share: Share2, star: Star };
+
+const NODE_W = 140; // px per lesson in the map
 
 const SECTIONS = [
   { id: 'theory', label: 'Theory' },
@@ -23,8 +24,19 @@ export default function VideoMaps() {
   const [section, setSection] = useState('theory');
   const [openMap, setOpenMap] = useState({});
   const [playing, setPlaying] = useState(null);
-  const narrow = useMediaQuery('(max-width: 700px)');
-  const cols = narrow ? 3 : 4;
+  // A group's lessons sit on one centred line when they fit; otherwise they wrap into rows that fit the width.
+  const areaRef = useRef(null);
+  const [areaWidth, setAreaWidth] = useState(900);
+  useLayoutEffect(() => {
+    const el = areaRef.current;
+    if (!el) return undefined;
+    const measure = () => setAreaWidth(el.clientWidth);
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [videos.data]);
+  const colsFor = (count) => Math.max(3, Math.min(count, Math.floor((areaWidth - 56) / NODE_W)));
   const toast = useToast();
 
   const groups = useMemo(() => videos.data?.[section] || [], [videos.data, section]);
@@ -52,7 +64,9 @@ export default function VideoMaps() {
   return (
     <>
       <Chips items={SECTIONS} value={section} onChange={setSection} label="Video section" />
+      <div ref={areaRef}>
       {groups.map((g, gi) => {
+        const cols = colsFor(g.items.length);
         const nodes = nodeStates(g.items, progress.videos);
         const GroupIcon = MAP_ICONS[g.icon] || Play;
         return (
@@ -106,6 +120,7 @@ export default function VideoMaps() {
           </Accordion>
         );
       })}
+      </div>
 
       <Dialog open={!!playing} onClose={() => setPlaying(null)} size="xl" labelledBy="player-title">
         {playing && (() => {
