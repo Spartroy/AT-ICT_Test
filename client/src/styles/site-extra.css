@@ -28,6 +28,11 @@ html.site-html { scroll-behavior: smooth; scroll-padding-top: 90px; }
 .site a.float { color: var(--ink-900); text-decoration: none; z-index: 2; transition: transform 0.25s; }
 .site a.float:hover { color: var(--ink-900); }
 
+/* Hero stats */
+.site .stat b { font-size: clamp(3.4rem, 6.2vw, 5.2rem) !important; line-height: 1.05; }
+.site .stat b i { font-size: 0.75em; }
+.site .stat span { font-size: clamp(1.1rem, 1.35vw, 1.3rem); line-height: 1.3; font-weight: 500; display: block; margin-top: 4px; }
+
 /* Tutor photo */
 .site .photo { overflow: hidden; }
 .site .photo img { width: 100%; height: 100%; object-fit: cover; }
