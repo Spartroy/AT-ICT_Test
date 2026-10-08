@@ -585,11 +585,11 @@ to{opacity:0;transform:scale(2.1)}
 @media(max-width:640px){.site .tc{flex-basis:100%}
 }
 
-.site .stat b{font-size:clamp(3.4rem,6.2vw,5.2rem)!important}
+.site .stat b{font-size:clamp(2.6rem,5vw,4rem)!important}
 .site .res b{font-size:clamp(3.2rem,6vw,4.8rem)!important}
-.site .stat b i{font-size:.75em}
+.site .stat b i{font-size:.7em}
 .site .res span{font-size:1rem}
-.site .stat span{font-size:clamp(1.1rem,1.35vw,1.3rem)}
+.site .stat span{font-size:.95rem}
 
 .site .t1{font-size:9px!important}
 
