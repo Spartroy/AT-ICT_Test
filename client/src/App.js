@@ -25,7 +25,7 @@ const Terms = lazy(() => import("./Pages/info/Terms"));
 
 const AuthPage = lazy(() => import("./Pages/auth/AuthPage"));
 
-const TeacherDashboard = lazy(() => import("./Pages/portal/TeacherDashboard"));
+const TeacherPortal = lazy(() => import("./Pages/teacher/TeacherPortal"));
 const StudentPortal = lazy(() => import("./Pages/student/StudentPortal"));
 const ParentDashboard = lazy(() => import("./Pages/portal/ParentDashboard"));
 
@@ -73,10 +73,10 @@ function App() {
 
               {/* Portal Routes */}
               <Route
-                path="/teacher-dashboard"
+                path="/teacher-dashboard/*"
                 element={
                   <ProtectedRoute allowedRoles={['teacher', 'admin']}>
-                    <TeacherDashboard />
+                    <TeacherPortal />
                   </ProtectedRoute>
                 }
               />

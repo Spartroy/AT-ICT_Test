@@ -12,8 +12,9 @@ import '../../styles/portal-extra.css';
 /**
  * Shared portal layout: 248px sticky sidebar (desktop) / bottom tab bar (≤900px), sticky top bar.
  * nav: [{ to, label, icon, badge?, end? }]. `aside` renders under the nav (points card, etc.).
+ * meTo: optional link for the profile pill (the teacher's Settings).
  */
-export default function PortalShell({ variant, nav, title, user, tagline, aside, bell, children }) {
+export default function PortalShell({ variant, nav, title, user, tagline, aside, bell, meTo, children }) {
   const navigate = useNavigate();
 
   const logout = async () => {
@@ -61,10 +62,17 @@ export default function PortalShell({ variant, nav, title, user, tagline, aside,
               <button type="button" className="ib" aria-label="Log out" onClick={logout}>
                 <LogOut className="i" aria-hidden="true" />
               </button>
-              <div className="me">
-                <span className="av" aria-hidden="true">{initials(user?.name)}</span>
-                <div><b>{user?.name}</b><small>{user?.sub}</small></div>
-              </div>
+              {meTo ? (
+                <NavLink to={meTo} className="me me-link" aria-label={`${user?.name}, settings`}>
+                  <span className="av" aria-hidden="true">{initials(user?.name)}</span>
+                  <div><b>{user?.name}</b><small>{user?.sub}</small></div>
+                </NavLink>
+              ) : (
+                <div className="me">
+                  <span className="av" aria-hidden="true">{initials(user?.name)}</span>
+                  <div><b>{user?.name}</b><small>{user?.sub}</small></div>
+                </div>
+              )}
             </header>
             <main id="main-content" tabIndex={-1}>
               <section className="view on">{children}</section>

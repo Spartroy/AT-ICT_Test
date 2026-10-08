@@ -189,6 +189,8 @@ const getStudents = async (req, res) => {
       session: student.studentInfo?.session || 'N/A',
       school: student.studentInfo?.school || 'N/A',
       nationality: student.studentInfo?.nationality || 'N/A',
+      schoolType: student.studentInfo?.schoolType || null,
+      royalClass: student.studentInfo?.royalClass || null,
       registrationStatus: student.registrationStatus,
       isActive: student.isActive,
       lastLogin: student.lastLogin,

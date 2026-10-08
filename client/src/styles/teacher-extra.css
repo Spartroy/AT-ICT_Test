@@ -1,0 +1,68 @@
+/* Teacher portal pieces the prototype built with inline styles or didn't need. */
+.atp-teacher a.attc { color: inherit; }
+.atp-teacher .col-stack { display: grid; gap: 18px; align-content: start; }
+.atp-teacher .act-n { width: 34px; height: 34px; border-color: var(--bd2); color: var(--mu); }
+.atp-teacher .act-list { padding: 0 14px 12px; }
+.atp-teacher .lg-r.unread span:nth-child(2) { color: var(--white); font-weight: 600; }
+.atp-teacher .me-link { cursor: pointer; transition: border-color 0.2s; }
+.atp-teacher .me-link:hover, .atp-teacher .me-link.on { border-color: var(--cr); }
+
+/* Submissions */
+.atp-teacher .sl-search { padding: 8px 10px 0; }
+.atp-teacher .sl-r { cursor: default; gap: 6px; padding: 6px 8px; }
+.atp-teacher .sl-open { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; text-align: left; padding: 5px 2px; border-radius: 12px; }
+.atp-teacher .sp-chips { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.atp-teacher .prev .btn { color: var(--white); }
+.atp-teacher .prev .btn svg { width: 1.15em; height: 1.15em; }
+.atp-teacher .grade .inp { width: 100%; }
+.atp-teacher .gr-i .inp { width: 110px; }
+.atp-teacher .pkp[hidden] { display: none; }
+
+/* Tables */
+.atp-teacher .tcount-h { margin-left: auto; font-weight: 400; }
+.atp-teacher .trow { gap: 8px; padding: 6px 8px; }
+.atp-teacher .trow-open { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; text-align: left; padding: 6px; border-radius: 12px; }
+.atp-teacher .qs-row { flex-wrap: wrap; }
+.atp-teacher .qs-score { width: 90px; min-height: 38px; padding: 6px 10px; }
+.atp-teacher .load-more { display: flex; justify-content: center; padding: 10px; }
+
+/* Students */
+.atp-teacher .menu[hidden] { display: none; }
+.atp-teacher .mono { font-family: var(--font-mono, ui-monospace, monospace); user-select: all; }
+.atp-teacher .stu-body { max-height: 60vh; overflow: auto; }
+.atp-teacher .pay-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; gap: 8px; flex-wrap: wrap; }
+.atp-teacher .pay-head h3 { display: flex; gap: 8px; align-items: center; font-family: var(--font-body); letter-spacing: 0; font-size: 1.02rem; }
+.atp-teacher .pay-amt { font-size: 1rem; }
+
+/* Forms */
+.atp-teacher .hw-custom { width: 110px; min-height: 40px; padding: 8px 14px; }
+.atp-teacher .stu-check { margin-bottom: 12px; }
+.atp-teacher .stu-check__bar { display: flex; align-items: center; font-size: 0.85rem; margin-bottom: 8px; }
+.atp-teacher .asr-sub { margin-left: auto; color: var(--fa); font-size: 0.75rem; }
+.atp-teacher .day-n { width: 34px; height: 34px; border-color: var(--bd2); color: var(--mu); font-size: 0.75rem; }
+.atp-teacher .ses-add { padding: 0 12px 12px; }
+
+/* Library / site content */
+.atp-teacher .lmain small.wrap { white-space: normal; }
+.atp-teacher .tn { cursor: pointer; }
+
+/* Announcements, schedule */
+.atp-teacher .ann-c { margin-bottom: 12px; }
+.atp-teacher .ann-c__head { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.atp-teacher .sch-head { display: flex; align-items: center; gap: 8px; }
+
+/* Settings */
+.atp-teacher .set-card { margin-bottom: 18px; }
+.atp-teacher .set-note { margin: -8px 0 16px; font-size: 0.88rem; }
+.atp-teacher .set-row { display: grid; grid-template-columns: 130px 1fr auto auto auto; gap: 12px; align-items: end; padding: 12px; border-radius: 14px; background: var(--s2); margin-bottom: 10px; }
+.atp-teacher .set-row .fld { margin: 0; }
+.atp-teacher .set-count { font-size: 0.8rem; white-space: nowrap; padding-bottom: 12px; }
+.atp-teacher .set-row .ib { margin-bottom: 4px; }
+.atp-teacher .set-chips { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; padding: 0; margin: 0 0 14px; }
+.atp-teacher .set-chips li { display: flex; gap: 8px; align-items: center; padding: 4px 4px 4px 14px; border-radius: 99px; background: var(--s2); border: 1px solid var(--bd); font-size: 0.9rem; }
+
+@media (max-width: 700px) {
+  .atp-teacher .set-row { grid-template-columns: 1fr 1fr; }
+  .atp-teacher .hide-sm { display: none; }
+  .atp-teacher .trow-open .tcount { display: none; }
+}
