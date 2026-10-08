@@ -1,0 +1,23 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "dev",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "run",
+        "dev"
+      ],
+      "port": 3000
+    },
+    {
+      "name": "client-e2e",
+      "runtimeExecutable": "cmd",
+      "runtimeArgs": [
+        "/c",
+        "cd client && npx cross-env PORT=3005 BROWSER=none REACT_APP_API_URL=http://localhost:5001 react-scripts start"
+      ],
+      "port": 3005
+    }
+  ]
+}
