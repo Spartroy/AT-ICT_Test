@@ -1,0 +1,104 @@
+/* AT-ICT design tokens (source: design/tokens/*.css, design/README.md).
+   Components reference these variables, never raw hex values.
+   The Tailwind theme (tailwind.config.js) maps onto the same variables. */
+
+:root {
+  /* ---- Brand ---------------------------------------------------------- */
+  --crimson-50: #FDE8EC;
+  --crimson-100: #FBD0D9;
+  --crimson-300: #EE6E89;
+  --crimson-500: #CA133E;
+  --crimson-600: #B51137;
+  --crimson-700: #A01030;
+  --crimson-900: #6E0B21;
+  --crimson-bright: #F2365F;   /* crimson highlight text on dark ("hl", step headings) */
+  --crimson-glow: #FF5A7C;     /* gradient partner for crimson fills */
+  --crimson-ink: #8E0F2D;      /* final CTA band gradient end */
+  --crimson-rgb: 202 19 62;    /* for translucent tints: rgb(var(--crimson-rgb) / .2) */
+
+  --gold-300: #F1C44F;
+  --gold-500: #DC9F0E;
+  --gold-700: #A9790A;
+  --gold-rgb: 220 159 14;
+
+  /* ---- Ink / neutrals ------------------------------------------------- */
+  --white: #FFFFFF;
+  --ink-50: #F5F5F6;
+  --ink-100: #E7E7E9;
+  --ink-200: #C9C9CE;
+  --ink-300: #A3A3AB;
+  --ink-400: #6B6B73;
+  --ink-500: #44444B;
+  --ink-700: #2A2A2E;
+  --ink-800: #1F1F22;
+  --ink-900: #1A1A1A;
+  --ink-950: #0F0F0F;
+
+  --warm-900: #1A1A1A;
+  --warm-800: #2A1A1A;
+  --warm-700: #3A1A1A;
+
+  /* ---- Status --------------------------------------------------------- */
+  --success-500: #16B981;
+  --warning-500: #F59E0B;
+  --danger-500: #EF4444;
+  --info-500: #3B82F6;
+  --whatsapp-500: #25D366;
+  --whatsapp-600: #1DA851;
+
+  /* ---- Dark UI surfaces (auth modal, portals) ------------------------ */
+  --dark-modal: #0B0B0C;
+  --dark-card: #0D0D0E;
+  --dark-input: #151516;
+  --dark-raised: #141416;
+  --dark-track: #1A1A1A;
+  --dark-border: #26262A;
+  --dark-border-soft: #2C2C30;
+  --dark-border-strong: #333333;
+  --dark-border-hover: #555555;
+  --dark-text: #FFFFFF;
+  --dark-text-soft: #D1D1D6;
+  --dark-text-muted: #A3A3AB;
+  --dark-text-faint: #8A8A93;
+  --dark-label: #FFB3C2;       /* field labels inside the auth modal */
+  --dark-accent-text: #FF7D98; /* eyebrow / error text on dark */
+  --dark-error: #FB7185;       /* error borders */
+  --dark-error-rgb: 251 113 133;
+  --dark-selected-from: #2A1218; /* selected choice card gradient */
+  --dark-selected-to: #120C0E;
+  --dark-ok: #34D399;
+  --dark-warn: #FBBF24;
+  --dark-good: #A3E635;
+
+  /* ---- Typography ----------------------------------------------------- */
+  --font-display: "Jumper", "Poppins", system-ui, sans-serif;
+  --font-body: "Poppins", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-numeric: "Absans", "Poppins", system-ui, sans-serif;
+  --tracking-tight: -0.02em;
+  --tracking-label: 0.14em;
+
+  /* ---- Radius --------------------------------------------------------- */
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;   /* buttons, inputs */
+  --radius-lg: 1rem;
+  --radius-xl: 1.25rem;
+  --radius-2xl: 1.5rem;
+  --radius-panel: 1.75rem; /* big panels, auth modal */
+  --radius-pill: 9999px;
+
+  /* ---- Shadows -------------------------------------------------------- */
+  --shadow-primary: 0 10px 30px -8px rgb(var(--crimson-rgb) / 0.7);
+  --shadow-popover: 0 24px 60px rgba(0, 0, 0, 0.65);
+  --shadow-modal-glow: 0 0 80px rgb(var(--crimson-rgb) / 0.35);
+  --focus-ring-dark: 0 0 0 3px rgb(var(--crimson-rgb) / 0.4);
+  --focus-ring-light: 0 0 0 3px var(--crimson-50);
+
+  /* ---- Motion --------------------------------------------------------- */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* ---- Layout --------------------------------------------------------- */
+  --touch-min: 44px;
+  --container-max: 1200px;
+}

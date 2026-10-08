@@ -2,21 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-@font-face {
-  font-family: "Jumper";
-  src: url("./assets/fonts/jumper-regular.ttf") format("truetype");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Jumper";
-  src: url("./assets/fonts/jumper-bold.ttf") format("truetype");
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
+/* Font faces and design tokens: styles/fonts.css and styles/tokens.css (imported in index.js) */
 
 html{
     scroll-behavior: smooth;
@@ -25,7 +11,7 @@ html{
 /* Global visible focus ring for keyboard users.
    Components can opt out with focus-visible:outline-none + their own ring. */
 :focus-visible {
-    outline: 2px solid #CA133E;
+    outline: 2px solid var(--crimson-500);
     outline-offset: 2px;
     border-radius: 2px;
 }

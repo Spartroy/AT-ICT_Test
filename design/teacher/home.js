@@ -1,0 +1,22 @@
+/* ---------- HOME ---------- */
+const needsN=()=>SUBS.filter(s=>s.status==='needs');
+R.home=()=>{const nd=needsN(),late=nd.filter(s=>s.late).length,pend=REGS.filter(r=>r.status==='pending'),unread=CHATS.reduce((a,c)=>a+c.unread,0);
+const att=[['goWork','needs',nd.length,'Need grading',late?late+' late':'All on time','task',nd.length],['goRegs','',pend.length,'Pending registrations','Review &amp; approve','users',pend.length],['goWork','late',late,'Late submissions','Check these first','alert',late],['goChat','',unread,'Unread messages','Parents &amp; students','msg',unread]];
+const QA=[['Create H.W','task','qHW'],['Create Quiz','cap','qQuiz'],['Send announcement','mega','qAnn'],['Add video','play','qVid'],['Add interactive note','lib','qNote'],['Approve registrations','users','goRegs'],['Create schedule','cal','qSch']];
+const grp=[['reg','Registrations','users'],['sub','Submissions','task']].map(g=>({...g,items:LOG.filter(l=>l[0]===g[0])}));
+$('#v-home').innerHTML=`<div class="ph"><span class="eb">Teacher view</span><h1>Welcome back, <span class="hl">Maestro.</span></h1><p class="sub">21 students enrolled</p></div>
+<div class="att">${att.map(a=>`<button class="attc ${a[6]?'hot':''}" data-act="${a[0]}" data-arg="${a[1]}"><span class="attn">${a[2]}</span><span class="attt"><b>${a[3]}</b><small>${a[4]}</small></span>${ic('right')}</button>`).join('')}</div>
+<div class="g4">${[['Total students','users','21'],['Active announcements','mega',ANN.length],['Avg. score','trophy','0%'],['Avg. progress','grid','12%']].map(s=>`<div class="stat"><div><small>${ic(s[1])}${s[0]}</small><b>${s[2]}</b></div></div>`).join('')}</div>
+<div class="g2h"><div style="display:grid;gap:18px;align-content:start"><div class="card"><h3>${ic('alert')}Needs your action<span class="chip c-rd" style="margin-left:6px">${nd.length+pend.length}</span></h3>${pend.length+nd.length?'':empty('You\'re all caught up.','ok')}
+${pend.map(r=>`<div class="act-r"><span class="av">${ini(r.n)}</span><div><b>${r.n}</b><small>New registration · ${r.date}</small></div><div class="act-b"><button class="btn o sm" data-act="viewReg">View</button><button class="btn g sm" data-act="apprReg">Approve</button></div></div>`).join('')}
+${nd.slice(0,4).map(s=>`<div class="act-r"><span class="av">${ini(s.st)}</span><div><b>${s.st}</b><small>${s.a}${s.late?' · <span class="bad">Late</span>':''} · ${s.at}</small></div><div class="act-b"><button class="btn p sm" data-act="gradeSub" data-arg="${s.id}">Grade</button></div></div>`).join('')}${nd.length>4?`<button class="btn o sm" style="margin-top:8px" data-act="goWork" data-arg="needs">See all ${nd.length} →</button>`:''}</div>
+<div class="card"><h3>${ic('clock')}Recent activity<button class="lk" data-act="readAll">Mark all read</button></h3>${grp.map((g,i)=>`<div class="acc cl"><button data-act="acc"><span class="n" style="width:34px;height:34px;border-color:var(--bd2);color:var(--mu)">${ic(g[2])}</span><span><h4>${g[1]}</h4></span><span class="gcount">${g.items.length}</span>${ic('down')}</button><div class="bd3"><div style="padding:0 14px 12px">${g.items.length?g.items.map(l=>`<div class="lg-r"><span class="av" style="width:30px;height:30px;font-size:.7rem">${ini(l[1])}</span><span>${l[1]} registered</span><small>${l[2]}</small></div>`).join(''):'<p class="sub" style="padding:8px">Nothing new.</p>'}</div></div></div>`).join('')}</div></div>
+<div class="card"><h3>${ic('trophy')}Leaderboard<span class="chip c-gy" style="margin-left:6px">NOV 25</span></h3>${LEAD.map((l,i)=>`<div class="lb"><i>0${i+1}</i><span class="av ${['a1','a2','a3'][i]}">${ini(l[0])}</span><b>${l[0]}</b><span class="pt">${l[1]}</span></div>`).join('')}</div></div>`}
+ACT.goWork=(t)=>{S.work.tab='subs';if(t&&t.dataset.arg)S.work.f=t.dataset.arg;S.work.asg='All';S.work.lp={sec:'',ph:'',ch:'',pg:''};S.work.stu='All';S.work.sel=null;go('work')};
+ACT.goRegs=()=>{S.stu.tab='regs';go('students')};
+ACT.goChat=()=>{S.inb.tab='chat';go('inbox')};
+ACT.gradeSub=t=>{S.work.tab='subs';S.work.f='needs';S.work.asg='All';S.work.lp={sec:'',ph:'',ch:'',pg:''};S.work.stu='All';S.work.sel=+t.dataset.arg;go('work')};
+ACT.readAll=()=>{LOG=[];rerender();toast('All marked as read')};
+ACT.viewReg=()=>ACT.regDetail();
+ACT.apprReg=()=>{REGS.forEach(r=>r.status='approved');STU[0].st='active';rerender();toast('Registration approved')};
+ACT.qHW=()=>hwModal();ACT.qQuiz=()=>quizModal();ACT.qAnn=()=>annModal();ACT.qVid=()=>vidModal();ACT.qNote=()=>noteModal();ACT.qSch=()=>schModal();

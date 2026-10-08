@@ -2,6 +2,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { showOperationToast, showError } from '../../utils/toast';
 import { API_ENDPOINTS } from '../../config/api';
+import useTeacherSettings from '../../hooks/useTeacherSettings';
 import { Link } from 'react-router-dom';
 import {
   UserIcon,
@@ -27,7 +28,12 @@ import {
   XMarkIcon,
 } from '@heroicons/react/24/outline';
 
+
+// Royal College students have no year or session; the API reports them as 'N/A'.
+const known = (v) => v !== null && v !== undefined && v !== '' && v !== 'N/A';
+
 const StudentManagement = () => {
+  const { settings } = useTeacherSettings();
   const [students, setStudents] = useState([]);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -575,8 +581,9 @@ const StudentManagement = () => {
             onChange={(e) => setFilters({ ...filters, session: e.target.value })}
           >
             <option value="">All Sessions</option>
-            <option value="NOV 25">NOV 25</option>
-            <option value="JUN 26">JUN 26</option>
+            {(settings?.examSessions || []).map(s => (
+              <option key={s.code} value={s.code}>{s.code}{s.open ? '' : ' (closed)'}</option>
+            ))}
           </select>
           <select
             className="px-3 py-2 border border-white/10 rounded-xl focus:outline-none focus:border-[#CA133E] transition-colors bg-[#161616] text-white"
@@ -614,8 +621,9 @@ const StudentManagement = () => {
               onChange={(e) => setFilters({ ...filters, royalClass: e.target.value })}
             >
               <option value="">All Classes</option>
-              <option value="9H">9H</option>
-              <option value="9J">9J</option>
+              {(settings?.royalClasses || []).map(c => (
+                <option key={c} value={c}>{c}</option>
+              ))}
             </select>
           )}
         </div>
@@ -653,7 +661,7 @@ const StudentManagement = () => {
                       <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 text-xs sm:text-sm lg:text-[12pt] text-gray-400 mt-1">
                         <span className="flex items-center">
                           <AcademicCapIcon className="h-4 w-4 mr-1 flex-shrink-0" />
-                          Year {student.year} • {student.session}
+                          {[known(student.year) && `Year ${student.year}`, known(student.session) && student.session].filter(Boolean).join(' • ') || (student.schoolType === 'royal' ? 'Royal College' : 'N/A')}
                         </span>
                         <span className="hidden sm:inline">ID: {student.studentId}</span>
                         {student.schoolType && (

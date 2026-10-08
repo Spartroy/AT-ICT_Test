@@ -1,0 +1,46 @@
+/* ===========================================================================
+   AT-ICT — Webfont declarations
+   - Jumper  : display / headline face (geometric, techy). PERSONAL USE license.
+   - Absans  : numerals only (stat counters, scores, leaderboard ranks).
+   - Poppins : body / UI face, loaded from Google Fonts in styles.css.
+   =========================================================================== */
+
+@font-face {
+  font-family: "Jumper";
+  src: url("../assets/fonts/Jumper-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Jumper";
+  src: url("../assets/fonts/Jumper-RegularItalic.ttf") format("truetype");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Jumper";
+  src: url("../assets/fonts/Jumper-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Jumper";
+  src: url("../assets/fonts/Jumper-BoldItalic.ttf") format("truetype");
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Absans";
+  src: url("../assets/fonts/Absans-Regular.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}

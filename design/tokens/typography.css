@@ -1,0 +1,45 @@
+/* ===========================================================================
+   AT-ICT — Typography tokens
+   Display : Jumper (headlines, hero, big numbers-as-words)
+   Body/UI : Poppins (everything functional)
+   Numerals: Absans (score counters, leaderboard ranks, stat tiles)
+   =========================================================================== */
+
+:root {
+  /* ---- Families ------------------------------------------------------- */
+  --font-display: "Jumper", "Poppins", system-ui, sans-serif;
+  --font-body:    "Poppins", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-numeric: "Absans", "Poppins", system-ui, sans-serif;
+  --font-mono:    ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  /* ---- Type scale (rem, 16px base) ----------------------------------- */
+  --text-xs:    0.75rem;   /* 12px — labels, footnotes */
+  --text-sm:    0.875rem;  /* 14px — secondary UI text */
+  --text-base:  1rem;      /* 16px — body */
+  --text-lg:    1.125rem;  /* 18px — nav, lead body */
+  --text-xl:    1.25rem;   /* 20px — card titles */
+  --text-2xl:   1.5rem;    /* 24px — section subheads */
+  --text-3xl:   1.875rem;  /* 30px — section titles */
+  --text-4xl:   2.25rem;   /* 36px — page titles */
+  --text-5xl:   3rem;      /* 48px — display */
+  --text-6xl:   3.75rem;   /* 60px — hero */
+  --text-7xl:   4.5rem;    /* 72px — oversized hero */
+
+  /* ---- Weights -------------------------------------------------------- */
+  --weight-regular:  400;
+  --weight-medium:   500;
+  --weight-semibold: 600;
+  --weight-bold:     700;
+
+  /* ---- Line heights --------------------------------------------------- */
+  --leading-tight:   1.1;
+  --leading-snug:    1.25;
+  --leading-normal:  1.5;
+  --leading-relaxed: 1.65;
+
+  /* ---- Letter spacing ------------------------------------------------- */
+  --tracking-tight:  -0.02em;   /* display headlines */
+  --tracking-normal: 0;
+  --tracking-wide:   0.04em;
+  --tracking-label:  0.08em;    /* uppercase eyebrow labels */
+}

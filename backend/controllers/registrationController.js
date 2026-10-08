@@ -41,7 +41,7 @@ const submitRegistration = async (req, res) => {
     
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      console.log('❌ Validation errors:', errors.array());
+      console.log('❌ Registration validation failed:', errors.array().map(e => e.path).join(', '));
       return res.status(400).json({
         status: 'error',
         message: 'Validation errors',

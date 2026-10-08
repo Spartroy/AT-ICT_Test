@@ -1,7 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import App from './App';
+// Global styles load before App so component styles cascade after them.
+import './styles/fonts.css';
+import './styles/tokens.css';
 import './index.css';
+import App from './App';
 
 const rootElement = document.getElementById('root');
 

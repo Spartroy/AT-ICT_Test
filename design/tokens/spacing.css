@@ -1,0 +1,68 @@
+/* ===========================================================================
+   AT-ICT — Spacing, radii, shadows, motion
+   Radii skew large & friendly (the product leans on rounded-xl = 20px and
+   pill shapes). Shadows are soft on light surfaces; on dark surfaces depth
+   comes from thin crimson-tinted borders + glass blur rather than shadow.
+   =========================================================================== */
+
+:root {
+  /* ---- Spacing scale (4px base) -------------------------------------- */
+  --space-0:   0;
+  --space-1:   0.25rem;   /* 4  */
+  --space-2:   0.5rem;    /* 8  */
+  --space-3:   0.75rem;   /* 12 */
+  --space-4:   1rem;      /* 16 */
+  --space-5:   1.25rem;   /* 20 */
+  --space-6:   1.5rem;    /* 24 */
+  --space-8:   2rem;      /* 32 */
+  --space-10:  2.5rem;    /* 40 */
+  --space-12:  3rem;      /* 48 */
+  --space-16:  4rem;      /* 64 */
+  --space-20:  5rem;      /* 80 */
+  --space-24:  6rem;      /* 96 — section rhythm */
+
+  /* ---- Radii ---------------------------------------------------------- */
+  --radius-sm:   0.5rem;    /* 8  — inputs, chips */
+  --radius-md:   0.75rem;   /* 12 — buttons, small cards */
+  --radius-lg:   1rem;      /* 16 — cards */
+  --radius-xl:   1.25rem;   /* 20 — feature cards (product "rounded-xl") */
+  --radius-2xl:  1.5rem;    /* 24 — large panels */
+  --radius-pill: 9999px;    /* badges, eyebrow chips, CTAs */
+
+  /* ---- Border widths -------------------------------------------------- */
+  --border-hair:  1px;
+  --border-thin:  2px;      /* outline buttons, video frame uses 4px */
+  --border-thick: 4px;
+
+  /* ---- Shadows (light surfaces) -------------------------------------- */
+  --shadow-xs:   0 1px 2px rgba(26, 26, 26, 0.06);
+  --shadow-sm:   0 1px 3px rgba(26, 26, 26, 0.08), 0 1px 2px rgba(26, 26, 26, 0.06);
+  --shadow-md:   0 4px 12px rgba(26, 26, 26, 0.08);
+  --shadow-lg:   0 12px 28px rgba(26, 26, 26, 0.12);
+  --shadow-xl:   0 24px 48px rgba(26, 26, 26, 0.16);
+
+  /* Brand glows */
+  --shadow-glow:      0 0 20px rgba(202, 19, 62, 0.5);
+  --shadow-crimson:   0 8px 24px rgba(202, 19, 62, 0.35);
+  --shadow-cta:       0 4px 16px rgba(205, 20, 63, 0.40);
+
+  /* Glass panel shadow used in nav / overlays */
+  --shadow-glass: 0 8px 32px rgba(0, 0, 0, 0.20),
+                  inset 0 1px 0 rgba(255, 255, 255, 0.30);
+
+  /* ---- Blur ----------------------------------------------------------- */
+  --blur-glass: 12px;
+
+  /* ---- Motion --------------------------------------------------------- */
+  --ease-out:    cubic-bezier(0.23, 1, 0.32, 1);   /* @kind other */ /* product button ease */
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);     /* @kind other */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);/* @kind other */
+
+  --dur-fast:   150ms;  /* @kind other */
+  --dur-base:   300ms;  /* @kind other */
+  --dur-slow:   600ms;  /* @kind other */
+
+  /* ---- Layout --------------------------------------------------------- */
+  --container-max: 1200px;   /* nav / content max width */
+  --content-max:   1280px;
+}

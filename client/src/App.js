@@ -23,8 +23,7 @@ const HallOfFame = lazy(() => import("./Pages/info/HallOfFame"));
 const Privacy = lazy(() => import("./Pages/info/Privacy"));
 const Terms = lazy(() => import("./Pages/info/Terms"));
 
-const SignIn = lazy(() => import("./Pages/auth/SignIn"));
-const Registration = lazy(() => import("./Pages/auth/Registration"));
+const AuthPage = lazy(() => import("./Pages/auth/AuthPage"));
 
 const TeacherDashboard = lazy(() => import("./Pages/portal/TeacherDashboard"));
 const StudentDashboard = lazy(() => import("./Pages/portal/StudentDashboard"));
@@ -68,8 +67,9 @@ function App() {
               <Route path="/terms" element={<Terms />} />
 
               {/* Auth Routes */}
-              <Route path="/signin" element={<SignIn />} />
-              <Route path="/register" element={<Registration />} />
+              {/* Home page with the auth modal open */}
+              <Route path="/signin" element={<AuthPage tab="in" />} />
+              <Route path="/register" element={<AuthPage tab="up" />} />
 
               {/* Portal Routes */}
               <Route

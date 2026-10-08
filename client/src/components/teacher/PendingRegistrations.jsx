@@ -14,6 +14,17 @@ import {
   EnvelopeIcon
 } from '@heroicons/react/24/outline';
 
+
+// Royal College students have no year, session or location, and the API reports
+// missing values as null or 'N/A'. Everything goes through these so nothing reads "Year N/A".
+const known = (v) => v !== null && v !== undefined && v !== '' && v !== 'N/A';
+const display = (...values) => values.find(known) ?? 'N/A';
+const outOfTen = (v) => (known(v) ? `${v}/10` : 'N/A');
+const yearOrClass = (r) => {
+  if (r.schoolType === 'royal' || known(r.royalClass)) return known(r.royalClass) ? `Class ${r.royalClass}` : 'Royal College';
+  return known(r.year) ? `Year ${r.year}` : 'N/A';
+};
+
 const PendingRegistrations = ({ onRegistrationUpdate }) => {
   const [registrations, setRegistrations] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -166,8 +177,8 @@ const PendingRegistrations = ({ onRegistrationUpdate }) => {
                       <p className="text-xs text-gray-500 mb-2 truncate">{registration.email}</p>
 
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs text-gray-400">
-                        <span className="flex items-center gap-1"><AcademicCapIcon className="h-3.5 w-3.5 text-blue-400" />Year {registration.year}</span>
-                        <span className="flex items-center gap-1"><MapPinIcon className="h-3.5 w-3.5 text-green-400" />{registration.nationality}</span>
+                        <span className="flex items-center gap-1"><AcademicCapIcon className="h-3.5 w-3.5 text-blue-400" />{yearOrClass(registration)}</span>
+                        <span className="flex items-center gap-1"><MapPinIcon className="h-3.5 w-3.5 text-green-400" />{display(registration.nationality)}</span>
                         <span className="flex items-center gap-1"><ClockIcon className="h-3.5 w-3.5 text-yellow-400" />{registration.createdAt ? new Date(registration.createdAt).toLocaleDateString() : 'N/A'}</span>
                         <span className="flex items-center gap-1"><PhoneIcon className="h-3.5 w-3.5 text-purple-400" />{registration.contactNumber || 'N/A'}</span>
                       </div>
@@ -176,7 +187,7 @@ const PendingRegistrations = ({ onRegistrationUpdate }) => {
                         {[
                           { label: 'SCHOOL', value: registration.school },
                           { label: 'SESSION', value: registration.session },
-                          { label: 'TECH', value: registration.techKnowledge },
+                          { label: 'TECH', value: outOfTen(registration.techKnowledge) },
                           { label: 'RETAKER', value: registration.isRetaker ? 'Yes' : 'No' },
                         ].map(({ label, value }) => (
                           <div key={label} className="bg-[#1A1A1A] rounded-lg p-2">
@@ -273,14 +284,16 @@ const PendingRegistrations = ({ onRegistrationUpdate }) => {
               {/* Info Grid */}
               <div className="grid grid-cols-2 gap-2">
                 {[
-                  { label: 'Year / Class', value: selectedRegistration.year ? `Year ${selectedRegistration.year}` : (selectedRegistration.royalClass || 'N/A') },
-                  { label: 'Nationality', value: selectedRegistration.nationality || selectedRegistration.royalNationality || 'N/A' },
-                  { label: 'City', value: selectedRegistration.city || 'N/A' },
-                  { label: 'School', value: selectedRegistration.school || 'N/A' },
-                  { label: 'Session', value: selectedRegistration.session || 'N/A' },
+                  { label: 'Year / Class', value: yearOrClass(selectedRegistration) },
+                  { label: 'Nationality', value: display(selectedRegistration.nationality, selectedRegistration.royalNationality) },
+                  { label: 'City', value: display(selectedRegistration.city) },
+                  { label: 'Country', value: display(selectedRegistration.country) },
+                  { label: 'School', value: display(selectedRegistration.school) },
+                  { label: 'Session', value: display(selectedRegistration.session) },
                   { label: 'Retaker', value: selectedRegistration.isRetaker ? 'Yes' : 'No' },
-                  { label: 'Tech Knowledge', value: `${selectedRegistration.techKnowledge || 'N/A'}/10` },
-                  { label: 'English Level', value: `${selectedRegistration.englishLevel || 'N/A'}/10` },
+                  { label: 'Parent contact', value: display(selectedRegistration.parentNumber) },
+                  { label: 'Tech Knowledge', value: outOfTen(selectedRegistration.techKnowledge) },
+                  { label: 'English Level', value: outOfTen(selectedRegistration.englishLevel) },
                 ].map(({ label, value }) => (
                   <div key={label} className="bg-[#1A1A1A] rounded-xl p-3">
                     <p className="text-[10px] text-gray-600 uppercase tracking-wide mb-1">{label}</p>

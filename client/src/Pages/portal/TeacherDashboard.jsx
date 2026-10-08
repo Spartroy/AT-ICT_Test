@@ -24,7 +24,8 @@ import {
   TrophyIcon,
   ArrowPathIcon,
   SparklesIcon,
-  BellIcon
+  BellIcon,
+  Cog6ToothIcon
 } from '@heroicons/react/24/outline';
 
 import PendingRegistrations from '../../components/teacher/PendingRegistrations';
@@ -40,6 +41,7 @@ import VideoManagement from '../../components/teacher/VideoManagement';
 import NotesManagement from '../../components/teacher/NotesManagement';
 import FlashcardCenter from '../../components/teacher/FlashcardCenter';
 import SessionMonitoring from '../../components/teacher/SessionMonitoring';
+import SettingsCenter from '../../components/teacher/SettingsCenter';
 import RecentActivities from '../../components/teacher/RecentActivities';
 import ContentManagementCenter from '../../components/teacher/ContentManagementCenter';
 
@@ -86,7 +88,8 @@ const TeacherDashboard = () => {
     { id: 'sessions',       name: 'Session Monitoring', shortName: 'Sessions',   icon: ArrowRightOnRectangleIcon, color: 'bg-red-600'    },
     { id: 'announcements',  name: 'Announcements',      shortName: 'News',       icon: MegaphoneIcon,             color: 'bg-purple-600' },
     { id: 'chat',           name: 'Communication',      shortName: 'Chat',       icon: ChatBubbleLeftRightIcon,   color: 'bg-pink-600'   },
-    { id: 'content',        name: 'Content Management', shortName: 'Content',    icon: AcademicCapIcon,           color: 'bg-cyan-600'   }
+    { id: 'content',        name: 'Content Management', shortName: 'Content',    icon: AcademicCapIcon,           color: 'bg-cyan-600'   },
+    { id: 'settings',       name: 'Settings',           shortName: 'Settings',   icon: Cog6ToothIcon,             color: 'bg-gray-600'   }
   ];
 
   const totalPages = Math.ceil(tabs.length / tabsPerPage);
@@ -186,6 +189,7 @@ const TeacherDashboard = () => {
       case 'announcements':  return <AnnouncementCenter />;
       case 'chat':           return <ChatCenter />;
       case 'content':        return <ContentManagementCenter />;
+      case 'settings':       return <SettingsCenter />;
       default:               return <DashboardOverview stats={stats} loading={loading} setActiveTab={setActiveTab} setShowCreateAssignment={setShowCreateAssignment} setShowCreateQuiz={setShowCreateQuiz} onRegistrationUpdate={fetchPendingRegistrationsCount} />;
     }
   };
