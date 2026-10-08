@@ -42,7 +42,11 @@ export function useFocusTrap(ref, active, initialFocusRef, initialFocusSelector)
  * Accessible dialog: portal, focus trap, Escape and backdrop close, scroll lock,
  * focus restored to the opener on close.
  */
-export default function Modal({ open, onClose, labelledBy, label, className = '', panelClassName = '', initialFocusRef, initialFocusSelector, children }) {
+export default function Modal({
+  open, onClose, labelledBy, label, className = '', panelClassName = '', initialFocusRef, initialFocusSelector, children,
+  // Portals pass their own overlay/panel classes (e.g. 'mod on' / 'dlg wide') and a container inside their scoped root.
+  overlayClassName = 'ui-modal', basePanelClassName = 'ui-modal__panel', container, role = 'dialog'
+}) {
   const panelRef = useRef(null);
   const openerRef = useRef(null);
   // Callers often pass an inline onClose; keep the latest one without re-running the open/close effect.
@@ -78,15 +82,15 @@ export default function Modal({ open, onClose, labelledBy, label, className = ''
 
   return createPortal(
     <div
-      className={`ui-modal ${className}`}
+      className={`${overlayClassName} ${className}`}
       onMouseDown={(e) => {
         if (e.target === e.currentTarget) onCloseRef.current?.();
       }}
     >
       <div
         ref={panelRef}
-        className={`ui-modal__panel ${panelClassName}`}
-        role="dialog"
+        className={`${basePanelClassName} ${panelClassName}`}
+        role={role}
         aria-modal="true"
         aria-labelledby={labelledBy}
         aria-label={labelledBy ? undefined : label}
@@ -95,6 +99,6 @@ export default function Modal({ open, onClose, labelledBy, label, className = ''
         {children}
       </div>
     </div>,
-    document.body
+    container || document.body
   );
 }

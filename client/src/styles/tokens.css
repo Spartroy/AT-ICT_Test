@@ -70,6 +70,40 @@
   --dark-warn: #FBBF24;
   --dark-good: #A3E635;
 
+  /* ---- Portal surfaces (student / teacher / parent) ------------------- */
+  --p-bg: #09090A;
+  --p-s1: #111113;
+  --p-s2: #161618;
+  --p-s3: #1D1D20;
+  --p-bd2: #34343A;
+  --p-tx: #F4F4F5;
+  --p-side-start: #0E0E10;
+  --p-side-end: #0A0A0B;
+  --ink-990: #111111;
+  --crimson-mist: #FFD0DA;    /* timestamps on crimson chat bubbles */
+
+  /* Phase colours (theory) */
+  --phase-1: #60A5FA;
+  --phase-2: #34D399;
+  --phase-3: #A78BFA;
+  /* Program colours (practical) */
+  --prog-word: #3B82F6;
+  --prog-powerpoint: #F97316;
+  --prog-access: #EF4444;
+  --prog-excel: #22C55E;
+  --prog-sharepoint: #818CF8;
+  /* Map "done" badge, medals, misc */
+  --done-badge: #FACC15;
+  --done-badge-ink: #422006;
+  --green-600: #16A34A;
+  --info-600: #2563EB;
+  --amber-600: #D97706;
+  --amber-800: #92400E;
+  --zinc-300: #D4D4D8;
+  --zinc-500: #71717A;
+  --sample-card: #1D1618;
+  --sample-meta: #9AB8FF;
+
   /* ---- Typography ----------------------------------------------------- */
   --font-display: "Jumper", "Poppins", system-ui, sans-serif;
   --font-body: "Poppins", system-ui, -apple-system, "Segoe UI", sans-serif;

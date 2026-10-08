@@ -325,7 +325,7 @@ const getVideos = async (req, res) => {
     }
 
     // Get accessible videos for the student
-    const videos = await Video.getAccessibleVideos(student._id, student.year || 10);
+    const videos = await Video.getAccessibleVideos(student._id, student.studentInfo?.year || 10);
     const progress = await Video.getStudentProgress(student._id);
 
     // Organize videos by type and category

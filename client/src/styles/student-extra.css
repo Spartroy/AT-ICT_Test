@@ -1,0 +1,38 @@
+/* Student portal pieces the prototype rendered with inline styles or didn't need. */
+.atp-student .hero .acts .btn { text-decoration: none; }
+.atp-student .next .tm.bad { color: var(--dark-error); }
+.atp-student .g2.g2-rev { grid-template-columns: 0.9fr 1.1fr; }
+.atp-student .lb-me { color: var(--dark-accent-text); }
+.atp-student .pts-unit { font-size: 0.85rem; color: var(--mu); font-family: var(--font-body); font-weight: 400; }
+.atp-student .pts-hint { text-transform: none; letter-spacing: 0; }
+
+.atp-student .work-sum { margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; gap: 14px; flex-wrap: wrap; }
+.atp-student .row > .hd { cursor: pointer; }
+.atp-student .row > div.hd { cursor: default; }
+.atp-student .hd-toggle { display: flex; gap: 14px; align-items: center; flex: 1; min-width: 0; text-align: left; }
+.atp-student .upl { display: grid; gap: 8px; }
+.atp-student .upl .btn { justify-self: start; cursor: pointer; }
+.atp-student .upl-list { margin: 0; padding-left: 18px; font-size: 0.82rem; color: var(--mu); }
+
+.atp-student .ev-topic { display: block; font-size: 0.7rem; color: var(--mu); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.atp-student .up-time { display: block; margin-top: 8px; font-family: var(--font-numeric); }
+.atp-student .sch-updated { text-align: center; margin-top: 24px; font-size: 0.82rem; color: var(--fa); }
+.atp-student .sess-ic { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; flex: none; background: var(--info-600); }
+.atp-student .next.sess-th { background: rgb(96 165 250 / 0.1); border-color: rgb(96 165 250 / 0.3); }
+.atp-student .next.sess-pr { background: rgb(52 211 153 / 0.1); border-color: rgb(52 211 153 / 0.3); }
+.atp-student .next.sess-pr .sess-ic { background: var(--green-600); }
+
+.atp-student .fc-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+.atp-student .fc-item { padding: 18px; }
+.atp-student .fc-item__body { display: grid; gap: 6px; text-align: left; }
+.atp-student .fc-item__body .chip { justify-self: start; }
+.atp-student .fc-item__body b { font-size: 1.05rem; }
+
+.atp-student .odet-title { font-family: var(--font-display); font-size: 1.7rem; letter-spacing: -0.01em; margin: 4px 0 8px; }
+.atp-student .orb:focus-visible > circle { stroke: var(--white); stroke-width: 3.5; }
+.atp-student .bk-desc { font-size: 0.85rem; color: var(--ink-500); }
+.atp-student .bk-meta { font-size: 0.75rem; color: var(--ink-400); }
+.atp-student .bk-x { background: none; cursor: pointer; }
+.atp-student .bk-x svg { width: 20px; height: 20px; }
+.atp-student .spine { cursor: pointer; }
+.atp-student .spine:focus-visible { outline: 3px solid var(--white); outline-offset: 3px; }

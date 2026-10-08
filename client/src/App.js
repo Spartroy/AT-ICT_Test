@@ -26,7 +26,7 @@ const Terms = lazy(() => import("./Pages/info/Terms"));
 const AuthPage = lazy(() => import("./Pages/auth/AuthPage"));
 
 const TeacherDashboard = lazy(() => import("./Pages/portal/TeacherDashboard"));
-const StudentDashboard = lazy(() => import("./Pages/portal/StudentDashboard"));
+const StudentPortal = lazy(() => import("./Pages/student/StudentPortal"));
 const ParentDashboard = lazy(() => import("./Pages/portal/ParentDashboard"));
 
 const NotFound = lazy(() => import("./components/NotFound"));
@@ -81,10 +81,10 @@ function App() {
                 }
               />
               <Route
-                path="/student-dashboard"
+                path="/student-dashboard/*"
                 element={
                   <ProtectedRoute allowedRoles={['student']}>
-                    <StudentDashboard />
+                    <StudentPortal />
                   </ProtectedRoute>
                 }
               />

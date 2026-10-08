@@ -1,6 +1,12 @@
 const Note = require('../models/Note');
 const User = require('../models/User');
 
+// "CH 6 Networks" → 6. Notes created before the chapter field existed only have it in the title.
+const chapterFromTitle = (title = '') => {
+  const m = String(title).match(/^\s*CH\s*(\d+)/i);
+  return m ? parseInt(m[1]) : undefined;
+};
+
 // @desc    Get all notes for teacher management
 // @route   GET /api/teacher/notes
 // @access  Private (Teacher)
@@ -48,16 +54,17 @@ const getAllNotes = async (req, res) => {
 // @access  Private (Teacher)
 const createNote = async (req, res) => {
   try {
-    const { title, phase, linkUrl, order } = req.body;
+    const { title, phase, linkUrl, order, chapter } = req.body;
 
-    if (!title || !phase || !linkUrl) {
-      return res.status(400).json({ status: 'error', message: 'Title, phase and link are required' });
+    if (!title || !phase) {
+      return res.status(400).json({ status: 'error', message: 'Title and phase are required' });
     }
 
     const note = await Note.create({
       title,
       phase: parseInt(phase),
-      linkUrl,
+      chapter: chapter ? parseInt(chapter) : chapterFromTitle(title),
+      linkUrl: linkUrl || '',
       order: order ? parseInt(order) : 0,
       uploadedBy: req.user.id
     });
@@ -88,7 +95,7 @@ const updateNote = async (req, res) => {
       return res.status(403).json({ status: 'error', message: 'Not authorized to update this note' });
     }
 
-    const { title, phase, linkUrl, order, isActive } = req.body;
+    const { title, phase, linkUrl, order, isActive, chapter } = req.body;
     const updateData = {
       title,
       linkUrl,
@@ -96,6 +103,8 @@ const updateNote = async (req, res) => {
     };
     if (phase !== undefined) updateData.phase = parseInt(phase);
     if (order !== undefined) updateData.order = parseInt(order);
+    if (chapter !== undefined && chapter !== '') updateData.chapter = parseInt(chapter);
+    else if (title) updateData.chapter = chapterFromTitle(title);
 
     Object.keys(updateData).forEach((k) => updateData[k] === undefined && delete updateData[k]);
 

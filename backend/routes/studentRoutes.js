@@ -17,6 +17,7 @@ const {
 
 // Notes (interactive) - student view
 const { getNotesForStudent } = require('../controllers/noteController');
+const { getProgress, setProgress } = require('../controllers/progressController');
 
 // Import material controller functions
 const {
@@ -175,5 +176,16 @@ router.get('/schedule/today', protect, (req, res, next) => {
   }
   next();
 }, getTodayScheduleForStudent);
+
+
+// Learning progress (video maps + notes read-state)
+const studentOnly = (req, res, next) => {
+  if (req.user.role !== 'student') {
+    return res.status(403).json({ status: 'error', message: 'Access denied. Student role required.' });
+  }
+  next();
+};
+router.get('/progress', protect, studentOnly, getProgress);
+router.put('/progress/:kind/:itemId', protect, studentOnly, setProgress);
 
 module.exports = router; 

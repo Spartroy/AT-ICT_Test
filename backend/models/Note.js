@@ -13,9 +13,16 @@ const noteSchema = new mongoose.Schema({
     min: [1, 'Phase must be between 1 and 3'],
     max: [3, 'Phase must be between 1 and 3']
   },
+  // Chapter number (e.g. 6 for "CH 6 Networks"). Optional: older notes only carry it in the title.
+  chapter: {
+    type: Number,
+    min: [1, 'Chapter must be a positive number']
+  },
+  // Prezi link. Optional so a chapter can be listed before its notes are ready ("No link yet").
   linkUrl: {
     type: String,
-    required: [true, 'Prezi link is required']
+    trim: true,
+    default: ''
   },
   order: {
     type: Number,

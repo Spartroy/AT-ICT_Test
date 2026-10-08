@@ -1,6 +1,9 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: ["./src/**/*.{js,jsx,ts,tsx}"],
+  // The redesigned portals/site reuse the prototypes' class names. `ring` is one of them
+  // (progress ring), so stop Tailwind generating its `ring` utility (a blue box-shadow).
+  blocklist: ["ring"],
   theme: {
     screens: {
       sm: "480px",
