@@ -6,7 +6,7 @@ import {
 } from 'lucide-react';
 import logoFull from '../../assets/brand/logo-full.png';
 import logoFullLight from '../../assets/brand/logo-full-light.png';
-import { NAV_LINKS, SECTIONS, whatsappLink } from './siteContent';
+import { SiteSettingsProvider, useSite } from './SiteSettings';
 import '../../styles/generated/site.css';
 import '../../styles/site-extra.css';
 
@@ -49,7 +49,35 @@ export function SectionLink({ id, home, children, ...props }) {
  * Public site chrome: progress bar, glass nav, section dots, mobile menu, footer, WhatsApp button,
  * mobile Log in / Join bar. `home` turns links into in-page anchors and enables the section tracking.
  */
-export default function SiteLayout({ home = false, children }) {
+export default function SiteLayout(props) {
+  return <SiteSettingsProvider><SiteChrome {...props} /></SiteSettingsProvider>;
+}
+
+/** Announcement banner (teacher-controlled) above the navigation. */
+function Banner({ banner, onDismiss }) {
+  const external = /^https?:/.test(banner.link);
+  return (
+    <div className="ann" role="region" aria-label="Announcement">
+      <p>
+        {banner.text}
+        {banner.link && (external
+          ? <a href={banner.link} target="_blank" rel="noopener noreferrer">Learn more<SI name="arrow" /></a>
+          : <Link to={banner.link}>Learn more<SI name="arrow" /></Link>)}
+      </p>
+      <button type="button" aria-label="Dismiss announcement" onClick={onDismiss}><SI name="x" /></button>
+    </div>
+  );
+}
+
+function SiteChrome({ home = false, children }) {
+  const { site, sections: SECTIONS, navLinks: NAV_LINKS, whatsappLink } = useSite();
+  // Dismissing the banner hides it for this browser session; a new text shows it again.
+  const [dismissed, setDismissed] = useState(() => { try { return sessionStorage.getItem('at-banner'); } catch { return null; } });
+  const showBanner = site.banner.enabled && !!site.banner.text && dismissed !== site.banner.text;
+  const dismissBanner = () => {
+    setDismissed(site.banner.text);
+    try { sessionStorage.setItem('at-banner', site.banner.text); } catch { /* storage unavailable */ }
+  };
   const [progress, setProgress] = useState(0);
   const [stuck, setStuck] = useState(false);
   const [active, setActive] = useState('top');
@@ -84,7 +112,7 @@ export default function SiteLayout({ home = false, children }) {
     const io = new IntersectionObserver(entries => entries.forEach(e => e.isIntersecting && setActive(e.target.id)), { rootMargin: '-45% 0px -50% 0px' });
     SECTIONS.forEach(s => { const el = document.getElementById(s.id); if (el) io.observe(el); });
     return () => io.disconnect();
-  }, [home]);
+  }, [home, SECTIONS]);
 
   // Smooth scrolling + offset for the fixed nav while the site is mounted.
   useEffect(() => {
@@ -110,9 +138,10 @@ export default function SiteLayout({ home = false, children }) {
   const closeMenu = () => setMenu(false);
 
   return (
-    <div className="site">
+    <div className={`site${showBanner ? ' has-ann' : ''}`}>
       <a href="#main-content" className="site-skip">Skip to content</a>
       <div className="prog" style={{ width: `${progress}%` }} aria-hidden="true" />
+      {showBanner && <Banner banner={site.banner} onDismiss={dismissBanner} />}
       <header className={`nav ${stuck ? 'stuck' : ''}`}>
         <div className="nav-in">
           <SectionLink id="top" home={home} className="lg" aria-label="AT-ICT home"><img className="lgi" src={logoFull} alt="Ahmad Tamer — AT-ICT" /></SectionLink>
@@ -174,8 +203,8 @@ export default function SiteLayout({ home = false, children }) {
             <div>
               <h4>Get in touch</h4>
               <ul>
-                <li><a href="mailto:at.ictofficial@gmail.com">at.ictofficial@gmail.com</a></li>
-                <li><a href="tel:+201274584000">(+20) 127 458 4000</a></li>
+                {site.emails.slice(0, 1).map(e => <li key={e}><a href={`mailto:${e}`}>{e}</a></li>)}
+                {site.phones.slice(0, 1).map(p => <li key={p}><a href={`tel:${p.replace(/[^\d+]/g, '')}`}>{p}</a></li>)}
                 <li>Cairo, Egypt</li>
               </ul>
             </div>

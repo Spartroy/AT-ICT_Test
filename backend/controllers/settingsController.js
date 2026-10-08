@@ -1,6 +1,7 @@
 const { validationResult } = require('express-validator');
 const AppSettings = require('../models/AppSettings');
 const User = require('../models/User');
+const { withDefaults, normalizeSite } = require('../validators/siteSettings');
 
 const toSettingsView = (settings) => ({
   examSessions: settings.examSessions.map(({ code, label, open }) => ({ code, label, open })),
@@ -127,4 +128,38 @@ const updateSettings = async (req, res) => {
   }
 };
 
-module.exports = { getRegistrationOptions, getSettings, updateSettings };
+// @desc    Public website content (numbers, contact details, visible sections, banner)
+// @route   GET /api/settings/site
+// @access  Public
+const getSiteSettings = async (req, res) => {
+  try {
+    const settings = await AppSettings.getGlobal();
+    res.status(200).json({ status: 'success', data: withDefaults(settings.site) });
+  } catch (error) {
+    console.error('Get site settings error:', error);
+    res.status(500).json({ status: 'error', message: 'Server error retrieving site settings' });
+  }
+};
+
+// @desc    Update public website content (partial updates allowed)
+// @route   PUT /api/teacher/settings/site
+// @access  Private (Teacher)
+const updateSiteSettings = async (req, res) => {
+  try {
+    const settings = await AppSettings.getGlobal();
+    const { value, errors } = normalizeSite(req.body, settings.site);
+    if (errors.length) {
+      return res.status(400).json({ status: 'error', message: errors[0].msg, errors });
+    }
+    settings.site = value;
+    settings.markModified('site');
+    settings.updatedBy = req.user._id;
+    await settings.save();
+    res.status(200).json({ status: 'success', message: 'Website settings saved', data: withDefaults(settings.site) });
+  } catch (error) {
+    console.error('Update site settings error:', error);
+    res.status(500).json({ status: 'error', message: 'Server error saving site settings' });
+  }
+};
+
+module.exports = { getRegistrationOptions, getSettings, updateSettings, getSiteSettings, updateSiteSettings };

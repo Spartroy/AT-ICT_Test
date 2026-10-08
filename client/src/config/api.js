@@ -89,6 +89,8 @@ export const API_ENDPOINTS = {
   SETTINGS: {
     REGISTRATION: `${API_BASE_URL}/api/settings/registration`,
     TEACHER: `${API_BASE_URL}/api/teacher/settings`,
+    SITE: `${API_BASE_URL}/api/settings/site`,
+    TEACHER_SITE: `${API_BASE_URL}/api/teacher/settings/site`,
   },
   REGISTRATION: {
     BASE: `${API_BASE_URL}/api/registration`,

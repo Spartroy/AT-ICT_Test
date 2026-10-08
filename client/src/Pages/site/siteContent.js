@@ -1,31 +1,42 @@
 // Public website copy (design/AT-ICT Website v2.html + website/site.js). Marketing content, not API data.
 
-export const WHATSAPP_NUMBER = '201274584000';
-export const whatsappLink = (text) => `https://wa.me/${WHATSAPP_NUMBER}${text ? `?text=${encodeURIComponent(text)}` : ''}`;
+// What the teacher can change from the portal (Settings > Website). The API returns the saved values;
+// these defaults are used until it answers (and for pre-rendering) and mirror backend/validators/siteSettings.js.
+export const DEFAULT_SITE = {
+  heroStats: [
+    { n: 400, suffix: '+', label: 'Students taught' },
+    { n: 92, suffix: '%', label: 'Average A* – A' },
+    { n: 5, suffix: '+', label: 'Years teaching' },
+    { n: 12, suffix: '+', label: 'Countries reached' }
+  ],
+  resultCounters: [
+    { n: 92, suffix: '%', label: 'average A* – A' },
+    { n: 400, suffix: '+', label: 'students taught' },
+    { n: 12, suffix: '+', label: 'countries' }
+  ],
+  whatsappNumber: '201274584000',
+  emails: ['at.ictofficial@gmail.com', 'ahmad.tamer.ali11@gmail.com'],
+  phones: ['(+20) 127 458 4000', '(+20) 107 089 5012'],
+  sections: { fees: false, hallOfFame: true, results: true },
+  banner: { enabled: false, text: '', link: '' }
+};
 
-// Fees and payment information is hidden for now (one switch brings the section, nav link,
-// "See plans" button and the Pricing FAQ back).
-export const SHOW_FEES = false;
+export const makeWhatsappLink = (number) => (text) => `https://wa.me/${number}${text ? `?text=${encodeURIComponent(text)}` : ''}`;
 
-export const SECTIONS = [
+// `gate` ties a section to a teacher switch in site.sections.
+const ALL_SECTIONS = [
   { id: 'top', label: 'Home' },
   { id: 'method', label: 'Method' },
   { id: 'about', label: 'Your tutor' },
   { id: 'samples', label: 'Free samples' },
-  { id: 'fees', label: 'Fees' },
-  { id: 'results', label: 'Results' },
-  { id: 'hall', label: 'Hall of Fame' },
+  { id: 'fees', label: 'Fees', gate: 'fees' },
+  { id: 'results', label: 'Results', gate: 'results' },
+  { id: 'hall', label: 'Hall of Fame', gate: 'hallOfFame' },
   { id: 'faq', label: 'FAQ' },
   { id: 'contact', label: 'Contact' }
-].filter(s => SHOW_FEES || s.id !== 'fees');
-export const NAV_LINKS = SECTIONS.filter(s => !['top', 'about'].includes(s.id));
-
-export const HERO_STATS = [
-  { n: 400, suffix: '+', label: 'Students taught' },
-  { n: 92, suffix: '%', label: 'Average A* – A' },
-  { n: 5, suffix: '+', label: 'Years teaching' },
-  { n: 12, suffix: '+', label: 'Countries reached' }
 ];
+export const visibleSections = (site) => ALL_SECTIONS.filter(s => !s.gate || site.sections[s.gate]);
+export const navLinksOf = (sections) => sections.filter(s => !['top', 'about'].includes(s.id));
 
 export const METHOD_STEPS = [
   { icon: 'book', title: 'Interactive notes', text: 'Comprehensive, interactive learning materials designed to enhance understanding — and kill memorisation.' },
@@ -59,12 +70,6 @@ export const PERKS = [
   { icon: 'clock', title: 'Early bird', text: '10% off when you register 1+ month ahead.' }
 ];
 
-export const RESULT_COUNTERS = [
-  { n: 92, suffix: '%', label: 'average A* – A' },
-  { n: 400, suffix: '+', label: 'students taught' },
-  { n: 12, suffix: '+', label: 'countries' }
-];
-
 const FAQ_ALL = [
   ['Getting started', [
     ['How do I know if AT-ICT is right for me?', "AT-ICT is perfect for any IGCSE student who wants to excel. Whether you're struggling with basics or aiming for an A*, our personalised approach adapts to your level. Try our free samples to experience our teaching style risk-free!"],
@@ -93,10 +98,9 @@ const FAQ_ALL = [
   ]]
 ];
 
-export const FAQ = FAQ_ALL.filter(([group]) => SHOW_FEES || group !== 'Pricing');
+// The Pricing questions only show while the Fees section does.
+export const faqFor = (site) => FAQ_ALL.filter(([group]) => site.sections.fees || group !== 'Pricing');
 
 export const CONTACT = {
-  emails: ['at.ictofficial@gmail.com', 'ahmad.tamer.ali11@gmail.com'],
-  phones: ['(+20) 127 458 4000', '(+20) 107 089 5012'],
   centers: 'Apex Academy · EzScience · IG Cubs · IG Stars · Bright Minds · Future Stars Center · IG Guide Academy · Royal College International School'
 };

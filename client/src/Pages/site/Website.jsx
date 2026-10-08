@@ -8,7 +8,8 @@ import videoThumbnail from '../../assets/video-thumbnail.png';
 import SiteLayout, { SI, useReveal } from './SiteLayout';
 import Method from './Method';
 import { HallSection } from './HallOfFame';
-import { SHOW_FEES, HERO_STATS, SAMPLES, SAMPLE_FILTERS, PLANS, PERKS, RESULT_COUNTERS, FAQ, CONTACT, whatsappLink } from './siteContent';
+import { useSite } from './SiteSettings';
+import { SAMPLES, SAMPLE_FILTERS, PLANS, PERKS, CONTACT } from './siteContent';
 
 /** Number that counts up (1.4s, ease-out) the first time it is 60% visible. */
 export function CountUp({ to }) {
@@ -39,9 +40,22 @@ export function CountUp({ to }) {
 
 /** Public website: one scrolling page (design/AT-ICT Website v2.html). */
 export default function Website({ children }) {
+  return (
+    <SiteLayout home>
+      <Seo title="IGCSE ICT Mastery" description="Interactive notes, live sessions and personalised mentoring for IGCSE ICT students. Built to take you from zero to A*." path="/" />
+      <Sections />
+      {children}
+    </SiteLayout>
+  );
+}
+
+function Sections() {
+  const { site } = useSite();
   const rootRef = useRef(null);
   const location = useLocation();
-  useReveal(rootRef);
+  const { fees, results, hallOfFame } = site.sections;
+  // Sections the teacher switches on after the settings arrive still need their reveal-on-scroll.
+  useReveal(rootRef, [fees, results, hallOfFame]);
 
   // /#section links from other pages (and the old /about, /fees … URLs).
   useEffect(() => {
@@ -51,35 +65,32 @@ export default function Website({ children }) {
   }, [location.hash]);
 
   return (
-    <SiteLayout home>
-      <Seo title="IGCSE ICT Mastery" description="Interactive notes, live sessions and personalised mentoring for IGCSE ICT students. Built to take you from zero to A*." path="/" />
-      <div ref={rootRef}>
-        <Hero />
-        <Method />
-        <Tutor />
-        <Samples />
-        {SHOW_FEES && <Fees />}
-        <Results />
-        <HallSection />
-        <Faq />
-        <Contact />
-        <section className="final">
-          <div className="wrap rv">
-            <h2>Your A* journey starts today.</h2>
-            <p>Try the free samples first, or jump straight in and reserve your seat.</p>
-            <div className="ctas">
-              <a className="btn btn-w" href="#samples">Try free samples</a>
-              <Link className="btn btn-o" to="/register">Reserve my seat</Link>
-            </div>
+    <div ref={rootRef}>
+      <Hero />
+      <Method />
+      <Tutor />
+      <Samples />
+      {fees && <Fees />}
+      {results && <Results />}
+      {hallOfFame && <HallSection />}
+      <Faq />
+      <Contact />
+      <section className="final">
+        <div className="wrap rv">
+          <h2>Your A* journey starts today.</h2>
+          <p>Try the free samples first, or jump straight in and reserve your seat.</p>
+          <div className="ctas">
+            <a className="btn btn-w" href="#samples">Try free samples</a>
+            <Link className="btn btn-o" to="/register">Reserve my seat</Link>
           </div>
-        </section>
-      </div>
-      {children}
-    </SiteLayout>
+        </div>
+      </section>
+    </div>
   );
 }
 
 function Hero() {
+  const { site } = useSite();
   const [playing, setPlaying] = useState(false);
   return (
     <section id="top" className="hero dark" aria-labelledby="hero-title">
@@ -91,7 +102,7 @@ function Hero() {
             <p className="lead">The only ICT tutoring course built on interactive sessions. No boring sessions. No memorizing.</p>
             <div className="ctas">
               <a className="btn btn-p" href="#samples"><SI name="play" />Watch a free lesson</a>
-              {SHOW_FEES ? <a className="btn btn-o" href="#fees">See plans</a> : <a className="btn btn-o" href="#method">See how it works</a>}
+              {site.sections.fees ? <a className="btn btn-o" href="#fees">See plans</a> : <a className="btn btn-o" href="#method">See how it works</a>}
             </div>
             <div className="trust">
               {['Scoring A+', 'No coding required', '24/7 support'].map(t => <span key={t}><SI name="cc" />{t}</span>)}
@@ -119,7 +130,7 @@ function Hero() {
           </div>
         </div>
         <div className="stats">
-          {HERO_STATS.map(s => (
+          {site.heroStats.map(s => (
             <div className="stat" key={s.label}><b><CountUp to={s.n} /><i>{s.suffix}</i></b><span>{s.label}</span></div>
           ))}
         </div>
@@ -188,6 +199,7 @@ function Samples() {
 }
 
 function Fees() {
+  const { whatsappLink } = useSite();
   return (
     <section id="fees" className="sec tint" aria-labelledby="fees-title">
       <div className="wrap">
@@ -226,6 +238,7 @@ function Fees() {
 }
 
 function Results() {
+  const { site } = useSite();
   const { stories } = useStories();
   const trackRef = useRef(null);
   const [index, setIndex] = useState(0);
@@ -267,7 +280,7 @@ function Results() {
           </div>
         </div>
         <div className="res">
-          {RESULT_COUNTERS.map((c, i) => (
+          {site.resultCounters.map((c, i) => (
             <div className="rv" style={{ '--d': `${i * 0.1}s` }} key={c.label}><b><CountUp to={c.n} />{c.suffix}</b><span>{c.label}</span></div>
           ))}
         </div>
@@ -277,10 +290,11 @@ function Results() {
 }
 
 function Faq() {
+  const { faq: FAQ, whatsappLink } = useSite();
   const [q, setQ] = useState('');
   const [cat, setCat] = useState('All');
   const [open, setOpen] = useState(() => new Set([FAQ[0][1][0][0]]));
-  const items = useMemo(() => FAQ.flatMap(([c, qs]) => qs.map(([question, answer]) => ({ c, question, answer }))), []);
+  const items = useMemo(() => FAQ.flatMap(([c, qs]) => qs.map(([question, answer]) => ({ c, question, answer }))), [FAQ]);
   const shown = items.filter(i => (cat === 'All' || i.c === cat) && `${i.question} ${i.answer}`.toLowerCase().includes(q.trim().toLowerCase()));
   const toggle = (k) => setOpen(s => { const n = new Set(s); n.has(k) ? n.delete(k) : n.add(k); return n; });
 
@@ -314,6 +328,7 @@ function Faq() {
 }
 
 function Contact() {
+  const { site, whatsappLink } = useSite();
   const [v, setV] = useState({ n: '', e: '', s: '', p: '', m: '' });
   const [errors, setErrors] = useState({});
   const set = (k) => (ev) => setV(x => ({ ...x, [k]: ev.target.value }));
@@ -353,8 +368,8 @@ function Contact() {
           </form>
           <div className="card rv" style={{ '--d': '.12s' }}>
             <h3>Get in touch</h3>
-            <div className="ci"><span className="chip"><SI name="mail" /></span><div><b>Email</b>{CONTACT.emails.map(e => <a key={e} href={`mailto:${e}`}>{e}</a>)}</div></div>
-            <div className="ci"><span className="chip"><SI name="phone" /></span><div><b>Phone</b>{CONTACT.phones.map(p => <a key={p} href={`tel:${p.replace(/[^\d+]/g, '')}`}>{p}</a>)}</div></div>
+            <div className="ci"><span className="chip"><SI name="mail" /></span><div><b>Email</b>{site.emails.map(e => <a key={e} href={`mailto:${e}`}>{e}</a>)}</div></div>
+            <div className="ci"><span className="chip"><SI name="phone" /></span><div><b>Phone</b>{site.phones.map(p => <a key={p} href={`tel:${p.replace(/[^\d+]/g, '')}`}>{p}</a>)}</div></div>
             <div className="ci"><span className="chip"><SI name="pin" /></span><div><b>Centers &amp; schools</b><span>{CONTACT.centers}</span></div></div>
           </div>
         </div>

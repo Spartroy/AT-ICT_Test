@@ -1,6 +1,6 @@
 const express = require('express');
 const { body } = require('express-validator');
-const { getRegistrationOptions, getSettings, updateSettings } = require('../controllers/settingsController');
+const { getRegistrationOptions, getSettings, updateSettings, getSiteSettings, updateSiteSettings } = require('../controllers/settingsController');
 const { protect, teacherOnly } = require('../middleware/auth');
 
 const settingsValidation = [
@@ -25,10 +25,12 @@ const settingsValidation = [
 // Mounted at /api/settings (public) and /api/teacher/settings (teacher)
 const publicRouter = express.Router();
 publicRouter.get('/registration', getRegistrationOptions);
+publicRouter.get('/site', getSiteSettings);
 
 const teacherRouter = express.Router();
 teacherRouter.use(protect, teacherOnly);
 teacherRouter.get('/', getSettings);
 teacherRouter.put('/', settingsValidation, updateSettings);
+teacherRouter.put('/site', updateSiteSettings);
 
 module.exports = { publicRouter, teacherRouter, settingsValidation };

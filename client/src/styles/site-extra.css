@@ -71,3 +71,13 @@ html.site-html { scroll-behavior: smooth; scroll-padding-top: 90px; }
 .site .stat > span { margin-top: 8px; display: block; }
 .site .res > div > span { display: block; margin-top: 8px; font-size: 1.1rem; }
 @media (max-width: 1000px) { .site .stat b { font-size: clamp(3.4rem, 12vw, 5.5rem) !important; } .site .res { grid-template-columns: 1fr; } }
+
+/* Teacher announcement banner (Settings > Website) */
+.site .ann { position: relative; z-index: 60; display: flex; align-items: center; justify-content: center; gap: 12px; min-height: 44px; padding: 8px 48px 8px 16px; background: var(--crimson-500); color: var(--white); font-size: 0.9rem; font-weight: 500; text-align: center; }
+.site .ann p { margin: 0; }
+.site .ann a { margin-left: 10px; color: var(--white); font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
+.site .ann a svg.i { margin-left: 4px; width: 14px; height: 14px; }
+.site .ann button { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); display: grid; place-items: center; width: 32px; height: 32px; border: 0; border-radius: 50%; background: transparent; color: var(--white); cursor: pointer; }
+.site .ann button:hover { background: rgb(0 0 0 / 0.18); }
+.site.has-ann .nav { transition: top 0.3s; }
+.site.has-ann .nav:not(.stuck) { top: 58px; }

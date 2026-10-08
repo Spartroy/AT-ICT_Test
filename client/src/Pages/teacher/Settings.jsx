@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { CalendarDays, GraduationCap, Plus, Trash2, RotateCcw, Key } from 'lucide-react';
 import ChangePasswordDialog from '../../components/portal/ChangePasswordDialog';
+import WebsiteSettings from './WebsiteSettings';
 import useTeacherSettings from '../../hooks/useTeacherSettings';
 import { api } from '../../lib/api';
 import { API_ENDPOINTS } from '../../config/api';
@@ -142,6 +143,10 @@ export default function Settings() {
         <button type="button" className="btn o sm" onClick={() => setPwOpen(true)}><Ic as={Key} />Change password</button>
         <ChangePasswordDialog open={pwOpen} onClose={() => setPwOpen(false)} />
       </section>
+
+      <h2 className="set-heading" id="set-website">Website</h2>
+      <p className="sub set-note" style={{ margin: '0 0 14px' }}>Change what visitors see on the public site. No developer needed.</p>
+      <WebsiteSettings />
 
       <section className="card set-card" aria-labelledby="set-season">
         <h3 id="set-season"><Ic as={RotateCcw} />Reset season</h3>

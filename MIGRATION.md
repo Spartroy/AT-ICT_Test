@@ -100,3 +100,13 @@
 ### Known issues / notes
 - Only the 5 prototype names are preset; add the rest from the teacher portal (Library, site content).
 - The reader only renders PDFs that the API streams (`/api/student/materials/:id/download`).
+
+## Teacher-editable website (Settings > Website)
+
+- **No manual migration.** `AppSettings.site` is a new optional field; anything missing falls back to the defaults in
+  `backend/validators/siteSettings.js` (mirrored in `client/src/Pages/site/siteContent.js`).
+- API: `GET /api/settings/site` (public), `PUT /api/teacher/settings/site` (teacher, partial updates allowed).
+- The teacher can change: the home-page and results numbers, WhatsApp number, emails and phones, which sections show
+  (Fees, Results & stories, Hall of Fame), and an announcement banner (text, optional https or relative link; dismissible).
+- `SHOW_FEES` was replaced by the "Fees section" switch (off by default; also controls the Pricing FAQ).
+- The public site shows the defaults until the API answers, and keeps them if it can't be reached (also what react-snap pre-renders).
