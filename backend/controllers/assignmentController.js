@@ -7,6 +7,35 @@ const { calculateAssignmentPoints, awardPoints } = require('../utils/pointsHelpe
 // @desc    Create new assignment (Teacher only)
 // @route   POST /api/assignments
 // @access  Private (Teacher)
+const PROGRAMS = ['word', 'powerpoint', 'access', 'excel', 'sharepoint'];
+
+// Lesson arrives as an object (JSON body) or a JSON string (multipart). Returns the cleaned
+// lesson, undefined when absent, or false when it is malformed.
+const parseLesson = (raw) => {
+  if (raw === undefined || raw === null || raw === '') return undefined;
+  let l = raw;
+  if (typeof raw === 'string') {
+    try { l = JSON.parse(raw); } catch { return false; }
+  }
+  if (typeof l !== 'object') return false;
+  if (l.section === 'theory') {
+    const phase = Number(l.phase);
+    if (!(phase >= 1 && phase <= 3)) return false;
+    return { section: 'theory', phase, ...(l.chapter && { chapter: String(l.chapter).slice(0, 120) }) };
+  }
+  if (l.section === 'practical') {
+    if (!PROGRAMS.includes(l.program)) return false;
+    const out = { section: 'practical', program: l.program };
+    if (l.kind) {
+      if (!['guide', 'task'].includes(l.kind) || !(Number(l.number) >= 1)) return false;
+      out.kind = l.kind;
+      out.number = Number(l.number);
+    }
+    return out;
+  }
+  return false;
+};
+
 const createAssignment = async (req, res) => {
   try {
     const errors = validationResult(req);
@@ -30,6 +59,10 @@ const createAssignment = async (req, res) => {
       assignToAll,
       selectedStudents
     } = req.body;
+    const lesson = parseLesson(req.body.lesson);
+    if (lesson === false) {
+      return res.status(400).json({ status: 'error', message: 'Invalid lesson' });
+    }
 
     // Handle file attachments
     let attachments = [];
@@ -54,6 +87,7 @@ const createAssignment = async (req, res) => {
       difficulty,
       instructions,
       attachments,
+      ...(lesson && { lesson }),
       createdBy: req.user.id,
       publishDate: new Date()
     });
@@ -309,6 +343,13 @@ const updateAssignment = async (req, res) => {
       instructions,
       isActive
     });
+    if (req.body.lesson !== undefined) {
+      const lesson = parseLesson(req.body.lesson);
+      if (lesson === false) {
+        return res.status(400).json({ status: 'error', message: 'Invalid lesson' });
+      }
+      assignment.lesson = lesson;
+    }
 
     await assignment.save();
     await assignment.populate('createdBy', 'firstName lastName');

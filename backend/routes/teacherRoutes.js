@@ -28,6 +28,7 @@ const {
   resetStudentPassword,
 } = require('../controllers/paymentController');
 const { protect, teacherOnly } = require('../middleware/auth');
+const { listSubmissions, zipSubmissions } = require('../controllers/submissionController');
 
 // Import new route modules
 const scheduleRoutes = require('./scheduleRoutes');
@@ -65,6 +66,10 @@ router.post('/legacy-students', addLegacyStudent);
 
 // Assignment grading route (using the new gradeAssignment function)
 router.put('/assignments/:id/students/:studentId', gradeAssignment);
+
+// Submissions inbox (all of this teacher's assignments) + zip download
+router.get('/submissions', listSubmissions);
+router.get('/submissions/zip', zipSubmissions);
 
 // Quiz grading route
 router.put('/quizzes/:id/students/:studentId', gradeQuiz);

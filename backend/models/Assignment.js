@@ -30,6 +30,16 @@ const assignmentSchema = new mongoose.Schema({
     required: true,
     min: 1
   },
+  // Which lesson the homework belongs to (drives the teacher's Submissions lesson picker).
+  // Theory: phase + chapter title (e.g. 'CH 6 P1 Networks'). Practical: program + guide/task number.
+  lesson: {
+    section: { type: String, enum: ['theory', 'practical'] },
+    phase: { type: Number, min: 1, max: 3 },
+    chapter: { type: String, trim: true, maxlength: 120 },
+    program: { type: String, enum: ['word', 'powerpoint', 'access', 'excel', 'sharepoint'] },
+    kind: { type: String, enum: ['guide', 'task'] },
+    number: { type: Number, min: 1 }
+  },
   difficulty: {
     type: String,
     enum: ['easy', 'medium', 'hard'],
