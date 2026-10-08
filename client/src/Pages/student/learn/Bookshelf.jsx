@@ -1,10 +1,10 @@
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { BookOpen, X, Download, ExternalLink } from 'lucide-react';
+import { BookOpen, X, Download } from 'lucide-react';
 import useApi from '../../../hooks/useApi';
 import { API_ENDPOINTS } from '../../../config/api';
 import { downloadFile } from '../../../lib/api';
-import { Chips, ErrorNote, Ic, Loading, SearchBox, fmtDate } from '../../../components/portal/kit';
+import { Chips, ErrorNote, Ic, Loading, SearchBox } from '../../../components/portal/kit';
 import { usePortalUI } from '../../../components/portal/PortalUI';
 import { useReducedMotion } from '../../../hooks/useMediaQuery';
 import { useFocusTrap } from '../../../components/ui/Modal';
@@ -21,8 +21,7 @@ const SPINES = [
   { c: 'var(--gold-500)', tc: 'var(--ink-900)' }
 ];
 
-const fmtSize = (b) => (!b ? '' : b > 1048576 ? `${(b / 1048576).toFixed(1)} MB` : `${Math.max(1, Math.round(b / 1024))} KB`);
-const metaOf = (m) => [m.fileName?.split('.').pop()?.toUpperCase(), fmtSize(m.fileSize), m.externalUrl && !m.fileName ? 'External link' : ''].filter(Boolean).join(' · ') || 'Material';
+const metaOf = (m) => m.fileName?.split('.').pop()?.toUpperCase() || '';
 
 /** Materials: brand bookshelf. Tap a spine → the book flies to the centre and opens. */
 export default function Bookshelf() {
@@ -74,6 +73,8 @@ export default function Bookshelf() {
 }
 
 function BookOverlay({ m, spine, style, catLabel, onClosed }) {
+  const isPdf = /\.pdf$/i.test(m.fileName || '');
+  const isLink = !!m.externalUrl && !m.fileName;
   const { layer, toast } = usePortalUI();
   const overlayRef = useRef(null);
   useFocusTrap(overlayRef, true);
@@ -117,9 +118,12 @@ function BookOverlay({ m, spine, style, catLabel, onClosed }) {
     return () => cancelAnimationFrame(raf);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // PDFs and links open straight into the in-page reader once the book has finished opening.
   useEffect(() => {
-    if (opened) viewRef.current?.focus();
-  }, [opened]);
+    if (!opened) return;
+    if (isPdf || isLink) setReading(true);
+    else viewRef.current?.focus();
+  }, [opened]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const close = useCallback(() => {
     if (closing.current) return;
@@ -150,8 +154,6 @@ function BookOverlay({ m, spine, style, catLabel, onClosed }) {
     };
   }, [close]);
 
-  const isPdf = /\.pdf$/i.test(m.fileName || '');
-  const isLink = m.externalUrl && !m.fileName;
   const downloadUrl = `${API_ENDPOINTS.STUDENT.MATERIALS}/${m._id}/download`;
 
   const download = async () => {
@@ -165,9 +167,6 @@ function BookOverlay({ m, spine, style, catLabel, onClosed }) {
     }
   };
 
-  // PDFs turn like a book and links open in a wide frame, both inside the portal; other files download.
-  const view = () => (isPdf || isLink ? setReading(true) : download());
-
   return createPortal(
     <div ref={overlayRef} className={`bk-ov ${on ? 'on' : ''}`} role="dialog" aria-modal="true" aria-label={`${m.title} book`} onMouseDown={e => e.target === e.currentTarget && close()}>
       <div className="fly" ref={flyRef}>
@@ -176,13 +175,14 @@ function BookOverlay({ m, spine, style, catLabel, onClosed }) {
             <div className="pgr" aria-hidden={!opened}>
               <small>{catLabel} material</small>
               <h3>{m.title}</h3>
-              <span className="chip" style={{ background: style.c, color: style.tc }}>{metaOf(m)}</span>
+              {metaOf(m) && <span className="chip" style={{ background: style.c, color: style.tc }}>{metaOf(m)}</span>}
               {m.description && <p className="bk-desc">{m.description}</p>}
-              <p className="bk-meta">{m.downloadCount || 0} downloads · {fmtDate(m.createdAt, { day: 'numeric', month: 'short', year: 'numeric' })}</p>
               <div className="pact">
-                <button ref={viewRef} type="button" className="btn p" onClick={view} disabled={busy || !opened}>
-                  <Ic as={isLink ? ExternalLink : isPdf ? BookOpen : Download} />{busy ? 'Downloading…' : isLink ? 'Open link' : isPdf ? 'Read' : 'Download'}
-                </button>
+                {!isPdf && !isLink && (
+                  <button ref={viewRef} type="button" className="btn p" onClick={download} disabled={busy || !opened}>
+                    <Ic as={Download} />{busy ? 'Downloading…' : 'Download'}
+                  </button>
+                )}
                 <button type="button" className="btn o" onClick={close} disabled={!opened}>Close book</button>
               </div>
             </div>
@@ -200,8 +200,7 @@ function BookOverlay({ m, spine, style, catLabel, onClosed }) {
           src={isPdf ? downloadUrl : m.externalUrl}
           title={m.title}
           backLabel="Back to materials"
-          onClose={() => setReading(false)}
-          onDownload={isPdf ? download : undefined}
+          onClose={() => { setReading(false); close(); }}
         />
       )}
     </div>,

@@ -68,3 +68,9 @@
 
 /* Chapter details sit at the top of the orbit stage, not centred beside it. */
 .atp-student .orbit { align-items: start; }
+
+/* Interactive notes: phase tabs sit above the chapter details on the right */
+.atp-student .oside { display: grid; gap: 12px; align-content: center; min-width: 0; }
+.atp-student .phase-seg { display: grid; grid-template-columns: repeat(3, 1fr); width: 100%; max-width: none; padding: 4px; gap: 2px; margin: 0; }
+.atp-student .phase-seg button { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 4px; font-size: 0.85rem; line-height: 1.2; min-width: 0; }
+.atp-student .phase-seg button em.oc { margin: 0; font-size: 0.7rem; }

@@ -71,18 +71,22 @@ export default function NotesOrbit() {
     toast(ok ? (was ? 'Marked as unread' : 'Marked as read') : "Couldn't save. Try again.");
   };
 
+  const phaseTabs = (
+    <div className="seg phase-seg" role="tablist" aria-label="Phases">
+      {[0, 1, 2].map(p => {
+        const list = notes.data?.[p] || [];
+        return (
+          <button key={p} type="button" role="tab" aria-selected={p === phase} className={p === phase ? 'on' : ''} onClick={() => { if (p !== phase) { setPhase(p); setSelId(null); } }}>
+            Phase {p + 1}<em className="oc">{list.filter(n => read.has(n._id)).length}/{list.length}</em>
+          </button>
+        );
+      })}
+    </div>
+  );
+
   return (
     <>
-      <div className="seg" role="tablist" aria-label="Phases">
-        {[0, 1, 2].map(p => {
-          const list = notes.data?.[p] || [];
-          return (
-            <button key={p} type="button" role="tab" aria-selected={p === phase} className={p === phase ? 'on' : ''} onClick={() => { if (p !== phase) { setPhase(p); setSelId(null); } }}>
-              Phase {p + 1}<em className="oc">{list.filter(n => read.has(n._id)).length}/{list.length}</em>
-            </button>
-          );
-        })}
-      </div>
+      {!items.length && phaseTabs}
 
       {!items.length ? (
         <Empty icon={BookX}>No notes in this phase yet.</Empty>
@@ -127,7 +131,9 @@ export default function NotesOrbit() {
               })}
             </svg>
           </div>
-          {sel && (
+          <div className="oside">
+            {phaseTabs}
+            {sel && (
             <aside className="odet card" aria-live="polite" key={selected._id}>
               <div className="onum">Chapter {sel.num}</div>
               <h3 className="odet-title">{sel.title}</h3>
@@ -144,7 +150,8 @@ export default function NotesOrbit() {
                 <button type="button" className="btn o" onClick={() => toggleReadOf(selected)}>{selRead ? 'Mark as unread' : 'Mark as read'}</button>
               </div>
             </aside>
-          )}
+            )}
+          </div>
         </div>
       )}
       {reading && (
