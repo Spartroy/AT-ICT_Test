@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { Navigate, useNavigate, useSearchParams } from 'react-router-dom';
-import Home from '../info/Home';
+import Website from '../site/Website';
 import AuthModal from '../../components/auth/AuthModal';
 import { getValidToken, clearAuth } from '../../utils/auth';
 
@@ -25,7 +25,10 @@ function signedInDashboard() {
   }
 }
 
-/** /signin and /register: the home page with the auth modal open on the matching tab. */
+/**
+ * The public home page. On /signin and /register the auth modal is open on the matching tab.
+ * All three routes render this same component so opening / closing the modal never remounts the page.
+ */
 export default function AuthPage({ tab }) {
   const navigate = useNavigate();
   const [params] = useSearchParams();
@@ -35,19 +38,18 @@ export default function AuthPage({ tab }) {
     return NOTICES[key] || null;
   }, [params]);
 
-  const dashboard = signedInDashboard();
+  const dashboard = tab ? signedInDashboard() : null;
   if (dashboard && !notice) return <Navigate to={dashboard} replace />;
 
   return (
-    <>
-      <Home />
+    <Website>
       <AuthModal
-        open
-        tab={tab}
+        open={!!tab}
+        tab={tab || 'in'}
         signInNotice={notice}
         onTabChange={next => navigate(PATHS[next], { replace: true })}
         onClose={() => navigate('/', { replace: true })}
       />
-    </>
+    </Website>
   );
 }

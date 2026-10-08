@@ -63,6 +63,7 @@ function StudentList() {
   const [menu, setMenu] = useState(null);
   const [viewing, setViewing] = useState(null);
   const [creds, setCreds] = useState(null);
+  const [classifying, setClassifying] = useState(null);
 
   useEffect(() => {
     const t = setTimeout(() => { setDebounced(filters); setLimit(PAGE); }, 300);
@@ -149,6 +150,7 @@ function StudentList() {
                   {s.hasParent
                     ? <button type="button" role="menuitem" onClick={() => act('chatParent', s)}>Chat with parent</button>
                     : <button type="button" role="menuitem" onClick={() => act('parent', s)}>Create parent account</button>}
+                  {!s.schoolType && <button type="button" role="menuitem" onClick={() => { setMenu(null); setClassifying(s); }}>Classify as Royal College</button>}
                   <button type="button" role="menuitem" onClick={() => act('reset', s)}>Reset password</button>
                   <button type="button" role="menuitem" className="dng" onClick={() => act('remove', s)}>Remove</button>
                 </div>
@@ -162,7 +164,41 @@ function StudentList() {
       </div>
       <StudentModal studentId={viewing} onClose={() => setViewing(null)} onCredentials={setCreds} />
       <CredentialsDialog creds={creds} onClose={() => setCreds(null)} />
+      <ClassifyDialog student={classifying} classes={settings?.royalClasses || []} onClose={() => setClassifying(null)} onDone={() => { setClassifying(null); list.reload(); }} />
     </>
+  );
+}
+
+/** Mark an existing (unclassified) student as Royal College with a class (POST /api/teacher/legacy-students). */
+function ClassifyDialog({ student, classes, onClose, onDone }) {
+  const toast = useToast();
+  const [cls, setCls] = useState('');
+  const [busy, setBusy] = useState(false);
+  useEffect(() => { setCls(classes[0] || ''); }, [student, classes]);
+  if (!student) return null;
+  const submit = async (e) => {
+    e.preventDefault();
+    setBusy(true);
+    try {
+      await api.post(API_ENDPOINTS.TEACHER.ADD_LEGACY_STUDENT, { studentId: student._id, royalClass: cls });
+      toast(`${student.fullName} is now Royal College · Class ${cls}`);
+      onDone();
+    } catch (err) {
+      toast(apiError(err));
+    } finally {
+      setBusy(false);
+    }
+  };
+  return (
+    <Dialog open onClose={onClose} size="sm" labelledBy="cls-title">
+      <DialogHeader id="cls-title" icon={GraduationCap} title="Classify as Royal College" sub={student.fullName} onClose={onClose} />
+      <form className="mbody" onSubmit={submit}>
+        <label className="fld"><span>Class</span>
+          <select className="inp" value={cls} onChange={e => setCls(e.target.value)}>{classes.map(c => <option key={c} value={c}>Class {c}</option>)}</select>
+        </label>
+        <div className="mfoot"><button type="button" className="btn o" onClick={onClose}>Cancel</button><button className="btn p" disabled={busy || !cls}>{busy ? 'Saving…' : 'Classify'}</button></div>
+      </form>
+    </Dialog>
   );
 }
 

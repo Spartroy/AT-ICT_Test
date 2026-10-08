@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { CalendarDays, GraduationCap, Plus, Trash2, RotateCcw } from 'lucide-react';
+import { CalendarDays, GraduationCap, Plus, Trash2, RotateCcw, Key } from 'lucide-react';
+import ChangePasswordDialog from '../../components/portal/ChangePasswordDialog';
 import useTeacherSettings from '../../hooks/useTeacherSettings';
 import { api } from '../../lib/api';
 import { API_ENDPOINTS } from '../../config/api';
@@ -27,6 +28,7 @@ export default function Settings() {
   const [problems, setProblems] = useState({});
   const [saving, setSaving] = useState('');
   const [season, setSeason] = useState('');
+  const [pwOpen, setPwOpen] = useState(false);
 
   useEffect(() => {
     if (!settings) return;
@@ -132,6 +134,13 @@ export default function Settings() {
           <button type="button" className="btn p sm" onClick={saveClasses} disabled={saving === 'classes'}>{saving === 'classes' ? 'Saving…' : 'Save classes'}</button>
         </form>
         {problems.classes && <p className="fld-err" role="alert">{problems.classes}</p>}
+      </section>
+
+      <section className="card set-card" aria-labelledby="set-account">
+        <h3 id="set-account"><Ic as={Key} />Account</h3>
+        <p className="sub set-note">Change the password you use to sign in.</p>
+        <button type="button" className="btn o sm" onClick={() => setPwOpen(true)}><Ic as={Key} />Change password</button>
+        <ChangePasswordDialog open={pwOpen} onClose={() => setPwOpen(false)} />
       </section>
 
       <section className="card set-card" aria-labelledby="set-season">

@@ -1,44 +1,34 @@
 import React, { Suspense, lazy } from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { MotionConfig } from "framer-motion";
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 import { StoriesProvider } from "./context/StoriesContext";
-import WhatsAppFab from "./components/WhatsAppFab";
 import ErrorBoundary from "./components/ErrorBoundary";
 import AnalyticsTracker from "./components/AnalyticsTracker";
 import ScrollToTop from "./components/ScrollToTop";
-import SkipLink from "./components/SkipLink";
 
-const Home = lazy(() => import("./Pages/info/Home"));
-const About = lazy(() => import("./Pages/info/About"));
-const ContactUs = lazy(() => import("./Pages/info/ContactUs"));
-const Curriculum = lazy(() => import("./Pages/info/Curriculum"));
-const FAQ = lazy(() => import("./Pages/info/FAQ"));
-const Fees = lazy(() => import("./Pages/info/Fees"));
-const Samples = lazy(() => import("./Pages/info/Samples"));
-const HallOfFame = lazy(() => import("./Pages/info/HallOfFame"));
-const Privacy = lazy(() => import("./Pages/info/Privacy"));
-const Terms = lazy(() => import("./Pages/info/Terms"));
-
+// The public home page; /signin and /register are the same page with the auth modal open.
 const AuthPage = lazy(() => import("./Pages/auth/AuthPage"));
+const Privacy = lazy(() => import("./Pages/site/ContentPages").then(m => ({ default: m.Privacy })));
+const Terms = lazy(() => import("./Pages/site/ContentPages").then(m => ({ default: m.Terms })));
+const HallOfFame = lazy(() => import("./Pages/site/ContentPages").then(m => ({ default: m.HallOfFame })));
+const NotFound = lazy(() => import("./Pages/site/ContentPages").then(m => ({ default: m.NotFound })));
 
 const TeacherPortal = lazy(() => import("./Pages/teacher/TeacherPortal"));
 const StudentPortal = lazy(() => import("./Pages/student/StudentPortal"));
-const ParentDashboard = lazy(() => import("./Pages/portal/ParentDashboard"));
+const ParentPortal = lazy(() => import("./Pages/parent/ParentPortal"));
 
-const NotFound = lazy(() => import("./components/NotFound"));
+// Old standalone pages now live as sections of the one-page site.
+const SECTION_REDIRECTS = { '/about': 'about', '/fees': 'fees', '/samples': 'samples', '/faq': 'faq', '/contact': 'contact', '/curriculum': 'method' };
 
 const RouteFallback = () => (
   <div
-    className="min-h-screen bg-[#0F0F0F] flex items-center justify-center"
+    style={{ minHeight: '100vh', background: 'var(--ink-950)', display: 'grid', placeItems: 'center' }}
     role="status"
     aria-live="polite"
     aria-label="Loading page"
   >
-    <div className="w-12 h-12 rounded-full border-4 border-[#CA133E] border-t-transparent animate-spin" />
+    <div style={{ width: 48, height: 48, borderRadius: '50%', border: '4px solid var(--crimson-500)', borderTopColor: 'transparent' }} className="animate-spin" />
   </div>
 );
 
@@ -47,31 +37,23 @@ function App() {
     <Router>
       <StoriesProvider>
       <ErrorBoundary>
-        <MotionConfig reducedMotion="user">
-        <SkipLink />
         <ScrollToTop />
         <div className="App">
           <AnalyticsTracker />
           <Suspense fallback={<RouteFallback />}>
             <Routes>
-              {/* Info Routes */}
-              <Route path="/" element={<Home />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/hall-of-fame" element={<HallOfFame />} />
-              <Route path="/contact" element={<ContactUs />} />
-              <Route path="/curriculum" element={<Curriculum />} />
-              <Route path="/faq" element={<FAQ />} />
-              <Route path="/fees" element={<Fees />} />
-              <Route path="/samples" element={<Samples />} />
-              <Route path="/privacy" element={<Privacy />} />
-              <Route path="/terms" element={<Terms />} />
-
-              {/* Auth Routes */}
-              {/* Home page with the auth modal open */}
+              {/* Public site */}
+              <Route path="/" element={<AuthPage />} />
               <Route path="/signin" element={<AuthPage tab="in" />} />
               <Route path="/register" element={<AuthPage tab="up" />} />
+              <Route path="/hall-of-fame" element={<HallOfFame />} />
+              <Route path="/privacy" element={<Privacy />} />
+              <Route path="/terms" element={<Terms />} />
+              {Object.entries(SECTION_REDIRECTS).map(([path, id]) => (
+                <Route key={path} path={path} element={<Navigate to={`/#${id}`} replace />} />
+              ))}
 
-              {/* Portal Routes */}
+              {/* Portals */}
               <Route
                 path="/teacher-dashboard/*"
                 element={
@@ -89,10 +71,10 @@ function App() {
                 }
               />
               <Route
-                path="/parent-dashboard"
+                path="/parent-dashboard/*"
                 element={
                   <ProtectedRoute allowedRoles={['parent']}>
-                    <ParentDashboard />
+                    <ParentPortal />
                   </ProtectedRoute>
                 }
               />
@@ -101,27 +83,7 @@ function App() {
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>
-
-          {/* Floating WhatsApp button (hidden on dashboards) */}
-          <WhatsAppFab />
-
-          {/* Toast Container for notifications */}
-          <ToastContainer
-            position="top-right"
-            autoClose={4000}
-            hideProgressBar={false}
-            newestOnTop={false}
-            closeOnClick
-            rtl={false}
-            pauseOnFocusLoss
-            draggable
-            pauseOnHover
-            theme="dark"
-            toastClassName="bg-gray-800 text-white"
-            progressClassName="bg-[#CA133E]"
-          />
         </div>
-        </MotionConfig>
       </ErrorBoundary>
       </StoriesProvider>
     </Router>

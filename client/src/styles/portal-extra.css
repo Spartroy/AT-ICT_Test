@@ -4,6 +4,7 @@
 .atp a { color: inherit; text-decoration: none; }
 /* Tailwind preflight makes every svg display:block; the prototype's inline icons expect inline. */
 .atp svg.i { display: inline-block; vertical-align: -0.18em; }
+.atp h1, .atp h2, .atp h3, .atp h4 { font-weight: 700; }
 .atp .nv { text-decoration: none; }
 .atp .side nav { display: flex; flex-direction: column; gap: 6px; }
 .atp main:focus { outline: none; }
@@ -116,3 +117,23 @@
 .atp .fc-nav { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
 .atp .fcard > div:focus-visible { outline: 2px solid var(--crimson-500); outline-offset: 4px; border-radius: 22px; }
 @media (max-width: 560px) { .atp .fcd { grid-template-columns: 1fr; } .atp .fcd > b, .atp .fcd-rm { margin: 0; } }
+
+/* Sidebar tagline ("Teacher portal" / "Parent portal") for every portal */
+.atp .tp { display: block; color: var(--fa); font-size: 0.68rem; letter-spacing: 0.14em; text-transform: uppercase; padding: 0 14px 12px; margin-top: -10px; }
+.atp .nv span:nth-child(2) { flex: 1; text-align: left; }
+
+/* Parent portal */
+.atp-parent .work-sum-p { margin-bottom: 16px; }
+.atp-parent .row > .hd { cursor: default; }
+.atp-parent .pay-card { margin-bottom: 12px; }
+.atp-parent .pay-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
+.atp-parent .pay-row h3 { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-family: var(--font-body); letter-spacing: 0; font-size: 1.05rem; }
+.atp-parent .pay-total { font-family: var(--font-numeric); font-size: 1.6rem; }
+.atp-parent .pay-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+.atp-parent .pay-file { cursor: pointer; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+.atp-parent .next .tm.ok { color: var(--dark-ok); }
+.atp-parent .next .tm.bad { color: var(--dark-error); }
+
+/* Profile pill as a link (teacher → Settings) or button (Change password) */
+.atp .me-link { cursor: pointer; transition: border-color 0.2s; text-align: left; font: inherit; color: inherit; }
+.atp .me-link:hover, .atp .me-link.on { border-color: var(--cr); }

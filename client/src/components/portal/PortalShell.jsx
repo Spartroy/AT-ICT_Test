@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { Bell, LogOut } from 'lucide-react';
 import { PortalUIProvider } from './PortalUI';
+import ChangePasswordDialog from './ChangePasswordDialog';
 import { LogoTile, initials } from './kit';
 import { clearAuth } from '../../utils/auth';
 import { API_ENDPOINTS } from '../../config/api';
@@ -14,6 +15,20 @@ import '../../styles/portal-extra.css';
  * nav: [{ to, label, icon, badge?, end? }]. `aside` renders under the nav (points card, etc.).
  * meTo: optional link for the profile pill (the teacher's Settings).
  */
+/** Profile pill that opens "Change password" (students and parents). */
+function ProfilePill({ user }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <button type="button" className="me me-link" aria-label={`${user?.name}: change password`} onClick={() => setOpen(true)}>
+        <span className="av" aria-hidden="true">{initials(user?.name)}</span>
+        <div><b>{user?.name}</b><small>{user?.sub}</small></div>
+      </button>
+      <ChangePasswordDialog open={open} onClose={() => setOpen(false)} />
+    </>
+  );
+}
+
 export default function PortalShell({ variant, nav, title, user, tagline, aside, bell, meTo, children }) {
   const navigate = useNavigate();
 
@@ -68,10 +83,7 @@ export default function PortalShell({ variant, nav, title, user, tagline, aside,
                   <div><b>{user?.name}</b><small>{user?.sub}</small></div>
                 </NavLink>
               ) : (
-                <div className="me">
-                  <span className="av" aria-hidden="true">{initials(user?.name)}</span>
-                  <div><b>{user?.name}</b><small>{user?.sub}</small></div>
-                </div>
+                <ProfilePill user={user} />
               )}
             </header>
             <main id="main-content" tabIndex={-1}>

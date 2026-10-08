@@ -4,7 +4,6 @@ import { Hourglass, Info } from 'lucide-react';
 import Button from '../ui/Button';
 import { TextField, PasswordField } from '../ui/Field';
 import { loginRequest, storeSession } from '../../utils/authApi';
-import { showOperationToast } from '../../utils/toast';
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -44,7 +43,6 @@ export default function SignInForm({ onRegister, notice }) {
 
     if (res.ok) {
       storeSession(res.body.data);
-      showOperationToast.loginSuccess();
       navigate(res.body.data.user.dashboardUrl || '/');
       return;
     }

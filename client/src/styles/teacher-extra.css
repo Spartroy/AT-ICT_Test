@@ -4,8 +4,6 @@
 .atp-teacher .act-n { width: 34px; height: 34px; border-color: var(--bd2); color: var(--mu); }
 .atp-teacher .act-list { padding: 0 14px 12px; }
 .atp-teacher .lg-r.unread span:nth-child(2) { color: var(--white); font-weight: 600; }
-.atp-teacher .me-link { cursor: pointer; transition: border-color 0.2s; }
-.atp-teacher .me-link:hover, .atp-teacher .me-link.on { border-color: var(--cr); }
 
 /* Submissions */
 .atp-teacher .sl-search { padding: 8px 10px 0; }

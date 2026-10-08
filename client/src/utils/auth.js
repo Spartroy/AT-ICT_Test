@@ -74,11 +74,13 @@ export const handleAuthResponse = (response) => {
   return false;
 };
 
-export default {
+const auth = {
   isValidJWT,
   getValidToken,
   clearAuth,
   redirectToLogin,
   setAuthHeaders,
   handleAuthResponse
-}; 
+};
+
+export default auth;
