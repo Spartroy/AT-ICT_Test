@@ -17,7 +17,8 @@
         "/c",
         "cd client && npx cross-env PORT=3005 BROWSER=none REACT_APP_API_URL=http://localhost:5001 react-scripts start"
       ],
-      "port": 3005
+      "port": 3005,
+      "autoPort": false
     }
   ]
 }
