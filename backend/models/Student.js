@@ -36,7 +36,7 @@ const studentSchema = new mongoose.Schema({
   session: {
     type: String,
     required: true,
-    enum: ['NOV 25', 'JUN 26']
+    uppercase: true // allowed codes: AppSettings.examSessions
   },
   isRetaker: {
     type: Boolean,

@@ -37,7 +37,7 @@ const registrationSchema = new mongoose.Schema({
   session: {
     type: String,
     required: [true, 'Session is required'],
-    enum: ['NOV 25', 'JUN 26']
+    uppercase: true // allowed codes: AppSettings.examSessions
   },
   isRetaker: {
     type: Boolean,

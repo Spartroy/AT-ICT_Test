@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const AppSettings = require('../models/AppSettings');
 const Student = require('../models/Student');
 const Assignment = require('../models/Assignment');
 const Quiz = require('../models/Quiz');
@@ -720,11 +721,12 @@ const addLegacyStudent = async (req, res) => {
       });
     }
 
-    // Validate royal class
-    if (!['9H', '9J'].includes(royalClass)) {
+    // Validate royal class against the teacher-editable list
+    const { royalClasses } = await AppSettings.getGlobal();
+    if (!royalClasses.includes(String(royalClass).toUpperCase())) {
       return res.status(400).json({
         status: 'error',
-        message: 'Royal class must be 9H or 9J'
+        message: `Royal class must be one of: ${royalClasses.join(', ')}`
       });
     }
 

@@ -19,6 +19,12 @@ const DeviceSession = require('./DeviceSession');
  * Supports three user types: Student, Teacher, Parent
  * Each role has specific fields and validation rules
  */
+// Royal College students register with a class only: they have no year, exam session,
+// nationality or location. Applies to documents (not query validators, where `this` is the query).
+function needsCentreDetails(doc) {
+  return doc.role === 'student' && doc.studentInfo?.schoolType !== 'royal';
+}
+
 const userSchema = new mongoose.Schema({
   // ===================================================================
   // BASIC USER INFORMATION
@@ -217,26 +223,24 @@ const userSchema = new mongoose.Schema({
       },
       validate: {
         validator: function(year) {
-          return this.role !== 'student' || year != null;
+          return !needsCentreDetails(this) || year != null;
         },
         message: 'Year is required for students'
       }
     },
 
     /**
-     * Exam session
+     * Exam session code, e.g. 'JUN 27'.
+     * Allowed values are teacher-editable (AppSettings.examSessions) and checked in the route validators.
      * @type {String}
-     * @enum ['NOV 25', 'JUN 26']
      */
     session: {
       type: String,
-      enum: {
-        values: ['NOV 25', 'JUN 26'],
-        message: 'Session must be either NOV 25 or JUN 26'
-      },
+      trim: true,
+      uppercase: true,
       validate: {
         validator: function(session) {
-          return this.role !== 'student' || session != null;
+          return !needsCentreDetails(this) || session != null;
         },
         message: 'Session is required for students'
       }
@@ -251,7 +255,7 @@ const userSchema = new mongoose.Schema({
       trim: true,
       validate: {
         validator: function(nationality) {
-          return this.role !== 'student' || (nationality && nationality.length > 0);
+          return !needsCentreDetails(this) || (nationality && nationality.length > 0);
         },
         message: 'Nationality is required for students'
       }
@@ -360,43 +364,29 @@ const userSchema = new mongoose.Schema({
     },
 
     /**
-     * Royal College class (for Royal College students only)
+     * Royal College class (for Royal College students only), e.g. '9H'
      * @type {String}
-     * @enum ['9H', '9J']
      */
     royalClass: {
       type: String,
-      enum: {
-        values: ['9H', '9J'],
-        message: 'Royal class must be either 9H or 9J'
-      },
-      validate: {
-        validator: function(classValue) {
-          if (this.schoolType === 'royal' && !classValue) {
-            return false;
-          }
-          return true;
-        },
-        message: 'Royal class is required for Royal College students'
-      }
+      trim: true,
+      uppercase: true,
+      // Allowed classes are teacher-editable (AppSettings.royalClasses) and checked in the route validators.
+      // Required for new documents only, so existing students are never blocked from saving.
+      required: [
+        function() { return this.isNew === true && this.studentInfo?.schoolType === 'royal'; },
+        'Class is required for Royal College students'
+      ]
     },
 
     /**
-     * Royal College nationality (for Royal College students only)
+     * Legacy: nationality captured for Royal College students by the old form.
+     * The current form doesn't ask Royal College students for it.
      * @type {String}
      */
     royalNationality: {
       type: String,
-      trim: true,
-      validate: {
-        validator: function(nationality) {
-          if (this.schoolType === 'royal' && !nationality) {
-            return false;
-          }
-          return true;
-        },
-        message: 'Royal nationality is required for Royal College students'
-      }
+      trim: true
     },
 
     /**

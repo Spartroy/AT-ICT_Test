@@ -5,13 +5,39 @@ const Activity = require('../models/Activity');
 const { validationResult } = require('express-validator');
 const { createActivityFromEvent } = require('./activityController');
 
+const ROYAL_SCHOOL_NAME = 'The Royal College School';
+
+// Shape used by the teacher's registration screens. Missing values (Royal College
+// students have no year, session or location) fall back to 'N/A' for display.
+const toRegistrationView = (user) => ({
+  _id: user._id,
+  firstName: user.firstName,
+  lastName: user.lastName,
+  email: user.email,
+  contactNumber: user.contactNumber,
+  parentNumber: user.studentInfo?.parentContactNumber || 'N/A',
+  schoolType: user.studentInfo?.schoolType || null,
+  royalClass: user.studentInfo?.royalClass || null,
+  year: user.studentInfo?.year || 'N/A',
+  nationality: user.studentInfo?.nationality || 'N/A',
+  city: user.address?.city || 'N/A',
+  country: user.address?.country || 'N/A',
+  school: user.studentInfo?.school || 'N/A',
+  session: user.studentInfo?.session || 'N/A',
+  techKnowledge: user.studentInfo?.techKnowledge || 'N/A',
+  englishLevel: user.studentInfo?.englishLevel || 'N/A',
+  otherSubjects: user.studentInfo?.otherSubjects || null,
+  isRetaker: user.studentInfo?.isRetaker || false,
+  status: user.registrationStatus,
+  createdAt: user.createdAt
+});
+
 // @desc    Submit new registration
 // @route   POST /api/registration/submit
 // @access  Public
 const submitRegistration = async (req, res) => {
   try {
     console.log('📝 Registration submission received');
-    console.log('📋 Request body:', JSON.stringify(req.body, null, 2));
     
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -26,35 +52,37 @@ const submitRegistration = async (req, res) => {
     const {
       firstName,
       lastName,
-      year,
-      nationality,
-      city,
-      school,
-      session,
-      isRetaker,
       email,
-      contactNumber,
-      parentNumber,
-      techKnowledge,
-      englishLevel,
-      otherSubjects,
       password,
       schoolType,
       royalClass,
-      royalNationality
+      year,
+      session,
+      school,
+      nationality,
+      city,
+      country,
+      isRetaker,
+      otherSubjects,
+      contactNumber,
+      parentNumber,
+      techKnowledge,
+      englishLevel
     } = req.body;
+    const isRoyal = schoolType === 'royal';
 
-    // Check if email already exists 
+    // Check if email already exists
     const existingUser = await User.findOne({ email: email.toLowerCase() });
 
     if (existingUser) {
       return res.status(400).json({
         status: 'error',
-        message: 'User already registered with this email'
+        message: 'An account with this email already exists',
+        errors: [{ path: 'email', msg: 'An account with this email already exists' }]
       });
     }
 
-    // Create user with pending registration status
+    // Royal College students only give a class; everything centre-specific is stored as null.
     const user = await User.create({
       firstName,
       lastName,
@@ -63,22 +91,21 @@ const submitRegistration = async (req, res) => {
       role: 'student',
       contactNumber,
       address: {
-        city: schoolType === 'center' ? city : 'Unknown',
-        country: 'Unknown'
+        city: isRoyal ? null : city,
+        country: isRoyal ? null : country
       },
       studentInfo: {
-        year: schoolType === 'center' ? year : '11', // Default year for Royal students
-        nationality: schoolType === 'center' ? nationality : royalNationality,
-        school: schoolType === 'center' ? school : 'The Royal College School',
-        session: schoolType === 'center' ? session : 'NOV 25', // Default session for Royal students
-        isRetaker: schoolType === 'center' ? isRetaker : false,
+        schoolType,
+        school: isRoyal ? ROYAL_SCHOOL_NAME : school,
+        royalClass: isRoyal ? royalClass : undefined,
+        year: isRoyal ? null : Number(year),
+        session: isRoyal ? null : session,
+        nationality: isRoyal ? null : nationality,
+        isRetaker: isRoyal ? false : Boolean(isRetaker),
+        otherSubjects: isRoyal ? null : (otherSubjects || null),
         parentContactNumber: parentNumber,
         techKnowledge,
-        englishLevel,
-        otherSubjects: schoolType === 'center' ? otherSubjects : '',
-        schoolType,
-        royalClass: schoolType === 'royal' ? royalClass : undefined,
-        royalNationality: schoolType === 'royal' ? royalNationality : undefined
+        englishLevel
       },
       registrationStatus: 'pending'
     });
@@ -92,9 +119,11 @@ const submitRegistration = async (req, res) => {
       relatedItemId: user._id,
       relatedItemModel: 'Registration',
       metadata: {
-        year: year,
-        session: session,
-        school: school,
+        schoolType,
+        royalClass: user.studentInfo.royalClass || null,
+        year: user.studentInfo.year,
+        session: user.studentInfo.session,
+        school: user.studentInfo.school,
         registrationStatus: 'pending'
       },
       priority: 'high'
@@ -121,7 +150,9 @@ const submitRegistration = async (req, res) => {
       if (error.name === 'ValidationError') {
         const validationErrors = Object.keys(error.errors).map(field => ({
           field,
-          message: error.errors[field].message
+          message: error.errors[field].message,
+          path: field.split('.').pop(),
+          msg: error.errors[field].message
         }));
         
         return res.status(400).json({
@@ -137,7 +168,7 @@ const submitRegistration = async (req, res) => {
         let message = 'A user with this information already exists';
         
         if (field === 'email') {
-          message = 'A user with this email already exists';
+          message = 'An account with this email already exists';
         } else if (field === 'studentInfo.studentId') {
           message = 'A student with this ID already exists. Please try again.';
         }
@@ -145,7 +176,8 @@ const submitRegistration = async (req, res) => {
         return res.status(400).json({
           status: 'error',
           message,
-          details: 'Duplicate entry detected'
+          details: 'Duplicate entry detected',
+          ...(field === 'email' && { errors: [{ path: 'email', msg: message }] })
         });
       }
       
@@ -171,7 +203,7 @@ const getPendingRegistrations = async (req, res) => {
       role: 'student',
       registrationStatus: 'pending' 
     })
-    .select('firstName lastName email contactNumber studentInfo registrationStatus createdAt')
+    .select('firstName lastName email contactNumber studentInfo registrationStatus createdAt address')
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);
@@ -182,21 +214,7 @@ const getPendingRegistrations = async (req, res) => {
     });
 
     // Transform data to match frontend expectations
-    const transformedRegistrations = registrations.map(user => ({
-      _id: user._id,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      email: user.email,
-      contactNumber: user.contactNumber,
-      year: user.studentInfo?.year || 'N/A',
-      nationality: user.studentInfo?.nationality || 'N/A',
-      city: user.address?.city || 'N/A',
-      school: user.studentInfo?.school || 'N/A',
-      session: user.studentInfo?.session || 'N/A',
-      techKnowledge: user.studentInfo?.techKnowledge || 'N/A',
-      isRetaker: user.studentInfo?.isRetaker || false,
-      createdAt: user.createdAt
-    }));
+    const transformedRegistrations = registrations.map(toRegistrationView);
 
     res.status(200).json({
       status: 'success',
@@ -257,22 +275,7 @@ const getAllRegistrations = async (req, res) => {
     const total = await User.countDocuments(query);
 
     // Transform data to match frontend expectations
-    const registrations = users.map(user => ({
-      _id: user._id,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      email: user.email,
-      contactNumber: user.contactNumber,
-      year: user.studentInfo?.year || 'N/A',
-      nationality: user.studentInfo?.nationality || 'N/A',
-      city: user.address?.city || 'N/A',
-      school: user.studentInfo?.school || 'N/A',
-      session: user.studentInfo?.session || 'N/A',
-      techKnowledge: user.studentInfo?.techKnowledge || 'N/A',
-      isRetaker: user.studentInfo?.isRetaker || false,
-      status: user.registrationStatus,
-      createdAt: user.createdAt
-    }));
+    const registrations = users.map(toRegistrationView);
 
     // Get summary statistics
     const stats = await User.aggregate([
@@ -335,22 +338,7 @@ const getRegistration = async (req, res) => {
     }
 
     // Transform data to match frontend expectations
-    const registration = {
-      _id: user._id,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      email: user.email,
-      contactNumber: user.contactNumber,
-      year: user.studentInfo?.year || 'N/A',
-      nationality: user.studentInfo?.nationality || 'N/A',
-      city: user.address?.city || 'N/A',
-      school: user.studentInfo?.school || 'N/A',
-      session: user.studentInfo?.session || 'N/A',
-      techKnowledge: user.studentInfo?.techKnowledge || 'N/A',
-      isRetaker: user.studentInfo?.isRetaker || false,
-      status: user.registrationStatus,
-      createdAt: user.createdAt
-    };
+    const registration = toRegistrationView(user);
 
     res.status(200).json({
       status: 'success',

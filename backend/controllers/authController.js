@@ -334,14 +334,15 @@ const login = async (req, res) => {
     
     // Check registration status for students
     if (user.role === 'student' && user.registrationStatus !== 'approved') {
-      const message = user.registrationStatus === 'rejected'
-        ? 'Your registration has been rejected. Please contact support.'
-        : 'Your registration is pending approval';
-      
+      const rejected = user.registrationStatus === 'rejected';
+
       logAuthEvent('login_fail', email, req.ip, `Registration ${user.registrationStatus}`);
       return res.status(403).json({
         status: 'error',
-        message
+        code: rejected ? 'REGISTRATION_REJECTED' : 'REGISTRATION_PENDING',
+        message: rejected
+          ? 'Your registration has been rejected. Please contact support.'
+          : "Your account is awaiting admin confirmation. You'll be able to sign in once it's approved."
       });
     }
 
