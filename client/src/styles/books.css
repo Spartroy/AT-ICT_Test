@@ -195,24 +195,85 @@
 
 /* ---------- Past papers: a shelf per year with a metal label ---------- */
 .atp-student .ppyear { margin-top: 30px; }
-.atp-student .bshelf.pp { position: relative; padding-top: 58px; }
-.atp-student .bshelf.pp.has-box { padding-top: 110px; }
 .atp-student .metal { position: absolute; left: 24px; top: -14px; z-index: 3; display: flex; align-items: center; gap: 12px; padding: 7px 18px; border-radius: 6px; background: linear-gradient(135deg, #f3f4f6 0%, #a8adb3 22%, #eef0f2 48%, #8c9299 74%, #dfe2e6 100%); border: 1px solid #6e747b; box-shadow: 0 6px 14px rgb(0 0 0 / 0.5), inset 0 1px 0 rgb(255 255 255 / 0.8); }
 .atp-student .metal b { font-family: var(--font-numeric); font-size: 1.4rem; letter-spacing: 0.08em; color: #2a2e33; text-shadow: 0 1px 0 rgb(255 255 255 / 0.7); }
 .atp-student .metal i { width: 8px; height: 8px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff, #8d9399 62%, #50555b); box-shadow: 0 1px 1px rgb(0 0 0 / 0.5); }
 .atp-student .metal i:first-child { order: -1; }
-.atp-student .pp-sessions { display: flex; flex-wrap: wrap; gap: 28px 56px; align-items: flex-end; }
-.atp-student .pp-session { position: relative; display: grid; gap: 10px; }
+
+/* ---------- Past-paper shelves: thin books, boxes on a hung shelf ---------- */
+.atp-student .bshelf.pp { position: relative; padding: 58px 28px 26px; }
+.atp-student .pp-sessions { display: flex; flex-wrap: wrap; gap: 30px 60px; align-items: flex-end; }
+.atp-student .pp-session { display: grid; gap: 12px; }
 .atp-student .pp-tag { justify-self: start; padding: 3px 12px; border-radius: 4px; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: #2a2e33; background: linear-gradient(135deg, #eceef0, #aeb3b9 55%, #e4e6e9); border: 1px solid #6e747b; box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.7); }
-.atp-student .pp-variants { display: flex; align-items: flex-end; gap: 26px; }
-.atp-student .pp-books { display: flex; align-items: flex-end; gap: 10px; }
-.atp-student .bshelf .spine.spine--mini { width: 68px; height: 240px; padding: 12px 4px 10px; }
-.atp-student .spine--mini .sp-logo { width: 32px; height: 32px; }
-.atp-student .spine--mini .sp-text { writing-mode: horizontal-tb; transform: rotate(180deg); display: grid; justify-items: center; gap: 4px; max-height: none; }
-.atp-student .spine--mini .sp-text b { font-size: 1.7rem; letter-spacing: 0.02em; line-height: 1; }
-.atp-student .spine--mini .sp-text i { font-style: normal; font-size: 0.85rem; font-weight: 600; padding: 2px 8px; border-radius: 999px; background: rgb(var(--crimson-rgb) / 0.25); }
-.atp-student .ppyear .sbox-wrap.compact { margin-bottom: 0; }
-.atp-student .spine--mini .sp-text, .atp-student .spine--mini .sp-text b, .atp-student .spine--mini .sp-text i { white-space: nowrap; overflow-wrap: normal; word-break: keep-all; writing-mode: horizontal-tb; }
-.atp-student .spine--mini .sp-text { width: max-content; max-width: none; }
-.atp-student .spine--mini .sp-text { display: flex; flex-direction: column; align-items: center; gap: 0; line-height: 1.2; }
-.atp-student .spine--mini .sp-text i { display: block; margin-top: 8px; line-height: 1.3; }
+
+/* One grid per session: variants are the columns, so the books and the box under them line up. */
+.atp-student .pp-rack { display: grid; grid-template-columns: repeat(var(--n), auto); justify-content: start; column-gap: 16px; }
+.atp-student .pp-cell { display: flex; align-items: flex-end; justify-content: center; }
+.atp-student .pp-cell--books { gap: 6px; }
+.atp-student .pp-cell--box { min-width: 156px; }
+.atp-student .pp-plank { grid-column: 1 / -1; height: 12px; margin: 0 -10px; border-radius: 3px; background: linear-gradient(180deg, var(--crimson-500), var(--crimson-700)); box-shadow: 0 6px 14px rgb(var(--crimson-rgb) / 0.3), inset 0 1px 0 rgb(255 255 255 / 0.25); }
+.atp-student .pp-plank--hung { margin: 0 -10px; height: 10px; }
+
+/* Straps and hooks that carry the lower shelf */
+.atp-student .pp-hangers { grid-column: 1 / -1; position: relative; height: 44px; }
+.atp-student .pp-hangers i { position: absolute; top: -2px; bottom: -112px; width: 5px; border-radius: 2px; background: linear-gradient(90deg, #8c9299, #f0f2f4 45%, #7b8187); box-shadow: 0 0 0 1px rgb(0 0 0 / 0.35); }
+.atp-student .pp-hangers i::before { content: ""; position: absolute; left: 50%; top: -8px; width: 14px; height: 14px; transform: translateX(-50%); border: 3px solid #b9bec4; border-bottom-color: #7b8187; border-radius: 50%; }
+.atp-student .pp-hangers i:first-child { left: -4px; }
+.atp-student .pp-hangers i:last-child { right: -4px; }
+
+/* Thin question-paper / mark-scheme books */
+.atp-student .bshelf .spine.spine--mini { width: 46px; height: 206px; padding: 10px 3px 8px; gap: 6px; border-radius: 6px 6px 2px 2px; }
+.atp-student .spine--mini::before { inset: 4px; }
+.atp-student .spine--mini .sp-logo { width: 28px; height: 28px; }
+.atp-student .spine--mini .sp-icon { width: 18px; height: 18px; }
+.atp-student .spine--mini .pb-code { flex: 1; min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; }
+.atp-student .spine--mini .pb-code strong { font-family: var(--font-body); font-size: 1.05rem; font-weight: 700; line-height: 1; letter-spacing: 0; color: var(--white); }
+.atp-student .spine--mini .pb-code em { font-style: normal; font-size: 0.6rem; font-weight: 700; line-height: 1; padding: 3px 5px; border-radius: 999px; color: #ffd7df; background: rgb(var(--crimson-rgb) / 0.3); }
+
+/* ---------- Front view box of source files ---------- */
+.atp-student .fbox { --kf: #c9a068; --kf2: #b98c54; position: relative; display: block; width: 150px; height: 112px; padding: 0; border: 0; background: none; cursor: pointer; }
+.atp-student .fbox:focus-visible { outline: 3px solid var(--white); outline-offset: 4px; border-radius: 6px; }
+.atp-student .fbox:disabled { cursor: progress; }
+.atp-student .fbox span, .atp-student .fbox s, .atp-student .fbox i { position: absolute; display: block; text-decoration: none; }
+.atp-student .fb-files { z-index: 2; left: 0; bottom: 0; width: 150px; height: 112px; pointer-events: none; }
+.atp-student .fb-files i { bottom: 62px; width: 40px; height: 44px; border-radius: 3px 3px 0 0; background: #fff; box-shadow: 0 -1px 4px rgb(0 0 0 / 0.3); transition: transform 0.45s cubic-bezier(0.34, 1.5, 0.5, 1); }
+.atp-student .fb-files i::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 12px; border-radius: 3px 3px 0 0; background: var(--hd); }
+.atp-student .fb-files i::after { content: ""; position: absolute; left: 6px; right: 6px; top: 18px; height: 20px; background: repeating-linear-gradient(transparent 0 5px, rgb(0 0 0 / 0.14) 5px 7px); }
+.atp-student .fb-files .f-xl { --hd: #1d8a4f; left: 34px; transform: rotate(-5deg); }
+.atp-student .fb-files .f-wd { --hd: #2b6cc4; left: 55px; }
+.atp-student .fb-files .f-pp { --hd: #d9622b; left: 76px; transform: rotate(5deg); }
+.atp-student .fbox:hover .fb-files i, .atp-student .fbox:focus-visible .fb-files i { transform: translateY(-26px) rotate(var(--r, 0deg)); }
+.atp-student .fb-files .f-xl { --r: -5deg; }
+.atp-student .fb-files .f-pp { --r: 5deg; }
+.atp-student .fbox:hover .fb-files .f-wd, .atp-student .fbox:focus-visible .fb-files .f-wd { transition-delay: 0.06s; }
+.atp-student .fbox:hover .fb-files .f-pp, .atp-student .fbox:focus-visible .fb-files .f-pp { transition-delay: 0.12s; }
+
+.atp-student .fb-body { z-index: 3; left: 4px; right: 4px; bottom: 0; height: 84px; background: linear-gradient(180deg, var(--kf), var(--kf2)); border: 1px solid rgb(90 56 20 / 0.45); border-radius: 0 0 3px 3px; }
+.atp-student .fb-body::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 12px; background: linear-gradient(90deg, rgb(0 0 0 / 0.12), rgb(255 255 255 / 0.06)); border-right: 1px solid rgb(90 56 20 / 0.45); }
+.atp-student .fb-handle { left: 50%; top: 14px; width: 62px; height: 14px; transform: translateX(-50%); border-radius: 6px; background: linear-gradient(180deg, #1a1008, #2a1a0b); box-shadow: inset 0 3px 4px rgb(0 0 0 / 0.7), 0 1px 0 rgb(255 255 255 / 0.25); }
+.atp-student .fb-label { left: 20px; right: 10px; bottom: 9px; min-height: 28px; display: grid; place-items: center; padding: 3px 6px; background: #f6efe0; border: 1px solid rgb(90 56 20 / 0.4); border-radius: 3px; box-shadow: 0 1px 2px rgb(0 0 0 / 0.25); }
+.atp-student .fb-label b { font-family: var(--font-body); font-size: 0.68rem; line-height: 1.15; text-align: center; color: #3a2410; }
+.atp-student .fb-rv { width: 6px; height: 6px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff, #9aa0a6 60%, #5b6066); box-shadow: 0 1px 1px rgb(0 0 0 / 0.4); }
+.atp-student .fb-rv.r1 { left: 3px; top: 6px; } .atp-student .fb-rv.r2 { left: 3px; bottom: 6px; }
+.atp-student .fb-rv.r3 { right: 4px; top: 6px; } .atp-student .fb-rv.r4 { right: 4px; bottom: 6px; }
+
+.atp-student .fb-lid { z-index: 4; left: 0; right: 0; top: 0; height: 32px; border: 1px solid rgb(90 56 20 / 0.5); border-radius: 3px; background: linear-gradient(180deg, #dcb67f, #c9a068); box-shadow: 0 3px 5px rgb(0 0 0 / 0.3), inset 0 1px 0 rgb(255 255 255 / 0.35); transition: transform 0.5s cubic-bezier(0.34, 1.35, 0.5, 1); transform-origin: 0 100%; }
+.atp-student .fbox:hover .fb-lid, .atp-student .fbox:focus-visible .fb-lid { transform: translateY(-30px) rotate(-4deg); }
+
+@media (prefers-reduced-motion: reduce) { .atp-student .fb-lid, .atp-student .fb-files i { transition: none; } }
+.atp-student .rs-clip { position: absolute !important; right: 10px; bottom: 10px; width: 18px; height: 18px; opacity: 0.9; }
+
+/* ---------- Branded boxes: logo, crimson tape, AT-ICT label ---------- */
+.atp-student .sb-logo { position: absolute; left: 26px; top: 8px; width: 38px; height: 38px; border-radius: 50%; object-fit: cover; box-shadow: 0 2px 5px rgb(0 0 0 / 0.4); }
+.atp-student .sb-handle { left: 84px !important; width: 74px !important; }
+.atp-student .sb-label { flex-direction: column; gap: 1px; }
+.atp-student .sb-label em, .atp-student .fb-label em { display: block; font-style: normal; font-size: 0.52rem; font-weight: 800; letter-spacing: 0.18em; color: var(--crimson-500); line-height: 1.1; }
+.atp-student .sb-lip { border-bottom: 5px solid var(--crimson-500) !important; }
+.atp-student .sb-lipside { border-bottom: 5px solid var(--crimson-700) !important; }
+.atp-student .sb-top::after { content: ""; position: absolute; left: 0; right: 0; top: calc(50% - 7px); height: 14px; background: linear-gradient(180deg, var(--crimson-500), var(--crimson-700)); opacity: 0.92; }
+
+.atp-student .fb-logo { position: absolute; z-index: 4; left: 20px; top: 8px; width: 28px; height: 28px; border-radius: 50%; object-fit: cover; box-shadow: 0 2px 4px rgb(0 0 0 / 0.4); }
+.atp-student .fb-handle { left: 58px !important; width: 70px !important; transform: none !important; }
+.atp-student .fb-label { flex-direction: column; gap: 1px; }
+.atp-student .fb-lid { border-bottom: 4px solid var(--crimson-500) !important; }
+.atp-student .fb-lid::after { content: ""; position: absolute; left: 50%; top: 0; bottom: 0; width: 26px; transform: translateX(-50%); background: linear-gradient(90deg, var(--crimson-700), var(--crimson-500) 50%, var(--crimson-700)); opacity: 0.92; }

@@ -79,4 +79,19 @@ describe('updateMaterial', () => {
     await call({ title: 'Still a box' });
     expect(old.kind).toBe('source');
   });
+
+  it('stores a source files link on a rev sheet and clears it for other kinds', async () => {
+    const doc = stubMaterial({ type: 'theory', kind: 'revsheet', sourceUrl: '' });
+    await call({ sourceUrl: ' https://drive.google.com/file/d/SRC/view ' });
+    expect(doc.sourceUrl).toBe('https://drive.google.com/file/d/SRC/view');
+    await call({ kind: 'book' });
+    expect(doc.sourceUrl).toBe('');
+  });
+
+  it('rejects a source files link that is not http(s)', async () => {
+    const doc = stubMaterial({ type: 'theory', kind: 'revsheet' });
+    const res = await call({ sourceUrl: 'javascript:alert(1)' });
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(doc.save).not.toHaveBeenCalled();
+  });
 });

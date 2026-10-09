@@ -2,7 +2,10 @@ import React, { useMemo, useState } from 'react';
 import useApi from '../../../hooks/useApi';
 import { API_ENDPOINTS } from '../../../config/api';
 import { Chips, ErrorNote, Loading, SearchBox } from '../../../components/portal/kit';
+import { Download } from 'lucide-react';
 import ResourceViewer from '../../../components/portal/viewer/ResourceViewer';
+import { usePortalUI } from '../../../components/portal/PortalUI';
+import { directDownload, startDownload } from '../../../lib/directDownload';
 import logoCircle from '../../../assets/brand/logo-circle.png';
 import BookOverlay, { CoverTitle, SPINE } from './BookOverlay';
 import PastPapers from './PastPapers';
@@ -28,6 +31,13 @@ export default function Bookshelf() {
   const [q, setQ] = useState('');
   const [open, setOpen] = useState(null);
   const [sheet, setSheet] = useState(null);
+  const { toast } = usePortalUI();
+
+  // Straight download when the link allows it, otherwise the link opens in a new tab.
+  const downloadSource = (link) => {
+    const { url, isDirect } = directDownload(link);
+    if (isDirect) { startDownload(url); toast('Your download is starting…'); } else window.open(url, '_blank', 'noopener,noreferrer');
+  };
 
   const counts = useMemo(() => Object.fromEntries(CATS.map(c => [c.id, (materials.data || []).filter(m => m.type === c.id).length])), [materials.data]);
   const matches = (materials.data || []).filter(m => m.type === cat && m.title.toLowerCase().includes(q.trim().toLowerCase()));
@@ -82,7 +92,20 @@ export default function Bookshelf() {
       )}
 
       {open && <BookOverlay key={open.m._id} {...open} catLabel={CATS.find(c => c.id === open.m.type)?.label} onClosed={() => setOpen(null)} />}
-      {sheet && <ResourceViewer kind="web" src={sheet.externalUrl} title={sheet.title} backLabel="Back to materials" onClose={() => setSheet(null)} />}
+      {sheet && (
+        <ResourceViewer
+          kind="web"
+          src={sheet.externalUrl}
+          title={sheet.title}
+          backLabel="Back to materials"
+          onClose={() => setSheet(null)}
+          actions={sheet.sourceUrl && (
+            <button type="button" className="btn p sm" onClick={() => downloadSource(sheet.sourceUrl)}>
+              <Download className="i" aria-hidden="true" /><span>Download source files</span>
+            </button>
+          )}
+        />
+      )}
     </>
   );
 }

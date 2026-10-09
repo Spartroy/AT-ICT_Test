@@ -11,7 +11,8 @@ export function directDownload(raw) {
 
   if (host === 'drive.google.com') {
     const id = parts[0] === 'file' && parts[1] === 'd' ? parts[2] : (['open', 'uc'].includes(parts[0]) ? url.searchParams.get('id') : null);
-    if (id) return { url: `https://drive.google.com/uc?export=download&id=${id}`, isDirect: true };
+    // drive.usercontent.google.com with confirm=t skips Google's "can't scan for viruses" page for big files.
+    if (id) return { url: `https://drive.usercontent.google.com/download?id=${id}&export=download&confirm=t`, isDirect: true };
     return { url: raw, isDirect: false }; // folders can't be fetched as one file
   }
 
@@ -29,6 +30,14 @@ export function directDownload(raw) {
 
   return { url: raw, isDirect: false };
 }
+
+/** True for a Google Drive folder link (it can't be downloaded in one click; the files inside can). */
+export const isDriveFolder = (raw) => {
+  try {
+    const u = new URL(raw);
+    return u.hostname.replace(/^www\./, '') === 'drive.google.com' && /\/folders\//.test(u.pathname);
+  } catch { return false; }
+};
 
 /** Starts the download without leaving the page (the server answers with an attachment). */
 export function startDownload(href) {

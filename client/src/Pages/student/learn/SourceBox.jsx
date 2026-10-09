@@ -3,13 +3,10 @@ import { API_ENDPOINTS } from '../../../config/api';
 import { downloadFile } from '../../../lib/api';
 import { usePortalUI } from '../../../components/portal/PortalUI';
 import { directDownload, startDownload } from '../../../lib/directDownload';
+import logoCircle from '../../../assets/brand/logo-circle.png';
 
-/**
- * A cardboard box of practical source files. Hover or focus lifts the lid and files pop up;
- * clicking downloads the files straight away (Drive / Docs / Dropbox links are converted to direct downloads,
- * other links open in a new tab). `compact` is the small box used on the past-paper shelves.
- */
-export default function SourceBox({ m, compact = false }) {
+/** Downloads a source-file material: uploaded file, direct-download link, or a link opened in a new tab. */
+export function useSourceDownload(m) {
   const { toast } = usePortalUI();
   const [busy, setBusy] = useState(false);
 
@@ -35,6 +32,16 @@ export default function SourceBox({ m, compact = false }) {
       toast('The download link for these files is coming soon.');
     }
   };
+  return { go, busy };
+}
+
+/**
+ * A cardboard box of practical source files. Hover or focus lifts the lid and files pop up;
+ * clicking downloads the files straight away (Drive / Docs / Dropbox links are converted to direct downloads,
+ * other links open in a new tab). `compact` is the small box used on the past-paper shelves.
+ */
+export default function SourceBox({ m, compact = false }) {
+  const { go, busy } = useSourceDownload(m);
 
   return (
     <div className={`sbox-wrap${compact ? ' compact' : ''}`}>
@@ -47,8 +54,9 @@ export default function SourceBox({ m, compact = false }) {
           <i className="sb-f f-pp" style={{ '--i': 2, '--r': '9deg', '--x': '134px' }}><u /></i>
         </span>
         <span className="sb-front">
+          <img className="sb-logo" src={logoCircle} alt="" />
           <span className="sb-handle" />
-          <span className="sb-label"><b>{m.title}</b></span>
+          <span className="sb-label"><em>AT-ICT</em><b>{m.title}</b></span>
           <s className="rv r1" /><s className="rv r2" /><s className="rv r3" /><s className="rv r4" />
         </span>
         <span className="sb-side" aria-hidden="true" />

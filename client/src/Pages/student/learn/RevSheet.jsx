@@ -1,5 +1,5 @@
 import React from 'react';
-import { FileText } from 'lucide-react';
+import { FileText, Paperclip } from 'lucide-react';
 import logoCircle from '../../../assets/brand/logo-circle.png';
 import { sizeTier } from './bookDesign';
 
@@ -18,6 +18,7 @@ export default function RevSheet({ m, onOpen }) {
         <img className="rs-logo" src={logoCircle} alt="" />
         <span className="rs-title">{m.title}</span>
         <FileText className="rs-icon" aria-hidden="true" />
+        {m.sourceUrl && <Paperclip className="rs-clip" aria-label="Includes source files" />}
       </span>
     </button>
   );

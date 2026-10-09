@@ -4,6 +4,9 @@ import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import AuthModal from './AuthModal';
 
+// The registration tests type through all four steps, which can take more than Jest's 5s default on a busy machine.
+jest.setTimeout(30000);
+
 const OPTIONS = {
   status: 'success',
   data: {

@@ -45,6 +45,10 @@ const uploadMaterial = async (req, res) => {
 
     const { title, externalUrl, description } = req.body;
     const resolved = resolveKind(req.body);
+    const sourceUrl = typeof req.body.sourceUrl === 'string' ? req.body.sourceUrl.trim() : '';
+    if (sourceUrl && !/^https?:\/\/[^\s]+$/i.test(sourceUrl)) {
+      return res.status(400).json({ status: 'error', message: 'Enter a valid source files link starting with http:// or https://' });
+    }
     const type = resolved.type;
     const materialFile = req.files?.material ? req.files.material[0] : null;
     const thumbnailFile = req.files?.thumbnail ? req.files.thumbnail[0] : null;
@@ -69,6 +73,7 @@ const uploadMaterial = async (req, res) => {
     };
     if (description && description.trim()) materialData.description = description.trim();
     materialData.kind = resolved.kind;
+    materialData.sourceUrl = resolved.kind === 'revsheet' ? sourceUrl : '';
     materialData.isSourceFile = resolved.isSourceFile;
 
     if (materialFile) {
@@ -141,6 +146,14 @@ const updateMaterial = async (req, res) => {
     }
 
     const resolved = resolveKind(req.body, material);
+    if (typeof req.body.sourceUrl === 'string') {
+      const sourceUrl = req.body.sourceUrl.trim();
+      if (sourceUrl && !/^https?:\/\/[^\s]+$/i.test(sourceUrl)) {
+        return res.status(400).json({ status: 'error', message: 'Enter a valid source files link starting with http:// or https://' });
+      }
+      material.sourceUrl = sourceUrl;
+    }
+    if (resolved.kind !== 'revsheet') material.sourceUrl = '';
     material.title = title || material.title;
     material.type = resolved.type;
     material.kind = resolved.kind;

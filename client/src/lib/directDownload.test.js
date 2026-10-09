@@ -1,9 +1,9 @@
-import { directDownload } from './directDownload';
+import { directDownload, isDriveFolder } from './directDownload';
 
 describe('directDownload', () => {
   it('turns Drive file links into direct downloads', () => {
-    expect(directDownload('https://drive.google.com/file/d/ABC123/view?usp=sharing')).toEqual({ url: 'https://drive.google.com/uc?export=download&id=ABC123', isDirect: true });
-    expect(directDownload('https://drive.google.com/open?id=ABC123').url).toBe('https://drive.google.com/uc?export=download&id=ABC123');
+    expect(directDownload('https://drive.google.com/file/d/ABC123/view?usp=sharing')).toEqual({ url: 'https://drive.usercontent.google.com/download?id=ABC123&export=download&confirm=t', isDirect: true });
+    expect(directDownload('https://drive.google.com/open?id=ABC123').url).toBe('https://drive.usercontent.google.com/download?id=ABC123&export=download&confirm=t');
   });
 
   it('does not pretend a Drive folder is one file', () => {
@@ -23,5 +23,11 @@ describe('directDownload', () => {
   it('leaves other links alone', () => {
     expect(directDownload('https://example.com/files.zip')).toEqual({ url: 'https://example.com/files.zip', isDirect: false });
     expect(directDownload('not a url').isDirect).toBe(false);
+  });
+
+  it('recognises Drive folder links', () => {
+    expect(isDriveFolder('https://drive.google.com/drive/folders/1BV0?usp=sharing')).toBe(true);
+    expect(isDriveFolder('https://drive.google.com/file/d/ABC/view')).toBe(false);
+    expect(isDriveFolder('nope')).toBe(false);
   });
 });

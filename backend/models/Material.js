@@ -55,6 +55,11 @@ const materialSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
+  // Rev sheets only: optional link to the source files that go with the sheet.
+  sourceUrl: {
+    type: String,
+    default: ''
+  },
   // External link for link-only materials
   externalUrl: {
     type: String,

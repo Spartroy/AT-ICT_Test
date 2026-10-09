@@ -3,6 +3,7 @@ import { BookOpen, ClipboardList, FileText, Package, Plus, Trash2, Upload } from
 import { api } from '../../../lib/api';
 import { API_ENDPOINTS } from '../../../config/api';
 import { Ic } from '../../../components/portal/kit';
+import { isDriveFolder } from '../../../lib/directDownload';
 import { useToast } from '../../../components/portal/PortalUI';
 import { FormDialog, Fld, apiError, announceChange } from './form';
 
@@ -26,6 +27,11 @@ export const YEAR_RANGE = Array.from({ length: 9 }, (_, i) => 2026 - i); // 2026
 const SESSIONS = [{ id: 'jun', label: 'June session' }, { id: 'nov', label: 'November session' }];
 const LINK = /^https?:\/\/[^\s]+$/i;
 const blankVariant = () => ({ qp: '', src: '', ms: '' });
+
+/** Explains why a Drive folder link can't give a one-click download. */
+const FolderHint = ({ url }) => (isDriveFolder(url)
+  ? <small className="sub wz-hint">This is a Drive folder, so students will be taken to Drive. For a one-click download, link the .zip or .rar file inside it instead.</small>
+  : null);
 
 /** Option cards: one choice, big and obvious. */
 function Choice({ title, options, value, onChange, cols }) {
@@ -78,7 +84,7 @@ function PastPaperForm({ state, setState, errors }) {
                     <button type="button" className="ib sm dng" aria-label={`Remove ${label} variant ${i + 1}`} onClick={() => removeVariant(id, i)}><Ic as={Trash2} /></button>
                   </header>
                   <Fld label="Question Paper · QP" error={errors[`${id}.${i}.qp`]}><input className="inp" type="url" value={v.qp} onChange={e => setVariant(id, i, 'qp', e.target.value)} placeholder="https://…" /></Fld>
-                  {showSrc && <Fld label="Source files · SRC" error={errors[`${id}.${i}.src`]}><input className="inp" type="url" value={v.src} onChange={e => setVariant(id, i, 'src', e.target.value)} placeholder="https://…" /></Fld>}
+                  {showSrc && <Fld label="Source files · SRC" error={errors[`${id}.${i}.src`]}><input className="inp" type="url" value={v.src} onChange={e => setVariant(id, i, 'src', e.target.value)} placeholder="Link to the .zip / .rar file" /><FolderHint url={v.src} /></Fld>}
                   <Fld label="Mark Scheme · MS" error={errors[`${id}.${i}.ms`]}><input className="inp" type="url" value={v.ms} onChange={e => setVariant(id, i, 'ms', e.target.value)} placeholder="https://…" /></Fld>
                 </div>
               ))}
@@ -104,6 +110,7 @@ export function MaterialModal({ open, onClose, material, pastpaper }) {
   const [title, setTitle] = useState('');
   const [type, setType] = useState(null);
   const [link, setLink] = useState('');
+  const [sourceUrl, setSourceUrl] = useState('');
   const [pp, setPp] = useState({ paper: null, year: null, sessions: { jun: [], nov: [] }, loading: false });
   const [errors, setErrors] = useState({});
   const [busy, setBusy] = useState(false);
@@ -122,6 +129,7 @@ export function MaterialModal({ open, onClose, material, pastpaper }) {
     setTitle(m?.title || '');
     setType(m?.type || null);
     setLink(m?.externalUrl || '');
+    setSourceUrl(m?.sourceUrl || '');
   }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Load what is already saved for the chosen paper + year.
@@ -162,6 +170,7 @@ export function MaterialModal({ open, onClose, material, pastpaper }) {
       if (!title.trim()) e.title = 'Enter a title';
       if (!editingLegacyFile && !link.trim()) e.link = 'Paste the link';
       else if (!editingLegacyFile && !LINK.test(link.trim())) e.link = 'Start the link with https://';
+      if (kind === 'revsheet' && sourceUrl.trim() && !LINK.test(sourceUrl.trim())) e.sourceUrl = 'Start the link with https://';
     }
     setErrors(e);
     if (Object.keys(e).length) return;
@@ -175,6 +184,7 @@ export function MaterialModal({ open, onClose, material, pastpaper }) {
       } else {
         const body = { kind, title: title.trim(), type: kind === 'source' ? 'practical' : type };
         if (!editingLegacyFile) body.externalUrl = link.trim();
+        if (kind === 'revsheet') body.sourceUrl = sourceUrl.trim();
         if (m) await api.put(`${API_ENDPOINTS.TEACHER.MATERIALS}/${m._id}`, body);
         else {
           const fd = new FormData();
@@ -217,7 +227,15 @@ export function MaterialModal({ open, onClose, material, pastpaper }) {
       {showType && <Choice title="Which section?" options={SECTIONS} value={type} onChange={setType} cols={3} />}
       {showLink && !editingLegacyFile && (
         <Fld label="Link" error={errors.link}>
-          <input className="inp" type="url" value={link} onChange={e => setLink(e.target.value)} placeholder="https://drive.google.com/…" />
+          <input className="inp" type="url" value={link} onChange={e => setLink(e.target.value)} placeholder={kind === 'source' ? 'Link to the .zip / .rar file' : 'https://drive.google.com/…'} />
+          {kind === 'source' && <FolderHint url={link} />}
+        </Fld>
+      )}
+      {showLink && kind === 'revsheet' && (
+        <Fld label="Source files link (optional)" error={errors.sourceUrl}>
+          <input className="inp" type="url" value={sourceUrl} onChange={e => setSourceUrl(e.target.value)} placeholder="Link to the .zip / .rar file" />
+          <small className="sub wz-hint">Students get a "Download source files" button inside the sheet.</small>
+          <FolderHint url={sourceUrl} />
         </Fld>
       )}
       {showLink && editingLegacyFile && <p className="sub">This material uses an uploaded file, which stays as it is.</p>}
