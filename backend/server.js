@@ -47,6 +47,7 @@ const quizRoutes = require('./routes/quizRoutes');
 const flashcardRoutes = require('./routes/flashcardRoutes');
 const activityRoutes = require('./routes/activityRoutes');
 const settingsRoutes = require('./routes/settingsRoutes');
+const pastPaperRoutes = require('./routes/pastPaperRoutes');
 const sessionRoutes = require('./routes/sessionRoutes');
 const teacherSessionRoutes = require('./routes/teacherSessionRoutes');
 const leaderboardRoutes = require('./routes/leaderboardRoutes');
@@ -306,6 +307,7 @@ app.use('/api/student', studentRoutes);
  * Teacher dashboard, student management, grading
  */
 app.use('/api/teacher/settings', settingsRoutes.teacherRouter);
+app.use('/api/teacher/pastpapers', pastPaperRoutes.teacherRouter);
 app.use('/api/teacher', teacherRoutes);
 
 /**
@@ -313,6 +315,7 @@ app.use('/api/teacher', teacherRoutes);
  * Public options for the registration form (teacher-editable via /api/teacher/settings)
  */
 app.use('/api/settings', settingsRoutes.publicRouter);
+app.use('/api/pastpapers', pastPaperRoutes.publicRouter);
 
 /**
  * Parent-specific Routes

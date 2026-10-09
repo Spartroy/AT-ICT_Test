@@ -17,7 +17,7 @@ export function useTeacherChange(kinds, onChange) {
 export const announceChange = (kind) => window.dispatchEvent(new CustomEvent('teacher:changed', { detail: kind }));
 
 /** Dialog with header, a <form class="mbody"> and Cancel / submit footer. */
-export function FormDialog({ open, onClose, icon, title, sub, size = '', submitLabel = 'Save', busy, error, onSubmit, children }) {
+export function FormDialog({ open, onClose, icon, title, sub, size = '', submitLabel = 'Save', busy, disabled, error, onSubmit, children }) {
   const id = useId();
   return (
     <Dialog open={open} onClose={onClose} size={size} labelledBy={id}>
@@ -27,7 +27,7 @@ export function FormDialog({ open, onClose, icon, title, sub, size = '', submitL
         {error && <p className="fld-err" role="alert" style={{ marginTop: 6 }}>{error}</p>}
         <div className="mfoot">
           <button type="button" className="btn o" onClick={onClose}>Cancel</button>
-          <button type="submit" className="btn p" disabled={busy}>{busy ? 'Saving…' : submitLabel}</button>
+          <button type="submit" className="btn p" disabled={busy || disabled}>{busy ? 'Saving…' : submitLabel}</button>
         </div>
       </form>
     </Dialog>

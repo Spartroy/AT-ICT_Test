@@ -75,6 +75,8 @@ export const API_ENDPOINTS = {
   ASSIGNMENTS: `${API_BASE_URL}/api/assignments`,
   QUIZZES: `${API_BASE_URL}/api/quizzes`,
   FLASHCARDS: `${API_BASE_URL}/api/flashcards`,
+  PASTPAPERS: `${API_BASE_URL}/api/pastpapers`,
+  TEACHER_PASTPAPERS: `${API_BASE_URL}/api/teacher/pastpapers`,
   FLASHCARDS_MY_STACKS: `${API_BASE_URL}/api/flashcards/my-stacks`,
   SESSIONS: {
     BASE: `${API_BASE_URL}/api/sessions`,

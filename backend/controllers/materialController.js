@@ -1,4 +1,5 @@
 const Material = require('../models/Material');
+const { resolveKind } = require('../utils/materialKind');
 const User = require('../models/User');
 const { validationResult } = require('express-validator');
 const { deleteFromCloudinary, getFileUrl, cloudinary } = require('../config/cloudinary');
@@ -42,9 +43,15 @@ const uploadMaterial = async (req, res) => {
       });
     }
 
-    const { title, type, externalUrl, description, isSourceFile } = req.body;
+    const { title, externalUrl, description } = req.body;
+    const resolved = resolveKind(req.body);
+    const type = resolved.type;
     const materialFile = req.files?.material ? req.files.material[0] : null;
     const thumbnailFile = req.files?.thumbnail ? req.files.thumbnail[0] : null;
+
+    if (externalUrl && !/^https?:\/\/[^\s]+$/i.test(String(externalUrl).trim())) {
+      return res.status(400).json({ status: 'error', message: 'Enter a valid link starting with http:// or https://' });
+    }
 
     // Allow link-only materials when no file is provided and externalUrl is present
     if (!materialFile && !externalUrl) {
@@ -61,8 +68,8 @@ const uploadMaterial = async (req, res) => {
       uploadedBy: req.user.id
     };
     if (description && description.trim()) materialData.description = description.trim();
-    // Only practical materials can be source files; multipart bodies send booleans as strings.
-    materialData.isSourceFile = type === 'practical' && String(isSourceFile) === 'true';
+    materialData.kind = resolved.kind;
+    materialData.isSourceFile = resolved.isSourceFile;
 
     if (materialFile) {
       materialData.fileUrl = materialFile.path; // Cloudinary URL
@@ -72,7 +79,7 @@ const uploadMaterial = async (req, res) => {
       materialData.cloudinaryPublicId = materialFile.filename; // Cloudinary public ID
       materialData.cloudinaryUrl = materialFile.path; // Cloudinary URL
     } else if (externalUrl) {
-      materialData.externalUrl = externalUrl;
+      materialData.externalUrl = String(externalUrl).trim();
     }
 
     // Add thumbnail data if provided
@@ -115,7 +122,7 @@ const uploadMaterial = async (req, res) => {
 // @access  Private (Teacher)
 const updateMaterial = async (req, res) => {
   try {
-    const { title, type, description, externalUrl, isSourceFile } = req.body;
+    const { title, description, externalUrl } = req.body;
 
     const material = await Material.findById(req.params.id);
 
@@ -133,11 +140,12 @@ const updateMaterial = async (req, res) => {
       });
     }
 
+    const resolved = resolveKind(req.body, material);
     material.title = title || material.title;
-    material.type = type || material.type;
+    material.type = resolved.type;
+    material.kind = resolved.kind;
+    material.isSourceFile = resolved.isSourceFile;
     if (typeof description === 'string') material.description = description.trim();
-    if (isSourceFile !== undefined) material.isSourceFile = material.type === 'practical' && String(isSourceFile) === 'true';
-    else if (material.type !== 'practical') material.isSourceFile = false;
 
     // Link-only materials: the teacher can change where the link points.
     if (typeof externalUrl === 'string' && !material.fileName) {

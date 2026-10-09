@@ -43,6 +43,13 @@ const materialSchema = new mongoose.Schema({
     maxlength: [500, 'Description cannot be more than 500 characters'],
     default: ''
   },
+  // book | revsheet | source. Source files are practical and show as a box of files to download.
+  kind: {
+    type: String,
+    enum: ['book', 'revsheet', 'source'],
+    default: 'book'
+  },
+  // Kept in sync with kind === 'source' (older documents only have this flag).
   // Practical materials only: true = a source file (shown to students as a box of files), false = a book.
   isSourceFile: {
     type: Boolean,

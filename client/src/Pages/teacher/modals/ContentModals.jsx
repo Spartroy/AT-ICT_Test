@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { GraduationCap, Megaphone, Play, Library, Upload } from 'lucide-react';
+import { GraduationCap, Megaphone, Play, Library } from 'lucide-react';
 import { api } from '../../../lib/api';
 import { API_ENDPOINTS } from '../../../config/api';
 import { useToast } from '../../../components/portal/PortalUI';
@@ -208,59 +208,3 @@ export function NoteModal({ open, onClose, note }) {
   );
 }
 
-/** Upload / edit material: a file or an external link. */
-export function MaterialModal({ open, onClose, material }) {
-  const toast = useToast();
-  const m = material;
-  const f = useForm(open, { title: m?.title || '', description: m?.description || '', type: m?.type || 'theory', externalUrl: m?.externalUrl || '', isSourceFile: !!m?.isSourceFile, file: null });
-  const { v, set } = f;
-  const isLinkOnly = !!m && !m.fileName; // materials made from a link can have their link edited
-  const submit = () => {
-    const e = {};
-    if (!v.title.trim()) e.title = 'Enter a title';
-    if ((!m && !v.file && !v.externalUrl.trim()) || (isLinkOnly && !v.externalUrl.trim())) e.file = m ? 'Paste the link' : 'Choose a file or paste a link';
-    f.setErrors(e);
-    if (Object.keys(e).length) return;
-    if (m) {
-      const body = { title: v.title.trim(), description: v.description.trim(), type: v.type, isSourceFile: v.type === 'practical' && v.isSourceFile };
-      if (isLinkOnly) body.externalUrl = v.externalUrl.trim();
-      save(f, () => api.put(`${API_ENDPOINTS.TEACHER.MATERIALS}/${m._id}`, body), { toast, okMsg: 'Material saved', kind: 'material', onClose });
-      return;
-    }
-    const fd = new FormData();
-    fd.append('title', v.title.trim());
-    fd.append('type', v.type);
-    if (v.type === 'practical' && v.isSourceFile) fd.append('isSourceFile', 'true');
-    if (v.description.trim()) fd.append('description', v.description.trim());
-    if (v.file) fd.append('material', v.file);
-    else fd.append('externalUrl', v.externalUrl.trim());
-    save(f, () => api.post(API_ENDPOINTS.TEACHER.MATERIALS, fd), { toast, okMsg: 'Material uploaded', kind: 'material', onClose });
-  };
-  return (
-    <FormDialog open={open} onClose={onClose} icon={Upload} title={m ? 'Edit material' : 'Upload new material'} submitLabel={m ? 'Save' : 'Upload material'} busy={f.busy} error={f.errors.form} onSubmit={submit}>
-      <Fld label="Title *" error={f.errors.title}><input className="inp" value={v.title} onChange={set('title')} placeholder="e.g. Classified" /></Fld>
-      <Fld label="Description (optional)"><textarea className="inp" rows={2} value={v.description} onChange={set('description')} /></Fld>
-      <Fld label="Type"><select className="inp" value={v.type} onChange={set('type')}><option value="theory">Theory</option><option value="practical">Practical</option><option value="other">Other</option></select></Fld>
-      {v.type === 'practical' && (
-        <label className="cbx" style={{ alignItems: 'flex-start' }}>
-          <input type="checkbox" checked={v.isSourceFile} onChange={e => f.setV(x => ({ ...x, isSourceFile: e.target.checked }))} style={{ marginTop: 3 }} />
-          <span><b>This is a source file</b><small className="sub" style={{ display: 'block' }}>Students see it as a box of files they can download. Leave it unticked for a book.</small></span>
-        </label>
-      )}
-      {isLinkOnly && (
-        <Fld label="Link" error={f.errors.file}><input className="inp" type="url" value={v.externalUrl} onChange={set('externalUrl')} placeholder="https://drive.google.com/…" /></Fld>
-      )}
-      {!m && (
-        <>
-          <label className="drop">
-            <Upload className="i" aria-hidden="true" />
-            <b>{v.file ? v.file.name : 'Click to select a file'}</b>
-            <small>PDF, Word, PowerPoint, Excel, ZIP · Max 100MB</small>
-            <input type="file" className="sr-only" onChange={e => f.setV(s => ({ ...s, file: e.target.files[0] || null }))} />
-          </label>
-          <Fld label="…or external link" error={f.errors.file}><input className="inp" type="url" value={v.externalUrl} onChange={set('externalUrl')} placeholder="https://" disabled={!!v.file} /></Fld>
-        </>
-      )}
-    </FormDialog>
-  );
-}

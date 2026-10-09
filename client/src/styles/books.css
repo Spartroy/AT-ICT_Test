@@ -99,11 +99,7 @@
 @media (prefers-reduced-motion: reduce) { .atp-student .bshelf .spine { transition: none; } }
 
 /* ---------- Practical source files: a cardboard box that opens on hover ---------- */
-.atp-student .src-sec { margin-top: 28px; }
-.atp-student .src-head { margin: 0 0 12px; font-size: 1.05rem; font-family: var(--font-body); font-weight: 700; }
-.atp-student .src-shelf .books { gap: 28px; align-items: flex-end; }
-.atp-student .sbox-wrap { display: grid; justify-items: center; gap: 6px; padding-bottom: 8px; }
-.atp-student .sb-cap { font-size: 0.75rem; color: var(--mu); }
+.atp-student .sbox-wrap { display: grid; justify-items: center; }
 
 .atp-student .sbox {
   --kf: #c9a068;   /* front */
@@ -165,7 +161,58 @@
 @media (prefers-reduced-motion: reduce) {
   .atp-student .sbox, .atp-student .sb-lid, .atp-student .sb-f { transition: none; }
 }
-.atp-student .src-shelf { padding-top: 96px; }
+/* Room above the shelf for the lid when it lifts */
+.atp-student .bshelf.has-box { padding-top: 96px; }
 
 /* Shelf plank in brand crimson (no gold) */
 .atp-student .bshelf .plank { background: linear-gradient(90deg, var(--crimson-700), var(--crimson-500)); box-shadow: 0 -8px 24px rgb(var(--crimson-rgb) / 0.3); }
+
+/* Compact box for past-paper shelves */
+.atp-student .sbox-wrap.compact { width: 168px; height: 130px; }
+.atp-student .sbox-wrap.compact .sbox { zoom: 0.62; }
+
+/* ---------- Revision sheet: a crimson folder with loose sheets ---------- */
+.atp-student .rsh { position: relative; display: block; width: 170px; height: 236px; padding: 0; border: 0; background: none; cursor: pointer; color: var(--white); transition: transform 0.35s cubic-bezier(0.34, 1.4, 0.5, 1); }
+.atp-student .rsh:hover, .atp-student .rsh:focus-visible { transform: translateY(-6px) rotate(-1.5deg); }
+.atp-student .rsh:focus-visible { outline: 3px solid var(--white); outline-offset: 6px; border-radius: 10px; }
+.atp-student .rsh span, .atp-student .rsh img, .atp-student .rsh svg { position: absolute; display: block; }
+.atp-student .rs-shadow { left: 6px; bottom: -2px; width: 158px; height: 20px; background: radial-gradient(ellipse at center, rgb(0 0 0 / 0.55), transparent 70%); filter: blur(3px); }
+.atp-student .rs-back { left: 0; bottom: 0; width: 170px; height: 214px; border-radius: 4px 10px 6px 6px; background: linear-gradient(160deg, #8f0f2c, var(--crimson-700)); box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.25); }
+.atp-student .rs-tab { left: 0; top: -17px; width: 84px; height: 18px; display: grid; place-items: center; border-radius: 6px 8px 0 0; background: linear-gradient(180deg, #a31434, #8f0f2c); font-size: 0.62rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: rgb(255 255 255 / 0.85); }
+.atp-student .rs-paper { left: 12px; width: 140px; height: 190px; bottom: 20px; border-radius: 3px; background: #fff; box-shadow: 0 2px 6px rgb(0 0 0 / 0.35); transition: transform 0.45s cubic-bezier(0.34, 1.5, 0.5, 1); }
+.atp-student .rs-paper::after { content: ""; position: absolute; left: 14px; right: 14px; top: 16px; height: 42px; background: repeating-linear-gradient(transparent 0 7px, rgb(0 0 0 / 0.14) 7px 9px); }
+.atp-student .rs-paper.p1 { transform: translateY(-14px) rotate(-3deg); }
+.atp-student .rs-paper.p2 { transform: translateY(-22px) rotate(2.5deg); background: #f4efe3; }
+.atp-student .rsh:hover .rs-paper.p1, .atp-student .rsh:focus-visible .rs-paper.p1 { transform: translateY(-38px) rotate(-6deg); }
+.atp-student .rsh:hover .rs-paper.p2, .atp-student .rsh:focus-visible .rs-paper.p2 { transform: translateY(-52px) rotate(5deg); }
+.atp-student .rs-front { left: 0; bottom: 0; width: 170px; height: 170px; z-index: 2; padding: 12px 12px 10px; border-radius: 4px 4px 6px 6px; background: linear-gradient(180deg, var(--crimson-500), #b0102f); box-shadow: 0 -2px 8px rgb(0 0 0 / 0.25), inset 0 1px 0 rgb(255 255 255 / 0.25); display: flex !important; flex-direction: column; align-items: center; justify-content: space-between; text-align: center; }
+.atp-student .rs-front > * { position: static !important; }
+.atp-student .rs-logo { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; }
+.atp-student .rs-title { font-family: var(--font-body); font-weight: 700; font-size: 1.05rem; line-height: 1.2; overflow-wrap: anywhere; display: -webkit-box !important; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.atp-student .rsh.tier-xs .rs-title { font-size: 0.85rem; }
+.atp-student .rsh.tier-s .rs-title { font-size: 0.95rem; }
+.atp-student .rs-icon { width: 22px; height: 22px; opacity: 0.85; }
+
+/* ---------- Past papers: a shelf per year with a metal label ---------- */
+.atp-student .ppyear { margin-top: 30px; }
+.atp-student .bshelf.pp { position: relative; padding-top: 58px; }
+.atp-student .bshelf.pp.has-box { padding-top: 110px; }
+.atp-student .metal { position: absolute; left: 24px; top: -14px; z-index: 3; display: flex; align-items: center; gap: 12px; padding: 7px 18px; border-radius: 6px; background: linear-gradient(135deg, #f3f4f6 0%, #a8adb3 22%, #eef0f2 48%, #8c9299 74%, #dfe2e6 100%); border: 1px solid #6e747b; box-shadow: 0 6px 14px rgb(0 0 0 / 0.5), inset 0 1px 0 rgb(255 255 255 / 0.8); }
+.atp-student .metal b { font-family: var(--font-numeric); font-size: 1.4rem; letter-spacing: 0.08em; color: #2a2e33; text-shadow: 0 1px 0 rgb(255 255 255 / 0.7); }
+.atp-student .metal i { width: 8px; height: 8px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff, #8d9399 62%, #50555b); box-shadow: 0 1px 1px rgb(0 0 0 / 0.5); }
+.atp-student .metal i:first-child { order: -1; }
+.atp-student .pp-sessions { display: flex; flex-wrap: wrap; gap: 28px 56px; align-items: flex-end; }
+.atp-student .pp-session { position: relative; display: grid; gap: 10px; }
+.atp-student .pp-tag { justify-self: start; padding: 3px 12px; border-radius: 4px; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: #2a2e33; background: linear-gradient(135deg, #eceef0, #aeb3b9 55%, #e4e6e9); border: 1px solid #6e747b; box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.7); }
+.atp-student .pp-variants { display: flex; align-items: flex-end; gap: 26px; }
+.atp-student .pp-books { display: flex; align-items: flex-end; gap: 10px; }
+.atp-student .bshelf .spine.spine--mini { width: 68px; height: 240px; padding: 12px 4px 10px; }
+.atp-student .spine--mini .sp-logo { width: 32px; height: 32px; }
+.atp-student .spine--mini .sp-text { writing-mode: horizontal-tb; transform: rotate(180deg); display: grid; justify-items: center; gap: 4px; max-height: none; }
+.atp-student .spine--mini .sp-text b { font-size: 1.7rem; letter-spacing: 0.02em; line-height: 1; }
+.atp-student .spine--mini .sp-text i { font-style: normal; font-size: 0.85rem; font-weight: 600; padding: 2px 8px; border-radius: 999px; background: rgb(var(--crimson-rgb) / 0.25); }
+.atp-student .ppyear .sbox-wrap.compact { margin-bottom: 0; }
+.atp-student .spine--mini .sp-text, .atp-student .spine--mini .sp-text b, .atp-student .spine--mini .sp-text i { white-space: nowrap; overflow-wrap: normal; word-break: keep-all; writing-mode: horizontal-tb; }
+.atp-student .spine--mini .sp-text { width: max-content; max-width: none; }
+.atp-student .spine--mini .sp-text { display: flex; flex-direction: column; align-items: center; gap: 0; line-height: 1.2; }
+.atp-student .spine--mini .sp-text i { display: block; margin-top: 8px; line-height: 1.3; }

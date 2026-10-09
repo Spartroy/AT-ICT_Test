@@ -76,3 +76,22 @@
 .atp-teacher .set-switch input { margin-top: 3px; flex: none; }
 .atp-teacher .set-switch small { display: block; margin-top: 2px; }
 @media (max-width: 640px) { .atp-teacher .set-row--num { grid-template-columns: 1fr 1fr; } .atp-teacher .set-row--num > .fld:nth-child(3) { grid-column: 1 / -1; } }
+
+/* Add material wizard */
+.atp-teacher .wz-q { margin-bottom: 16px; }
+.atp-teacher .wz-qt { display: block; margin-bottom: 8px; font-size: 0.9rem; }
+.atp-teacher .wz-opts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.atp-teacher .wz-opt { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 14px; border: 1px solid var(--bd2); background: var(--s2); color: var(--tx); text-align: left; cursor: pointer; transition: border-color 0.2s, background 0.2s, transform 0.2s; }
+.atp-teacher .wz-opt:hover { border-color: var(--cr); transform: translateY(-1px); }
+.atp-teacher .wz-opt.on { border-color: var(--cr); background: rgb(var(--crimson-rgb) / 0.14); box-shadow: 0 0 0 1px var(--cr) inset; }
+.atp-teacher .wz-opt svg { flex: none; width: 22px; height: 22px; color: var(--cr); }
+.atp-teacher .wz-opt b { display: block; font-size: 0.95rem; }
+.atp-teacher .wz-opt small { display: block; margin-top: 1px; font-size: 0.74rem; color: var(--mu); }
+.atp-teacher .wz-sessions { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 8px; }
+.atp-teacher .wz-session { min-width: 0; padding: 14px; border-radius: 16px; background: var(--s2); border: 1px solid var(--bd); }
+.atp-teacher .wz-session h4 { margin: 0 0 10px; font-size: 0.95rem; }
+.atp-teacher .wz-variant { margin-bottom: 12px; padding: 12px; border-radius: 12px; background: var(--s1); border: 1px solid var(--bd); }
+.atp-teacher .wz-variant header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.atp-teacher .wz-variant header b { font-family: var(--font-numeric); color: var(--cr); }
+.atp-teacher .wz-variant .fld { margin-bottom: 8px; }
+@media (max-width: 720px) { .atp-teacher .wz-sessions { grid-template-columns: 1fr; } .atp-teacher .wz-opts { grid-template-columns: 1fr; } }

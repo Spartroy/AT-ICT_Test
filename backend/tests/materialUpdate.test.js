@@ -55,20 +55,28 @@ describe('updateMaterial', () => {
     expect(doc.externalUrl).toBeNull();
   });
 
-  it('marks a practical material as a source file', async () => {
-    const doc = stubMaterial({ type: 'practical', isSourceFile: false });
-    await call({ isSourceFile: true });
+  it('turns a material into a source file, which is always practical', async () => {
+    const doc = stubMaterial({ type: 'theory', kind: 'book' });
+    await call({ kind: 'source', type: 'theory' });
+    expect(doc.kind).toBe('source');
     expect(doc.isSourceFile).toBe(true);
-    await call({ isSourceFile: 'false' });
-    expect(doc.isSourceFile).toBe(false);
+    expect(doc.type).toBe('practical');
   });
 
-  it('never keeps the source-file flag on a non-practical material', async () => {
-    const doc = stubMaterial({ type: 'practical', isSourceFile: true });
-    await call({ type: 'theory', isSourceFile: true });
+  it('can change a material between book and revision sheet and keeps its category', async () => {
+    const doc = stubMaterial({ type: 'theory', kind: 'book' });
+    await call({ kind: 'revsheet', type: 'other' });
+    expect(doc.kind).toBe('revsheet');
     expect(doc.isSourceFile).toBe(false);
-    const other = stubMaterial({ type: 'theory', isSourceFile: true });
+    expect(doc.type).toBe('other');
+  });
+
+  it('leaves the kind alone when it is not sent, and understands the older isSourceFile flag', async () => {
+    const doc = stubMaterial({ type: 'practical', kind: 'revsheet' });
     await call({ title: 'Renamed' });
-    expect(other.isSourceFile).toBe(false);
+    expect(doc.kind).toBe('revsheet');
+    const old = stubMaterial({ type: 'practical', isSourceFile: true });
+    await call({ title: 'Still a box' });
+    expect(old.kind).toBe('source');
   });
 });

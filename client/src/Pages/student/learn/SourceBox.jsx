@@ -2,12 +2,14 @@ import React, { useState } from 'react';
 import { API_ENDPOINTS } from '../../../config/api';
 import { downloadFile } from '../../../lib/api';
 import { usePortalUI } from '../../../components/portal/PortalUI';
+import { directDownload, startDownload } from '../../../lib/directDownload';
 
 /**
  * A cardboard box of practical source files. Hover or focus lifts the lid and files pop up;
- * clicking downloads the uploaded file, or opens the download link the teacher added.
+ * clicking downloads the files straight away (Drive / Docs / Dropbox links are converted to direct downloads,
+ * other links open in a new tab). `compact` is the small box used on the past-paper shelves.
  */
-export default function SourceBox({ m }) {
+export default function SourceBox({ m, compact = false }) {
   const { toast } = usePortalUI();
   const [busy, setBusy] = useState(false);
 
@@ -22,14 +24,20 @@ export default function SourceBox({ m }) {
         setBusy(false);
       }
     } else if (m.externalUrl) {
-      window.open(m.externalUrl, '_blank', 'noopener,noreferrer');
+      const { url, isDirect } = directDownload(m.externalUrl);
+      if (isDirect) {
+        startDownload(url);
+        toast('Your download is starting…');
+      } else {
+        window.open(url, '_blank', 'noopener,noreferrer');
+      }
     } else {
       toast('The download link for these files is coming soon.');
     }
   };
 
   return (
-    <div className="sbox-wrap">
+    <div className={`sbox-wrap${compact ? ' compact' : ''}`}>
       <button type="button" className="sbox" onClick={go} disabled={busy} aria-label={`${m.title}, practical source files, download`}>
         <span className="sb-shadow" aria-hidden="true" />
         <span className="sb-in" aria-hidden="true" />
@@ -50,7 +58,6 @@ export default function SourceBox({ m }) {
           <span className="sb-lipside" />
         </span>
       </button>
-      <span className="sb-cap">{busy ? 'Downloading…' : m.fileName ? 'Tap to download' : 'Tap to open the files'}</span>
     </div>
   );
 }

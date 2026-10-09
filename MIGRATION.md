@@ -132,3 +132,17 @@
   to those stacks are replaced; stacks with other titles are never touched.
 - The student Flashcards page shows chapter number + name only, grouped by phase (1: chapters 1-4, 2: 5-7, 3: 8-13), with other stacks last.
 
+
+## New add-material flow, rev sheets and past papers
+
+- **No manual migration.** `Material.kind` (`book` | `revsheet` | `source`, default `book`) is new; older source-file materials (flag `isSourceFile`) are read as `source`.
+  New `pastpapers` collection (`PastPaper`: paper 1-3, year 2018-2026, session jun/nov, variant, `qp` / `src` / `ms` links; unique per paper + year + session + variant).
+- **Teacher dialog:** "Add material" asks what it is (Book / Rev sheet / Source file / Past papers), then the title, then the section
+  (Practical / Theory / Revision; source files are always Practical), then the link. Materials are link-only now (no description or upload);
+  files uploaded earlier keep working. "Other" is shown as "Revision". Past papers: paper, year, then Jun and Nov columns with "Add variant" (V1, V2…),
+  each with QP, SRC (papers 2 and 3 only) and MS links. Saving replaces everything stored for that paper + year.
+- **API:** `GET /api/pastpapers` (signed in), `PUT /api/teacher/pastpapers`, `DELETE /api/teacher/pastpapers/:paper/:year`.
+- **Students:** books, rev-sheet folders and source-file boxes share one shelf per section. A new **Past papers** tab has Paper 1 / 2 / 3, one shelf per year with a metal
+  year label, Jun and Nov side by side, QP + MS books per variant and an SRC box next to them (papers 2 and 3).
+- **Source-file boxes download directly:** Drive file links, Docs/Sheets/Slides and Dropbox links are converted to direct downloads; other links open in a new tab
+  (a Drive folder can't be downloaded as one file).

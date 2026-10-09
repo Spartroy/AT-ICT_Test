@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
-import { Play, Library as LibIcon, Folder, LayoutGrid, Star, Plus, Search, Pencil, Trash2, Link2, Trophy, MessageSquare, Download } from 'lucide-react';
+import { Play, Library as LibIcon, Folder, LayoutGrid, Star, Plus, Search, Pencil, Trash2, Link2, Trophy, MessageSquare, Download, ClipboardList } from 'lucide-react';
 import useApi from '../../hooks/useApi';
 import useMediaQuery from '../../hooks/useMediaQuery';
 import { api, downloadFile } from '../../lib/api';
@@ -12,7 +12,20 @@ import { announceChange, apiError, useTeacherChange } from './modals/form';
 import { programLabel } from './curriculum';
 import { buildTree, inPath, highlight, sortByPath } from './libraryTree';
 
-const TYPE_LABEL = { theory: 'Theory', practical: 'Practical', other: 'Other' };
+const TYPE_LABEL = { theory: 'Theory', practical: 'Practical', other: 'Revision' };
+const KIND_LABEL = { book: 'Book', revsheet: 'Rev sheet', source: 'Source file' };
+const kindOf = (m) => (m.kind === 'revsheet' || m.kind === 'source' ? m.kind : (m.isSourceFile ? 'source' : 'book'));
+
+/** One row per paper + year from the flat past-paper list. */
+const groupPapers = (list) => {
+  const groups = new Map();
+  list.forEach((p) => {
+    const key = `${p.paper}-${p.year}`;
+    if (!groups.has(key)) groups.set(key, { paper: p.paper, year: p.year, jun: 0, nov: 0 });
+    groups.get(key)[p.session] += 1;
+  });
+  return [...groups.values()].sort((a, b) => a.paper - b.paper || b.year - a.year);
+};
 
 // Each tab: how to load it, turn records into { id, title, path[], meta, raw }, and which modal edits it.
 const TABS = [
@@ -35,8 +48,18 @@ const TABS = [
   {
     id: 'materials', label: 'Materials', icon: Folder, add: 'material', kind: 'material', url: API_ENDPOINTS.TEACHER.MATERIALS,
     select: b => b.data?.materials || [],
-    toItem: m => ({ id: m._id, title: m.title, raw: m, path: [TYPE_LABEL[m.type] || 'Other'], meta: `${m.isSourceFile ? 'Source file · ' : ''}${m.downloadCount || 0} downloads · ${fmtDate(m.createdAt, { day: 'numeric', month: 'short', year: 'numeric' })}` }),
+    toItem: m => ({ id: m._id, title: m.title, raw: m, path: [TYPE_LABEL[m.type] || 'Revision'], meta: `${KIND_LABEL[kindOf(m)]} · ${fmtDate(m.createdAt, { day: 'numeric', month: 'short', year: 'numeric' })}` }),
     remove: id => api.del(`${API_ENDPOINTS.TEACHER.MATERIALS}/${id}`)
+  },
+  {
+    id: 'pastpapers', label: 'Past papers', icon: ClipboardList, add: 'material', addProps: { pastpaper: {} }, kind: 'pastpaper', url: API_ENDPOINTS.TEACHER_PASTPAPERS,
+    select: b => groupPapers(b.data?.papers || []),
+    toItem: g => ({
+      id: `${g.paper}-${g.year}`, title: `Paper ${g.paper} · ${g.year}`, raw: { paper: g.paper, year: g.year },
+      path: [`Paper ${g.paper} · ${g.paper === 1 ? 'Theory' : 'Practical'}`],
+      meta: `Jun ${g.jun} · Nov ${g.nov} variant${g.jun + g.nov === 1 ? '' : 's'}`
+    }),
+    remove: (id) => { const [paper, year] = id.split('-'); return api.del(`${API_ENDPOINTS.TEACHER_PASTPAPERS}/${paper}/${year}`); }
   },
   {
     id: 'flashcards', label: 'Flashcards', icon: LayoutGrid, add: 'flashcard', kind: 'flashcard', url: API_ENDPOINTS.FLASHCARDS,
@@ -55,7 +78,7 @@ export default function Library() {
   const [importing, setImporting] = useState(false);
   const current = TABS.find(t => t.id === tab);
   if (!current) return <Navigate to={`${base}/library/videos`} replace />;
-  const addLabel = { videos: 'video', notes: 'note', materials: 'material', flashcards: 'stack' }[tab];
+  const addLabel = { videos: 'video', notes: 'note', materials: 'material', pastpapers: 'past papers', flashcards: 'stack' }[tab];
 
   // Adds the 13 revision stacks built from the study guide (already imported ones are skipped).
   const importChapters = async () => {
@@ -78,7 +101,7 @@ export default function Library() {
         actions={current.add && (
           <>
             {tab === 'flashcards' && <button type="button" className="btn o" onClick={importChapters} disabled={importing}><Ic as={Download} />{importing ? 'Importing…' : 'Import chapter flashcards'}</button>}
-            <button type="button" className="btn p" onClick={() => openModal(current.add)}><Ic as={Plus} />Add {addLabel}</button>
+            <button type="button" className="btn p" onClick={() => openModal(current.add, current.addProps)}><Ic as={Plus} />Add {addLabel}</button>
           </>
         )}
       />
@@ -117,7 +140,7 @@ function LibraryList({ config }) {
     }
   };
 
-  const edit = (it) => openModal(config.add, { [{ video: 'video', note: 'note', material: 'material', flashcard: 'stack' }[config.add]]: it.raw });
+  const edit = (it) => openModal(config.add, { [config.id === 'pastpapers' ? 'pastpaper' : { video: 'video', note: 'note', material: 'material', flashcard: 'stack' }[config.add]]: it.raw });
   const ItemIcon = config.icon;
 
   return (

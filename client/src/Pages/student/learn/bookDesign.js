@@ -8,7 +8,8 @@ export const COVER_PHONE = DEFAULT_SITE.whatsappNumber.replace(/^20/, '0');
 
 // First matching keyword wins; otherwise the material type decides.
 const BY_KEYWORD = [
-  [/classif|past ?paper|paper \d/i, FilePenLine],
+  [/mark ?scheme|\bms\b/i, ClipboardCheck],
+  [/classif|question paper|\bqp\b|past ?paper|paper \d/i, FilePenLine],
   [/mock|quiz|test|exam/i, ClipboardCheck],
   [/skill|check/i, ListChecks],
   [/guid/i, Compass],
