@@ -22,7 +22,6 @@ const http = require('http');
 // Security & Middleware
 const helmet = require('helmet');
 const morgan = require('morgan');
-const rateLimit = require('express-rate-limit');
 
 // Real-time Communication
 const socketIo = require('socket.io');
@@ -167,20 +166,9 @@ if (process.env.NODE_ENV === 'development') {
 // ===================================================================
 
 /**
- * API Rate Limiter
- * Prevents abuse and ensures fair usage
+ * API Rate Limiter (see middleware/rateLimit.js): counted per signed-in user, or per IP when signed out.
  */
-const apiLimiter = rateLimit({
-  windowMs: (process.env.RATE_LIMIT_WINDOW || 15) * 60 * 1000, // 15 minutes default
-  max: process.env.RATE_LIMIT_MAX_REQUESTS || 100, // 100 requests per window
-  message: {
-    status: 'error',
-    message: 'Too many requests from this IP, please try again later.',
-    retryAfter: Math.ceil((process.env.RATE_LIMIT_WINDOW || 15) * 60)
-  },
-  standardHeaders: true, // Return rate limit info in headers
-  legacyHeaders: false, // Disable X-RateLimit-* headers
-});
+const { apiLimiter } = require('./middleware/rateLimit');
 
 // Apply rate limiting to all API routes
 app.use('/api/', apiLimiter);

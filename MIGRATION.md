@@ -157,3 +157,11 @@
   (`styles/numerals.css`); the website's hero and results numbers are smaller and regular weight.
 - **Start fresh:** `node backend/scripts/clearHomework.js` shows how many assignments (with their submissions and grades) and activity entries exist;
   `--yes` deletes them. It reads `MONGO_URI` from `backend/.env`. **Back up first.** It has not been run against the real database.
+
+## Rate limit ("Too many requests from this IP")
+
+- The API limit was 100 requests per 15 minutes **per IP**, which a few page loads (plus chat polling) use up, and students sharing a school
+  or centre IP shared one allowance. `middleware/rateLimit.js` now counts a signed-in user on their own account
+  (default **3000 per 15 min**, `RATE_LIMIT_MAX_REQUESTS`) and signed-out visitors per IP (default **600**, `RATE_LIMIT_ANON_MAX_REQUESTS`).
+  `RATE_LIMIT_WINDOW` (minutes, default 15) is unchanged. Tokens are verified, so the account key can't be faked.
+- On Railway, remove `RATE_LIMIT_MAX_REQUESTS` if it was set to a small number, or set it to the value you want.
