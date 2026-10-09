@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { BookOpen, X, Download } from 'lucide-react';
+import { X, Download } from 'lucide-react';
 import useApi from '../../../hooks/useApi';
 import { API_ENDPOINTS } from '../../../config/api';
 import { downloadFile } from '../../../lib/api';
@@ -9,17 +9,26 @@ import { usePortalUI } from '../../../components/portal/PortalUI';
 import { useReducedMotion } from '../../../hooks/useMediaQuery';
 import { useFocusTrap } from '../../../components/ui/Modal';
 import ResourceViewer from '../../../components/portal/viewer/ResourceViewer';
+import logoCircle from '../../../assets/brand/logo-circle.png';
+import { AUTHOR, COVER_PHONE, iconFor, sizeTier, splitTitle } from './bookDesign';
+import '../../../styles/books.css';
 
 const CATS = [
   { id: 'theory', label: 'Theory' },
   { id: 'practical', label: 'Practical' },
   { id: 'other', label: 'Other' }
 ];
-// Spines alternate crimson / gold like the prototype shelf.
+// Spines alternate a crimson and a gold accent.
 const SPINES = [
   { c: 'var(--crimson-500)', tc: 'var(--white)' },
   { c: 'var(--gold-500)', tc: 'var(--ink-900)' }
 ];
+
+/** Title with the first letter in the accent colour and the last one faded, like the printed covers. */
+function CoverTitle({ title, fadeLast = false }) {
+  const { first, middle, last } = splitTitle(title);
+  return <><span className="t-first">{first}</span>{fadeLast ? <>{middle}<span className="t-last">{last}</span></> : `${middle}${last}`}</>;
+}
 
 const metaOf = (m) => m.fileName?.split('.').pop()?.toUpperCase() || '';
 
@@ -46,16 +55,19 @@ export default function Bookshelf() {
             <div className="books">
               {books.map((m, i) => {
                 const style = SPINES[i % 2];
+                const Icon = iconFor(m);
                 return (
                   <button
                     key={m._id}
                     type="button"
-                    className={`spine ${open?.m._id === m._id ? 'out' : ''}`}
+                    className={`spine tier-${sizeTier(m.title)} ${open?.m._id === m._id ? 'out' : ''}`}
                     style={{ '--c': style.c, '--tc': style.tc }}
                     aria-label={`${m.title}, open book`}
                     onClick={e => setOpen({ m, spine: e.currentTarget, style })}
                   >
-                    <span>{m.title}</span><b>AT-ICT</b>
+                    <img className="sp-logo" src={logoCircle} alt="" />
+                    <span className="sp-title"><CoverTitle title={m.title} /></span>
+                    <Icon className="sp-icon" aria-hidden="true" />
                   </button>
                 );
               })}
@@ -75,6 +87,7 @@ export default function Bookshelf() {
 function BookOverlay({ m, spine, style, catLabel, onClosed }) {
   const isPdf = /\.pdf$/i.test(m.fileName || '');
   const isLink = !!m.externalUrl && !m.fileName;
+  const BookIcon = iconFor(m);
   const { layer, toast } = usePortalUI();
   const overlayRef = useRef(null);
   useFocusTrap(overlayRef, true);
@@ -187,8 +200,15 @@ function BookOverlay({ m, spine, style, catLabel, onClosed }) {
               </div>
             </div>
             <div className="cover" aria-hidden="true">
-              <div className="front"><i /><small>AT-ICT</small><b>{m.title}</b><em>{metaOf(m)}</em></div>
-              <div className="back"><span className="bn"><BookOpen className="i" /></span><p>{catLabel}</p></div>
+              <div className={`front tier-${sizeTier(m.title)}`}>
+                <i />
+                <img className="fr-logo" src={logoCircle} alt="" />
+                <b className="fr-title"><CoverTitle title={m.title} fadeLast /></b>
+                <small className="fr-author">{AUTHOR}</small>
+                <BookIcon className="fr-icon" aria-hidden="true" />
+                <footer><span>{COVER_PHONE}</span><span>{catLabel}</span></footer>
+              </div>
+              <div className="back"><span className="bn"><BookIcon className="i" /></span><p>{catLabel}</p></div>
             </div>
           </div>
         </div>

@@ -1,0 +1,98 @@
+/* Materials bookshelf: branded book spines and printed-style covers.
+   Spine/cover markup lives in Pages/student/learn/Bookshelf.jsx; sizes come from bookDesign.sizeTier(). */
+
+/* ---------- Shelf ---------- */
+.atp-student .bshelf { padding-top: 44px; }
+.atp-student .bshelf .books { gap: 16px; }
+
+/* ---------- Spines ---------- */
+.atp-student .bshelf .spine {
+  --tex: url("../assets/brand/book-texture.jpg");
+  width: 96px;
+  height: 320px;
+  padding: 14px 6px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  border: 2px solid var(--c);
+  border-radius: 8px 8px 3px 3px;
+  color: var(--white);
+  background:
+    linear-gradient(90deg, rgb(0 0 0 / 0.45), rgb(255 255 255 / 0.05) 20%, transparent 55%, rgb(0 0 0 / 0.4)),
+    linear-gradient(rgb(10 10 10 / 0.55), rgb(10 10 10 / 0.55)),
+    var(--tex) center / cover;
+  box-shadow: 0 10px 24px -8px rgb(0 0 0 / 0.7);
+  transition: transform 0.25s, box-shadow 0.25s;
+}
+.atp-student .bshelf .spine:hover { transform: translateY(-14px); box-shadow: 0 22px 34px -10px rgb(0 0 0 / 0.75), 0 0 22px -4px var(--c); }
+
+/* Inner hairline frame (replaces the old bright bars) */
+.atp-student .bshelf .spine::before { content: ""; position: absolute; inset: 6px; height: auto; background: none; border: 1px solid var(--c); border-radius: 5px; opacity: 0.4; pointer-events: none; }
+.atp-student .bshelf .spine::after { content: none; }
+
+.atp-student .spine .sp-logo { width: 42px; height: 42px; flex: none; border-radius: 50%; object-fit: cover; }
+.atp-student .spine .sp-icon { width: 24px; height: 24px; flex: none; color: var(--c); stroke-width: 1.7; }
+
+/* The title runs bottom-to-top like a real spine and wraps into columns, so long names are fully visible. */
+.atp-student .spine .sp-title {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  text-align: center;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 1.05rem;
+  line-height: 1.2;
+  letter-spacing: 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  overflow: hidden;
+  color: var(--white);
+}
+.atp-student .spine.tier-l .sp-title { font-size: 1.3rem; }
+.atp-student .spine.tier-m .sp-title { font-size: 1.1rem; }
+.atp-student .spine.tier-s .sp-title { font-size: 0.95rem; }
+.atp-student .spine.tier-xs .sp-title { font-size: 0.8rem; }
+
+.atp-student .t-first { color: var(--c); }
+.atp-student .t-last { color: rgb(255 255 255 / 0.55); }
+
+/* ---------- Book cover (the book that flies to the centre) ---------- */
+.atp-student .front {
+  --tex: url("../assets/brand/book-texture.jpg");
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0;
+  padding: 7% 7% 5%;
+  border: 0;
+  color: var(--white);
+  text-align: center;
+  background:
+    linear-gradient(90deg, rgb(0 0 0 / 0.55), transparent 8%),
+    linear-gradient(rgb(8 8 8 / 0.5), rgb(8 8 8 / 0.5)),
+    var(--tex) center / cover !important;
+}
+.atp-student .front i { inset: 10px; border: 2px solid var(--crimson-500); border-radius: 3px 6px 6px 3px; box-shadow: 0 0 0 1px rgb(var(--crimson-rgb) / 0.25); }
+.atp-student .front .fr-logo { width: 30%; aspect-ratio: 1; border-radius: 50%; margin-top: 4%; object-fit: cover; filter: drop-shadow(0 6px 10px rgb(0 0 0 / 0.5)); }
+.atp-student .front .fr-title { margin-top: 11%; font-family: var(--font-body); font-weight: 700; font-size: 2.1rem; line-height: 1.1; letter-spacing: -0.01em; overflow-wrap: anywhere; color: var(--white); }
+.atp-student .front.tier-m .fr-title { font-size: 1.7rem; }
+.atp-student .front.tier-s .fr-title { font-size: 1.4rem; }
+.atp-student .front.tier-xs .fr-title { font-size: 1.15rem; }
+.atp-student .front .fr-author { margin-top: 9%; font-family: var(--font-body); font-size: 0.7rem; font-weight: 600; letter-spacing: 0.05em; color: var(--white); text-shadow: 1px 1px 0 var(--crimson-500), -1px -1px 0 var(--crimson-500), 1px -1px 0 var(--crimson-500), -1px 1px 0 var(--crimson-500); }
+.atp-student .front .fr-icon { margin: auto 0; width: 24%; height: auto; max-height: 24%; color: var(--crimson-500); stroke-width: 1.4; }
+.atp-student .front footer { width: 100%; display: flex; justify-content: space-between; gap: 8px; padding: 0 3%; font-weight: 700; font-size: 0.78rem; position: relative; }
+.atp-student .front footer span:last-child { text-align: right; }
+
+@media (max-width: 700px) {
+  .atp-student .bshelf .spine { width: 84px; height: 296px; }
+  .atp-student .front .fr-title { font-size: 1.8rem; }
+  .atp-student .front.tier-m .fr-title { font-size: 1.45rem; }
+  .atp-student .front.tier-s .fr-title { font-size: 1.2rem; }
+  .atp-student .front.tier-xs .fr-title { font-size: 1rem; }
+}
+@media (prefers-reduced-motion: reduce) { .atp-student .bshelf .spine { transition: none; } }
