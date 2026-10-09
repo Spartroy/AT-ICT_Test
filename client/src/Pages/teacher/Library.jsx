@@ -35,7 +35,7 @@ const TABS = [
   {
     id: 'materials', label: 'Materials', icon: Folder, add: 'material', kind: 'material', url: API_ENDPOINTS.TEACHER.MATERIALS,
     select: b => b.data?.materials || [],
-    toItem: m => ({ id: m._id, title: m.title, raw: m, path: [TYPE_LABEL[m.type] || 'Other'], meta: `${m.downloadCount || 0} downloads · ${fmtDate(m.createdAt, { day: 'numeric', month: 'short', year: 'numeric' })}` }),
+    toItem: m => ({ id: m._id, title: m.title, raw: m, path: [TYPE_LABEL[m.type] || 'Other'], meta: `${m.isSourceFile ? 'Source file · ' : ''}${m.downloadCount || 0} downloads · ${fmtDate(m.createdAt, { day: 'numeric', month: 'short', year: 'numeric' })}` }),
     remove: id => api.del(`${API_ENDPOINTS.TEACHER.MATERIALS}/${id}`)
   },
   {

@@ -118,3 +118,17 @@
 - `POST /api/flashcards/import-chapters` (teacher): creates the stacks that don't exist yet as public teacher stacks; safe to run again.
   In the portal: **Library > Flashcards > Import chapter flashcards**. Nothing is written to the database until the teacher clicks it.
 - The student Flashcards page no longer shows the four stat tiles, and lists teacher stacks first in chapter order.
+
+## Practical source-file boxes
+
+- `Material.isSourceFile` (Boolean, default false): no migration needed, existing materials stay books. Only practical materials can be source files;
+  the server clears the flag for any other type.
+- Teacher: in the add/edit material dialog, choosing **Practical** shows "This is a source file". Ticked materials show as a cardboard box of files
+  (lid lifts on hover) in a "Source files" shelf under the practical books. Clicking downloads the uploaded file or opens the link.
+
+### Update: chapter flashcards
+- "Common mistake" and "Exam tip" boxes are no longer turned into cards (521 cards in 13 stacks).
+- **Import chapter flashcards** now also refreshes existing chapter stacks with the current cards (study counts are kept). Edits made by hand
+  to those stacks are replaced; stacks with other titles are never touched.
+- The student Flashcards page shows chapter number + name only, grouped by phase (1: chapters 1-4, 2: 5-7, 3: 8-13), with other stacks last.
+

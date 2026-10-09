@@ -42,7 +42,7 @@ const uploadMaterial = async (req, res) => {
       });
     }
 
-    const { title, type, externalUrl, description } = req.body;
+    const { title, type, externalUrl, description, isSourceFile } = req.body;
     const materialFile = req.files?.material ? req.files.material[0] : null;
     const thumbnailFile = req.files?.thumbnail ? req.files.thumbnail[0] : null;
 
@@ -61,6 +61,8 @@ const uploadMaterial = async (req, res) => {
       uploadedBy: req.user.id
     };
     if (description && description.trim()) materialData.description = description.trim();
+    // Only practical materials can be source files; multipart bodies send booleans as strings.
+    materialData.isSourceFile = type === 'practical' && String(isSourceFile) === 'true';
 
     if (materialFile) {
       materialData.fileUrl = materialFile.path; // Cloudinary URL
@@ -113,7 +115,7 @@ const uploadMaterial = async (req, res) => {
 // @access  Private (Teacher)
 const updateMaterial = async (req, res) => {
   try {
-    const { title, type, description, externalUrl } = req.body;
+    const { title, type, description, externalUrl, isSourceFile } = req.body;
 
     const material = await Material.findById(req.params.id);
 
@@ -134,6 +136,8 @@ const updateMaterial = async (req, res) => {
     material.title = title || material.title;
     material.type = type || material.type;
     if (typeof description === 'string') material.description = description.trim();
+    if (isSourceFile !== undefined) material.isSourceFile = material.type === 'practical' && String(isSourceFile) === 'true';
+    else if (material.type !== 'practical') material.isSourceFile = false;
 
     // Link-only materials: the teacher can change where the link points.
     if (typeof externalUrl === 'string' && !material.fileName) {

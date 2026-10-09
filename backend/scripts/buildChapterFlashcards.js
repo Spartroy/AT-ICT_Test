@@ -67,12 +67,7 @@ function cardsForBlock(b, sec) {
     case 'qc':
       add(b.q, b.a);
       break;
-    case 'mis':
-      add(`Common mistake: ${b.w}\nWhat is wrong with it?`, b.r);
-      break;
-    case 'hint':
-      add(`Exam tip: ${sec.title}`, b.h);
-      break;
+    // "Common mistake" and "Exam tip" boxes from the guide are intentionally not turned into cards.
     case 'cards':
       add(b.title, b.items.map(([a, c]) => `${a}: ${c}`).join('\n'));
       break;

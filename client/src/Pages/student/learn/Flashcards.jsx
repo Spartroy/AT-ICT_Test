@@ -3,6 +3,8 @@ import { Eye, Plus, LayoutGrid } from 'lucide-react';
 import useApi from '../../../hooks/useApi';
 import { API_ENDPOINTS } from '../../../config/api';
 import { Empty, ErrorNote, Ic, Loading } from '../../../components/portal/kit';
+import { PHASE_COLORS } from './mapLogic';
+import { groupStacks } from './flashcardLogic';
 import { StackFormDialog, StudyDialog } from '../../../components/portal/Flashcards';
 
 /** Flashcards: stacks, flip-card study dialog, create a stack. */
@@ -14,10 +16,7 @@ export default function Flashcards() {
   if (stacks.loading && !stacks.data) return <Loading label="Loading flashcards…" />;
   if (stacks.error) return <ErrorNote error={stacks.error} onRetry={stacks.reload} />;
 
-  // Teacher stacks first in chapter order (Chapter 2 before Chapter 10), then everyone else's as returned.
-  const all = stacks.data || [];
-  const byTitle = (a, b) => a.title.localeCompare(b.title, undefined, { numeric: true });
-  const list = [...all.filter(s => s.isTeacherStack).sort(byTitle), ...all.filter(s => !s.isTeacherStack)];
+  const groups = groupStacks(stacks.data || []);
 
   return (
     <>
@@ -25,20 +24,20 @@ export default function Flashcards() {
         <p className="sub">Study and create flashcard stacks</p>
         <button type="button" className="btn p sm" onClick={() => setCreating(true)}><Ic as={Plus} />Create stack</button>
       </div>
-      {list.length ? (
-        <div className="fc-g">
-          {list.map(s => (
-            <button type="button" className="item fc-item" key={s._id} onClick={() => setStudying(s)}>
-              <span className="fc-item__body">
-                <span className={`chip ${s.isTeacherStack ? 'c-th' : 'c-pr'}`}>{s.isTeacherStack ? 'Teacher' : 'Student'} · {s.totalCards || s.cards?.length || 0} cards</span>
-                <b>{s.title}</b>
-                <small>{s.studyCount || 0} studies · {s.creatorName || [s.createdBy?.firstName, s.createdBy?.lastName].filter(Boolean).join(' ')}</small>
-              </span>
-              <Ic as={Eye} />
-            </button>
-          ))}
-        </div>
-      ) : <Empty icon={LayoutGrid}>No flashcard stacks yet. Create the first one.</Empty>}
+      {groups.length ? groups.map(g => (
+        <section className="fc-phase" key={g.key} aria-label={g.label} style={{ '--pc': g.phase ? PHASE_COLORS[g.phase - 1] : 'var(--ink-300)' }}>
+          <h3 className="fc-phase__head">{g.label}{g.sub && <small>{g.sub}</small>}</h3>
+          <div className="fc-g">
+            {g.stacks.map(({ stack, number, name }) => (
+              <button type="button" className="item fc-chap" key={stack._id} onClick={() => setStudying(stack)}>
+                <span className="fc-no" aria-hidden="true">{number ?? <LayoutGrid className="i" />}</span>
+                <span className="fc-chap__name">{number ? <small>Chapter {number}</small> : null}<b>{name}</b></span>
+                <Ic as={Eye} />
+              </button>
+            ))}
+          </div>
+        </section>
+      )) : <Empty icon={LayoutGrid}>No flashcard stacks yet. Create the first one.</Empty>}
 
       <StackFormDialog open={creating} onClose={() => setCreating(false)} onSaved={() => stacks.reload()} />
       <StudyDialog stack={studying} onClose={() => { setStudying(null); stacks.reload(); }} />

@@ -54,4 +54,21 @@ describe('updateMaterial', () => {
     await call({ externalUrl: 'https://evil.example.com' });
     expect(doc.externalUrl).toBeNull();
   });
+
+  it('marks a practical material as a source file', async () => {
+    const doc = stubMaterial({ type: 'practical', isSourceFile: false });
+    await call({ isSourceFile: true });
+    expect(doc.isSourceFile).toBe(true);
+    await call({ isSourceFile: 'false' });
+    expect(doc.isSourceFile).toBe(false);
+  });
+
+  it('never keeps the source-file flag on a non-practical material', async () => {
+    const doc = stubMaterial({ type: 'practical', isSourceFile: true });
+    await call({ type: 'theory', isSourceFile: true });
+    expect(doc.isSourceFile).toBe(false);
+    const other = stubMaterial({ type: 'theory', isSourceFile: true });
+    await call({ title: 'Renamed' });
+    expect(other.isSourceFile).toBe(false);
+  });
 });

@@ -34,28 +34,29 @@
 .atp-student .spine .sp-logo { width: 42px; height: 42px; flex: none; border-radius: 50%; object-fit: cover; }
 .atp-student .spine .sp-icon { width: 24px; height: 24px; flex: none; color: var(--c); stroke-width: 1.7; }
 
-/* The title runs bottom-to-top like a real spine and wraps into columns, so long names are fully visible. */
-.atp-student .spine .sp-title {
-  flex: 1;
-  min-height: 0;
-  width: 100%;
+/* The title sits in the middle of the spine, runs bottom-to-top like a real spine and wraps into columns,
+   so long names stay fully visible. */
+.atp-student .spine .sp-title { flex: 1; min-height: 0; width: 100%; display: grid; place-items: center; overflow: hidden; }
+.atp-student .spine .sp-text {
   writing-mode: vertical-rl;
   transform: rotate(180deg);
+  max-height: 100%;
+  max-width: 100%;
   text-align: center;
   font-family: var(--font-body);
   font-weight: 700;
-  font-size: 1.05rem;
-  line-height: 1.2;
+  font-size: 1.3rem;
+  line-height: 1.25;
   letter-spacing: 0;
   white-space: normal;
   overflow-wrap: anywhere;
-  overflow: hidden;
   color: var(--white);
 }
-.atp-student .spine.tier-l .sp-title { font-size: 1.3rem; }
-.atp-student .spine.tier-m .sp-title { font-size: 1.1rem; }
-.atp-student .spine.tier-s .sp-title { font-size: 0.95rem; }
-.atp-student .spine.tier-xs .sp-title { font-size: 0.8rem; }
+/* A shorter column height makes multi-word titles wrap onto a second and third line. */
+.atp-student .spine.tier-l .sp-text { font-size: 1.5rem; max-height: 170px; }
+.atp-student .spine.tier-m .sp-text { font-size: 1.3rem; max-height: 150px; }
+.atp-student .spine.tier-s .sp-text { font-size: 1.15rem; max-height: 140px; }
+.atp-student .spine.tier-xs .sp-text { font-size: 0.95rem; max-height: 150px; }
 
 .atp-student .t-first { color: var(--c); }
 .atp-student .t-last { color: rgb(255 255 255 / 0.55); }
@@ -96,3 +97,75 @@
   .atp-student .front.tier-xs .fr-title { font-size: 1rem; }
 }
 @media (prefers-reduced-motion: reduce) { .atp-student .bshelf .spine { transition: none; } }
+
+/* ---------- Practical source files: a cardboard box that opens on hover ---------- */
+.atp-student .src-sec { margin-top: 28px; }
+.atp-student .src-head { margin: 0 0 12px; font-size: 1.05rem; font-family: var(--font-body); font-weight: 700; }
+.atp-student .src-shelf .books { gap: 28px; align-items: flex-end; }
+.atp-student .sbox-wrap { display: grid; justify-items: center; gap: 6px; padding-bottom: 8px; }
+.atp-student .sb-cap { font-size: 0.75rem; color: var(--mu); }
+
+.atp-student .sbox {
+  --kf: #c9a068;   /* front */
+  --kf2: #b98c54;
+  --ks: #a47a45;   /* right side */
+  --kt: #dcb67f;   /* lid top */
+  --kd: #4a3217;   /* inside */
+  position: relative;
+  display: block;
+  width: 276px;
+  height: 214px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #3a2410;
+  cursor: pointer;
+  transition: transform 0.4s cubic-bezier(0.34, 1.4, 0.5, 1);
+}
+.atp-student .sbox:hover, .atp-student .sbox:focus-visible { transform: translateY(-6px); }
+.atp-student .sbox:focus-visible { outline: 3px solid var(--white); outline-offset: 6px; border-radius: 10px; }
+.atp-student .sbox:disabled { cursor: progress; }
+.atp-student .sbox span, .atp-student .sbox s, .atp-student .sbox i, .atp-student .sbox u { position: absolute; display: block; text-decoration: none; }
+
+.atp-student .sb-shadow { left: 6px; bottom: -2px; width: 250px; height: 26px; background: radial-gradient(ellipse at center, rgb(0 0 0 / 0.55), transparent 70%); filter: blur(3px); }
+
+/* The opening seen from above (visible once the lid lifts) */
+.atp-student .sb-in { z-index: 0; left: 10px; bottom: 110px; width: 200px; height: 47px; transform-origin: 0 100%; transform: skewX(-50deg); background: linear-gradient(180deg, #2f1f0c, var(--kd)); box-shadow: inset 0 0 14px rgb(0 0 0 / 0.55); }
+
+/* Files standing in the box */
+.atp-student .sb-files { z-index: 2; left: 0; bottom: 0; width: 276px; height: 214px; pointer-events: none; }
+.atp-student .sb-f { left: var(--x); bottom: 76px; width: 56px; height: 78px; border-radius: 3px; background: #fff; box-shadow: 0 2px 6px rgb(0 0 0 / 0.35); transform: translateY(0) rotate(var(--r)); transform-origin: 50% 100%; transition: transform 0.5s cubic-bezier(0.34, 1.5, 0.5, 1); transition-delay: 0s; }
+.atp-student .sb-f u { left: 0; top: 0; width: 100%; height: 18px; border-radius: 3px 3px 0 0; background: var(--hd); }
+.atp-student .sb-f::after { content: ""; position: absolute; left: 8px; right: 8px; top: 28px; height: 36px; background: repeating-linear-gradient(transparent 0 6px, rgb(0 0 0 / 0.14) 6px 8px); }
+.atp-student .sb-f.f-xl { --hd: #1d8a4f; }
+.atp-student .sb-f.f-wd { --hd: #2b6cc4; }
+.atp-student .sb-f.f-pp { --hd: #d9622b; }
+.atp-student .sbox:hover .sb-f, .atp-student .sbox:focus-visible .sb-f { transform: translateY(-40px) rotate(var(--r)); transition-delay: calc(var(--i) * 70ms + 120ms); }
+
+/* Front, right side */
+.atp-student .sb-front { z-index: 3; left: 10px; bottom: 10px; width: 200px; height: 100px; background: linear-gradient(180deg, var(--kf), var(--kf2)); border: 1px solid rgb(90 56 20 / 0.45); border-radius: 0 0 2px 2px; }
+.atp-student .sb-front::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 16px; background: linear-gradient(90deg, rgb(0 0 0 / 0.12), rgb(255 255 255 / 0.06)); border-right: 1px solid rgb(90 56 20 / 0.45); }
+.atp-student .sb-handle { left: 58px; top: 14px; width: 84px; height: 18px; border-radius: 7px; background: linear-gradient(180deg, #1a1008, #2a1a0b); box-shadow: inset 0 3px 5px rgb(0 0 0 / 0.7), 0 1px 0 rgb(255 255 255 / 0.25); }
+.atp-student .sb-label { left: 30px; right: 14px; bottom: 12px; min-height: 34px; display: grid; place-items: center; padding: 4px 8px; background: #f6efe0; border: 1px solid rgb(90 56 20 / 0.4); border-radius: 3px; box-shadow: 0 1px 2px rgb(0 0 0 / 0.25); }
+.atp-student .sb-label b { font-family: var(--font-body); font-size: 0.74rem; line-height: 1.15; text-align: center; color: #3a2410; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.atp-student .rv { width: 7px; height: 7px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff, #9aa0a6 60%, #5b6066); box-shadow: 0 1px 1px rgb(0 0 0 / 0.4); }
+.atp-student .rv.r1 { left: 5px; top: 8px; } .atp-student .rv.r2 { left: 5px; bottom: 8px; }
+.atp-student .rv.r3 { right: 6px; top: 8px; } .atp-student .rv.r4 { right: 6px; bottom: 8px; }
+.atp-student .sb-side { z-index: 3; left: 210px; bottom: 10px; width: 56px; height: 100px; transform-origin: 0 100%; transform: skewY(-40deg); background: linear-gradient(90deg, var(--ks), #96703e); border: 1px solid rgb(90 56 20 / 0.45); }
+
+/* Lid: top face, front lip, side lip. It lifts away on hover. */
+.atp-student .sb-lid { z-index: 4; left: 0; bottom: 0; width: 276px; height: 214px; pointer-events: none; transition: transform 0.55s cubic-bezier(0.34, 1.35, 0.5, 1); transform-origin: 20% 80%; }
+/* Once lifted, the lid sits behind the files (it moved up and back), so the files are never hidden by it. */
+.atp-student .sbox:hover .sb-lid, .atp-student .sbox:focus-visible .sb-lid { z-index: 1; transform: translate(34px, -64px) rotate(-8deg); transition: transform 0.55s cubic-bezier(0.34, 1.35, 0.5, 1), z-index 0s 0.2s; }
+.atp-student .sb-lip { left: 4px; bottom: 94px; width: 212px; height: 28px; background: linear-gradient(180deg, #d2a96f, #c29659); border: 1px solid rgb(90 56 20 / 0.5); border-radius: 1px; }
+.atp-student .sb-top { left: 4px; bottom: 122px; width: 212px; height: 47px; transform-origin: 0 100%; transform: skewX(-50deg); background: linear-gradient(180deg, #e3c08a, var(--kt)); border: 1px solid rgb(90 56 20 / 0.45); }
+.atp-student .sb-lipside { left: 216px; bottom: 94px; width: 56px; height: 28px; transform-origin: 0 100%; transform: skewY(-40deg); background: linear-gradient(90deg, #b08650, #9c7742); border: 1px solid rgb(90 56 20 / 0.5); }
+
+@media (max-width: 460px) { .atp-student .sbox { zoom: 0.9; } }
+@media (prefers-reduced-motion: reduce) {
+  .atp-student .sbox, .atp-student .sb-lid, .atp-student .sb-f { transition: none; }
+}
+.atp-student .src-shelf { padding-top: 96px; }
+
+/* Shelf plank in brand crimson (no gold) */
+.atp-student .bshelf .plank { background: linear-gradient(90deg, var(--crimson-700), var(--crimson-500)); box-shadow: 0 -8px 24px rgb(var(--crimson-rgb) / 0.3); }

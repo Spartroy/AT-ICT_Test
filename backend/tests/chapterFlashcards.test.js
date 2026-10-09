@@ -21,6 +21,11 @@ describe('chapter flashcard data', () => {
     expect(stacks[5].title).toBe('Chapter 6 – Networks');
   });
 
+  it('has no "Exam tip" or "Common mistake" cards', () => {
+    stacks.forEach(s => s.cards.forEach(c => expect(`${c.front}
+${c.back}`).not.toMatch(/exam tip|common mistake/i)));
+  });
+
   it('keeps every card within the model limits and free of HTML', () => {
     stacks.forEach((s) => {
       expect(s.cards.length).toBeGreaterThan(10);
@@ -66,31 +71,41 @@ describe('cardsForBlock', () => {
 
 describe('importChapterStacks', () => {
   const teacher = { _id: 't1', firstName: 'Ahmad', lastName: 'Tamer', role: 'teacher' };
+  const doc = (stack, extra = {}) => ({
+    title: stack.title,
+    description: stack.description,
+    cards: stack.cards.map((c, order) => ({ ...c, order })),
+    save: jest.fn().mockResolvedValue(undefined),
+    ...extra
+  });
 
-  it('creates only the stacks that do not exist yet', async () => {
+  it('creates missing stacks and refreshes the ones whose cards changed', async () => {
     jest.spyOn(User, 'findById').mockResolvedValue(teacher);
-    jest.spyOn(Flashcard, 'find').mockReturnValue({ select: jest.fn().mockResolvedValue([{ title: stacks[0].title }, { title: stacks[1].title }]) });
+    const same = doc(stacks[0]);
+    const old = doc(stacks[1], { cards: [{ front: 'Exam tip: old', back: 'x', order: 0 }] });
+    jest.spyOn(Flashcard, 'find').mockResolvedValue([same, old]);
     const create = jest.spyOn(Flashcard, 'create').mockResolvedValue({});
     const res = mockRes();
 
     await importChapterStacks({ user: { id: 't1' } }, res);
 
     expect(create).toHaveBeenCalledTimes(11);
-    const made = create.mock.calls[0][0];
-    expect(made).toMatchObject({ isTeacherStack: true, isPublic: true, creatorRole: 'teacher', createdBy: 't1', category: 'technology' });
-    expect(made.cards[0].order).toBe(0);
-    expect(res.json.mock.calls[0][0].data).toEqual({ created: 11, skipped: 2, total: 13 });
+    expect(create.mock.calls[0][0]).toMatchObject({ isTeacherStack: true, isPublic: true, creatorRole: 'teacher', createdBy: 't1', category: 'technology' });
+    expect(same.save).not.toHaveBeenCalled();
+    expect(old.save).toHaveBeenCalledTimes(1);
+    expect(old.cards).toHaveLength(stacks[1].cards.length);
+    expect(res.json.mock.calls[0][0].data).toEqual({ created: 11, updated: 1, unchanged: 1, total: 13 });
   });
 
-  it('does nothing when everything is already imported', async () => {
+  it('does nothing when everything is already up to date', async () => {
     jest.spyOn(User, 'findById').mockResolvedValue(teacher);
-    jest.spyOn(Flashcard, 'find').mockReturnValue({ select: jest.fn().mockResolvedValue(stacks.map(s => ({ title: s.title }))) });
+    jest.spyOn(Flashcard, 'find').mockResolvedValue(stacks.map(s => doc(s)));
     const create = jest.spyOn(Flashcard, 'create');
     const res = mockRes();
 
     await importChapterStacks({ user: { id: 't1' } }, res);
 
     expect(create).not.toHaveBeenCalled();
-    expect(res.json.mock.calls[0][0].data.created).toBe(0);
+    expect(res.json.mock.calls[0][0].data).toMatchObject({ created: 0, updated: 0, unchanged: 13 });
   });
 });

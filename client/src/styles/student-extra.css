@@ -78,3 +78,14 @@
 /* Video map: a group's lessons share one centred line when they fit (columns come from VideoMaps) */
 .atp-student .nodes { max-width: none; }
 .atp-student .srow { width: min(100%, calc(var(--n) * 140px)); margin-inline: auto; }
+
+/* Flashcards: chapter tiles grouped by phase */
+.atp-student .fc-phase { margin-bottom: 26px; }
+.atp-student .fc-phase__head { display: flex; align-items: baseline; gap: 10px; margin: 0 0 12px; font-size: 1.05rem; font-family: var(--font-body); font-weight: 700; color: var(--pc); }
+.atp-student .fc-phase__head small { font-size: 0.78rem; font-weight: 500; color: var(--mu); }
+.atp-student .fc-chap { display: flex; align-items: center; gap: 14px; padding: 16px 18px; text-align: left; }
+.atp-student .fc-no { flex: none; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; border: 2px solid var(--pc); color: var(--pc); font-family: var(--font-numeric); font-weight: 700; font-size: 1.1rem; }
+.atp-student .fc-no svg { width: 20px; height: 20px; }
+.atp-student .fc-chap__name { flex: 1; min-width: 0; display: grid; gap: 2px; }
+.atp-student .fc-chap__name small { font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--mu); }
+.atp-student .fc-chap__name b { font-size: 1rem; line-height: 1.25; }

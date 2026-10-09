@@ -10,6 +10,7 @@ import { useReducedMotion } from '../../../hooks/useMediaQuery';
 import { useFocusTrap } from '../../../components/ui/Modal';
 import ResourceViewer from '../../../components/portal/viewer/ResourceViewer';
 import logoCircle from '../../../assets/brand/logo-circle.png';
+import SourceBox from './SourceBox';
 import { AUTHOR, COVER_PHONE, iconFor, sizeTier, splitTitle } from './bookDesign';
 import '../../../styles/books.css';
 
@@ -18,11 +19,8 @@ const CATS = [
   { id: 'practical', label: 'Practical' },
   { id: 'other', label: 'Other' }
 ];
-// Spines alternate a crimson and a gold accent.
-const SPINES = [
-  { c: 'var(--crimson-500)', tc: 'var(--white)' },
-  { c: 'var(--gold-500)', tc: 'var(--ink-900)' }
-];
+// Every book uses the brand crimson accent.
+const SPINE = { c: 'var(--crimson-500)', tc: 'var(--white)' };
 
 /** Title with the first letter in the accent colour and the last one faded, like the printed covers. */
 function CoverTitle({ title, fadeLast = false }) {
@@ -40,7 +38,10 @@ export default function Bookshelf() {
   const [open, setOpen] = useState(null);
 
   const counts = useMemo(() => Object.fromEntries(CATS.map(c => [c.id, (materials.data || []).filter(m => m.type === c.id).length])), [materials.data]);
-  const books = (materials.data || []).filter(m => m.type === cat && m.title.toLowerCase().includes(q.trim().toLowerCase()));
+  const matches = (materials.data || []).filter(m => m.type === cat && m.title.toLowerCase().includes(q.trim().toLowerCase()));
+  // Practical source files are boxes of files to download; everything else is a book.
+  const books = matches.filter(m => !m.isSourceFile);
+  const sources = matches.filter(m => m.isSourceFile);
 
   if (materials.loading && !materials.data) return <Loading label="Loading materials…" />;
   if (materials.error) return <ErrorNote error={materials.error} onRetry={materials.reload} />;
@@ -49,12 +50,12 @@ export default function Bookshelf() {
     <>
       <SearchBox value={q} onChange={setQ} placeholder="Search materials…" />
       <Chips items={CATS.map(c => ({ ...c, count: counts[c.id] }))} value={cat} onChange={setCat} label="Material category" />
-      {books.length ? (
+      {matches.length ? (
         <>
-          <div className="bshelf">
+          {!!books.length && <div className="bshelf">
             <div className="books">
-              {books.map((m, i) => {
-                const style = SPINES[i % 2];
+              {books.map((m) => {
+                const style = SPINE;
                 const Icon = iconFor(m);
                 return (
                   <button
@@ -66,15 +67,25 @@ export default function Bookshelf() {
                     onClick={e => setOpen({ m, spine: e.currentTarget, style })}
                   >
                     <img className="sp-logo" src={logoCircle} alt="" />
-                    <span className="sp-title"><CoverTitle title={m.title} /></span>
+                    <span className="sp-title"><span className="sp-text"><CoverTitle title={m.title} /></span></span>
                     <Icon className="sp-icon" aria-hidden="true" />
                   </button>
                 );
               })}
             </div>
             <div className="plank" />
-          </div>
-          <p className="sub" style={{ marginTop: 12, fontSize: '.85rem' }}>Tap a book to open it.</p>
+          </div>}
+          {!!books.length && <p className="sub" style={{ marginTop: 12, fontSize: '.85rem' }}>Tap a book to open it.</p>}
+          {!!sources.length && (
+            <section className="src-sec" aria-label="Practical source files">
+              <h4 className="src-head">Source files</h4>
+              <div className="bshelf src-shelf">
+                <div className="books">{sources.map(m => <SourceBox key={m._id} m={m} />)}</div>
+                <div className="plank" />
+              </div>
+              <p className="sub" style={{ marginTop: 12, fontSize: '.85rem' }}>Hover a box to see what's inside, then tap it to download the files.</p>
+            </section>
+          )}
         </>
       ) : (
         <p className="sub" style={{ padding: '30px 0' }}>{q ? 'No materials match your search.' : 'Nothing here yet.'}</p>

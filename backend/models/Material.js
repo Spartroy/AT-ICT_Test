@@ -43,6 +43,11 @@ const materialSchema = new mongoose.Schema({
     maxlength: [500, 'Description cannot be more than 500 characters'],
     default: ''
   },
+  // Practical materials only: true = a source file (shown to students as a box of files), false = a book.
+  isSourceFile: {
+    type: Boolean,
+    default: false
+  },
   // External link for link-only materials
   externalUrl: {
     type: String,

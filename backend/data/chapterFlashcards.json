@@ -17,20 +17,12 @@
         "back": "Hardware:\n• Anything you can physically touch\nSoftware:\n• Any program or set of instructions"
       },
       {
-        "front": "Exam tip: What is a Computer?",
-        "back": "Learn the one-line difference: hardware = touch it, software = instructions. It is a classic 1-mark question."
-      },
-      {
         "front": "Define: Hardware",
         "back": "The physical components that make up a computer system."
       },
       {
         "front": "Hardware: what are the parts?",
         "back": "External — visible to the user:\n• Mouse\n• Keyboard\n• Monitor\n• Printer\n• Scanner\n• Speakers\n• Webcam\nInternal — inside the computer:\n• CPU / Processor\n• Motherboard — lets hardware communicate\n• RAM and ROM\n• Graphics card (GPU) — visual output\n• Sound card — audio in and out\n• Internal HDD / SSD — stores OS and files"
-      },
-      {
-        "front": "Common mistake: \"A monitor is an internal device.\"\nWhat is wrong with it?",
-        "back": "The monitor is external — you can see it from outside. The GPU that drives it is internal."
       },
       {
         "front": "Define: CPU",
@@ -45,14 +37,6 @@
         "back": "Control Unit (CU):\n• Controls interactions between CPU parts\n• Fetches, decodes and manages execution of instructions\nArithmetic Logic Unit (ALU):\n• Performs calculations: + − × ÷\n• Makes logical decisions: =, >, <"
       },
       {
-        "front": "Exam tip: Central Processing Unit",
-        "back": "Use the verbs: CU = controls / manages, ALU = calculates and decides."
-      },
-      {
-        "front": "Common mistake: \"The CPU stores data.\"\nWhat is wrong with it?",
-        "back": "The CPU processes data. Storing is the job of memory and storage."
-      },
-      {
         "front": "Define: Main memory",
         "back": "Internal memory directly accessible by the CPU. Also called primary or internal memory."
       },
@@ -63,10 +47,6 @@
       {
         "front": "Does it survive a power cut?",
         "back": "RAM: Contents lost\nROM: Contents kept\nBacking storage: Contents kept"
-      },
-      {
-        "front": "Common mistake: \"RAM is permanent storage\" or \"ROM is temporary\".\nWhat is wrong with it?",
-        "back": "RAM = volatile, temporary. ROM = non-volatile, permanent. Never swap them."
       },
       {
         "front": "RAM vs ROM: Volatility",
@@ -97,10 +77,6 @@
         "back": "Non-volatile: Stores data permanently\nNot CPU-direct: So slower than main memory\nUsed for: Files, software, moving data to another computer"
       },
       {
-        "front": "Exam tip: Main Memory & Storage",
-        "back": "Asked to explain \"volatile\"? Say: contents are lost when power is turned off. Always link it to power."
-      },
-      {
         "front": "Your laptop loses an unsaved document in a power cut. Which memory held it?",
         "back": "RAM — it's volatile, so everything in it vanishes without power."
       },
@@ -117,24 +93,12 @@
         "back": "• Device driver | Lets hardware devices communicate with the OS\n• Compiler | Translates high-level code into computer language\n• Linker | Combines modules into a single program\n• Utilities | Manage and maintain computer resources"
       },
       {
-        "front": "Common mistake: \"Antivirus is application software.\"\nWhat is wrong with it?",
-        "back": "Antivirus is a utility, so it is system software."
-      },
-      {
         "front": "Define: Operating system",
         "back": "System software that lets the user communicate with the hardware and perform many basic tasks."
       },
       {
         "front": "Functions of the OS",
         "back": "User interface: Lets you interact with the computer\nUser accounts: Manages who can log in\nPeripherals: Manages connected devices\nMemory: Allocates RAM to running programs\nSecurity: Protects the system\nFiles & folders: Create, rename, delete, move"
-      },
-      {
-        "front": "Exam tip: Operating System",
-        "back": "\"Describe OS functions\" = give 3 different ones from the list. Do not repeat one in different words."
-      },
-      {
-        "front": "Exam tip: User Interfaces",
-        "back": "For each of CLI, GUI, Dialogue-based and Gesture-based, know the definition + 2 advantages + 2 disadvantages."
       },
       {
         "front": "User Interfaces: CLI",
@@ -151,14 +115,6 @@
       {
         "front": "User Interfaces: Gesture",
         "back": "Gesture-based interface — the body gives commands without keyboard or mouse, using computer vision and image processing.\nAdvantages:\n• Replaces mechanical input devices\n• No physical contact needed\n• Very natural for a human\n• No training needed\nDisadvantages:\n• Can be activated by accident\n• Less accurate than other interfaces\n• Only works near the camera or sensor\n• Gestures must be learned; may exclude users with physical disabilities"
-      },
-      {
-        "front": "Common mistake: \"GUI is easier\" or \"CLI is faster\" — with no reason.\nWhat is wrong with it?",
-        "back": "Give the reason: GUI needs no commands memorised; CLI uses less memory and processing power."
-      },
-      {
-        "front": "Exam tip: Types of Computers",
-        "back": "There are 5 types: PC (desktop), laptop, tablet, smartphone, phablet. The last four are mobile computers."
       },
       {
         "front": "Types of computers: what are the parts?",
@@ -213,10 +169,6 @@
         "back": "Portability: Very high\nPower: Medium\nMain strength: Large screen + phone calls"
       },
       {
-        "front": "Common mistake: \"Laptops are better because they are portable.\"\nWhat is wrong with it?",
-        "back": "Always compare: portable compared to a desktop. A smartphone is more portable still. Name both sides."
-      },
-      {
         "front": "Which device can be used during a power cut and is easy to upgrade?",
         "back": "Trick question — no single one. A desktop is easy to upgrade but needs constant power; mobile devices have batteries but are often hard to upgrade."
       }
@@ -246,14 +198,6 @@
       {
         "front": "Define: ADC / DAC",
         "back": "ADC converts analogue to digital so a computer can read it. DAC converts digital to analogue — to control an external device or send to an actuator."
-      },
-      {
-        "front": "Exam tip: Analogue and Digital Data",
-        "back": "Remember the letters: Analogue-to-Digital goes in (microphone); Digital-to-Analogue goes out (speaker)."
-      },
-      {
-        "front": "Common mistake: \"A computer can process analogue data directly.\"\nWhat is wrong with it?",
-        "back": "Computers only process digital data. Analogue must pass through an ADC first."
       },
       {
         "front": "Define: Pointing device",
@@ -288,20 +232,12 @@
         "back": "Used for: TVs, projectors and home appliances from a distance\nAdvantages:\n• Operates devices from a distance\n• Useful for people with walking difficulties\nDisadvantages:\n• Objects in between block it\n• Hard with hand-movement disabilities"
       },
       {
-        "front": "Common mistake: \"A touchscreen is a pointing device.\"\nWhat is wrong with it?",
-        "back": "A touchscreen is an input AND output device — it is not a pointing device."
-      },
-      {
         "front": "Keyboard Devices: Keyboard",
         "back": "Used for: Inputting data into applications · typing commands\nAdvantages:\n• Fast entry of new text\n• Easy way to input data\n• Inputs text, numbers and symbols\nDisadvantages:\n• Must learn to type for speed\n• Slower than direct data entry\n• Excessive use can cause RSI\n• Large — uses desk space"
       },
       {
         "front": "Keyboard Devices: Numeric keypad",
         "back": "Used for: ATMs (PIN) · POS terminals if the barcode fails · Chip and PIN devices · numeric data in spreadsheets\nAdvantages:\n• Very easy to carry\n• Faster than keyboards for numbers\nDisadvantages:\n• Small keys can make input difficult\n• Not used to enter text"
-      },
-      {
-        "front": "Exam tip: Keyboard Devices",
-        "back": "Numeric keypad uses: remember ATM, POS, Chip and PIN — anywhere numbers are typed fast."
       },
       {
         "front": "Define: Direct data entry (DDE)",
@@ -364,14 +300,6 @@
         "back": "Barcode: Special reader\nQR code: Any camera + software"
       },
       {
-        "front": "Exam tip: Scanning & Recognition (DDE)",
-        "back": "DDE advantages always come in a pair: faster than typing and fewer errors. Say both."
-      },
-      {
-        "front": "Common mistake: \"Chip and PIN is less secure than a magnetic stripe.\"\nWhat is wrong with it?",
-        "back": "Chip and PIN is more secure — the PIN must match the chip, and the chip data is encrypted."
-      },
-      {
         "front": "Which DDE device marks multiple-choice exam papers?",
         "back": "An OMR — it reads the position of marks on the form."
       },
@@ -406,10 +334,6 @@
       {
         "front": "Touch and Stylus: Light pen",
         "back": "Used for: Selecting objects and drawing on CRT screens (CAD)\nAdvantages:\n• More accurate than touchscreens\n• Small — good where space is tight\n• Easy to use\nDisadvantages:\n• Lag when drawing\n• Only works with CRT monitors\n• Outdated technology"
-      },
-      {
-        "front": "Common mistake: \"Light pens work on any screen.\"\nWhat is wrong with it?",
-        "back": "Light pens only work with CRT monitors — one reason the technology is outdated."
       }
     ]
   },
@@ -425,10 +349,6 @@
       {
         "front": "Input vs output: Input devices vs Output devices",
         "back": "• Send data to a computer for processing | Receive data from the computer\n• Turn input into a form the computer understands | Display the results of processed data\n• Under the control of the user | Under the control of the computer\n• Design is more complex | Design is less complex"
-      },
-      {
-        "front": "Exam tip: Input vs Output",
-        "back": "Who is in control? Input = the user. Output = the computer. That one line earns the mark."
       },
       {
         "front": "Monitors: CRT",
@@ -473,10 +393,6 @@
       {
         "front": "CRT vs LCD vs LED: Flicker",
         "back": "CRT: Yes\nLCD: No\nLED: No"
-      },
-      {
-        "front": "Common mistake: \"LED monitors use LEDs to make the picture instead of liquid crystals.\"\nWhat is wrong with it?",
-        "back": "LED monitors still use an LCD panel. The LEDs are the backlight, replacing the fluorescent tubes."
       },
       {
         "front": "Printers: Laser",
@@ -551,14 +467,6 @@
         "back": "• Laser | Low noise is needed (office) · fast, high-quality, high-volume printing\n• Inkjet | Low volumes · photographs · inkjet technology is used in 3D printing\n• Dot matrix | Noisy or dirty places (garage workshops) · quality not important · carbon copies (wage slips) · till receipts\n• 3D printer | Prototypes · customised items (prosthetic limbs, surgical equipment) · parts no longer in production"
       },
       {
-        "front": "Exam tip: Printers",
-        "back": "Running cost = cost of operating the device (ink, toner, ribbon). Initial cost = the price to buy it. Do not mix the two up."
-      },
-      {
-        "front": "Common mistake: \"Laser printers are cheapest because they have the lowest running cost.\"\nWhat is wrong with it?",
-        "back": "Laser has the highest initial cost. Be specific: low running cost per page for B&W, but high for colour."
-      },
-      {
         "front": "Which printer can produce carbon copies?",
         "back": "The dot matrix printer — it is an impact printer, so the pins strike through multi-part paper."
       },
@@ -597,10 +505,6 @@
       {
         "front": "Actuators: Actuator",
         "back": "Used for: Robot arm · spinning a fan · pumping water · washing machines · greenhouses (windows, fans)\nAdvantages:\n• Remote operation (e.g. nuclear reactor pumps) — big safety factor\n• Relatively inexpensive\nDisadvantages:\n• Usually analogue, so computer signals need a DAC"
-      },
-      {
-        "front": "Common mistake: \"An actuator is an input device.\"\nWhat is wrong with it?",
-        "back": "An actuator is an output device — it receives a signal and produces movement."
       }
     ]
   },
@@ -638,14 +542,6 @@
         "back": "• Directly accessible by the CPU | Not directly accessible\n• Faster access | Slower access\n• Tends to be smaller | Tends to be greater\n• RAM and ROM fixed inside | Fixed or removable\n• RAM volatile, ROM non-volatile | Non-volatile\n• More expensive per unit | Cheaper per unit\n• Start-up instructions (ROM), data in use (RAM) | Files and software permanently"
       },
       {
-        "front": "Common mistake: \"A CD is a storage device.\"\nWhat is wrong with it?",
-        "back": "A CD is storage media. The device is the CD drive that reads or writes it."
-      },
-      {
-        "front": "Exam tip: Key Storage Concepts",
-        "back": "Comparing devices? Use the six factors — capacity, transfer rate, access time, durability, portability, price per GB — and compare, never just describe."
-      },
-      {
         "front": "Magnetic Storage: Fixed HDD",
         "back": "Fixed hard disk drive — magnetic storage inside the computer using platters, a read/write arm and heads.\nUsed for: Storing the OS · system software and working files · real-time systems · file servers\nAdvantages:\n• Large capacity\n• Fast data transfer\n• Fast access\n• Great read/write longevity\nDisadvantages:\n• Incorrect shutdown can lose data\n• Many moving parts affect reliability\n• Noisy compared to SSD"
       },
@@ -656,14 +552,6 @@
       {
         "front": "Magnetic Storage: Magnetic tape",
         "back": "Magnetic tape drive — accesses data serially. Very high capacity, very slow access.\nUsed for: Backups of large databases · long-term archiving\nAdvantages:\n• Huge capacity\n• Very robust — lasts long\n• Fast data transfer\n• Cheaper per unit than HDD\nDisadvantages:\n• Very slow access (serial)\n• Affected by magnetic fields"
-      },
-      {
-        "front": "Exam tip: Magnetic Storage",
-        "back": "Tape = serial access. That single fact explains both its slow access and why it suits backups and archives."
-      },
-      {
-        "front": "Common mistake: \"Magnetic storage always has fast access.\"\nWhat is wrong with it?",
-        "back": "Fast except magnetic tape, which accesses data serially and is very slow."
       },
       {
         "front": "Define: Optical media",
@@ -710,14 +598,6 @@
         "back": "Adding data to an optical disc."
       },
       {
-        "front": "Exam tip: Optical Storage",
-        "back": "Order of optical media: CD → DVD → DVD-RAM → Blu-ray. Moving along gives more capacity and faster speeds, but a higher price."
-      },
-      {
-        "front": "Common mistake: \"Blu-ray uses a red laser.\"\nWhat is wrong with it?",
-        "back": "Blu-ray uses a blue laser (405 nm) — that shorter wavelength is why it stores more."
-      },
-      {
         "front": "Define: SSD · Solid State Drive",
         "back": "A storage device with no moving parts that uses flash memory chips. Any solid-state device can be called a flash drive."
       },
@@ -758,10 +638,6 @@
         "back": "Magnetic: Great longevity\nOptical: Not compatible with all devices\nSolid-state: Cool, low power, quiet"
       },
       {
-        "front": "Common mistake: \"SSDs have moving parts like HDDs.\"\nWhat is wrong with it?",
-        "back": "SSDs have no moving parts — that is why they are faster, quieter, cooler and shock-proof."
-      },
-      {
         "front": "A photographer wants to carry hundreds of photos on a durable, tiny device. Which type of storage?",
         "back": "Solid-state — a flash memory card is compact, robust, and not affected by magnetic fields."
       },
@@ -790,14 +666,6 @@
         "back": "Compared to storing data locally.\nAdvantages:\n• Accessible anytime, anywhere, any device (with internet)\n• More storage; capacity grows without new devices\n• Automatic backups\n• Pay only for what you use\n• No device to carry or lose\n• Team collaboration with tracked changes\nDisadvantages:\n• No internet = no access\n• Needs a reliable connection\n• Ongoing cost for more space\n• Relies on provider to maintain hardware\n• Loss of control over storage\n• May be less secure — many copies kept long-term\n• Staff may access sensitive data\n• Servers damaged by disasters can lose data"
       },
       {
-        "front": "Exam tip: Cloud Storage",
-        "back": "The two security disadvantages: loss of control and multiple copies stored for a long time."
-      },
-      {
-        "front": "Common mistake: \"Cloud storage works without internet.\"\nWhat is wrong with it?",
-        "back": "You need an internet connection to upload or download — the biggest disadvantage compared to local storage."
-      },
-      {
         "front": "Define: Backup",
         "back": "A copy of data stored on an alternative device as a precaution against data loss on the main storage."
       },
@@ -808,10 +676,6 @@
       {
         "front": "Good practice",
         "back": "Separate device: Keep the backup apart from the original\nOff-site: Store a copy in another location\nTape: Magnetic tape is commonly used for large-scale backups"
-      },
-      {
-        "front": "Common mistake: \"Saving the file twice on the same drive is a backup.\"\nWhat is wrong with it?",
-        "back": "A backup must be on a separate device or off-site — otherwise one failure destroys both copies."
       }
     ]
   },
@@ -857,14 +721,6 @@
         "back": "1. Ask – Could it be used in arithmetic?\n2. Yes – Numeric (integer, real…)\n3. No – Slashes, dashes or leading 0? Alphanumeric"
       },
       {
-        "front": "Exam tip: Data Types",
-        "back": "Telephone numbers are ALPHANUMERIC: they may have spaces or dashes, may start with a zero, and are never used in arithmetic. Give all three reasons."
-      },
-      {
-        "front": "Common mistake: \"A telephone number is an integer because it is made of digits.\"\nWhat is wrong with it?",
-        "back": "It is alphanumeric — numeric data cannot start with 0, and you never do arithmetic on it."
-      },
-      {
         "front": "Anatomy of a table",
         "back": "Table: A collection of related records\nRecord: A row: all details of one item\nField: A column: one piece of info, one data type\nField name: Title of each field, e.g. StudentID"
       },
@@ -883,10 +739,6 @@
       {
         "front": "Primary key features",
         "back": "Unique: Every value is different\nIdentifies: Helps identify the record\nNever null: Cannot be left empty\nLinks: Creates relationships"
-      },
-      {
-        "front": "Common mistake: \"A field is a row in the table.\"\nWhat is wrong with it?",
-        "back": "A field is a column; a record is a row."
       },
       {
         "front": "Database Types: Flat-file",
@@ -923,14 +775,6 @@
       {
         "front": "Both database types…",
         "back": "Share: A primary key\nCreate: Reports\nStore: Data in records and fields"
-      },
-      {
-        "front": "Exam tip: Database Types",
-        "back": "Asked how to link two tables? The primary key of one table appears as a foreign key in the other."
-      },
-      {
-        "front": "Common mistake: \"A foreign key must be unique.\"\nWhat is wrong with it?",
-        "back": "The primary key must be unique. A foreign key can be repeated and can be null."
       },
       {
         "front": "Define: Validation",
@@ -977,14 +821,6 @@
         "back": "Range: Two boundaries\nLimit: One boundary"
       },
       {
-        "front": "Exam tip: Validation",
-        "back": "Range = two boundaries (0–100). Limit = one boundary (< 18). Say the number of boundaries."
-      },
-      {
-        "front": "Common mistake: \"Validation proves the data is correct.\"\nWhat is wrong with it?",
-        "back": "Validation only checks data is sensible. Age 15 typed as 51 passes a range check but is wrong."
-      },
-      {
         "front": "A password must be exactly 8 characters. Which validation check?",
         "back": "A length check."
       },
@@ -1015,10 +851,6 @@
       {
         "front": "Visual vs double entry: Visual verification vs Double data entry",
         "back": "• User compares the data | Computer compares the data\n• Compared with the original source | Compared with the earlier entry\n• Data entered once | Data entered twice"
-      },
-      {
-        "front": "Common mistake: \"Proofreading is a verification method.\"\nWhat is wrong with it?",
-        "back": "Proofreading checks spelling and grammar without the source document, so it is not verification."
       }
     ]
   },
@@ -1046,10 +878,6 @@
       {
         "front": "Types of Networks: WLAN",
         "back": "Connecting to a WLAN rather than a LAN.\nAdvantages:\n• Reduces cost of cables\n• Safer — no tripping on wires\n• Easier to connect other devices\nDisadvantages:\n• Less secure — data can be intercepted\n• Slower transfer rate than wired LAN\n• Obstacles such as walls weaken the signal"
-      },
-      {
-        "front": "Common mistake: \"A WLAN covers a larger area than a LAN.\"\nWhat is wrong with it?",
-        "back": "LAN and WLAN both cover a small area. Only a WAN covers a large one."
       },
       {
         "front": "How Wi-Fi works: what are the steps, in order?",
@@ -1090,10 +918,6 @@
       {
         "front": "Similarities",
         "back": "Wireless: Both use wireless communication\nRadio waves: Both use radio waves\nMany devices: Both connect several devices\nSecurity: Both secure data sent"
-      },
-      {
-        "front": "Common mistake: \"Bluetooth is faster than Wi-Fi.\"\nWhat is wrong with it?",
-        "back": "Wi-Fi has the faster rate and greater range. Bluetooth is short-range, simpler and cheaper."
       },
       {
         "front": "Define: NIC · Network Interface Card",
@@ -1156,14 +980,6 @@
         "back": "Route information: Where packets will be directed\nIP addresses: Of known destinations"
       },
       {
-        "front": "Exam tip: Network Devices",
-        "back": "Hub vs switch: hub broadcasts to everyone, switch sends to one using the MAC address. That is why a switch is more secure."
-      },
-      {
-        "front": "Common mistake: \"The router uses the MAC address to send data to the internet.\"\nWhat is wrong with it?",
-        "back": "A router uses the IP address and its routing table. Switches use MAC addresses."
-      },
-      {
         "front": "Define: Firewall",
         "back": "A device or software between your computer and an external network that filters incoming and outgoing traffic against a set of criteria."
       },
@@ -1174,10 +990,6 @@
       {
         "front": "Firewall: Firewall",
         "back": "Functions and limits.\nAdvantages:\n• Warns and stops unauthorised access\n• Can prevent malware reaching the network\n• Blocks undesirable websites\n• Logs all traffic\n• Keeps hackers out of the network\nDisadvantages:\n• Cannot stop internal users by-passing it\n• Cannot stop employees hacking from within\n• Stops devices hackers use, not the hackers\n• Wrong configuration lets harmful traffic through"
-      },
-      {
-        "front": "Common mistake: \"A firewall removes viruses already on the computer.\"\nWhat is wrong with it?",
-        "back": "A firewall filters traffic. Removing viruses is the job of antivirus."
       },
       {
         "front": "Define: ISP · Internet Service Provider",
@@ -1224,10 +1036,6 @@
         "back": "Email: Send and receive emails and attachments\nFiles: Internal file transfer\nWeb pages: Surf internal web pages\nResources: Share applications"
       },
       {
-        "front": "Common mistake: \"The internet and the WWW are the same thing.\"\nWhat is wrong with it?",
-        "back": "The internet is the infrastructure; the WWW is a service (collection of web pages) running on it."
-      },
-      {
         "front": "Define: Protocol",
         "back": "A set of rules agreed by the sender and the recipient when data is transferred between devices."
       },
@@ -1264,14 +1072,6 @@
         "back": "1. Download – The FTP client program\n2. Connect – To the FTP server\n3. Log in – FTP username and password\n4. Locate – The files on your computer\n5. Upload – Click upload to the folder"
       },
       {
-        "front": "Exam tip: Network Protocols",
-        "back": "Spot a safe site with three signs: HTTPS, padlock, valid certificate."
-      },
-      {
-        "front": "Common mistake: \"HTTPS means the website is trustworthy.\"\nWhat is wrong with it?",
-        "back": "HTTPS means the connection is encrypted. A fake site can still use it, so check the URL."
-      },
-      {
         "front": "Define: URL",
         "back": "A unique text-based address for a web page."
       },
@@ -1294,10 +1094,6 @@
       {
         "front": "HTTP vs FTP uses",
         "back": "HTTP: Access the WWW · send page to browser · download from web servers\nFTP: Transfer files · download from file servers · very large files"
-      },
-      {
-        "front": "Common mistake: \"The domain is the whole address.\"\nWhat is wrong with it?",
-        "back": "A URL has several parts: protocol, domain, folder, filename."
       },
       {
         "front": "Define: Web browser",
@@ -1350,10 +1146,6 @@
       {
         "front": "Web vs video conferencing: Video vs Web",
         "back": "• Two-way only | Two-way or webcast\n• Expensive specialist equipment | Uses an ordinary computer\n• Shared mic and speakers | Own computer each\n• Poorer sound quality | Better sound quality"
-      },
-      {
-        "front": "Common mistake: \"Audio conferencing needs an internet connection.\"\nWhat is wrong with it?",
-        "back": "Not always — it can use a standard phone, so there is no time lag or lip-sync error."
       }
     ]
   },
@@ -1395,10 +1187,6 @@
         "back": "• Files deleted\n• Disk full\n• Computer unresponsive\n• Random reboots\n• Random pop-ups\n• Software errors"
       },
       {
-        "front": "Common mistake: \"A backup protects me from viruses.\"\nWhat is wrong with it?",
-        "back": "A virus may already be attached to the backup, so restoring it reinstalls the virus."
-      },
-      {
         "front": "Cyber threats: what are the parts?",
         "back": "Phishing family:\n• Phishing (email)\n• Pharming (fake site)\n• Vishing (voicemail)\n• Smishing (SMS)\nOthers:\n• Hacking\n• Spam\nCard fraud:\n• Shoulder surfing\n• Card cloning"
       },
@@ -1437,14 +1225,6 @@
       {
         "front": "Cyber Threats: Card cloning",
         "back": "A skimmer copies the magnetic stripe onto a blank card (a shimmer for smart cards).\nAdvantages:\n• Chip and PIN cards\n• Use a PIN\n• Contactless cards\n• RFID protector\n• Never let the card leave your sight\n• Check spending regularly"
-      },
-      {
-        "front": "Exam tip: Cyber Threats",
-        "back": "Phishing, smishing, vishing, pharming: learn the delivery channel — email, SMS, voicemail, redirect — then the same protection steps."
-      },
-      {
-        "front": "Common mistake: \"Encrypting a file prevents unauthorised access to it.\"\nWhat is wrong with it?",
-        "back": "Encryption does not stop access. It makes the data unreadable without the key."
       },
       {
         "front": "Forms of identification",
@@ -1523,14 +1303,6 @@
         "back": "Delete: File and virus are removed\nQuarantine: File moved to a hidden folder, then cleaned"
       },
       {
-        "front": "Exam tip: Security Methods",
-        "back": "Describe antivirus in steps: checks against a database → alerts → delete or quarantine."
-      },
-      {
-        "front": "Common mistake: \"Two-factor authentication means two passwords.\"\nWhat is wrong with it?",
-        "back": "It means two different methods — e.g. a password plus a code sent to your phone."
-      },
-      {
         "front": "Which biometric scans blood vessels at the back of the eye?",
         "back": "Retina scan — the iris is the coloured part at the front."
       }
@@ -1548,10 +1320,6 @@
       {
         "front": "The six stages: what are the steps, in order?",
         "back": "1. Analysis – Find out what is needed\n2. Design – Plan the new system\n3. Development & testing – Build and check it\n4. Implementation – Put it into use\n5. Documentation – Write the guides\n6. Evaluation – Judge how well it works"
-      },
-      {
-        "front": "Exam tip: The SDLC",
-        "back": "Learn the stage order in sequence: Analysis → Design → Development/Testing → Implementation → Documentation → Evaluation."
       },
       {
         "front": "Define: Systems analyst",
@@ -1574,10 +1342,6 @@
         "back": "Choose output devices with a justification.\nAdvantages:\n• 3D printer — faster, cheaper customised items\n• Large monitors — for CAD software\n• Speakers — verbal output for staff with disabilities"
       },
       {
-        "front": "Common mistake: \"The analyst designs the new system.\"\nWhat is wrong with it?",
-        "back": "Designing is a separate stage. The analyst researches and identifies requirements."
-      },
-      {
         "front": "Research Methods: Observation",
         "back": "Watching employees use the existing system.\nAdvantages:\n• Reliable data\n• Better overall view\n• Inexpensive\nDisadvantages:\n• People work differently when watched (Hawthorne effect)\n• Depends on the skill of the observer"
       },
@@ -1592,10 +1356,6 @@
       {
         "front": "Research Methods: Documents",
         "back": "Examining existing paper files and documents.\nAdvantages:\n• Information not available any other way\n• See the paper system and scale of the problem\n• Saves time — may have earlier analysis\nDisadvantages:\n• Time consuming\n• Expensive"
-      },
-      {
-        "front": "Exam tip: Research Methods",
-        "back": "Always give a comparison: interview = detail but slow; questionnaire = fast and anonymous but inflexible."
       },
       {
         "front": "Design tasks: list them",
@@ -1616,10 +1376,6 @@
       {
         "front": "A well-designed input form has: list them",
         "back": "• All necessary fields\n• Clear labels\n• Readable font\n• Simple language\n• Right-sized entry boxes\n• Instructions\n• Good layout and white space\n• Sensible error messages\n• Auto-complete\n• Radio buttons / drop-downs\n• Navigation buttons\n• Help button"
-      },
-      {
-        "front": "Common mistake: \"Bespoke software is always better.\"\nWhat is wrong with it?",
-        "back": "It fits the need, but costs more, takes longer and may have untested errors. Always weigh both sides."
       },
       {
         "front": "Define: Development",
@@ -1654,10 +1410,6 @@
         "back": "Tests: All tests to perform\nData: What data is tested\nType: Which test data type\nExpected: Expected outcomes\nActual: Check actual matches expected"
       },
       {
-        "front": "Common mistake: \"Extreme data should be rejected.\"\nWhat is wrong with it?",
-        "back": "Extreme data is at the limits and is accepted. Abnormal data is rejected."
-      },
-      {
         "front": "A month field accepts 1–12. Is 12 normal, abnormal or extreme?",
         "back": "Extreme — it is on the boundary and should be accepted."
       },
@@ -1682,20 +1434,12 @@
         "back": "Direct: Highest\nPilot: One branch\nPhased: One part\nParallel: Lowest"
       },
       {
-        "front": "Common mistake: \"Parallel running is cheap because the old system stays.\"\nWhat is wrong with it?",
-        "back": "It is expensive — extra staff run both systems and enter data twice."
-      },
-      {
         "front": "Documentation: User",
         "back": "Helps users learn the system and fix errors.\nAdvantages:\n• Purpose and limitations\n• Hardware and software needs\n• Sample runs\n• Input and output formats\n• How to install, log in, save, sort, print\n• Add, delete, edit records\n• Error messages\n• Troubleshooting, FAQs\n• Tutorials and glossary"
       },
       {
         "front": "Documentation: Technical",
         "back": "Helps programmers and analysts improve and maintain it.\nAdvantages:\n• Purpose and limitations\n• Hardware and software needs\n• Sample runs\n• Input and output formats\n• Programming language and code listing\n• Flowcharts and algorithms\n• File structures, list of variables\n• Validation routines\n• Known bugs"
-      },
-      {
-        "front": "Exam tip: Documentation",
-        "back": "User = how to use it. Technical = how it works and how to fix it."
       },
       {
         "front": "Factors assessed: list them",
@@ -1724,10 +1468,6 @@
       {
         "front": "Target Audience: Visually impaired",
         "back": "Accessible form design.\nAdvantages:\n• Large buttons\n• Large font\n• High contrast\n• Voice entry\n• Text-to-speech"
-      },
-      {
-        "front": "Common mistake: \"Young children want a lot of text and a plain design.\"\nWhat is wrong with it?",
-        "back": "Young children need animation, sound, colour and more images than text."
       }
     ]
   },
@@ -1753,10 +1493,6 @@
         "back": "A system of sensors, a microprocessor and outputs working without human intervention.\nAdvantages:\n• More accurate readings\n• More frequent readings, 24/7\n• More consistent\n• Safer in hazardous places\n• Faster response\n• No wages\nDisadvantages:\n• Faulty sensor gives false results\n• Cyber attacks\n• Expensive to set up\n• More maintenance"
       },
       {
-        "front": "Common mistake: \"Sensors send digital data to the computer.\"\nWhat is wrong with it?",
-        "back": "Sensors read analogue data. An ADC must convert it first."
-      },
-      {
         "front": "Monitoring system: what are the steps, in order?",
         "back": "1. Sensors – Take measurements\n2. ADC – Analogue → digital\n3. Microprocessor – Processes data\n4. Display – Graphs and charts"
       },
@@ -1775,10 +1511,6 @@
       {
         "front": "Weather station sensors",
         "back": "Temperature: Measures temperature\nLight: Hours of daylight\nLevel: Rainfall\nPressure: Air pressure"
-      },
-      {
-        "front": "Common mistake: \"A monitoring system changes the environment.\"\nWhat is wrong with it?",
-        "back": "Monitoring only measures. A control system acts to change it."
       },
       {
         "front": "Control system: what are the steps, in order?",
@@ -1807,14 +1539,6 @@
       {
         "front": "Computer Control: Cruise control",
         "back": "Proximity sensor on a car.\nAdvantages:\n• Calculates distance to car in front\n• Less than safe distance: brakes ON, throttle reduced\n• Greater: brakes released, throttle increased"
-      },
-      {
-        "front": "Exam tip: Computer Control",
-        "back": "Every control answer follows the same loop: sensor → ADC → microprocessor compares with preset → actuator → repeat."
-      },
-      {
-        "front": "Common mistake: \"The sensor switches the heater on.\"\nWhat is wrong with it?",
-        "back": "The microprocessor decides; the actuator switches the heater."
       },
       {
         "front": "Smart transport uses: list them",
@@ -1867,10 +1591,6 @@
       {
         "front": "Expert Systems: Expert systems",
         "back": "Pros and cons.\nAdvantages:\n• Available 24/7\n• Very fast response\n• Used where experts are unavailable\n• Combine several experts\n• Give probabilities\n• Unbiased\n• Store vast facts\nDisadvantages:\n• Lack common sense\n• Errors in the knowledge base give wrong decisions\n• Expensive\n• Costly operator training\n• Unsuitable for sensitive medical cases"
-      },
-      {
-        "front": "Common mistake: \"The knowledge base makes the decisions.\"\nWhat is wrong with it?",
-        "back": "The inference engine is the active part. The knowledge base only stores facts and rules."
       },
       {
         "front": "Define: Computer model",
@@ -1944,10 +1664,6 @@
         "back": "1. Insert – Card in reader; bank contacted\n2. Validity – Expiry, stolen check\n3. PIN – Keyed PIN compared to chip PIN\n4. Funds – Balance checked; authorisation code sent\n5. Transfer – Debit customer, credit shop\n6. Receipt – Proof of purchase"
       },
       {
-        "front": "Exam tip: Payment Cards",
-        "back": "PIN trials: 3 only, then the card is retained."
-      },
-      {
         "front": "Contactless card: what are the steps, in order?",
         "back": "1. Amount – Operator enters value\n2. Limit – Checks below contactless limit\n3. Tap – Chip read using RFID\n4. Bank check – Validity and funds checked\n5. Transfer – Amount moved between accounts"
       },
@@ -1974,10 +1690,6 @@
       {
         "front": "Phone banking: what are the steps, in order?",
         "back": "1. Call – The bank hotline\n2. Account – Enter account number\n3. PIN – Automated system asks for PIN\n4. Menu – 1 = transfer, 2 = balance, 0 = customer service"
-      },
-      {
-        "front": "Common mistake: \"The ATM pays out before it checks the balance.\"\nWhat is wrong with it?",
-        "back": "The balance and the daily limit are checked before the cash is dispensed."
       },
       {
         "front": "Tokens & Cheques: Physical token",
@@ -2010,10 +1722,6 @@
       {
         "front": "Define: Re-order number",
         "back": "A pre-set minimum allowable stock before more is ordered."
-      },
-      {
-        "front": "Common mistake: \"Batch processing updates immediately.\"\nWhat is wrong with it?",
-        "back": "Real-time processes immediately. Batch waits and processes at a set time."
       },
       {
         "front": "Uses: list them",
@@ -2137,10 +1845,6 @@
       {
         "front": "What can be monitored: list them",
         "back": "• Key presses and clicks\n• Websites and apps\n• Storage used\n• Printer use\n• Emails"
-      },
-      {
-        "front": "Common mistake: \"Employee monitoring only tracks working hours.\"\nWhat is wrong with it?",
-        "back": "It can track keystrokes, websites, storage, printing and email."
       }
     ]
   },
@@ -2176,10 +1880,6 @@
       {
         "front": "Application Software: Voice recognition",
         "back": "Converts speech into text.\nAdvantages:\n• Hands-free\nDisadvantages:\n• Less accurate than typing\n• Background noise causes errors"
-      },
-      {
-        "front": "Common mistake: \"A spell checker finds every mistake.\"\nWhat is wrong with it?",
-        "back": "It misses similar-sounding words (where / were) and flags names and technical terms."
       },
       {
         "front": "Define: XR",
@@ -2306,10 +2006,6 @@
         "back": "• Chronological posts\n• Students start topics\n• Moderated\n• Private messaging"
       },
       {
-        "front": "Common mistake: \"Anyone can edit a blog like a wiki.\"\nWhat is wrong with it?",
-        "back": "A blog has one author; readers can only comment. A wiki lets anyone edit."
-      },
-      {
         "front": "Publications",
         "back": "Newsletter: Regular news from an organisation\nPoster: Billboards and digital roadside screens\nePublication: E-books, magazines, newspapers with audio and video"
       },
@@ -2381,14 +2077,6 @@
         "back": "Cause: Overloaded sockets; overheating\nProtection: CO2 extinguisher; no overloading; ventilation"
       },
       {
-        "front": "Common mistake: \"RSI is caused by looking at screens.\"\nWhat is wrong with it?",
-        "back": "RSI is from repetitive typing or clicking. Screens cause eye strain."
-      },
-      {
-        "front": "Exam tip: Health & Safety",
-        "back": "Know 2 health risks + a cause + a precaution for each. Mark schemes want the pair."
-      },
-      {
         "front": "Define: Copyright",
         "back": "Legal protection of work from being downloaded, copied or borrowed without the owner's permission."
       },
@@ -2419,10 +2107,6 @@
       {
         "front": "Data Protection Act: data must be…",
         "back": "Fair: Fairly and lawfully processed\nPurposeful: Only for the stated purpose\nRelevant: Sufficient, not excessive\nAccurate: Up to date\nNot kept: Longer than necessary\nRights: Processed per individual rights\nSecure: Against unauthorised access\nTransfers: Only with sufficient protection"
-      },
-      {
-        "front": "Common mistake: \"The DPA lets organisations keep data forever.\"\nWhat is wrong with it?",
-        "back": "Data must not be kept longer than necessary."
       },
       {
         "front": "Define: E-safety",
@@ -2487,10 +2171,6 @@
       {
         "front": "Define: ICT and society",
         "back": "Microprocessors are in almost every modern device — cars, phones, medical kit, smart homes — and have transformed how we live and work."
-      },
-      {
-        "front": "Exam tip: Regulation & Society",
-        "back": "Chapter 13 summary: know 2 health risks + precautions, the DPA principles, copyright protection methods, and both sides of the regulation debate."
       }
     ]
   }

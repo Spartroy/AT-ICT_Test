@@ -505,38 +505,51 @@ const getMyFlashcardStacks = async (req, res) => {
   }
 };
 
-// @desc    Import the 13 chapter revision stacks (built from the study guide). Existing stacks are left alone.
+// @desc    Import (or refresh) the 13 chapter revision stacks built from the study guide
 // @route   POST /api/flashcards/import-chapters
 // @access  Private (Teacher)
+// Missing stacks are created; existing ones (same title, teacher stack) get the current cards and keep their study count.
 const importChapterStacks = async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
     if (!user) return res.status(404).json({ status: 'error', message: 'User not found' });
 
     const stacks = require('../data/chapterFlashcards.json');
-    const existing = await Flashcard.find({ isTeacherStack: true, title: { $in: stacks.map(s => s.title) } }).select('title');
-    const have = new Set(existing.map(s => s.title));
-    const missing = stacks.filter(s => !have.has(s.title));
+    const existing = await Flashcard.find({ isTeacherStack: true, title: { $in: stacks.map(s => s.title) } });
+    const byTitle = new Map(existing.map(s => [s.title, s]));
+    const sameCards = (doc, cards) => doc.cards.length === cards.length && doc.cards.every((c, i) => c.front === cards[i].front && c.back === cards[i].back);
 
-    for (const stack of missing) {
-      await Flashcard.create({
-        title: stack.title,
-        description: stack.description,
-        subject: stack.subject,
-        category: 'technology',
-        cards: stack.cards.map((c, order) => ({ front: c.front, back: c.back, order })),
-        createdBy: user._id,
-        creatorName: `${user.firstName} ${user.lastName}`,
-        creatorRole: user.role,
-        isPublic: true,
-        isTeacherStack: true
-      });
+    let created = 0;
+    let updated = 0;
+    for (const stack of stacks) {
+      const doc = byTitle.get(stack.title);
+      if (!doc) {
+        await Flashcard.create({
+          title: stack.title,
+          description: stack.description,
+          subject: stack.subject,
+          category: 'technology',
+          cards: stack.cards.map((c, order) => ({ front: c.front, back: c.back, order })),
+          createdBy: user._id,
+          creatorName: `${user.firstName} ${user.lastName}`,
+          creatorRole: user.role,
+          isPublic: true,
+          isTeacherStack: true
+        });
+        created += 1;
+      } else if (!sameCards(doc, stack.cards) || doc.description !== stack.description) {
+        doc.cards = stack.cards.map((c, order) => ({ front: c.front, back: c.back, order }));
+        doc.description = stack.description;
+        await doc.save();
+        updated += 1;
+      }
     }
 
+    const parts = [created && `${created} added`, updated && `${updated} updated`].filter(Boolean);
     res.status(200).json({
       status: 'success',
-      message: missing.length ? `Imported ${missing.length} chapter stack${missing.length === 1 ? '' : 's'}` : 'All chapter stacks are already imported',
-      data: { created: missing.length, skipped: stacks.length - missing.length, total: stacks.length }
+      message: parts.length ? `Chapter flashcards: ${parts.join(', ')}` : 'Chapter flashcards are already up to date',
+      data: { created, updated, unchanged: stacks.length - created - updated, total: stacks.length }
     });
   } catch (error) {
     console.error('Import chapter flashcards error:', error);

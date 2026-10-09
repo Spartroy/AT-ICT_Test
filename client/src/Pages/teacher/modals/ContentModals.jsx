@@ -212,7 +212,7 @@ export function NoteModal({ open, onClose, note }) {
 export function MaterialModal({ open, onClose, material }) {
   const toast = useToast();
   const m = material;
-  const f = useForm(open, { title: m?.title || '', description: m?.description || '', type: m?.type || 'theory', externalUrl: m?.externalUrl || '', file: null });
+  const f = useForm(open, { title: m?.title || '', description: m?.description || '', type: m?.type || 'theory', externalUrl: m?.externalUrl || '', isSourceFile: !!m?.isSourceFile, file: null });
   const { v, set } = f;
   const isLinkOnly = !!m && !m.fileName; // materials made from a link can have their link edited
   const submit = () => {
@@ -222,7 +222,7 @@ export function MaterialModal({ open, onClose, material }) {
     f.setErrors(e);
     if (Object.keys(e).length) return;
     if (m) {
-      const body = { title: v.title.trim(), description: v.description.trim(), type: v.type };
+      const body = { title: v.title.trim(), description: v.description.trim(), type: v.type, isSourceFile: v.type === 'practical' && v.isSourceFile };
       if (isLinkOnly) body.externalUrl = v.externalUrl.trim();
       save(f, () => api.put(`${API_ENDPOINTS.TEACHER.MATERIALS}/${m._id}`, body), { toast, okMsg: 'Material saved', kind: 'material', onClose });
       return;
@@ -230,6 +230,7 @@ export function MaterialModal({ open, onClose, material }) {
     const fd = new FormData();
     fd.append('title', v.title.trim());
     fd.append('type', v.type);
+    if (v.type === 'practical' && v.isSourceFile) fd.append('isSourceFile', 'true');
     if (v.description.trim()) fd.append('description', v.description.trim());
     if (v.file) fd.append('material', v.file);
     else fd.append('externalUrl', v.externalUrl.trim());
@@ -240,6 +241,12 @@ export function MaterialModal({ open, onClose, material }) {
       <Fld label="Title *" error={f.errors.title}><input className="inp" value={v.title} onChange={set('title')} placeholder="e.g. Classified" /></Fld>
       <Fld label="Description (optional)"><textarea className="inp" rows={2} value={v.description} onChange={set('description')} /></Fld>
       <Fld label="Type"><select className="inp" value={v.type} onChange={set('type')}><option value="theory">Theory</option><option value="practical">Practical</option><option value="other">Other</option></select></Fld>
+      {v.type === 'practical' && (
+        <label className="cbx" style={{ alignItems: 'flex-start' }}>
+          <input type="checkbox" checked={v.isSourceFile} onChange={e => f.setV(x => ({ ...x, isSourceFile: e.target.checked }))} style={{ marginTop: 3 }} />
+          <span><b>This is a source file</b><small className="sub" style={{ display: 'block' }}>Students see it as a box of files they can download. Leave it unticked for a book.</small></span>
+        </label>
+      )}
       {isLinkOnly && (
         <Fld label="Link" error={f.errors.file}><input className="inp" type="url" value={v.externalUrl} onChange={set('externalUrl')} placeholder="https://drive.google.com/…" /></Fld>
       )}
