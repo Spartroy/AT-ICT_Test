@@ -26,3 +26,9 @@ export function groupPastPapers(list = [], paper) {
         .map(s => ({ session: s, variants: [...bySession[s]].sort((a, b) => a.variant - b.variant) }))
     }));
 }
+
+// Each variant gets its own accent colour (defined as --pv-1 … --pv-9 in books.css); V10 and up would wrap around.
+const COLOURS = 9;
+const indexOf = (variant) => ((Math.max(1, variant) - 1) % COLOURS) + 1;
+export const variantColor = (variant) => `var(--pv-${indexOf(variant)})`;
+variantColor.index = indexOf;

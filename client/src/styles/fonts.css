@@ -1,4 +1,5 @@
-/* Jumper: display face (headlines). Has no digit glyphs, so text with numbers uses Poppins.
+/* Jumper: display face (headlines). It has no digit glyphs, so the faces at the bottom of this file hand every digit
+   in Jumper text to Absans (unicode-range), whatever the weight or style.
    Absans: numerals (stat tiles, scores, slider values).
    Poppins is loaded from Google Fonts in public/index.html. */
 
@@ -41,3 +42,10 @@
   font-style: normal;
   font-display: swap;
 }
+
+/* Digits inside Jumper text are drawn with Absans. Declared after the Jumper faces so they win for U+0030-0039. */
+@font-face { font-family: "Jumper"; src: url("../assets/fonts/Absans-Regular.otf") format("opentype"); font-weight: 400; font-style: normal; unicode-range: U+0030-0039; font-display: swap; }
+@font-face { font-family: "Jumper"; src: url("../assets/fonts/Absans-Regular.otf") format("opentype"); font-weight: 400; font-style: italic; unicode-range: U+0030-0039; font-display: swap; }
+@font-face { font-family: "Jumper"; src: url("../assets/fonts/Absans-Regular.otf") format("opentype"); font-weight: 700; font-style: normal; unicode-range: U+0030-0039; font-display: swap; }
+@font-face { font-family: "Jumper"; src: url("../assets/fonts/Absans-Regular.otf") format("opentype"); font-weight: 700; font-style: italic; unicode-range: U+0030-0039; font-display: swap; }
+

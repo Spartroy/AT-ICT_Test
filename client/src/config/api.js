@@ -64,6 +64,7 @@ export const API_ENDPOINTS = {
   CHAT: {
     BASE: `${API_BASE_URL}/api/chat`,
     SEND: `${API_BASE_URL}/api/chat/send`,
+    BROADCAST: `${API_BASE_URL}/api/chat/broadcast`,
     CONVERSATIONS: `${API_BASE_URL}/api/chat/conversations`,
     FILES: `${API_BASE_URL}/api/chat/files`,
     MESSAGES: `${API_BASE_URL}/api/chat/messages`,

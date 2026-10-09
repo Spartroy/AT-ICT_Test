@@ -78,14 +78,14 @@
     linear-gradient(rgb(8 8 8 / 0.5), rgb(8 8 8 / 0.5)),
     var(--tex) center / cover !important;
 }
-.atp-student .front i { inset: 10px; border: 2px solid var(--crimson-500); border-radius: 3px 6px 6px 3px; box-shadow: 0 0 0 1px rgb(var(--crimson-rgb) / 0.25); }
+.atp-student .front i { inset: 10px; border: 2px solid var(--c, var(--crimson-500)); border-radius: 3px 6px 6px 3px; box-shadow: 0 0 0 1px rgb(255 255 255 / 0.08); }
 .atp-student .front .fr-logo { width: 30%; aspect-ratio: 1; border-radius: 50%; margin-top: 4%; object-fit: cover; filter: drop-shadow(0 6px 10px rgb(0 0 0 / 0.5)); }
 .atp-student .front .fr-title { margin-top: 11%; font-family: var(--font-body); font-weight: 700; font-size: 2.1rem; line-height: 1.1; letter-spacing: -0.01em; overflow-wrap: anywhere; color: var(--white); }
 .atp-student .front.tier-m .fr-title { font-size: 1.7rem; }
 .atp-student .front.tier-s .fr-title { font-size: 1.4rem; }
 .atp-student .front.tier-xs .fr-title { font-size: 1.15rem; }
 .atp-student .front .fr-author { margin-top: 9%; font-family: var(--font-body); font-size: 0.7rem; font-weight: 600; letter-spacing: 0.05em; color: var(--white); text-shadow: 1px 1px 0 var(--crimson-500), -1px -1px 0 var(--crimson-500), 1px -1px 0 var(--crimson-500), -1px 1px 0 var(--crimson-500); }
-.atp-student .front .fr-icon { margin: auto 0; width: 24%; height: auto; max-height: 24%; color: var(--crimson-500); stroke-width: 1.4; }
+.atp-student .front .fr-icon { margin: auto 0; width: 24%; height: auto; max-height: 24%; color: var(--c, var(--crimson-500)); stroke-width: 1.4; }
 .atp-student .front footer { width: 100%; display: flex; justify-content: space-between; gap: 8px; padding: 0 3%; font-weight: 700; font-size: 0.78rem; position: relative; }
 .atp-student .front footer span:last-child { text-align: right; }
 
@@ -210,13 +210,13 @@
 .atp-student .pp-rack { display: grid; grid-template-columns: repeat(var(--n), auto); justify-content: start; column-gap: 16px; }
 .atp-student .pp-cell { display: flex; align-items: flex-end; justify-content: center; }
 .atp-student .pp-cell--books { gap: 6px; }
-.atp-student .pp-cell--box { min-width: 156px; }
+.atp-student .pp-cell--box { min-width: 124px; }
 .atp-student .pp-plank { grid-column: 1 / -1; height: 12px; margin: 0 -10px; border-radius: 3px; background: linear-gradient(180deg, var(--crimson-500), var(--crimson-700)); box-shadow: 0 6px 14px rgb(var(--crimson-rgb) / 0.3), inset 0 1px 0 rgb(255 255 255 / 0.25); }
 .atp-student .pp-plank--hung { margin: 0 -10px; height: 10px; }
 
 /* Straps and hooks that carry the lower shelf */
-.atp-student .pp-hangers { grid-column: 1 / -1; position: relative; height: 44px; }
-.atp-student .pp-hangers i { position: absolute; top: -2px; bottom: -112px; width: 5px; border-radius: 2px; background: linear-gradient(90deg, #8c9299, #f0f2f4 45%, #7b8187); box-shadow: 0 0 0 1px rgb(0 0 0 / 0.35); }
+.atp-student .pp-hangers { grid-column: 1 / -1; position: relative; height: 26px; }
+.atp-student .pp-hangers i { position: absolute; top: -2px; bottom: -88px; width: 5px; border-radius: 2px; background: linear-gradient(90deg, #8c9299, #f0f2f4 45%, #7b8187); box-shadow: 0 0 0 1px rgb(0 0 0 / 0.35); }
 .atp-student .pp-hangers i::before { content: ""; position: absolute; left: 50%; top: -8px; width: 14px; height: 14px; transform: translateX(-50%); border: 3px solid #b9bec4; border-bottom-color: #7b8187; border-radius: 50%; }
 .atp-student .pp-hangers i:first-child { left: -4px; }
 .atp-student .pp-hangers i:last-child { right: -4px; }
@@ -228,10 +228,10 @@
 .atp-student .spine--mini .sp-icon { width: 18px; height: 18px; }
 .atp-student .spine--mini .pb-code { flex: 1; min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; }
 .atp-student .spine--mini .pb-code strong { font-family: var(--font-body); font-size: 1.05rem; font-weight: 700; line-height: 1; letter-spacing: 0; color: var(--white); }
-.atp-student .spine--mini .pb-code em { font-style: normal; font-size: 0.6rem; font-weight: 700; line-height: 1; padding: 3px 5px; border-radius: 999px; color: #ffd7df; background: rgb(var(--crimson-rgb) / 0.3); }
+.atp-student .spine--mini .pb-code em { font-style: normal; font-size: 0.6rem; font-weight: 700; line-height: 1; padding: 3px 6px; border-radius: 999px; color: #0f0f0f; background: var(--c, var(--crimson-500)); }
 
 /* ---------- Front view box of source files ---------- */
-.atp-student .fbox { --kf: #c9a068; --kf2: #b98c54; position: relative; display: block; width: 150px; height: 112px; padding: 0; border: 0; background: none; cursor: pointer; }
+.atp-student .fbox { --kf: #c9a068; --kf2: #b98c54; position: relative; display: block; width: 150px; height: 112px; padding: 0; border: 0; background: none; cursor: pointer; zoom: 0.78; }
 .atp-student .fbox:focus-visible { outline: 3px solid var(--white); outline-offset: 4px; border-radius: 6px; }
 .atp-student .fbox:disabled { cursor: progress; }
 .atp-student .fbox span, .atp-student .fbox s, .atp-student .fbox i { position: absolute; display: block; text-decoration: none; }
@@ -275,5 +275,23 @@
 .atp-student .fb-logo { position: absolute; z-index: 4; left: 20px; top: 8px; width: 28px; height: 28px; border-radius: 50%; object-fit: cover; box-shadow: 0 2px 4px rgb(0 0 0 / 0.4); }
 .atp-student .fb-handle { left: 58px !important; width: 70px !important; transform: none !important; }
 .atp-student .fb-label { flex-direction: column; gap: 1px; }
-.atp-student .fb-lid { border-bottom: 4px solid var(--crimson-500) !important; }
-.atp-student .fb-lid::after { content: ""; position: absolute; left: 50%; top: 0; bottom: 0; width: 26px; transform: translateX(-50%); background: linear-gradient(90deg, var(--crimson-700), var(--crimson-500) 50%, var(--crimson-700)); opacity: 0.92; }
+.atp-student .fb-lid { border-bottom: 4px solid var(--c, var(--crimson-500)) !important; }
+.atp-student .fb-lid::after { content: ""; position: absolute; left: 50%; top: 0; bottom: 0; width: 26px; transform: translateX(-50%); background: var(--c, var(--crimson-500)); opacity: 0.92; }
+
+/* ---------- One accent colour per past-paper variant (V1, V2, …) so the books are never confused ---------- */
+.atp-student {
+  --pv-1: var(--crimson-500);
+  --pv-2: var(--phase-1);
+  --pv-3: var(--phase-2);
+  --pv-4: var(--phase-3);
+  --pv-5: #F5B731;
+  --pv-6: #2DD4BF;
+  --pv-7: #F472B6;
+  --pv-8: #FB923C;
+  --pv-9: #A3E635;
+}
+.atp-student .pv-1 { --c: var(--pv-1); } .atp-student .pv-2 { --c: var(--pv-2); } .atp-student .pv-3 { --c: var(--pv-3); }
+.atp-student .pv-4 { --c: var(--pv-4); } .atp-student .pv-5 { --c: var(--pv-5); } .atp-student .pv-6 { --c: var(--pv-6); }
+.atp-student .pv-7 { --c: var(--pv-7); } .atp-student .pv-8 { --c: var(--pv-8); } .atp-student .pv-9 { --c: var(--pv-9); }
+.atp-student .pp-cell .spine--mini { box-shadow: 0 10px 24px -8px rgb(0 0 0 / 0.7), 0 0 14px -6px var(--c); }
+.atp-student .pp-cell .spine--mini .sp-icon { color: var(--c); }

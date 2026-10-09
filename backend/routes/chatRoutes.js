@@ -1,6 +1,7 @@
 const express = require('express');
 const { body } = require('express-validator');
 const {
+  broadcastMessage,
   getStudentTeacher,
   getTeacherStudents,
   getConversations,
@@ -36,6 +37,7 @@ router.get('/teacher/students', teacherOnly, getTeacherStudents);
 router.get('/conversations', getConversations);
 router.get('/conversations/:userId', getConversationMessages);
 router.post('/send', upload.array('files', 5), sendMessageValidation, sendMessage);
+router.post('/broadcast', teacherOnly, upload.array('files', 5), broadcastMessage);
 router.put('/messages/:messageId/read', markMessageAsRead);
 router.get('/unread-count', getUnreadCount);
 router.delete('/messages/:messageId', deleteMessage);

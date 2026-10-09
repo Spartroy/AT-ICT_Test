@@ -63,14 +63,14 @@ html.site-html { scroll-behavior: smooth; scroll-padding-top: 90px; }
 
 /* Bigger headline numbers: hero stats and results counters */
 .site .stats .stat { padding: 28px 24px; text-align: center; }
-.site .stat b { font-family: var(--font-numeric); font-size: clamp(3rem, 6vw, 5.2rem) !important; font-weight: 600; line-height: 1; letter-spacing: -0.01em; }
+.site .stat b { font-family: var(--font-numeric); font-size: clamp(2.6rem, 4.6vw, 4.2rem) !important; font-weight: 400; line-height: 1; letter-spacing: 0; }
 .site .res { max-width: 1120px; }
 .site .res div { padding: 32px 24px; }
-.site .res b { font-family: var(--font-numeric); font-size: clamp(3rem, 6.5vw, 5.4rem) !important; font-weight: 600; line-height: 1; letter-spacing: -0.01em; }
+.site .res b { font-family: var(--font-numeric); font-size: clamp(2.6rem, 5vw, 4.4rem) !important; font-weight: 400; line-height: 1; letter-spacing: 0; }
 .site .stat b span, .site .res b span { font: inherit; color: inherit; display: inline; margin: 0; }
 .site .stat > span { margin-top: 8px; display: block; }
 .site .res > div > span { display: block; margin-top: 8px; font-size: 1.1rem; }
-@media (max-width: 1000px) { .site .stat b { font-size: clamp(2.8rem, 10vw, 4.4rem) !important; } .site .res { grid-template-columns: 1fr; } }
+@media (max-width: 1000px) { .site .stat b { font-size: clamp(2.4rem, 8vw, 3.6rem) !important; } .site .res { grid-template-columns: 1fr; } }
 
 /* Teacher announcement banner (Settings > Website) */
 .site .ann { position: relative; z-index: 60; display: flex; align-items: center; justify-content: center; gap: 12px; min-height: 44px; padding: 8px 48px 8px 16px; background: var(--crimson-500); color: var(--white); font-size: 0.9rem; font-weight: 500; text-align: center; }

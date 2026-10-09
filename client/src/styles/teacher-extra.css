@@ -96,3 +96,7 @@
 .atp-teacher .wz-variant .fld { margin-bottom: 8px; }
 @media (max-width: 720px) { .atp-teacher .wz-sessions { grid-template-columns: 1fr; } .atp-teacher .wz-opts { grid-template-columns: 1fr; } }
 .atp-teacher .wz-hint { display: block; margin-top: 4px; font-size: 0.78rem; line-height: 1.35; }
+
+/* Keep the chat's send button clear of the floating quick-actions button */
+.atp-teacher .cmf { padding-right: 84px; }
+@media (max-width: 900px) { .atp-teacher .cmf { padding-right: 84px; } }

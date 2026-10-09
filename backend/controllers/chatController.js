@@ -295,6 +295,60 @@ const getConversationMessages = async (req, res) => {
   }
 };
 
+// Attachment records + message type from the uploaded files (shared by one-to-one and broadcast sends).
+const attachmentsFrom = (files = []) => files.map(file => ({
+  filename: file.filename,
+  originalName: file.originalname,
+  path: file.path,
+  size: file.size,
+  mimetype: file.mimetype
+}));
+
+const messageTypeFor = (attachments, requested = 'text') => {
+  if (requested !== 'text' || !attachments.length) return requested;
+  const mime = attachments[0].mimetype || '';
+  if (mime.startsWith('image/')) return 'image';
+  if (mime.startsWith('audio/')) return 'audio';
+  if (mime.startsWith('video/')) return 'video';
+  return 'file';
+};
+
+// @desc    Send one message to every approved student (teacher only)
+// @route   POST /api/chat/broadcast
+// @access  Private (Teacher)
+const broadcastMessage = async (req, res) => {
+  try {
+    const content = (req.body.content || '').trim();
+    const attachments = attachmentsFrom(req.files);
+    if (!content && !attachments.length) {
+      return res.status(400).json({ status: 'error', message: 'Write a message or attach a file' });
+    }
+    if (content.length > 2000) {
+      return res.status(400).json({ status: 'error', message: 'Message cannot be more than 2000 characters' });
+    }
+
+    const students = await User.find({ role: 'student', registrationStatus: 'approved', isActive: true }).select('_id');
+    if (!students.length) {
+      return res.status(200).json({ status: 'success', message: 'There are no students to message yet', data: { sent: 0 } });
+    }
+
+    const type = messageTypeFor(attachments);
+    await Message.insertMany(students.map(student => ({
+      sender: req.user.id,
+      recipient: student._id,
+      content,
+      type,
+      attachments,
+      conversationId: Message.generateConversationId(req.user.id, student._id)
+    })));
+
+    res.status(201).json({ status: 'success', message: `Sent to ${students.length} student${students.length === 1 ? '' : 's'}`, data: { sent: students.length } });
+  } catch (error) {
+    console.error('Broadcast message error:', error);
+    res.status(500).json({ status: 'error', message: 'Server error sending the message' });
+  }
+};
+
 // @desc    Send a message
 // @route   POST /api/chat/send
 // @access  Private
@@ -672,6 +726,7 @@ const downloadFile = async (req, res) => {
 };
 
 module.exports = {
+  broadcastMessage,
   getStudentTeacher,
   getTeacherStudents,
   getConversations,

@@ -73,6 +73,11 @@ const fileFilter = (req, file, cb) => {
     'audio/wav': true,
     'audio/mp3': true,
     'audio/mp4': true,
+    // Voice notes recorded in the browser
+    'audio/webm': true,
+    'audio/ogg': true,
+    'audio/x-m4a': true,
+    'audio/aac': true,
     'video/mp4': true,
     'video/avi': true,
     'video/mov': true,

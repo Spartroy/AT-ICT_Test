@@ -6,7 +6,7 @@ import { Chips, Empty, ErrorNote, Loading } from '../../../components/portal/kit
 import logoCircle from '../../../assets/brand/logo-circle.png';
 import BookOverlay, { SPINE } from './BookOverlay';
 import SourceBoxFront from './SourceBoxFront';
-import { groupPastPapers, PAPERS, SESSION_LABEL } from './pastPaperLogic';
+import { groupPastPapers, PAPERS, SESSION_LABEL, variantColor } from './pastPaperLogic';
 
 /** A thin question-paper or mark-scheme book: code on top, variant under it. */
 function PaperBook({ code, variant, title, icon: Icon, onOpen, hidden }) {
@@ -14,7 +14,6 @@ function PaperBook({ code, variant, title, icon: Icon, onOpen, hidden }) {
     <button
       type="button"
       className={`spine spine--mini ${hidden ? 'out' : ''}`}
-      style={{ '--c': SPINE.c, '--tc': SPINE.tc }}
       aria-label={`${title}, open`}
       onClick={e => onOpen(e.currentTarget)}
     >
@@ -44,7 +43,7 @@ export default function PastPapers() {
     setOpen({
       m: { _id: `${v._id}-${kind}`, title: `${label} · ${SESSION_LABEL[session]} ${year} · V${v.variant}`, type: 'theory', externalUrl: v[kind] },
       spine,
-      style: SPINE,
+      style: { c: variantColor(v.variant), tc: SPINE.tc },
       catLabel: `Paper ${paper}`
     });
   };
@@ -65,7 +64,7 @@ export default function PastPapers() {
                     {/* One grid: every variant is a column, so the books and the box under them line up. */}
                     <div className="pp-rack" style={{ '--n': variants.length }}>
                       {variants.map(v => (
-                        <div className="pp-cell pp-cell--books" key={`b${v._id}`}>
+                        <div className={`pp-cell pp-cell--books pv-${variantColor.index(v.variant)}`} key={`b${v._id}`}>
                           {v.qp && <PaperBook code="QP" variant={v.variant} title={`Question paper, ${SESSION_LABEL[session]} ${year}, variant ${v.variant}`} icon={FilePenLine} hidden={open?.m._id === `${v._id}-qp`} onOpen={sp => openBook(sp, v, 'qp', year, session)} />}
                           {v.ms && <PaperBook code="MS" variant={v.variant} title={`Mark scheme, ${SESSION_LABEL[session]} ${year}, variant ${v.variant}`} icon={ClipboardCheck} hidden={open?.m._id === `${v._id}-ms`} onOpen={sp => openBook(sp, v, 'ms', year, session)} />}
                         </div>
@@ -75,7 +74,7 @@ export default function PastPapers() {
                         <>
                           <div className="pp-hangers" aria-hidden="true"><i /><i /></div>
                           {variants.map(v => (
-                            <div className="pp-cell pp-cell--box" key={`s${v._id}`}>
+                            <div className={`pp-cell pp-cell--box pv-${variantColor.index(v.variant)}`} key={`s${v._id}`}>
                               {v.src && <SourceBoxFront m={{ _id: `${v._id}-src`, title: `Source files · V${v.variant}`, externalUrl: v.src }} label={`Source files · V${v.variant}`} />}
                             </div>
                           ))}

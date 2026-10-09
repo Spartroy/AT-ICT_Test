@@ -1,0 +1,9 @@
+/* Absans only has a regular weight, so numerals set in it must not be bolded: browsers fake the bold,
+   which smears and sharpens the glyph edges. Loaded last (see index.js). */
+.atp-student .metal b, .site .hof-av, .site .hof-count b, .atp-parent .pay-total, .site .stat b, .site .res b,
+.atp-student .up-time, .atp-student .fc-no, .atp-teacher .wz-variant header b, .atp .pf-count,
+.atp .pts b, .atp .ring b, .atp .stat b, .atp .next .tm, .atp .lb i, .atp .lb .pt, .atp .acc .n, .atp .row .sc b, .atp .pbn > span,
+.atp-student .gcount, .atp-student .back .bn, .atp-teacher .attn {
+  font-weight: 400 !important;
+  font-synthesis: none;
+}

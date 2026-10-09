@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 // Global styles load before App so component styles cascade after them.
 import './styles/fonts.css';
 import './styles/tokens.css';
+import './styles/numerals.css';
 import './index.css';
 import App from './App';
 

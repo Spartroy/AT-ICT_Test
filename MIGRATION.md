@@ -146,3 +146,14 @@
   year label, Jun and Nov side by side, QP + MS books per variant and an SRC box next to them (papers 2 and 3).
 - **Source-file boxes download directly:** Drive file links, Docs/Sheets/Slides and Dropbox links are converted to direct downloads; other links open in a new tab
   (a Drive folder can't be downloaded as one file).
+
+## Chat upgrades, fonts, clear homework
+
+- **Chat:** teacher and students can attach files (up to 5, 100 MB each), paste screenshots into the message box and record voice notes
+  (images and voice notes show inline). Search filters the conversation list. The teacher gets an **All students** thread:
+  `POST /api/chat/broadcast` (teacher) stores one message per approved student, so each student sees it in their own chat.
+  New audio types accepted for uploads: webm, ogg, m4a, aac.
+- **Fonts:** digits inside Jumper text are drawn with Absans (`unicode-range` faces in `styles/fonts.css`). Absans numerals are never faux-bold
+  (`styles/numerals.css`); the website's hero and results numbers are smaller and regular weight.
+- **Start fresh:** `node backend/scripts/clearHomework.js` shows how many assignments (with their submissions and grades) and activity entries exist;
+  `--yes` deletes them. It reads `MONGO_URI` from `backend/.env`. **Back up first.** It has not been run against the real database.
