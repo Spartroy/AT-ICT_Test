@@ -1,6 +1,7 @@
 const express = require('express');
 const { body } = require('express-validator');
 const {
+  importChapterStacks,
   createFlashcardStack,
   getFlashcardStacks,
   getFlashcardStack,
@@ -51,6 +52,8 @@ router.use(protect);
 
 // Public routes (accessible to all authenticated users)
 router.get('/', getFlashcardStacks);
+// Must come before the /:id routes
+router.post('/import-chapters', teacherOnly, importChapterStacks);
 router.get('/my-stacks', getMyFlashcardStacks);
 router.get('/:id', getFlashcardStack);
 router.post('/:id/study', incrementStudyCount);

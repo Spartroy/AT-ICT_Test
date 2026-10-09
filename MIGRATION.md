@@ -110,3 +110,11 @@
   (Fees, Results & stories, Hall of Fame), and an announcement banner (text, optional https or relative link; dismissible).
 - `SHOW_FEES` was replaced by the "Fees section" switch (off by default; also controls the Pricing FAQ).
 - The public site shows the defaults until the API answers, and keeps them if it can't be reached (also what react-snap pre-renders).
+
+## Chapter flashcards (from the revision study guide)
+
+- `backend/data/chapterFlashcards.json`: 13 stacks (601 cards), one per chapter (Networks parts 1 and 2 are one stack), built from
+  `client/public/study-guide.html` by `node backend/scripts/buildChapterFlashcards.js`. Re-run it when the guide changes.
+- `POST /api/flashcards/import-chapters` (teacher): creates the stacks that don't exist yet as public teacher stacks; safe to run again.
+  In the portal: **Library > Flashcards > Import chapter flashcards**. Nothing is written to the database until the teacher clicks it.
+- The student Flashcards page no longer shows the four stat tiles, and lists teacher stacks first in chapter order.

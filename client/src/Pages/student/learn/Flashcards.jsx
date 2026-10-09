@@ -5,7 +5,7 @@ import { API_ENDPOINTS } from '../../../config/api';
 import { Empty, ErrorNote, Ic, Loading } from '../../../components/portal/kit';
 import { StackFormDialog, StudyDialog } from '../../../components/portal/Flashcards';
 
-/** Flashcards: stats, stacks, flip-card study dialog, create a stack. */
+/** Flashcards: stacks, flip-card study dialog, create a stack. */
 export default function Flashcards() {
   const stacks = useApi(API_ENDPOINTS.FLASHCARDS, b => b.data || []);
   const [creating, setCreating] = useState(false);
@@ -14,20 +14,16 @@ export default function Flashcards() {
   if (stacks.loading && !stacks.data) return <Loading label="Loading flashcards…" />;
   if (stacks.error) return <ErrorNote error={stacks.error} onRetry={stacks.reload} />;
 
-  const list = stacks.data || [];
-  const teacher = list.filter(s => s.isTeacherStack).length;
-  const total = list.reduce((n, s) => n + (s.totalCards || s.cards?.length || 0), 0);
+  // Teacher stacks first in chapter order (Chapter 2 before Chapter 10), then everyone else's as returned.
+  const all = stacks.data || [];
+  const byTitle = (a, b) => a.title.localeCompare(b.title, undefined, { numeric: true });
+  const list = [...all.filter(s => s.isTeacherStack).sort(byTitle), ...all.filter(s => !s.isTeacherStack)];
 
   return (
     <>
       <div className="fc-head">
         <p className="sub">Study and create flashcard stacks</p>
         <button type="button" className="btn p sm" onClick={() => setCreating(true)}><Ic as={Plus} />Create stack</button>
-      </div>
-      <div className="stats4">
-        {[['Total stacks', list.length], ['Teacher stacks', teacher], ['Student stacks', list.length - teacher], ['Total cards', total]].map(([label, value]) => (
-          <div className="stat" key={label}><div><small>{label}</small><b>{value}</b></div></div>
-        ))}
       </div>
       {list.length ? (
         <div className="fc-g">

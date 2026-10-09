@@ -1,0 +1,2497 @@
+[
+  {
+    "title": "Chapter 1 – Computer Structure",
+    "description": "What's inside the box, what runs on it, and how you talk to it — the foundation every other chapter sits on.",
+    "subject": "IGCSE ICT",
+    "cards": [
+      {
+        "front": "Define: Computer",
+        "back": "A device that receives input, processes it, then produces output."
+      },
+      {
+        "front": "The basic cycle: what are the steps, in order?",
+        "back": "1. Input – Data goes in\n2. Process – The CPU works on it\n3. Output – Results come out"
+      },
+      {
+        "front": "A computer has two components: what are the parts?",
+        "back": "Hardware:\n• Anything you can physically touch\nSoftware:\n• Any program or set of instructions"
+      },
+      {
+        "front": "Exam tip: What is a Computer?",
+        "back": "Learn the one-line difference: hardware = touch it, software = instructions. It is a classic 1-mark question."
+      },
+      {
+        "front": "Define: Hardware",
+        "back": "The physical components that make up a computer system."
+      },
+      {
+        "front": "Hardware: what are the parts?",
+        "back": "External — visible to the user:\n• Mouse\n• Keyboard\n• Monitor\n• Printer\n• Scanner\n• Speakers\n• Webcam\nInternal — inside the computer:\n• CPU / Processor\n• Motherboard — lets hardware communicate\n• RAM and ROM\n• Graphics card (GPU) — visual output\n• Sound card — audio in and out\n• Internal HDD / SSD — stores OS and files"
+      },
+      {
+        "front": "Common mistake: \"A monitor is an internal device.\"\nWhat is wrong with it?",
+        "back": "The monitor is external — you can see it from outside. The GPU that drives it is internal."
+      },
+      {
+        "front": "Define: CPU",
+        "back": "Hardware that processes instructions to produce an output."
+      },
+      {
+        "front": "What the CPU does",
+        "back": "Controls: all computer operations\nControls: input and output devices\nControls: movement of data\nExecutes: instructions from hardware and software\nCarries out: calculations\nMakes: logical decisions"
+      },
+      {
+        "front": "CPU: what are the parts?",
+        "back": "Control Unit (CU):\n• Controls interactions between CPU parts\n• Fetches, decodes and manages execution of instructions\nArithmetic Logic Unit (ALU):\n• Performs calculations: + − × ÷\n• Makes logical decisions: =, >, <"
+      },
+      {
+        "front": "Exam tip: Central Processing Unit",
+        "back": "Use the verbs: CU = controls / manages, ALU = calculates and decides."
+      },
+      {
+        "front": "Common mistake: \"The CPU stores data.\"\nWhat is wrong with it?",
+        "back": "The CPU processes data. Storing is the job of memory and storage."
+      },
+      {
+        "front": "Define: Main memory",
+        "back": "Internal memory directly accessible by the CPU. Also called primary or internal memory."
+      },
+      {
+        "front": "Main memory: what are the parts?",
+        "back": "RAM — Random Access Memory:\n• Volatile · temporary\n• Can be read and written\n• Stores instructions, software, data and OS parts currently in use\nROM — Read Only Memory:\n• Non-volatile · permanent\n• Can only be read\n• Stores start-up instructions (e.g. BIOS)"
+      },
+      {
+        "front": "Does it survive a power cut?",
+        "back": "RAM: Contents lost\nROM: Contents kept\nBacking storage: Contents kept"
+      },
+      {
+        "front": "Common mistake: \"RAM is permanent storage\" or \"ROM is temporary\".\nWhat is wrong with it?",
+        "back": "RAM = volatile, temporary. ROM = non-volatile, permanent. Never swap them."
+      },
+      {
+        "front": "RAM vs ROM: Volatility",
+        "back": "RAM: Volatile\nROM: Non-volatile"
+      },
+      {
+        "front": "RAM vs ROM: Storage",
+        "back": "RAM: Temporary\nROM: Permanent"
+      },
+      {
+        "front": "RAM vs ROM: Access",
+        "back": "RAM: Read and write\nROM: Read only"
+      },
+      {
+        "front": "RAM vs ROM: Purpose",
+        "back": "RAM: Data, software, instructions and OS parts in use\nROM: Start-up instructions when switched on"
+      },
+      {
+        "front": "RAM vs ROM: Capacity",
+        "back": "RAM: Tends to be greater\nROM: Tends to be smaller"
+      },
+      {
+        "front": "Define: BIOS · Basic Input/Output System",
+        "back": "A program that carries out a hardware check to find out whether all devices are present and functional."
+      },
+      {
+        "front": "Backing storage",
+        "back": "Non-volatile: Stores data permanently\nNot CPU-direct: So slower than main memory\nUsed for: Files, software, moving data to another computer"
+      },
+      {
+        "front": "Exam tip: Main Memory & Storage",
+        "back": "Asked to explain \"volatile\"? Say: contents are lost when power is turned off. Always link it to power."
+      },
+      {
+        "front": "Your laptop loses an unsaved document in a power cut. Which memory held it?",
+        "back": "RAM — it's volatile, so everything in it vanishes without power."
+      },
+      {
+        "front": "Define: Software",
+        "back": "Programs for controlling the operation of a computer and for processing electronic data."
+      },
+      {
+        "front": "Software: what are the parts?",
+        "back": "Application — for the user:\n• Word processor\n• Spreadsheet\n• Database management system\n• Graphics / video / audio editing\n• Apps and applets\nSystem — for the computer:\n• Operating system\n• Device driver\n• Compiler\n• Linker\n• Utilities (antivirus, disk repair…)"
+      },
+      {
+        "front": "System software, explained: Software vs What it does",
+        "back": "• Device driver | Lets hardware devices communicate with the OS\n• Compiler | Translates high-level code into computer language\n• Linker | Combines modules into a single program\n• Utilities | Manage and maintain computer resources"
+      },
+      {
+        "front": "Common mistake: \"Antivirus is application software.\"\nWhat is wrong with it?",
+        "back": "Antivirus is a utility, so it is system software."
+      },
+      {
+        "front": "Define: Operating system",
+        "back": "System software that lets the user communicate with the hardware and perform many basic tasks."
+      },
+      {
+        "front": "Functions of the OS",
+        "back": "User interface: Lets you interact with the computer\nUser accounts: Manages who can log in\nPeripherals: Manages connected devices\nMemory: Allocates RAM to running programs\nSecurity: Protects the system\nFiles & folders: Create, rename, delete, move"
+      },
+      {
+        "front": "Exam tip: Operating System",
+        "back": "\"Describe OS functions\" = give 3 different ones from the list. Do not repeat one in different words."
+      },
+      {
+        "front": "Exam tip: User Interfaces",
+        "back": "For each of CLI, GUI, Dialogue-based and Gesture-based, know the definition + 2 advantages + 2 disadvantages."
+      },
+      {
+        "front": "User Interfaces: CLI",
+        "back": "Command Line Interface — the user types commands to interact with the computer.\nAdvantages:\n• Uses less memory than a GUI\n• Needs less processing power\n• Not limited to pre-set options\n• More direct control of settings\nDisadvantages:\n• Commands must be learned and memorised\n• Must be typed in exactly\n• More prone to data-entry errors\n• Not user-friendly for non-experts"
+      },
+      {
+        "front": "User Interfaces: GUI",
+        "back": "Graphical User Interface — built around graphical items, using the WIMP system.\nAdvantages:\n• No commands to memorise\n• User-friendly for non-experts\n• No typing, so fewer errors\n• Pointer and icons are quicker than typing\nDisadvantages:\n• Consumes more memory (graphics)\n• Needs more processing power\n• Limited to the icons and menus provided\n• Settings are protected from the user"
+      },
+      {
+        "front": "User Interfaces: Dialogue",
+        "back": "Dialogue-based (voice) interface — speech recognition; spoken words carry out actions.\nAdvantages:\n• Hands-free (driver keeps hands on wheel)\n• Safer than a standard interface\n• Useful for people with disabilities\n• Voice can identify a person (security)\nDisadvantages:\n• Complex to set up\n• Expensive to develop\n• Unreliable — commands often not recognised\n• Must be trained; limited commands stored"
+      },
+      {
+        "front": "User Interfaces: Gesture",
+        "back": "Gesture-based interface — the body gives commands without keyboard or mouse, using computer vision and image processing.\nAdvantages:\n• Replaces mechanical input devices\n• No physical contact needed\n• Very natural for a human\n• No training needed\nDisadvantages:\n• Can be activated by accident\n• Less accurate than other interfaces\n• Only works near the camera or sensor\n• Gestures must be learned; may exclude users with physical disabilities"
+      },
+      {
+        "front": "Common mistake: \"GUI is easier\" or \"CLI is faster\" — with no reason.\nWhat is wrong with it?",
+        "back": "Give the reason: GUI needs no commands memorised; CLI uses less memory and processing power."
+      },
+      {
+        "front": "Exam tip: Types of Computers",
+        "back": "There are 5 types: PC (desktop), laptop, tablet, smartphone, phablet. The last four are mobile computers."
+      },
+      {
+        "front": "Types of computers: what are the parts?",
+        "back": "Desktop (PC):\n• Non-portable\nMobile computers:\n• Laptop\n• Tablet\n• Smartphone\n• Phablet"
+      },
+      {
+        "front": "Main uses of mobile computers",
+        "back": "Communication: calls, messaging, video calls, email\nOffice: business work\nEducation: learning on the go\nGaming: mobile games\nEntertainment: streaming music and video\nRemote control: of other devices"
+      },
+      {
+        "front": "Types of Computers: Desktop",
+        "back": "Desktop — large, non-portable computer designed to sit on a desk. Uses: office, education, gaming, entertainment.\nAdvantages:\n• Less chance of being stolen\n• Better specification for the price\n• Easier to upgrade\n• More stable wired internet\nDisadvantages:\n• Not very portable\n• Larger footprint (physical space used)\n• Needs constant power — no use in a power cut"
+      },
+      {
+        "front": "Types of Computers: Laptop",
+        "back": "Laptop — portable, battery-powered, with built-in keyboard, screen and touchpad.\nAdvantages:\n• Lightweight, portable\n• Smaller footprint than desktop\n• Low power use and heat\n• Built-in battery for power cuts\n• No trailing wires\nDisadvantages:\n• Easier to lose or steal\n• Not always possible to upgrade\n• More expensive than a similar desktop"
+      },
+      {
+        "front": "Types of Computers: Tablet",
+        "back": "Tablet — touchscreen portable device with no physical keyboard (optional external one).\nAdvantages:\n• Very fast to switch on\n• Lighter and smaller than laptops\n• Simple touchscreen\n• Battery, low power, low heat\nDisadvantages:\n• Less storage than laptops/desktops\n• Easier to lose\n• Typing on a touchscreen is slower\n• Supports fewer file formats"
+      },
+      {
+        "front": "Types of Computers: Smartphone",
+        "back": "Smartphone — handheld device combining phone, internet, camera, GPS and computing. The most portable computer.\nAdvantages:\n• Most portable of all\n• Easy to use on the move\n• Can use 3G/4G/5G\n• Battery for power cuts\n• Usually always with you\nDisadvantages:\n• Easiest to lose\n• Less storage than laptops/desktops\n• Small keyboard slows typing"
+      },
+      {
+        "front": "Types of Computers: Phablet",
+        "back": "Phablet — a tablet that works as a smartphone; size sits between the two.\nAdvantages:\n• Makes phone calls like a smartphone\n• Supports 3G/4G/5G\n• Larger screen than a phone\nDisadvantages:\n• Bigger to carry than a phone\n• Less portable than a smartphone"
+      },
+      {
+        "front": "Portability",
+        "back": "Desktop: None\nLaptop: High\nTablet: Very high\nPhablet: Very high\nSmartphone: Highest"
+      },
+      {
+        "front": "Compare at a glance: Desktop",
+        "back": "Portability: None\nPower: Highest\nMain strength: Performance and upgradability"
+      },
+      {
+        "front": "Compare at a glance: Laptop",
+        "back": "Portability: High\nPower: High\nMain strength: Portability with power"
+      },
+      {
+        "front": "Compare at a glance: Tablet",
+        "back": "Portability: Very high\nPower: Medium\nMain strength: Touch and lightweight"
+      },
+      {
+        "front": "Compare at a glance: Smartphone",
+        "back": "Portability: Highest\nPower: Lower\nMain strength: Always-on connectivity"
+      },
+      {
+        "front": "Compare at a glance: Phablet",
+        "back": "Portability: Very high\nPower: Medium\nMain strength: Large screen + phone calls"
+      },
+      {
+        "front": "Common mistake: \"Laptops are better because they are portable.\"\nWhat is wrong with it?",
+        "back": "Always compare: portable compared to a desktop. A smartphone is more portable still. Name both sides."
+      },
+      {
+        "front": "Which device can be used during a power cut and is easy to upgrade?",
+        "back": "Trick question — no single one. A desktop is easy to upgrade but needs constant power; mobile devices have batteries but are often hard to upgrade."
+      }
+    ]
+  },
+  {
+    "title": "Chapter 2 – Input Devices",
+    "description": "How data gets into a computer — from a mouse click to a contactless payment.",
+    "subject": "IGCSE ICT",
+    "cards": [
+      {
+        "front": "Define: Input device",
+        "back": "A device that sends data to a computer for processing, turning input into a form the computer can understand. Under the control of the user."
+      },
+      {
+        "front": "Data: what are the parts?",
+        "back": "Analogue:\n• Continuous, in waveform\n• Must be converted to be processed\n• Temperature, sound, light, weight, human voice\nDigital:\n• Discrete 1s and 0s (binary)\n• Processed without conversion\n• Barcode, digital watch, light switch"
+      },
+      {
+        "front": "Microphone → computer (ADC): what are the steps, in order?",
+        "back": "1. Sound – Analogue waves\n2. ADC – Analogue → digital\n3. Computer – Processes digital data"
+      },
+      {
+        "front": "Computer → speakers (DAC): what are the steps, in order?",
+        "back": "1. Computer – Digital data\n2. DAC – Digital → analogue\n3. Speaker – Makes sound"
+      },
+      {
+        "front": "Define: ADC / DAC",
+        "back": "ADC converts analogue to digital so a computer can read it. DAC converts digital to analogue — to control an external device or send to an actuator."
+      },
+      {
+        "front": "Exam tip: Analogue and Digital Data",
+        "back": "Remember the letters: Analogue-to-Digital goes in (microphone); Digital-to-Analogue goes out (speaker)."
+      },
+      {
+        "front": "Common mistake: \"A computer can process analogue data directly.\"\nWhat is wrong with it?",
+        "back": "Computers only process digital data. Analogue must pass through an ADC first."
+      },
+      {
+        "front": "Define: Pointing device",
+        "back": "A device used to move and control the on-screen pointer (cursor)."
+      },
+      {
+        "front": "Pointing Devices: Mouse",
+        "back": "Used for: Moving the pointer · opening, closing, minimising software · moving and deleting files\nAdvantages:\n• Needs less desk area than a keyboard\n• Faster way to choose an option than a keyboard\nDisadvantages:\n• Hard for people with restricted hand/wrist movement\n• Needs a flat surface\n• Excessive use can cause RSI"
+      },
+      {
+        "front": "Pointing Devices: Touchpad",
+        "back": "Used for: Moving the pointer · opening, closing, minimising software · moving and deleting files\nAdvantages:\n• Faster than a keyboard for choosing options\n• Takes less space than a mouse\n• Works with no flat surface\nDisadvantages:\n• Harder to control than a mouse\n• Hard for restricted hand/wrist movement\n• Drag and drop is difficult"
+      },
+      {
+        "front": "Pointing Devices: Tracker ball",
+        "back": "Used for: Alternative to a mouse for restricted hand/wrist movement · some luxury cars\nAdvantages:\n• Easier for disabled users\n• More accurate pointer than a mouse\n• More robust (fewer moving parts)\n• Needs less desk space\nDisadvantages:\n• Needs training — not standard\n• More expensive than a mouse"
+      },
+      {
+        "front": "Pointing Devices: Joystick",
+        "back": "Used for: Racing and flying games · simulators · remote control of drones and vehicles\nAdvantages:\n• More realistic than a mouse\n• Easier than a keyboard to navigate\n• Easier to steer in games\nDisadvantages:\n• Harder to control a pointer than other devices"
+      },
+      {
+        "front": "Pointing Devices: Driving wheel",
+        "back": "Like a joystick, used whenever steering is required.\nUsed for: Video games · simulators\nAdvantages:\n• Easier than keyboard or joystick for steering\nDisadvantages:\n• More expensive than a mouse or joystick\n• Steering can be too sensitive — unrealistic feel"
+      },
+      {
+        "front": "Pointing Devices: Graphics tablet",
+        "back": "Used for: Inputting freehand drawings\nAdvantages:\n• More accurate for drawing than other pointing devices\nDisadvantages:\n• More expensive\n• Slower than pen and paper"
+      },
+      {
+        "front": "Pointing Devices: Remote control",
+        "back": "Used for: TVs, projectors and home appliances from a distance\nAdvantages:\n• Operates devices from a distance\n• Useful for people with walking difficulties\nDisadvantages:\n• Objects in between block it\n• Hard with hand-movement disabilities"
+      },
+      {
+        "front": "Common mistake: \"A touchscreen is a pointing device.\"\nWhat is wrong with it?",
+        "back": "A touchscreen is an input AND output device — it is not a pointing device."
+      },
+      {
+        "front": "Keyboard Devices: Keyboard",
+        "back": "Used for: Inputting data into applications · typing commands\nAdvantages:\n• Fast entry of new text\n• Easy way to input data\n• Inputs text, numbers and symbols\nDisadvantages:\n• Must learn to type for speed\n• Slower than direct data entry\n• Excessive use can cause RSI\n• Large — uses desk space"
+      },
+      {
+        "front": "Keyboard Devices: Numeric keypad",
+        "back": "Used for: ATMs (PIN) · POS terminals if the barcode fails · Chip and PIN devices · numeric data in spreadsheets\nAdvantages:\n• Very easy to carry\n• Faster than keyboards for numbers\nDisadvantages:\n• Small keys can make input difficult\n• Not used to enter text"
+      },
+      {
+        "front": "Exam tip: Keyboard Devices",
+        "back": "Numeric keypad uses: remember ATM, POS, Chip and PIN — anywhere numbers are typed fast."
+      },
+      {
+        "front": "Define: Direct data entry (DDE)",
+        "back": "Devices that input data with minimal human interaction. Faster than typing, and errors are reduced (no manual input)."
+      },
+      {
+        "front": "DDE devices: what are the parts?",
+        "back": "Marks and text:\n• OMR\n• OCR\nCodes:\n• Barcode reader\n• QR code reader\n• RFID reader\nCards:\n• Magnetic stripe reader\n• Chip and PIN reader\n• Contactless / NFC reader"
+      },
+      {
+        "front": "Scanning & Recognition (DDE): OMR",
+        "back": "Optical Mark Reader — reads the position of marks on hard-copy forms.\nUsed for: Multiple-choice exam papers · school registers · surveys · lottery tickets\nAdvantages:\n• Fast for large amounts of data\n• More accurate — no manual entry\nDisadvantages:\n• Cannot recognise printed or handwritten characters\n• Marks must be in a specific area\n• Faint marks may not be read\n• Forms may need manual checks — slow and costly"
+      },
+      {
+        "front": "Scanning & Recognition (DDE): OCR",
+        "back": "Optical Character Reader — scans text from a hard-copy document and converts it to digital text.\nUsed for: Passports and ID cards · digitising documents · number plate recognition (ANPR)\nAdvantages:\n• More accurate than OMR for detailed data\n• Faster than typing; fewer errors\nDisadvantages:\n• Not accurate for handwriting"
+      },
+      {
+        "front": "Scanning & Recognition (DDE): Barcode",
+        "back": "Barcode — black and white lines of varying thickness representing digits or characters. A barcode reader scans them.\nUsed for: Supermarket checkouts · automatic stock control · library loans\nAdvantages:\n• Faster than typing product codes\n• Lower error rate\nDisadvantages:\n• More expensive than a keyboard\n• Must be close to the barcode\n• Scratched barcodes cause read errors"
+      },
+      {
+        "front": "Scanning & Recognition (DDE): QR code",
+        "back": "QR code — a matrix of black and white squares that can link to websites, videos or text. Three big corner squares help alignment.\nUsed for: Advertising · linking to email, website or phone number · electronic boarding passes\nAdvantages:\n• Holds more data than a barcode\n• Read from many angles\n• Any camera device can scan it\n• Faster to scan; can be small\n• Can be encrypted\nDisadvantages:\n• Can be used to transmit malicious code\n• More than one QR format exists"
+      },
+      {
+        "front": "Scanning & Recognition (DDE): RFID",
+        "back": "RFID reader — reads RFID tags using radio waves, with no contact or line-of-sight. A tag has a microchip (stores data) and an antenna (receives/transmits).\nUsed for: Stock control · tracking livestock · libraries · passports (biometrics) · car parks · contactless payment · access cards\nAdvantages:\n• No line-of-sight needed\n• Very fast read rate\n• Read and write\n• Scans many items at once\n• Reads scratched tags\nDisadvantages:\n• Tag collision may occur\n• Easy to jam (radio waves)\n• Signals can be hacked\n• Tags more expensive than barcodes"
+      },
+      {
+        "front": "How a QR code is read: what are the steps, in order?",
+        "back": "1. Point – Aim the phone camera at the code\n2. Decode – The app converts squares into data\n3. Result – Data shown or website opens"
+      },
+      {
+        "front": "Scanning & Recognition (DDE): Magnetic stripe",
+        "back": "Magnetic stripe reader — reads the stripe on a card (credit/debit, hotel key).\nAdvantages:\n• No typing — no shoulder surfing\n• Faster than manual entry; fewer errors\nDisadvantages:\n• No PIN needed — less secure if lost\n• Does not work at a distance\n• Easily copied by a skimmer\n• Damaged by strong magnetic fields"
+      },
+      {
+        "front": "Scanning & Recognition (DDE): Chip & PIN",
+        "back": "Chip and PIN reader — compares the PIN entered with the PIN stored on the chip.\nAdvantages:\n• More secure — PIN must match\n• More robust — no magnetic damage\n• Chip data is encrypted\nDisadvantages:\n• Typing a PIN risks shoulder surfing\n• Does not work at a distance"
+      },
+      {
+        "front": "Scanning & Recognition (DDE): Contactless",
+        "back": "Contactless / NFC reader — reads a card or phone held close, using Near Field Communication. No PIN for small amounts.\nAdvantages:\n• Much faster payments\n• Shorter queues\n• Retailers never see card details\nDisadvantages:\n• Only small amounts\n• Fraud risk — no PIN\n• Can be read accidentally or from a distance"
+      },
+      {
+        "front": "QR code vs barcode: Data held",
+        "back": "Barcode: Less\nQR code: More"
+      },
+      {
+        "front": "QR code vs barcode: Read angle",
+        "back": "Barcode: Must be aligned\nQR code: Any angle"
+      },
+      {
+        "front": "QR code vs barcode: Scanning",
+        "back": "Barcode: Slower\nQR code: Faster, fewer errors"
+      },
+      {
+        "front": "QR code vs barcode: Device needed",
+        "back": "Barcode: Special reader\nQR code: Any camera + software"
+      },
+      {
+        "front": "Exam tip: Scanning & Recognition (DDE)",
+        "back": "DDE advantages always come in a pair: faster than typing and fewer errors. Say both."
+      },
+      {
+        "front": "Common mistake: \"Chip and PIN is less secure than a magnetic stripe.\"\nWhat is wrong with it?",
+        "back": "Chip and PIN is more secure — the PIN must match the chip, and the chip data is encrypted."
+      },
+      {
+        "front": "Which DDE device marks multiple-choice exam papers?",
+        "back": "An OMR — it reads the position of marks on the form."
+      },
+      {
+        "front": "Image Capture Devices: Digital camera",
+        "back": "Used for: Photography · scanning documents · security cameras\nAdvantages:\n• Cards hold hundreds of photos\n• Image seen immediately\n• Stored for further editing\n• Can recover damaged documents\nDisadvantages:\n• Images often need compressing\n• Resolution not as good as expensive traditional cameras"
+      },
+      {
+        "front": "Image Capture Devices: Webcam",
+        "back": "Used for: Video conferencing · security recording · streaming\nAdvantages:\n• Very high quality video\n• Used for online conferencing"
+      },
+      {
+        "front": "Image Capture Devices: Scanner",
+        "back": "Used for: Converting documents and photographs to digital format\nAdvantages:\n• Images stored for further editing\nDisadvantages:\n• Can be slow\n• Quality depends on scanner resolution"
+      },
+      {
+        "front": "Define: Microphone",
+        "back": "Inputs sound or voice into a computer. It uses an ADC to convert analogue sound waves into digital data."
+      },
+      {
+        "front": "Audio Input: Microphone",
+        "back": "Used for: Speech in presentations · voice-activation systems · speech-to-text software\nAdvantages:\n• Faster to speak than type\n• Improves safety in cars\n• Used for VoIP and conferencing\nDisadvantages:\n• Sound files use a lot of memory\n• Speech recognition is prone to errors"
+      },
+      {
+        "front": "Define: Touchscreen",
+        "back": "An input AND output device — input by touching the screen with a finger or stylus. It is not a pointing device."
+      },
+      {
+        "front": "Touch and Stylus: Touchscreen",
+        "back": "Used for: ATMs · public information systems · phones, tablets and phablets\nAdvantages:\n• Quick way to select options\n• Small footprint\n• Improves hand coordination\n• No training needed\nDisadvantages:\n• Limited number of options\n• Excessive use can cause RSI\n• Screen gets dirty and less responsive"
+      },
+      {
+        "front": "Touch and Stylus: Light pen",
+        "back": "Used for: Selecting objects and drawing on CRT screens (CAD)\nAdvantages:\n• More accurate than touchscreens\n• Small — good where space is tight\n• Easy to use\nDisadvantages:\n• Lag when drawing\n• Only works with CRT monitors\n• Outdated technology"
+      },
+      {
+        "front": "Common mistake: \"Light pens work on any screen.\"\nWhat is wrong with it?",
+        "back": "Light pens only work with CRT monitors — one reason the technology is outdated."
+      }
+    ]
+  },
+  {
+    "title": "Chapter 3 – Output Devices",
+    "description": "How a computer shows, prints, plays and moves the results of its work.",
+    "subject": "IGCSE ICT",
+    "cards": [
+      {
+        "front": "Define: Output device",
+        "back": "A device that receives data from the computer and displays the results of processed data."
+      },
+      {
+        "front": "Input vs output: Input devices vs Output devices",
+        "back": "• Send data to a computer for processing | Receive data from the computer\n• Turn input into a form the computer understands | Display the results of processed data\n• Under the control of the user | Under the control of the computer\n• Design is more complex | Design is less complex"
+      },
+      {
+        "front": "Exam tip: Input vs Output",
+        "back": "Who is in control? Input = the user. Output = the computer. That one line earns the mark."
+      },
+      {
+        "front": "Monitors: CRT",
+        "back": "Cathode Ray Tube — the oldest type, large and bulky, uses an electron beam to display images.\nUsed for: Specialist areas such as CAD · used with light pens\nAdvantages:\n• Wider viewing angle than most LCDs\n• Allow light pens\n• Least expensive to buy\nDisadvantages:\n• Heavy\n• Large footprint\n• More power than LCD\n• Run very hot — fire risk\n• Flicker — headaches and eyestrain\n• Higher electromagnetic fields"
+      },
+      {
+        "front": "Monitors: LCD",
+        "back": "Liquid Crystal Display — thin, flat screen using liquid crystals and a backlight. Often called TFT.\nUsed for: Main output device of modern computers · phones, tablets, laptops, portable games · many offer touch input\nAdvantages:\n• Lighter than CRT\n• Smaller footprint\n• Less power\n• Runs cooler\n• No flicker\n• Lower electromagnetic fields\n• Sharper images\nDisadvantages:\n• More expensive than CRT\n• Narrower viewing angle"
+      },
+      {
+        "front": "Monitors: LED",
+        "back": "Light Emitting Diode — uses LEDs as the backlight instead of the fluorescent tubes in LCD. Newest display technology.\nAdvantages:\n• Thinner than LCD\n• Lighter\n• Less power\n• Runs cooler\n• Sharper image"
+      },
+      {
+        "front": "Power use",
+        "back": "CRT: Highest\nLCD: Medium\nLED: Lowest"
+      },
+      {
+        "front": "Thickness",
+        "back": "CRT: Very thick\nLCD: Thin\nLED: Thinnest"
+      },
+      {
+        "front": "CRT vs LCD vs LED: Thickness",
+        "back": "CRT: Very thick\nLCD: Thin\nLED: Thinnest"
+      },
+      {
+        "front": "CRT vs LCD vs LED: Weight",
+        "back": "CRT: Heavy\nLCD: Light\nLED: Lightest"
+      },
+      {
+        "front": "CRT vs LCD vs LED: Power use",
+        "back": "CRT: Highest\nLCD: Medium\nLED: Lowest"
+      },
+      {
+        "front": "CRT vs LCD vs LED: Image quality",
+        "back": "CRT: Good\nLCD: Better\nLED: Best"
+      },
+      {
+        "front": "CRT vs LCD vs LED: Cost",
+        "back": "CRT: Cheapest\nLCD: Medium\nLED: Most expensive"
+      },
+      {
+        "front": "CRT vs LCD vs LED: Flicker",
+        "back": "CRT: Yes\nLCD: No\nLED: No"
+      },
+      {
+        "front": "Common mistake: \"LED monitors use LEDs to make the picture instead of liquid crystals.\"\nWhat is wrong with it?",
+        "back": "LED monitors still use an LCD panel. The LEDs are the backlight, replacing the fluorescent tubes."
+      },
+      {
+        "front": "Printers: Laser",
+        "back": "Uses static electricity and toner (powder). A non-impact printer.\nUsed for: Offices needing low noise · fast, high-quality, high-volume printing\nAdvantages:\n• High quality black and white\n• Duplex (both sides)\n• Handles very large jobs\n• Fastest speed\n• Long-lasting toner\n• Larger paper trays\n• Lower running cost per page\n• Quiet\nDisadvantages:\n• Higher initial cost\n• Coloured laser has high running cost\n• Toner/ozone health hazards\n• Smaller trays than dot matrix"
+      },
+      {
+        "front": "Printers: Inkjet",
+        "back": "Uses liquid ink (thermal bubble or piezoelectric). A non-impact printer.\nUsed for: Low output volumes · printing photographs · inkjet technology is also used in 3D printing\nAdvantages:\n• Best quality coloured output\n• Lower initial cost\n• Lightweight, small footprint\n• No toner/ozone hazard\nDisadvantages:\n• Slower than laser\n• Cannot do large jobs\n• High running cost — ink runs out fast\n• Can smudge\n• Smaller paper trays"
+      },
+      {
+        "front": "Printers: Dot matrix",
+        "back": "Uses a matrix of pins and an inked ribbon. The only impact printer here.\nUsed for: Noisy or dirty places (garage workshops) · quality not important · carbon copies (wage slips) · till receipts\nAdvantages:\n• Best in dusty or dirty places\n• Carbon copies / multi-part output\n• Good for continuous stationery\n• Very cheap to run\nDisadvantages:\n• Very noisy\n• Higher initial cost than inkjet\n• Slowest\n• Lowest print quality"
+      },
+      {
+        "front": "Printers: 3D printer",
+        "back": "Produces solid 3D objects.\nUsed for: Prototypes · customised items (prosthetic limbs that fit exactly, surgical equipment) · parts for items no longer in production\nAdvantages:\n• Easier and faster to make customised items\n• Cheaper manufacturing\n• Can make parts no longer produced\n• Medical uses: organs, prosthetics, tissue engineering\nDisadvantages:\n• Expensive to buy\n• Can infringe copyright\n• Can make dangerous items (weapons)\n• Potential job losses"
+      },
+      {
+        "front": "Printers: Graph plotter",
+        "back": "Uses pens to produce large, very high quality drawings and diagrams.\nUsed for: Architectural and engineering drawings · blueprints · cartoon characters · technical design drawings\nAdvantages:\n• Extremely large output\n• Very precise line drawings\n• Prints on many materials (aluminium, cardboard, plastic, steel, wood)\n• Low running costs\nDisadvantages:\n• Very high initial cost\n• Very slow\n• Very large footprint"
+      },
+      {
+        "front": "Printers: what are the parts?",
+        "back": "Impact:\n• Dot matrix — pins strike an inked ribbon\nNon-impact:\n• Laser — toner + static electricity\n• Inkjet — liquid ink\n• 3D printer\n• Graph plotter — pens"
+      },
+      {
+        "front": "Define: Running cost",
+        "back": "The cost of operating a device (ink, toner, ribbon, power) — different from the initial price to buy it."
+      },
+      {
+        "front": "Two inkjet mechanisms",
+        "back": "Thermal bubble: Heat vaporises ink into a bubble that pushes ink out\nPiezoelectric: A crystal vibrates to push ink out of the nozzle"
+      },
+      {
+        "front": "How thermal inkjet works: what are the steps, in order?",
+        "back": "1. Heat – Ink is heated and vaporises into a bubble\n2. Push – The bubble is pushed through a nozzle onto the paper\n3. Collapse – The bubble collapses, creating a vacuum\n4. Refill – The vacuum draws more ink from the cartridge"
+      },
+      {
+        "front": "How a 3D printer builds an object: what are the steps, in order?",
+        "back": "1. Model – Make a 3D model in CAD software\n2. Slice – Software slices the model into layers\n3. Print – Prints layer by layer (powder + binder)\n4. Bind – Layers are bound together\n5. Clean – Excess powder is removed"
+      },
+      {
+        "front": "Printing speed",
+        "back": "Laser: Highest\nInkjet: Low\nDot matrix: Lowest"
+      },
+      {
+        "front": "Initial cost",
+        "back": "Laser: Highest\nDot matrix: High\nInkjet: Lowest"
+      },
+      {
+        "front": "Laser vs inkjet vs dot matrix: Paper tray",
+        "back": "Laser: Large\nInkjet: Small\nDot matrix: Largest"
+      },
+      {
+        "front": "Laser vs inkjet vs dot matrix: Print quality",
+        "back": "Laser: B&W: highest · Colour: high\nInkjet: B&W: high · Colour: highest\nDot matrix: Lowest"
+      },
+      {
+        "front": "Laser vs inkjet vs dot matrix: Speed",
+        "back": "Laser: Highest\nInkjet: Low\nDot matrix: Lowest"
+      },
+      {
+        "front": "Laser vs inkjet vs dot matrix: Initial cost",
+        "back": "Laser: Highest\nInkjet: Lowest\nDot matrix: High"
+      },
+      {
+        "front": "Laser vs inkjet vs dot matrix: Running cost",
+        "back": "Laser: B&W: low · Colour: high\nInkjet: Highest\nDot matrix: Lowest"
+      },
+      {
+        "front": "Which printer for which job?: Printer vs Used when…",
+        "back": "• Laser | Low noise is needed (office) · fast, high-quality, high-volume printing\n• Inkjet | Low volumes · photographs · inkjet technology is used in 3D printing\n• Dot matrix | Noisy or dirty places (garage workshops) · quality not important · carbon copies (wage slips) · till receipts\n• 3D printer | Prototypes · customised items (prosthetic limbs, surgical equipment) · parts no longer in production"
+      },
+      {
+        "front": "Exam tip: Printers",
+        "back": "Running cost = cost of operating the device (ink, toner, ribbon). Initial cost = the price to buy it. Do not mix the two up."
+      },
+      {
+        "front": "Common mistake: \"Laser printers are cheapest because they have the lowest running cost.\"\nWhat is wrong with it?",
+        "back": "Laser has the highest initial cost. Be specific: low running cost per page for B&W, but high for colour."
+      },
+      {
+        "front": "Which printer can produce carbon copies?",
+        "back": "The dot matrix printer — it is an impact printer, so the pins strike through multi-part paper."
+      },
+      {
+        "front": "Define: Multimedia projector",
+        "back": "Projects an image onto a large surface such as a screen or wall."
+      },
+      {
+        "front": "Projectors: Projector",
+        "back": "Used for: Training presentations and meetings · advertising · home cinema\nAdvantages:\n• Many people see a presentation at once\n• Avoids needing several networked computers\nDisadvantages:\n• Expensive\n• Difficult to set up (needs calibration)"
+      },
+      {
+        "front": "Define: Speakers",
+        "back": "Convert digital audio data (via a DAC) into analogue sound waves that humans can hear."
+      },
+      {
+        "front": "How speakers work: what are the steps, in order?",
+        "back": "1. Current – Electric current flows through a coil around an iron core\n2. Vibrate – Changing current makes the core vibrate\n3. Cone – A thin paper cone attached to the core vibrates\n4. Sound – The vibration produces sound waves"
+      },
+      {
+        "front": "Speakers: Speakers",
+        "back": "Used for: Phones and computers · multimedia presentations · reading text aloud for visually impaired users · playing sound files\nAdvantages:\n• Much louder than the original sound\n• Good atmosphere in presentations\n• Help visually impaired people\n• Very simple technology\nDisadvantages:\n• Can disturb others in an office\n• Quality speakers are expensive\n• Can have a large footprint"
+      },
+      {
+        "front": "Define: Actuator",
+        "back": "A mechanical output device that produces movement — rotate, close, push or pull an object."
+      },
+      {
+        "front": "Actuator examples: what are the parts?",
+        "back": "Electric motor:\n• Washing machines\n• Robotics\nHeater:\n• Turns heating on/off\nValve:\n• Controls water flow\nFan:\n• Controls cooling"
+      },
+      {
+        "front": "Why a DAC is needed: what are the steps, in order?",
+        "back": "1. Computer – Digital signal\n2. DAC – Digital → analogue\n3. Actuator – Moves (analogue device)"
+      },
+      {
+        "front": "Actuators: Actuator",
+        "back": "Used for: Robot arm · spinning a fan · pumping water · washing machines · greenhouses (windows, fans)\nAdvantages:\n• Remote operation (e.g. nuclear reactor pumps) — big safety factor\n• Relatively inexpensive\nDisadvantages:\n• Usually analogue, so computer signals need a DAC"
+      },
+      {
+        "front": "Common mistake: \"An actuator is an input device.\"\nWhat is wrong with it?",
+        "back": "An actuator is an output device — it receives a signal and produces movement."
+      }
+    ]
+  },
+  {
+    "title": "Chapter 4 – Storage Devices",
+    "description": "Where data lives when the power is off — and how to choose the right place for it.",
+    "subject": "IGCSE ICT",
+    "cards": [
+      {
+        "front": "Define: Backing storage",
+        "back": "Non-volatile storage that stores data permanently. Not directly accessed by the CPU, so slower than main memory."
+      },
+      {
+        "front": "Data access methods: Serial / sequential",
+        "back": "Definition: Files accessed one by one — must pass every file to reach the target\nSpeed: Very slow"
+      },
+      {
+        "front": "Data access methods: Direct / random",
+        "back": "Definition: Data accessed directly without passing other files\nSpeed: Much faster"
+      },
+      {
+        "front": "Factors when comparing backing storage: list them",
+        "back": "• Storage capacity\n• Data transfer rate\n• Data access time\n• Durability\n• Portability\n• Price per GB"
+      },
+      {
+        "front": "Backing storage types: what are the parts?",
+        "back": "Magnetic:\n• Media: magnetic tape\n• Devices: HDD, portable HDD, tape drive\nOptical:\n• Media: CD, DVD, Blu-ray\n• Devices: CD / DVD / Blu-ray drive\nSolid-state:\n• Media: SD, XD, CFast cards\n• Devices: SSD, flash / pen drive, card reader"
+      },
+      {
+        "front": "Storage media vs storage device",
+        "back": "Storage media: Hardware the data is stored on — e.g. a CD or DVD\nStorage device: Hardware that reads or writes the media — e.g. a DVD drive"
+      },
+      {
+        "front": "Main memory vs backing storage: Main / internal memory vs Backing storage",
+        "back": "• Directly accessible by the CPU | Not directly accessible\n• Faster access | Slower access\n• Tends to be smaller | Tends to be greater\n• RAM and ROM fixed inside | Fixed or removable\n• RAM volatile, ROM non-volatile | Non-volatile\n• More expensive per unit | Cheaper per unit\n• Start-up instructions (ROM), data in use (RAM) | Files and software permanently"
+      },
+      {
+        "front": "Common mistake: \"A CD is a storage device.\"\nWhat is wrong with it?",
+        "back": "A CD is storage media. The device is the CD drive that reads or writes it."
+      },
+      {
+        "front": "Exam tip: Key Storage Concepts",
+        "back": "Comparing devices? Use the six factors — capacity, transfer rate, access time, durability, portability, price per GB — and compare, never just describe."
+      },
+      {
+        "front": "Magnetic Storage: Fixed HDD",
+        "back": "Fixed hard disk drive — magnetic storage inside the computer using platters, a read/write arm and heads.\nUsed for: Storing the OS · system software and working files · real-time systems · file servers\nAdvantages:\n• Large capacity\n• Fast data transfer\n• Fast access\n• Great read/write longevity\nDisadvantages:\n• Incorrect shutdown can lose data\n• Many moving parts affect reliability\n• Noisy compared to SSD"
+      },
+      {
+        "front": "Magnetic Storage: Portable HDD",
+        "back": "Portable hard disk drive — an external magnetic drive.\nUsed for: Storing backups · transferring large amounts of data between computers\nAdvantages:\n• Large capacity\n• Fast transfer and access\n• Portable\nDisadvantages:\n• Incorrect shutdown can lose data\n• Many moving parts\n• Transfer rate not as fast as fixed HDD"
+      },
+      {
+        "front": "Magnetic Storage: Magnetic tape",
+        "back": "Magnetic tape drive — accesses data serially. Very high capacity, very slow access.\nUsed for: Backups of large databases · long-term archiving\nAdvantages:\n• Huge capacity\n• Very robust — lasts long\n• Fast data transfer\n• Cheaper per unit than HDD\nDisadvantages:\n• Very slow access (serial)\n• Affected by magnetic fields"
+      },
+      {
+        "front": "Exam tip: Magnetic Storage",
+        "back": "Tape = serial access. That single fact explains both its slow access and why it suits backups and archives."
+      },
+      {
+        "front": "Common mistake: \"Magnetic storage always has fast access.\"\nWhat is wrong with it?",
+        "back": "Fast except magnetic tape, which accesses data serially and is very slow."
+      },
+      {
+        "front": "Define: Optical media",
+        "back": "All optical media use laser light to read and write data."
+      },
+      {
+        "front": "Optical media overall",
+        "back": "Advantage: Cheaper to buy\nAdvantage: Portable\nDisadvantage: Lower storage space\nDisadvantage: Slow transfer and access\nDisadvantage: Not compatible with all computers"
+      },
+      {
+        "front": "CD and DVD types: ROM",
+        "back": "Read?: Yes\nWrite?: No\nNotes: Prevents deletion or overwriting of important data"
+      },
+      {
+        "front": "CD and DVD types: R",
+        "back": "Read?: Yes\nWrite?: Once only\nNotes: Cheaper than RW; once burned behaves like ROM"
+      },
+      {
+        "front": "CD and DVD types: RW",
+        "back": "Read?: Yes\nWrite?: Many times\nNotes: Not wasteful, but dearer and can be accidentally overwritten"
+      },
+      {
+        "front": "Capacity",
+        "back": "CD: 700 MB\nDVD (dual-layer): Up to 8.5 GB\nBlu-ray: 25–50 GB"
+      },
+      {
+        "front": "Optical comparison: CD",
+        "back": "Laser colour: Red (780 nm)\nCapacity: 700 MB\nUsed for: Music, software, games"
+      },
+      {
+        "front": "Optical comparison: DVD",
+        "back": "Laser colour: Red (650 nm)\nCapacity: Up to 8.5 GB (dual layer)\nUsed for: Movies, advanced games"
+      },
+      {
+        "front": "Optical comparison: Blu-ray",
+        "back": "Laser colour: Blue (405 nm)\nCapacity: 25–50 GB\nUsed for: HD movies and games"
+      },
+      {
+        "front": "Optical Storage: DVD-RAM",
+        "back": "Used for: Backups · file transfer between computers\nAdvantages:\n• Reads and writes at the same time\n• Greater capacity than CDs\nDisadvantages:\n• More expensive than other CDs (and DVDs of the same capacity)"
+      },
+      {
+        "front": "Define: Burning",
+        "back": "Adding data to an optical disc."
+      },
+      {
+        "front": "Exam tip: Optical Storage",
+        "back": "Order of optical media: CD → DVD → DVD-RAM → Blu-ray. Moving along gives more capacity and faster speeds, but a higher price."
+      },
+      {
+        "front": "Common mistake: \"Blu-ray uses a red laser.\"\nWhat is wrong with it?",
+        "back": "Blu-ray uses a blue laser (405 nm) — that shorter wavelength is why it stores more."
+      },
+      {
+        "front": "Define: SSD · Solid State Drive",
+        "back": "A storage device with no moving parts that uses flash memory chips. Any solid-state device can be called a flash drive."
+      },
+      {
+        "front": "Solid State Storage: SSD",
+        "back": "SSD vs HDD — an SSD beats an HDD in most ways except price and capacity.\nUsed for: OS · system software and working files · real-time systems · main storage in phones and tablets\nAdvantages:\n• Faster access and transfer\n• No moving parts — more reliable, shock-proof\n• Less power\n• Runs cooler and quieter\n• Smaller and lighter\nDisadvantages:\n• More expensive per unit memory\n• HDDs have greater longevity\n• Lower maximum capacity than HDD"
+      },
+      {
+        "front": "Solid State Storage: Memory card / pen drive",
+        "back": "Flash memory cards and pen drives — small removable solid-state storage.\nUsed for: Backups and file transfer · photos in cameras · phone memory cards · MP3 players · DVRs, tablets, smartphones\nAdvantages:\n• Very portable and compact\n• Very durable\n• Not affected by magnetic fields\n• Easily moved to another device\n• No battery needed — non-volatile\nDisadvantages:\n• Easy to lose\n• More expensive per unit than HDDs\n• Lower capacity than HDDs\n• Not all computers have card readers"
+      },
+      {
+        "front": "Error messages when saving to a memory card: list them",
+        "back": "• Device not recognised\n• Corrupt card\n• Medium is full\n• Write error\n• Virus found on the card"
+      },
+      {
+        "front": "Magnetic vs optical vs solid-state: Capacity",
+        "back": "Magnetic: Highest\nOptical: Low\nSolid-state: High"
+      },
+      {
+        "front": "Magnetic vs optical vs solid-state: Access speed",
+        "back": "Magnetic: Fast (not tape)\nOptical: Slow\nSolid-state: Fastest"
+      },
+      {
+        "front": "Magnetic vs optical vs solid-state: Transfer rate",
+        "back": "Magnetic: Fast\nOptical: Slow\nSolid-state: Fastest"
+      },
+      {
+        "front": "Magnetic vs optical vs solid-state: Durability",
+        "back": "Magnetic: Vulnerable to shock and magnetic fields\nOptical: More robust than magnetic\nSolid-state: Most robust"
+      },
+      {
+        "front": "Magnetic vs optical vs solid-state: Price per GB",
+        "back": "Magnetic: Low\nOptical: Low\nSolid-state: High"
+      },
+      {
+        "front": "Magnetic vs optical vs solid-state: Special",
+        "back": "Magnetic: Great longevity\nOptical: Not compatible with all devices\nSolid-state: Cool, low power, quiet"
+      },
+      {
+        "front": "Common mistake: \"SSDs have moving parts like HDDs.\"\nWhat is wrong with it?",
+        "back": "SSDs have no moving parts — that is why they are faster, quieter, cooler and shock-proof."
+      },
+      {
+        "front": "A photographer wants to carry hundreds of photos on a durable, tiny device. Which type of storage?",
+        "back": "Solid-state — a flash memory card is compact, robust, and not affected by magnetic fields."
+      },
+      {
+        "front": "Define: Cloud storage",
+        "back": "An online storage platform where data is kept at a remote location on hundreds of interlinked data servers."
+      },
+      {
+        "front": "Types of cloud: what are the parts?",
+        "back": "Public:\n• Open to the general public\n• e.g. Google Drive, Dropbox\nPrivate:\n• Controlled by one company for its employees\n• More secure\nHybrid:\n• A mix of public and private"
+      },
+      {
+        "front": "How data is stored in the cloud: what are the steps, in order?",
+        "back": "1. Access – Use the internet from any device\n2. Upload – Send files to a data server\n3. Pay – Monthly or annual fee for the space used"
+      },
+      {
+        "front": "Home → university using the cloud: what are the steps, in order?",
+        "back": "1. Log in – From the home computer\n2. Check – Enough storage in the account\n3. Upload – Files to the data server\n4. Log in – From the university computer\n5. Download – Files to the university computer"
+      },
+      {
+        "front": "How cloud data is managed",
+        "back": "Provider: Server is managed by the cloud provider\nBackups: Data is automatically backed up\nFailure: If one server fails, others take over"
+      },
+      {
+        "front": "Cloud Storage: Cloud storage",
+        "back": "Compared to storing data locally.\nAdvantages:\n• Accessible anytime, anywhere, any device (with internet)\n• More storage; capacity grows without new devices\n• Automatic backups\n• Pay only for what you use\n• No device to carry or lose\n• Team collaboration with tracked changes\nDisadvantages:\n• No internet = no access\n• Needs a reliable connection\n• Ongoing cost for more space\n• Relies on provider to maintain hardware\n• Loss of control over storage\n• May be less secure — many copies kept long-term\n• Staff may access sensitive data\n• Servers damaged by disasters can lose data"
+      },
+      {
+        "front": "Exam tip: Cloud Storage",
+        "back": "The two security disadvantages: loss of control and multiple copies stored for a long time."
+      },
+      {
+        "front": "Common mistake: \"Cloud storage works without internet.\"\nWhat is wrong with it?",
+        "back": "You need an internet connection to upload or download — the biggest disadvantage compared to local storage."
+      },
+      {
+        "front": "Define: Backup",
+        "back": "A copy of data stored on an alternative device as a precaution against data loss on the main storage."
+      },
+      {
+        "front": "Why back up?",
+        "back": "Corrupted: Data on main storage can be corrupted\nLost: …or lost\nDeleted: …or accidentally deleted"
+      },
+      {
+        "front": "Good practice",
+        "back": "Separate device: Keep the backup apart from the original\nOff-site: Store a copy in another location\nTape: Magnetic tape is commonly used for large-scale backups"
+      },
+      {
+        "front": "Common mistake: \"Saving the file twice on the same drive is a backup.\"\nWhat is wrong with it?",
+        "back": "A backup must be on a separate device or off-site — otherwise one failure destroys both copies."
+      }
+    ]
+  },
+  {
+    "title": "Chapter 5 – Databases",
+    "description": "How data is organised, linked, checked and kept clean.",
+    "subject": "IGCSE ICT",
+    "cards": [
+      {
+        "front": "Define: Database",
+        "back": "An organised collection of data related to each other."
+      },
+      {
+        "front": "The 7 data types: Integer",
+        "back": "Definition: Positive or negative whole number\nExamples: 12, -3, 1274"
+      },
+      {
+        "front": "The 7 data types: Real / Decimal",
+        "back": "Definition: Numbers with decimal or fractional parts\nExamples: 1.4, -0.003, 3.142"
+      },
+      {
+        "front": "The 7 data types: Currency",
+        "back": "Definition: Real numbers preceded by a currency symbol\nExamples: £12.45, $5500, €999"
+      },
+      {
+        "front": "The 7 data types: Percentage",
+        "back": "Definition: Any number followed by a % symbol\nExamples: 100%, 25%, 95.3%"
+      },
+      {
+        "front": "The 7 data types: Alphanumeric / Text",
+        "back": "Definition: Letters and numbers\nExamples: ABC123, name@email.com"
+      },
+      {
+        "front": "The 7 data types: Boolean",
+        "back": "Definition: Only two values\nExamples: True/False, Yes/No, ON/OFF"
+      },
+      {
+        "front": "The 7 data types: Date / Time",
+        "back": "Definition: Formatted by computer setup and user preference\nExamples: 25/10/2007, 15:30:05"
+      },
+      {
+        "front": "Choosing a data type: what are the steps, in order?",
+        "back": "1. Ask – Could it be used in arithmetic?\n2. Yes – Numeric (integer, real…)\n3. No – Slashes, dashes or leading 0? Alphanumeric"
+      },
+      {
+        "front": "Exam tip: Data Types",
+        "back": "Telephone numbers are ALPHANUMERIC: they may have spaces or dashes, may start with a zero, and are never used in arithmetic. Give all three reasons."
+      },
+      {
+        "front": "Common mistake: \"A telephone number is an integer because it is made of digits.\"\nWhat is wrong with it?",
+        "back": "It is alphanumeric — numeric data cannot start with 0, and you never do arithmetic on it."
+      },
+      {
+        "front": "Anatomy of a table",
+        "back": "Table: A collection of related records\nRecord: A row: all details of one item\nField: A column: one piece of info, one data type\nField name: Title of each field, e.g. StudentID"
+      },
+      {
+        "front": "Example: Students table: 356",
+        "back": "Name: Mona\nAge: 15\nClass: 10A"
+      },
+      {
+        "front": "Example: Students table: 357",
+        "back": "Name: Omar\nAge: 16\nClass: 10B"
+      },
+      {
+        "front": "Example: Students table: 358",
+        "back": "Name: Salma\nAge: 15\nClass: 10A"
+      },
+      {
+        "front": "Primary key features",
+        "back": "Unique: Every value is different\nIdentifies: Helps identify the record\nNever null: Cannot be left empty\nLinks: Creates relationships"
+      },
+      {
+        "front": "Common mistake: \"A field is a row in the table.\"\nWhat is wrong with it?",
+        "back": "A field is a column; a record is a row."
+      },
+      {
+        "front": "Database Types: Flat-file",
+        "back": "Flat-file database — all data is held in a single table, with no other tables linked.\nAdvantages:\n• Easier to set up\n• Easier to understand\n• Easier to sort and filter data\nDisadvantages:\n• Data duplication — same data in multiple records\n• More difficult to keep data consistent"
+      },
+      {
+        "front": "Database Types: Relational",
+        "back": "Relational database — more than one table linked to each other, using relationships and a foreign key.\nAdvantages:\n• Data integrity — no inconsistency\n• No duplication, so less data entry\n• Fewer errors, saves time and storage\n• Easier to add / modify / delete data\n• Complex reports and queries possible\n• Better security — tables can be restricted\nDisadvantages:\n• Takes more time to set up\n• More complex to understand\n• Sorting / filtering is more complex\n• Slower extraction of data\n• Needs more processing power\n• Needs specialist personnel"
+      },
+      {
+        "front": "Primary key vs foreign key: How many?",
+        "back": "Primary key: One per table\nForeign key: A table can have several"
+      },
+      {
+        "front": "Primary key vs foreign key: Values",
+        "back": "Primary key: Unique\nForeign key: Can be replicated"
+      },
+      {
+        "front": "Primary key vs foreign key: Null?",
+        "back": "Primary key: Cannot be null\nForeign key: Can be null"
+      },
+      {
+        "front": "Primary key vs foreign key: Purpose",
+        "back": "Primary key: Identifies the record\nForeign key: Links to the primary key of another table"
+      },
+      {
+        "front": "Example: Customer ID: what are the steps, in order?",
+        "back": "1. Customer table – CustomerID is the PRIMARY key\n2. Link – Same field appears in Job table\n3. Job table – CustomerID is a FOREIGN key"
+      },
+      {
+        "front": "Relationships",
+        "back": "One-to-One: One record in A matches exactly one in B\nOne-to-Many: One record in A matches many in B\nMany-to-Many: Many records in A match many in B"
+      },
+      {
+        "front": "Both database types…",
+        "back": "Share: A primary key\nCreate: Reports\nStore: Data in records and fields"
+      },
+      {
+        "front": "Exam tip: Database Types",
+        "back": "Asked how to link two tables? The primary key of one table appears as a foreign key in the other."
+      },
+      {
+        "front": "Common mistake: \"A foreign key must be unique.\"\nWhat is wrong with it?",
+        "back": "The primary key must be unique. A foreign key can be repeated and can be null."
+      },
+      {
+        "front": "Define: Validation",
+        "back": "An automated computer check that data entered is sensible, reasonable and fits the set criteria."
+      },
+      {
+        "front": "Validation checks: Presence",
+        "back": "What it does: Data is present, not blank\nExample: Email cannot be blank"
+      },
+      {
+        "front": "Validation checks: Lookup",
+        "back": "What it does: Value is in a limited list\nExample: Session: June, November or January"
+      },
+      {
+        "front": "Validation checks: Type",
+        "back": "What it does: Correct data type\nExample: Age must be an integer"
+      },
+      {
+        "front": "Validation checks: Range",
+        "back": "What it does: Within two boundaries\nExample: Age between 0 and 100"
+      },
+      {
+        "front": "Validation checks: Limit",
+        "back": "What it does: Within one boundary\nExample: Age less than 18"
+      },
+      {
+        "front": "Validation checks: Length",
+        "back": "What it does: Right number of characters\nExample: Password is 8 characters"
+      },
+      {
+        "front": "Validation checks: Format",
+        "back": "What it does: Specific pattern\nExample: Date as dd/mm/yyyy"
+      },
+      {
+        "front": "Validation checks: Character",
+        "back": "What it does: No invalid symbols\nExample: Username cannot contain %"
+      },
+      {
+        "front": "Validation checks: Check digit",
+        "back": "What it does: Extra digit calculated from the others\nExample: Barcodes"
+      },
+      {
+        "front": "Range check vs limit check — boundaries used",
+        "back": "Range: Two boundaries\nLimit: One boundary"
+      },
+      {
+        "front": "Exam tip: Validation",
+        "back": "Range = two boundaries (0–100). Limit = one boundary (< 18). Say the number of boundaries."
+      },
+      {
+        "front": "Common mistake: \"Validation proves the data is correct.\"\nWhat is wrong with it?",
+        "back": "Validation only checks data is sensible. Age 15 typed as 51 passes a range check but is wrong."
+      },
+      {
+        "front": "A password must be exactly 8 characters. Which validation check?",
+        "back": "A length check."
+      },
+      {
+        "front": "Define: Verification",
+        "back": "Checks the data on the original source document is identical to the data entered — that it was copied correctly."
+      },
+      {
+        "front": "Verification: Visual verification",
+        "back": "Data is compared visually with the source document by a user.\nAdvantages:\n• User confirms the data matches the original\n• If different, the data is re-entered"
+      },
+      {
+        "front": "Verification: Double data entry",
+        "back": "Data is entered twice (same person or two people). The computer compares both entries.\nAdvantages:\n• If equal, accepted\n• If not equal, an error asks for re-entry"
+      },
+      {
+        "front": "Validation vs verification: Purpose",
+        "back": "Validation: Data is reasonable\nVerification: Data copied correctly"
+      },
+      {
+        "front": "Validation vs verification: Performed by",
+        "back": "Validation: Computer automatically\nVerification: User (visual) or computer (double entry)"
+      },
+      {
+        "front": "Validation vs verification: Example",
+        "back": "Validation: Range check on age\nVerification: Typing a password twice"
+      },
+      {
+        "front": "Visual vs double entry: Visual verification vs Double data entry",
+        "back": "• User compares the data | Computer compares the data\n• Compared with the original source | Compared with the earlier entry\n• Data entered once | Data entered twice"
+      },
+      {
+        "front": "Common mistake: \"Proofreading is a verification method.\"\nWhat is wrong with it?",
+        "back": "Proofreading checks spelling and grammar without the source document, so it is not verification."
+      }
+    ]
+  },
+  {
+    "title": "Chapter 6 – Networks",
+    "description": "Network types, wireless technology, devices, firewalls and ISPs.",
+    "subject": "IGCSE ICT",
+    "cards": [
+      {
+        "front": "Define: Network",
+        "back": "A connection of two or more electronic devices."
+      },
+      {
+        "front": "Why Network?: Networks",
+        "back": "Connecting devices brings benefits and risks.\nAdvantages:\n• Share hardware and software resources\n• Share data\n• Easy communication\n• Users controlled by a network administrator\nDisadvantages:\n• Viruses spread more easily\n• Higher security risks (hacking) than stand-alone\n• Slower internet access\n• Printer queues"
+      },
+      {
+        "front": "Network types: what are the parts?",
+        "back": "LAN:\n• Cables\n• Small area: school or office\nWLAN:\n• Wireless: Wi-Fi, Bluetooth\n• Small area\nWAN:\n• Large area\n• Satellite technology\n• Internet, bank ATMs"
+      },
+      {
+        "front": "Geographic area covered",
+        "back": "LAN: Small\nWLAN: Small\nWAN: Large"
+      },
+      {
+        "front": "Types of Networks: WLAN",
+        "back": "Connecting to a WLAN rather than a LAN.\nAdvantages:\n• Reduces cost of cables\n• Safer — no tripping on wires\n• Easier to connect other devices\nDisadvantages:\n• Less secure — data can be intercepted\n• Slower transfer rate than wired LAN\n• Obstacles such as walls weaken the signal"
+      },
+      {
+        "front": "Common mistake: \"A WLAN covers a larger area than a LAN.\"\nWhat is wrong with it?",
+        "back": "LAN and WLAN both cover a small area. Only a WAN covers a large one."
+      },
+      {
+        "front": "How Wi-Fi works: what are the steps, in order?",
+        "back": "1. Computer – Sends data to its wireless adapter\n2. Adapter – Converts data to radio waves\n3. Transmit – Waves go to the wireless router\n4. Router – Converts waves back into data"
+      },
+      {
+        "front": "How Bluetooth works: what are the steps, in order?",
+        "back": "1. Switch on – Turn on Bluetooth on the first device\n2. Connect – Devices connect automatically when in range\n3. Hop – A random one of 79 frequencies is picked\n4. Change – If busy, another is chosen — frequency hopping"
+      },
+      {
+        "front": "Define: Spread-spectrum frequency hopping",
+        "back": "Bluetooth constantly changes frequency across a band of 79 radio frequencies to avoid interference."
+      },
+      {
+        "front": "Wi-Fi vs Bluetooth: Range",
+        "back": "Wi-Fi: Up to 100 m\nBluetooth: Up to 10 m"
+      },
+      {
+        "front": "Wi-Fi vs Bluetooth: Speed",
+        "back": "Wi-Fi: Faster\nBluetooth: Slower"
+      },
+      {
+        "front": "Wi-Fi vs Bluetooth: Max devices",
+        "back": "Wi-Fi: More\nBluetooth: Up to 7"
+      },
+      {
+        "front": "Wi-Fi vs Bluetooth: Cost",
+        "back": "Wi-Fi: More expensive\nBluetooth: Cheaper"
+      },
+      {
+        "front": "Wi-Fi vs Bluetooth: Power use",
+        "back": "Wi-Fi: Higher\nBluetooth: More energy efficient"
+      },
+      {
+        "front": "Wi-Fi vs Bluetooth: Complexity",
+        "back": "Wi-Fi: More complex\nBluetooth: Simpler"
+      },
+      {
+        "front": "Similarities",
+        "back": "Wireless: Both use wireless communication\nRadio waves: Both use radio waves\nMany devices: Both connect several devices\nSecurity: Both secure data sent"
+      },
+      {
+        "front": "Common mistake: \"Bluetooth is faster than Wi-Fi.\"\nWhat is wrong with it?",
+        "back": "Wi-Fi has the faster rate and greater range. Bluetooth is short-range, simpler and cheaper."
+      },
+      {
+        "front": "Define: NIC · Network Interface Card",
+        "back": "Allows a device to connect to a network. It contains the MAC address, set at the manufacturing stage."
+      },
+      {
+        "front": "MAC address: 6 pairs of hex digits",
+        "back": "FF: pair 1\nB3: pair 2\nA4: pair 3\n33: pair 4\n7E: pair 5\nF1: pair 6"
+      },
+      {
+        "front": "MAC vs IP address",
+        "back": "MAC: Set by manufacturer · normally does not change · identifies the device\nIP: Allocated by the ISP · can change · gives the electronic location"
+      },
+      {
+        "front": "IP address: 4 numbers, each 0–255",
+        "back": "192.108: Network ID\n158.1: Host ID"
+      },
+      {
+        "front": "Define: Data packet",
+        "back": "Data sent over a network. Each contains the sender address, receiver address and a piece of the data."
+      },
+      {
+        "front": "Hub vs switch: Purpose",
+        "back": "Hub: Connects devices to form a LAN\nSwitch: Connects devices to form a LAN"
+      },
+      {
+        "front": "Hub vs switch: Delivery",
+        "back": "Hub: Broadcasts to every device\nSwitch: Sends to the destination only"
+      },
+      {
+        "front": "Hub vs switch: Security",
+        "back": "Hub: Lower\nSwitch: Higher"
+      },
+      {
+        "front": "Hub vs switch: MAC address",
+        "back": "Hub: Not checked\nSwitch: Used (look-up table)"
+      },
+      {
+        "front": "Hub vs switch: Speed",
+        "back": "Hub: Slower\nSwitch: Faster"
+      },
+      {
+        "front": "How a switch works: what are the steps, in order?",
+        "back": "1. Store – MAC addresses kept in a look-up table\n2. Read – Reads the MAC of the incoming packet\n3. Send – Sends only to the destination computer"
+      },
+      {
+        "front": "Network Devices: Bridge",
+        "back": "Bridge — connects one LAN to another LAN that uses the same protocol, so they work as a single LAN.\nAdvantages:\n• Connects parts of a LAN"
+      },
+      {
+        "front": "Network Devices: Router",
+        "back": "Router — sends data packets to a specific destination on a network.\nAdvantages:\n• Stores addresses (routing table)\n• Connects a LAN to a WAN (internet)\n• Connects multiple LANs to form a WAN\n• Has a built-in firewall"
+      },
+      {
+        "front": "How a router sends data between networks: what are the steps, in order?",
+        "back": "1. Switch / hub – Packets go to the router\n2. Check – Router reads the IP address\n3. Look up – Finds paths in its routing table\n4. Choose – Picks the quickest, least busy path\n5. Deliver – Passes to the destination switch / hub"
+      },
+      {
+        "front": "Routing table stores",
+        "back": "Route information: Where packets will be directed\nIP addresses: Of known destinations"
+      },
+      {
+        "front": "Exam tip: Network Devices",
+        "back": "Hub vs switch: hub broadcasts to everyone, switch sends to one using the MAC address. That is why a switch is more secure."
+      },
+      {
+        "front": "Common mistake: \"The router uses the MAC address to send data to the internet.\"\nWhat is wrong with it?",
+        "back": "A router uses the IP address and its routing table. Switches use MAC addresses."
+      },
+      {
+        "front": "Define: Firewall",
+        "back": "A device or software between your computer and an external network that filters incoming and outgoing traffic against a set of criteria."
+      },
+      {
+        "front": "What a firewall does: what are the steps, in order?",
+        "back": "1. Check – Does traffic meet the criteria?\n2. Block – Traffic that fails is blocked\n3. Log – All traffic is recorded"
+      },
+      {
+        "front": "Firewall: Firewall",
+        "back": "Functions and limits.\nAdvantages:\n• Warns and stops unauthorised access\n• Can prevent malware reaching the network\n• Blocks undesirable websites\n• Logs all traffic\n• Keeps hackers out of the network\nDisadvantages:\n• Cannot stop internal users by-passing it\n• Cannot stop employees hacking from within\n• Stops devices hackers use, not the hackers\n• Wrong configuration lets harmful traffic through"
+      },
+      {
+        "front": "Common mistake: \"A firewall removes viruses already on the computer.\"\nWhat is wrong with it?",
+        "back": "A firewall filters traffic. Removing viruses is the job of antivirus."
+      },
+      {
+        "front": "Define: ISP · Internet Service Provider",
+        "back": "A company providing a connection to the internet for a monthly fee."
+      },
+      {
+        "front": "What an ISP does",
+        "back": "Access: Provides internet access\nMonitor: Monitors internet usage\nIP: Gives you an IP address\nSecurity: Spam filters, anti-virus\nEmail: Provides email access\nStorage: Cloud storage space\nHosting: Web hosting facilities"
+      },
+      {
+        "front": "Who gives your device its IP address?",
+        "back": "Your ISP allocates it. The MAC address is set by the manufacturer."
+      },
+      {
+        "front": "Three networks: what are the parts?",
+        "back": "Internet:\n• Public, global\n• Worldwide collection of interconnected networks\nIntranet:\n• Private, internal restricted access\n• Sits behind a firewall\nExtranet:\n• Part of the intranet\n• Customers / suppliers with username + password"
+      },
+      {
+        "front": "At a glance: Access",
+        "back": "Internet: Public — global\nIntranet: Private — company only\nExtranet: Restricted — partners"
+      },
+      {
+        "front": "At a glance: Security",
+        "back": "Internet: Lowest\nIntranet: Highest\nExtranet: Medium"
+      },
+      {
+        "front": "At a glance: Uses",
+        "back": "Internet: Worldwide communication\nIntranet: Internal company use\nExtranet: Partner / supplier sharing"
+      },
+      {
+        "front": "At a glance: Firewall",
+        "back": "Internet: Optional\nIntranet: Behind a firewall\nExtranet: Behind a firewall"
+      },
+      {
+        "front": "Internet, Intranet, Extranet: Intranet vs internet",
+        "back": "Why a company uses an intranet.\nAdvantages:\n• Less chance of external hacking or viruses\n• Private data stays within the organisation\n• Regulates internet access\n• Can restrict access for certain employees\n• Easier access to company applications\nDisadvantages:\n• Public access, less secure\n• No restrictions on websites\n• Not policed — anyone can post\n• Wider but less reliable information"
+      },
+      {
+        "front": "Internet, Intranet, Extranet: Intranet vs extranet",
+        "back": "An extranet is part of the intranet opened to outsiders.\nAdvantages:\n• Owned by a single organisation\n• Shares data within the organisation\n• Communication inside the organisation\nDisadvantages:\n• Can be used by several organisations\n• Shares content with external users\n• Communication with customers / suppliers\n• Can lead to more security breaches"
+      },
+      {
+        "front": "Company uses of an intranet",
+        "back": "Email: Send and receive emails and attachments\nFiles: Internal file transfer\nWeb pages: Surf internal web pages\nResources: Share applications"
+      },
+      {
+        "front": "Common mistake: \"The internet and the WWW are the same thing.\"\nWhat is wrong with it?",
+        "back": "The internet is the infrastructure; the WWW is a service (collection of web pages) running on it."
+      },
+      {
+        "front": "Define: Protocol",
+        "back": "A set of rules agreed by the sender and the recipient when data is transferred between devices."
+      },
+      {
+        "front": "Key protocols: HTTP",
+        "back": "Stands for: Hypertext Transfer Protocol\nPurpose: Controls transmission of data to and from web servers"
+      },
+      {
+        "front": "Key protocols: HTTPS",
+        "back": "Stands for: HTTP Secure\nPurpose: Same, with encryption; uses SSL"
+      },
+      {
+        "front": "Key protocols: SSL",
+        "back": "Stands for: Secure Socket Layer\nPurpose: Encrypts data between two devices; uses digital certificates"
+      },
+      {
+        "front": "Key protocols: FTP",
+        "back": "Stands for: File Transfer Protocol\nPurpose: Transfers files between computers"
+      },
+      {
+        "front": "Key protocols: VoIP",
+        "back": "Stands for: Voice over Internet Protocol\nPurpose: Phone calls over the internet"
+      },
+      {
+        "front": "Where SSL / HTTPS is used: list them",
+        "back": "• Online banking\n• Online shopping\n• Email\n• Cloud storage\n• Intranets / extranets\n• Instant messaging"
+      },
+      {
+        "front": "Is SSL being applied?: what are the steps, in order?",
+        "back": "1. URL – Starts with HTTPS\n2. Padlock – Locked padlock in the browser\n3. Certificate – The digital certificate is valid"
+      },
+      {
+        "front": "Publishing a website with FTP: what are the steps, in order?",
+        "back": "1. Download – The FTP client program\n2. Connect – To the FTP server\n3. Log in – FTP username and password\n4. Locate – The files on your computer\n5. Upload – Click upload to the folder"
+      },
+      {
+        "front": "Exam tip: Network Protocols",
+        "back": "Spot a safe site with three signs: HTTPS, padlock, valid certificate."
+      },
+      {
+        "front": "Common mistake: \"HTTPS means the website is trustworthy.\"\nWhat is wrong with it?",
+        "back": "HTTPS means the connection is encrypted. A fake site can still use it, so check the URL."
+      },
+      {
+        "front": "Define: URL",
+        "back": "A unique text-based address for a web page."
+      },
+      {
+        "front": "http://www.cie.org.uk/gcseict/giraffe.html",
+        "back": "http://: Protocol\ncie: Domain name\n.org: Domain type\n.uk: Country code\n/gcseict: Folder\n/giraffe.html: Filename"
+      },
+      {
+        "front": "Web terms: what are the parts?",
+        "back": "Web page:\n• A document written in HTML\n• Text, images, video, sound, hyperlinks\nWebsite:\n• Pages related by hyperlinks\nHyperlink:\n• Word, phrase or image that links elsewhere\nHTML:\n• Mark-up language using tags"
+      },
+      {
+        "front": "3 web page development layers",
+        "back": "Content / structure: Information and layout\nPresentation: Formatting and style (CSS)\nBehaviour: Interactivity, scripting (JavaScript)"
+      },
+      {
+        "front": "WWW vs internet",
+        "back": "WWW: Collection of web pages — a service\nInternet: The infrastructure"
+      },
+      {
+        "front": "HTTP vs FTP uses",
+        "back": "HTTP: Access the WWW · send page to browser · download from web servers\nFTP: Transfer files · download from file servers · very large files"
+      },
+      {
+        "front": "Common mistake: \"The domain is the whole address.\"\nWhat is wrong with it?",
+        "back": "A URL has several parts: protocol, domain, folder, filename."
+      },
+      {
+        "front": "Define: Web browser",
+        "back": "Software that displays web pages by rendering HTML."
+      },
+      {
+        "front": "Browser features: list them",
+        "back": "• Address bar\n• Homepage\n• Navigation tools\n• Multiple tabs\n• Bookmarks / favourites\n• History\n• Hyperlinks\n• HTTP / HTTPS"
+      },
+      {
+        "front": "Web Browsers: Desktop",
+        "back": "Advantages:\n• More stable connection\n• Large screen — all pages accessible\n• Full keyboard and pointing devices\nDisadvantages:\n• Extra hardware needed\n• No use in a power cut"
+      },
+      {
+        "front": "Web Browsers: Laptop",
+        "back": "Advantages:\n• More portable than desktop\n• Full keyboard and pointer\n• Large screen\nDisadvantages:\n• Heavier than tablets / phones\n• Smaller screen than desktop"
+      },
+      {
+        "front": "Web Browsers: Phone / tablet",
+        "back": "Advantages:\n• Very portable\n• Easy on the move\nDisadvantages:\n• Small screens — harder to read and type\n• Not all websites accessible\n• Less stable signal than wired"
+      },
+      {
+        "front": "Three types: Video",
+        "back": "Definition: Real-time two-way, video + audio\nRequirements: Webcam, large monitor, microphone, speakers, CODEC, echo cancellation"
+      },
+      {
+        "front": "Three types: Audio",
+        "back": "Definition: Audio call between locations\nRequirements: Microphone, speakers, standard or internet phone"
+      },
+      {
+        "front": "Three types: Web",
+        "back": "Definition: Real-time, two-way or webcast\nRequirements: Computer + webcam, mic, speakers, app"
+      },
+      {
+        "front": "Conferencing: Video",
+        "back": "Video conferencing — real-time two-way video and audio.\nAdvantages:\n• Cuts travel and hotel costs\n• Safer than travelling\n• Saves working time\n• Possible at short notice\n• Helps disabled people\nDisadvantages:\n• Expensive set-up\n• Time lag / lip-sync issues\n• Training cost and time\n• Time zones\n• Hard to manage who talks\n• Difficult to sign documents"
+      },
+      {
+        "front": "Audio conference steps: what are the steps, in order?",
+        "back": "1. Agree – Date and time\n2. PINs – Organiser gets 2 PINs\n3. Share – Participant PIN is shared\n4. Organiser – Dials, enters organiser PIN\n5. Participants – Dial, enter participant PIN"
+      },
+      {
+        "front": "Web conferencing features",
+        "back": "Instant messages: Chat during the call\nVoIP: Hear each other\nShare: Images, videos, documents\nSame screen: Shared screen view"
+      },
+      {
+        "front": "Conferencing: Online classes",
+        "back": "Compared to attending physical classes.\nAdvantages:\n• Save travel time and cost\n• School saves costs\n• Learn from anywhere\n• Can be recorded\nDisadvantages:\n• Hardware / software costs\n• Needs reliable internet\n• Child protection issues\n• Harder to concentrate\n• Breakdown stops participation"
+      },
+      {
+        "front": "Web vs video conferencing: Video vs Web",
+        "back": "• Two-way only | Two-way or webcast\n• Expensive specialist equipment | Uses an ordinary computer\n• Shared mic and speakers | Own computer each\n• Poorer sound quality | Better sound quality"
+      },
+      {
+        "front": "Common mistake: \"Audio conferencing needs an internet connection.\"\nWhat is wrong with it?",
+        "back": "Not always — it can use a standard phone, so there is no time lag or lip-sync error."
+      }
+    ]
+  },
+  {
+    "title": "Chapter 7 – Malware Attacks",
+    "description": "Know the threats, spot the signs, and pick the right defence.",
+    "subject": "IGCSE ICT",
+    "cards": [
+      {
+        "front": "Define: Malware",
+        "back": "Programs installed on a computer to delete, corrupt or manipulate data illegally."
+      },
+      {
+        "front": "Types of Malware: Virus",
+        "back": "Virus — replicates itself within a computer; often spreads by email attachments.\nUsed for: Effects: delete or corrupt files · computer malfunctions · fills disk or RAM with useless data · software errors\nAdvantages:\n• Up-to-date antivirus\n• No software from unknown sources\n• Scan email attachments and external devices\n• Update the system regularly\n• Use a firewall"
+      },
+      {
+        "front": "Types of Malware: Worm",
+        "back": "Worm — self-replicates and spreads across networks without a host file being opened.\nAdvantages:\n• Needs no active file to spread"
+      },
+      {
+        "front": "Types of Malware: Trojan",
+        "back": "Trojan — malware disguised as legitimate software. The user installs it unknowingly.\nAdvantages:\n• Contains malicious embedded code"
+      },
+      {
+        "front": "Types of Malware: Ransomware",
+        "back": "Ransomware — encrypts your data and demands a ransom to restore it.\nAdvantages:\n• Data locked until payment"
+      },
+      {
+        "front": "Types of Malware: Spyware",
+        "back": "Keylogging software — records all key presses and sends them to its originator.\nUsed for: Effect: gives access to passwords and banking details\nAdvantages:\n• Up-to-date anti-spyware\n• Use a pointer or touch screen instead of typing\n• Update the system\n• Use a firewall"
+      },
+      {
+        "front": "Types of Malware: Adware",
+        "back": "Adware — floods the user with unwanted adverts; often signals other malware.\nAdvantages:\n• Unwanted adverts"
+      },
+      {
+        "front": "Signs of a virus: list them",
+        "back": "• Files deleted\n• Disk full\n• Computer unresponsive\n• Random reboots\n• Random pop-ups\n• Software errors"
+      },
+      {
+        "front": "Common mistake: \"A backup protects me from viruses.\"\nWhat is wrong with it?",
+        "back": "A virus may already be attached to the backup, so restoring it reinstalls the virus."
+      },
+      {
+        "front": "Cyber threats: what are the parts?",
+        "back": "Phishing family:\n• Phishing (email)\n• Pharming (fake site)\n• Vishing (voicemail)\n• Smishing (SMS)\nOthers:\n• Hacking\n• Spam\nCard fraud:\n• Shoulder surfing\n• Card cloning"
+      },
+      {
+        "front": "Cyber Threats: Phishing",
+        "back": "A legitimate-looking email with a link to a fake website that collects personal data.\nUsed for: Signs: spelling errors · asks for personal details · sender address does not match · generic greeting · urges quick reply · no logo\nAdvantages:\n• Spam filters\n• Do not click unknown links\n• Never reveal details by email\n• Report suspicious activity\n• Check for HTTPS"
+      },
+      {
+        "front": "Cyber Threats: Pharming",
+        "back": "Malicious code redirects you to a fake website even if you type the right URL.\nUsed for: Signs: incorrect URL · asks for personal info on http instead of https\nAdvantages:\n• Check URL spelling and padlock\n• Anti-malware software\n• Install a firewall\n• Only download from trusted sources"
+      },
+      {
+        "front": "Cyber Threats: Vishing",
+        "back": "A voicemail tricks you into calling a number and giving personal data.\nUsed for: Signs: unknown number · asks for details · generic greeting\nAdvantages:\n• Never reveal details by phone\n• Ignore unknown voicemails\n• Report attempts\n• Never call the number given"
+      },
+      {
+        "front": "Cyber Threats: Smishing",
+        "back": "An SMS with a number to call or a link to a fake site.\nUsed for: Signs: spelling errors · unknown sender · odd time · generic greeting\nAdvantages:\n• Never reveal details\n• Ignore unknown texts\n• Report\n• Never click links or call numbers in suspect texts"
+      },
+      {
+        "front": "How phishing works: what are the steps, in order?",
+        "back": "1. Email – Looks legitimate, contains a link\n2. Click – You click the link\n3. Fake site – Looks real\n4. Theft – Personal data is captured"
+      },
+      {
+        "front": "Cyber Threats: Hacking",
+        "back": "Hacking — gaining unauthorised access to a computer system.\nUsed for: Effects: misuse of personal info · data deleted, changed, copied or corrupted\nAdvantages:\n• Firewalls\n• Strong passwords\n• Biometrics\n• Two-factor authentication\n• Physical security: CCTV, guards, locks"
+      },
+      {
+        "front": "Cyber Threats: Spam",
+        "back": "Spam — unsolicited junk email sent to many people.\nUsed for: Effects: fills mailboxes · spreads malware\nAdvantages:\n• Spam filters\n• Never reply\n• Disposable email address\n• Delete unused accounts\n• Black and white lists"
+      },
+      {
+        "front": "Cyber Threats: Shoulder surfing",
+        "back": "Criminals steal card data while you use it.\nUsed for: Examples: watching you type a PIN · overhearing details · tiny camera at an ATM\nAdvantages:\n• Shield the keypad\n• Never key in data in public\n• Do not speak card details in public\n• Use contactless cards\n• Use biometrics"
+      },
+      {
+        "front": "Cyber Threats: Card cloning",
+        "back": "A skimmer copies the magnetic stripe onto a blank card (a shimmer for smart cards).\nAdvantages:\n• Chip and PIN cards\n• Use a PIN\n• Contactless cards\n• RFID protector\n• Never let the card leave your sight\n• Check spending regularly"
+      },
+      {
+        "front": "Exam tip: Cyber Threats",
+        "back": "Phishing, smishing, vishing, pharming: learn the delivery channel — email, SMS, voicemail, redirect — then the same protection steps."
+      },
+      {
+        "front": "Common mistake: \"Encrypting a file prevents unauthorised access to it.\"\nWhat is wrong with it?",
+        "back": "Encryption does not stop access. It makes the data unreadable without the key."
+      },
+      {
+        "front": "Forms of identification",
+        "back": "Something you own: Card · pen drive · dongle · phone\nSomething you know: Password · PIN\nSomething you have: Biometrics\nWhere you are: GPS location"
+      },
+      {
+        "front": "Define: Strong password",
+        "back": "At least 8 characters, with uppercase, lowercase, a digit and a special character, and not one used before. e.g. Sy12@#TT90kj=0"
+      },
+      {
+        "front": "Security Methods: Strong password",
+        "back": "Strong passwords and how to avoid interception.\nAdvantages:\n• Hard to crack or guess\n• More secure\n• Long, so shoulder surfing is harder\nDisadvantages:\n• Easy to forget — lock out\n• May be written down\n• May be mistyped\n• Looking at the keyboard takes time"
+      },
+      {
+        "front": "Avoid password interception: list them",
+        "back": "• Anti-spyware\n• Change regularly\n• Strong passwords\n• Encryption / SSL"
+      },
+      {
+        "front": "Security Methods: Fingerprint",
+        "back": "Scans the unique pattern of a fingerprint.\nAdvantages:\n• High accuracy\n• Non-intrusive\n• Fast"
+      },
+      {
+        "front": "Security Methods: Iris",
+        "back": "Scans the iris pattern in the eye.\nAdvantages:\n• Very high accuracy\n• Impossible to replicate"
+      },
+      {
+        "front": "Security Methods: Retina",
+        "back": "Scans the blood vessel pattern at the back of the eye.\nAdvantages:\n• Highest accuracy\n• Impossible to replicate"
+      },
+      {
+        "front": "Security Methods: Face",
+        "back": "Identifies a face with a camera.\nAdvantages:\n• Non-intrusive\n• Low cost"
+      },
+      {
+        "front": "Security Methods: Voice",
+        "back": "Identifies a person by voice pattern.\nAdvantages:\n• Non-intrusive\n• Inexpensive"
+      },
+      {
+        "front": "Security Methods: Biometrics",
+        "back": "Body characteristics used as a password.\nAdvantages:\n• Unique to each person\n• Cannot be forgotten\n• User must be present\n• Almost impossible to duplicate\nDisadvantages:\n• Slower than passwords\n• Expensive to set up\n• Finger injuries cause failure\n• Facial hair can block recognition\n• Privacy can be violated"
+      },
+      {
+        "front": "Security Methods: Magnetic stripe",
+        "back": "Stores details on a magnetic stripe, for example to enter a building.\nAdvantages:\n• Easy to use\n• Not expensive\n• Can be deactivated remotely\n• Multi-purpose\nDisadvantages:\n• No encryption — easily copied\n• Cards wear out\n• Readers often fail first time"
+      },
+      {
+        "front": "Security Methods: Smart card",
+        "back": "Uses RFID (chip + antenna) and a PIN.\nAdvantages:\n• PIN verifies the owner\n• Very fast read\n• More robust than magnetic stripe\nDisadvantages:\n• Signal can be hacked\n• More expensive to make\n• Can be jammed"
+      },
+      {
+        "front": "Entering a security gate with a smart card: what are the steps, in order?",
+        "back": "1. Present – Show the smart card\n2. Scan – RFID readers read the tag\n3. PIN – Enter the PIN on the keypad\n4. Match – If all details match, access is allowed"
+      },
+      {
+        "front": "Two-factor authentication: what are the steps, in order?",
+        "back": "1. Factor 1 – Enter your password\n2. Code – A code is sent to your pre-set device\n3. Factor 2 – Enter the code\n4. Access – Login succeeds"
+      },
+      {
+        "front": "Security Methods: Digital certificate",
+        "back": "An electronic document that shows a website is trusted and shares a public key.\nAdvantages:\n• Owner's name\n• Owner's public key\n• Date issued\n• Expiry date\n• Digital signature\n• Issuer's name\n• Serial number"
+      },
+      {
+        "front": "Security Methods: Encryption",
+        "back": "Scrambles a message so it is meaningless without the decryption key.\nAdvantages:\n• Plain text + key → cypher text\n• Cypher text + key → plain text\n• Used with HTTPS / SSL\n• Data on drives, email and cloud"
+      },
+      {
+        "front": "Encrypting a message: what are the steps, in order?",
+        "back": "1. Plain text – Original message\n2. Encrypt – Algorithm + key\n3. Cypher text – Unreadable if intercepted\n4. Decrypt – Key restores plain text"
+      },
+      {
+        "front": "Antivirus on a downloaded file: what are the steps, in order?",
+        "back": "1. Install – Up-to-date antivirus\n2. Check – File compared to a known-virus database\n3. Alert – User is warned\n4. Choose – Delete or quarantine"
+      },
+      {
+        "front": "Delete vs quarantine",
+        "back": "Delete: File and virus are removed\nQuarantine: File moved to a hidden folder, then cleaned"
+      },
+      {
+        "front": "Exam tip: Security Methods",
+        "back": "Describe antivirus in steps: checks against a database → alerts → delete or quarantine."
+      },
+      {
+        "front": "Common mistake: \"Two-factor authentication means two passwords.\"\nWhat is wrong with it?",
+        "back": "It means two different methods — e.g. a password plus a code sent to your phone."
+      },
+      {
+        "front": "Which biometric scans blood vessels at the back of the eye?",
+        "back": "Retina scan — the iris is the coloured part at the front."
+      }
+    ]
+  },
+  {
+    "title": "Chapter 8 – System Development Life Cycle",
+    "description": "How an ICT system goes from a problem to a finished, evaluated solution.",
+    "subject": "IGCSE ICT",
+    "cards": [
+      {
+        "front": "Define: SDLC",
+        "back": "A structured process for developing an ICT system."
+      },
+      {
+        "front": "The six stages: what are the steps, in order?",
+        "back": "1. Analysis – Find out what is needed\n2. Design – Plan the new system\n3. Development & testing – Build and check it\n4. Implementation – Put it into use\n5. Documentation – Write the guides\n6. Evaluation – Judge how well it works"
+      },
+      {
+        "front": "Exam tip: The SDLC",
+        "back": "Learn the stage order in sequence: Analysis → Design → Development/Testing → Implementation → Documentation → Evaluation."
+      },
+      {
+        "front": "Define: Systems analyst",
+        "back": "The person who carries out the analysis of the current system."
+      },
+      {
+        "front": "Analyst tasks",
+        "back": "Research: The current system\nIdentify: Inputs, processing and outputs\nIdentify: Problems with the current system\nIdentify: User and information requirements\nChoose: Suitable hardware and software\nCreate: A data flow diagram"
+      },
+      {
+        "front": "Why identify inputs, processing and outputs?",
+        "back": "Understand: How the system works\nInput / output: Devices needed\nProcessing: Devices needed\nStorage: Space needed"
+      },
+      {
+        "front": "Analysis: Input",
+        "back": "Choose input devices with a justification.\nAdvantages:\n• Barcode reader — faster, fewer errors than manual input\n• Scanner — convert paper documents to electronic\n• Touchscreen — cost-effective, no missed data in a customer conversation"
+      },
+      {
+        "front": "Analysis: Output",
+        "back": "Choose output devices with a justification.\nAdvantages:\n• 3D printer — faster, cheaper customised items\n• Large monitors — for CAD software\n• Speakers — verbal output for staff with disabilities"
+      },
+      {
+        "front": "Common mistake: \"The analyst designs the new system.\"\nWhat is wrong with it?",
+        "back": "Designing is a separate stage. The analyst researches and identifies requirements."
+      },
+      {
+        "front": "Research Methods: Observation",
+        "back": "Watching employees use the existing system.\nAdvantages:\n• Reliable data\n• Better overall view\n• Inexpensive\nDisadvantages:\n• People work differently when watched (Hawthorne effect)\n• Depends on the skill of the observer"
+      },
+      {
+        "front": "Research Methods: Interview",
+        "back": "A one-to-one question and answer session with the client.\nAdvantages:\n• More reliable data\n• Lots of detail\n• Flexible — questions can change\nDisadvantages:\n• Time consuming\n• Expensive (analyst time)\n• Not anonymous — may hide information\n• Interviewees may be unavailable"
+      },
+      {
+        "front": "Research Methods: Questionnaire",
+        "back": "Written questions sent to the workforce.\nAdvantages:\n• Fast to complete\n• Inexpensive\n• Anonymous\n• Filled in at own time\nDisadvantages:\n• Inflexible, general questions\n• May exaggerate (anonymous)\n• May not be taken seriously\n• Misunderstood questions\n• Low response rate"
+      },
+      {
+        "front": "Research Methods: Documents",
+        "back": "Examining existing paper files and documents.\nAdvantages:\n• Information not available any other way\n• See the paper system and scale of the problem\n• Saves time — may have earlier analysis\nDisadvantages:\n• Time consuming\n• Expensive"
+      },
+      {
+        "front": "Exam tip: Research Methods",
+        "back": "Always give a comparison: interview = detail but slow; questionnaire = fast and anonymous but inflexible."
+      },
+      {
+        "front": "Design tasks: list them",
+        "back": "• Input forms\n• Output forms\n• File structures\n• Data structures\n• Validation routines\n• Hardware and software"
+      },
+      {
+        "front": "File structure design includes",
+        "back": "Field lengths: \nField names: \nData types: \nCoding of data: e.g. M / F"
+      },
+      {
+        "front": "Design: Off-the-shelf",
+        "back": "Ready-made software bought and used.\nAdvantages:\n• Cheaper — no development cost\n• Available sooner\n• More reliable — tested\n• More support — large user base\nDisadvantages:\n• May not meet all needs\n• Uses more memory\n• Cannot easily be changed"
+      },
+      {
+        "front": "Design: Bespoke",
+        "back": "Written specifically for the company.\nAdvantages:\n• Meets the company's needs\n• Uses less memory\n• Easy to use — fewer functions\n• Customised support\n• Can be changed whenever needed\nDisadvantages:\n• Expensive to develop\n• Takes longer\n• May contain untested errors"
+      },
+      {
+        "front": "A well-designed input form has: list them",
+        "back": "• All necessary fields\n• Clear labels\n• Readable font\n• Simple language\n• Right-sized entry boxes\n• Instructions\n• Good layout and white space\n• Sensible error messages\n• Auto-complete\n• Radio buttons / drop-downs\n• Navigation buttons\n• Help button"
+      },
+      {
+        "front": "Common mistake: \"Bespoke software is always better.\"\nWhat is wrong with it?",
+        "back": "It fits the need, but costs more, takes longer and may have untested errors. Always weigh both sides."
+      },
+      {
+        "front": "Define: Development",
+        "back": "Programming to produce the software, broken into small parts called modules."
+      },
+      {
+        "front": "Why testing is needed",
+        "back": "Robust: Database is fully tested before go-live\nCorrect data: Validation and transferred data are checked\nUser-friendly: Screens and outputs match inputs"
+      },
+      {
+        "front": "Test data: Normal",
+        "back": "Definition: Acceptable data\nMonth field (1–12): 6"
+      },
+      {
+        "front": "Test data: Abnormal",
+        "back": "Definition: Outside limits or wrong type — rejected\nMonth field (1–12): 15 or \"abc\""
+      },
+      {
+        "front": "Test data: Extreme",
+        "back": "Definition: At the limits — accepted\nMonth field (1–12): 1 or 12"
+      },
+      {
+        "front": "Test data: Live",
+        "back": "Definition: Real data from earlier tests\nMonth field (1–12): Last month's records"
+      },
+      {
+        "front": "Testing strategies: what are the steps, in order?",
+        "back": "1. Unit – Each module separately\n2. Integration – Links between modules\n3. System – The whole system together"
+      },
+      {
+        "front": "A test plan lists",
+        "back": "Tests: All tests to perform\nData: What data is tested\nType: Which test data type\nExpected: Expected outcomes\nActual: Check actual matches expected"
+      },
+      {
+        "front": "Common mistake: \"Extreme data should be rejected.\"\nWhat is wrong with it?",
+        "back": "Extreme data is at the limits and is accepted. Abnormal data is rejected."
+      },
+      {
+        "front": "A month field accepts 1–12. Is 12 normal, abnormal or extreme?",
+        "back": "Extreme — it is on the boundary and should be accepted."
+      },
+      {
+        "front": "Implementation: Parallel",
+        "back": "New system runs alongside the old for a time.\nUsed for: Large amounts of data that cannot be lost · system needs full testing\nAdvantages:\n• Old system is a backup\n• Gradual training\n• Thorough checking\nDisadvantages:\n• Expensive — extra staff\n• Time consuming — data entered twice"
+      },
+      {
+        "front": "Implementation: Direct",
+        "back": "Old system replaced immediately / overnight.\nUsed for: Small organisations that can afford to lose data · need to be up quickly\nAdvantages:\n• Cheaper\n• Benefits immediate\n• Saves time\n• Data entered once\nDisadvantages:\n• If it fails, all data may be lost\n• Staff cannot be trained gradually"
+      },
+      {
+        "front": "Implementation: Phased",
+        "back": "New system introduced part by part.\nUsed for: Clearly separate processes · full testing needed\nAdvantages:\n• If it fails, most of old system remains\n• Ensures each part works\n• Staged training\nDisadvantages:\n• More expensive than direct\n• Very time consuming"
+      },
+      {
+        "front": "Implementation: Pilot",
+        "back": "Whole system introduced in one branch at a time.\nUsed for: Several branches doing the same work\nAdvantages:\n• Only one branch affected if it fails\n• Faster, cheaper training than parallel\nDisadvantages:\n• Takes time for all branches\n• Pilot branch may differ"
+      },
+      {
+        "front": "Risk if the new system fails",
+        "back": "Direct: Highest\nPilot: One branch\nPhased: One part\nParallel: Lowest"
+      },
+      {
+        "front": "Common mistake: \"Parallel running is cheap because the old system stays.\"\nWhat is wrong with it?",
+        "back": "It is expensive — extra staff run both systems and enter data twice."
+      },
+      {
+        "front": "Documentation: User",
+        "back": "Helps users learn the system and fix errors.\nAdvantages:\n• Purpose and limitations\n• Hardware and software needs\n• Sample runs\n• Input and output formats\n• How to install, log in, save, sort, print\n• Add, delete, edit records\n• Error messages\n• Troubleshooting, FAQs\n• Tutorials and glossary"
+      },
+      {
+        "front": "Documentation: Technical",
+        "back": "Helps programmers and analysts improve and maintain it.\nAdvantages:\n• Purpose and limitations\n• Hardware and software needs\n• Sample runs\n• Input and output formats\n• Programming language and code listing\n• Flowcharts and algorithms\n• File structures, list of variables\n• Validation routines\n• Known bugs"
+      },
+      {
+        "front": "Exam tip: Documentation",
+        "back": "User = how to use it. Technical = how it works and how to fix it."
+      },
+      {
+        "front": "Factors assessed: list them",
+        "back": "• Efficiency (cost and speed)\n• Ease of use\n• Appropriateness (all requirements met)"
+      },
+      {
+        "front": "Evaluating the system: what are the steps, in order?",
+        "back": "1. Compare – New vs old performance\n2. Feedback – Users' responses and interviews\n3. Requirements – Final solution vs original needs\n4. Improve – Limitations and improvements"
+      },
+      {
+        "front": "Factors of the audience",
+        "back": "Age range: \nIncome: \nInterests: \nDisabilities: \nGender: \nExperience: \nKnowledge:"
+      },
+      {
+        "front": "Target Audience: Young children",
+        "back": "Keep their attention.\nAdvantages:\n• Animation and sound\n• Large font, simple language\n• Colourful, more images than text\n• Games and transitions\n• Easy interface (touch, voice)"
+      },
+      {
+        "front": "Target Audience: Adults",
+        "back": "Content-focused.\nAdvantages:\n• Formal font, technical language\n• Fewer images, more text\n• Plain backgrounds\n• Upper and lower case\n• Bullet points"
+      },
+      {
+        "front": "Target Audience: Older people",
+        "back": "Easy to read and use.\nAdvantages:\n• Contrasting colours\n• Larger font\n• Touchscreen interface\n• Consistent display\n• Less technical language"
+      },
+      {
+        "front": "Target Audience: Visually impaired",
+        "back": "Accessible form design.\nAdvantages:\n• Large buttons\n• Large font\n• High contrast\n• Voice entry\n• Text-to-speech"
+      },
+      {
+        "front": "Common mistake: \"Young children want a lot of text and a plain design.\"\nWhat is wrong with it?",
+        "back": "Young children need animation, sound, colour and more images than text."
+      }
+    ]
+  },
+  {
+    "title": "Chapter 9 – ICT Systems",
+    "description": "Sensors, control, expert systems, modelling and robots — computers that act on the real world.",
+    "subject": "IGCSE ICT",
+    "cards": [
+      {
+        "front": "Define: Sensor",
+        "back": "An input device that measures the physical properties of the surrounding environment."
+      },
+      {
+        "front": "Types of sensors: Sensor vs Measures",
+        "back": "• Temperature | Heat\n• Light | Light intensity\n• Humidity / moisture | Moisture\n• Pressure | Force or weight\n• Motion / infra-red | Movement\n• Sound | Sound levels\n• pH | Acidity (soil, river water)\n• Water level | Liquid level\n• Gas | Oxygen, carbon dioxide"
+      },
+      {
+        "front": "Why data is converted: what are the steps, in order?",
+        "back": "1. Sensor – Reads analogue data\n2. ADC – Converts to digital\n3. Computer – Understands digital only"
+      },
+      {
+        "front": "Sensors: Computer-controlled",
+        "back": "A system of sensors, a microprocessor and outputs working without human intervention.\nAdvantages:\n• More accurate readings\n• More frequent readings, 24/7\n• More consistent\n• Safer in hazardous places\n• Faster response\n• No wages\nDisadvantages:\n• Faulty sensor gives false results\n• Cyber attacks\n• Expensive to set up\n• More maintenance"
+      },
+      {
+        "front": "Common mistake: \"Sensors send digital data to the computer.\"\nWhat is wrong with it?",
+        "back": "Sensors read analogue data. An ADC must convert it first."
+      },
+      {
+        "front": "Monitoring system: what are the steps, in order?",
+        "back": "1. Sensors – Take measurements\n2. ADC – Analogue → digital\n3. Microprocessor – Processes data\n4. Display – Graphs and charts"
+      },
+      {
+        "front": "Examples: list them",
+        "back": "• Patient vital signs\n• Car engine temperature\n• Burglar alarm\n• River pollution\n• Weather station\n• Lab experiments"
+      },
+      {
+        "front": "Hospital patient monitoring: what are the steps, in order?",
+        "back": "1. Sensors – Heart rate, temperature, blood pressure\n2. ADC – Converts to digital\n3. Compare – Microprocessor checks preset values\n4. Alarm / display – Out of range = alarm; in range = graph"
+      },
+      {
+        "front": "Burglar alarm: what are the steps, in order?",
+        "back": "1. PIN – System is activated\n2. Sensors – Infra-red, sound, pressure\n3. Compare – Microprocessor checks values\n4. Siren – Out of range: siren and light"
+      },
+      {
+        "front": "Weather station sensors",
+        "back": "Temperature: Measures temperature\nLight: Hours of daylight\nLevel: Rainfall\nPressure: Air pressure"
+      },
+      {
+        "front": "Common mistake: \"A monitoring system changes the environment.\"\nWhat is wrong with it?",
+        "back": "Monitoring only measures. A control system acts to change it."
+      },
+      {
+        "front": "Control system: what are the steps, in order?",
+        "back": "1. Sensors – Take readings\n2. ADC – Converts\n3. Microprocessor – Compares with preset\n4. Actuator – Acts on the environment"
+      },
+      {
+        "front": "Monitoring vs control: Monitoring vs Control",
+        "back": "• Measures only | Microprocessor takes action\n• No effect on readings | Action affects sensor readings"
+      },
+      {
+        "front": "Computer Control: Air conditioning",
+        "back": "Temperature sensor and cooling unit.\nAdvantages:\n• Sensor sends temperature to microprocessor\n• ADC converts\n• Compares with preset value\n• Greater or equal: actuator turns cooling ON\n• Less: actuator turns cooling OFF\n• Loop continues until switched off"
+      },
+      {
+        "front": "Computer Control: Washing machine",
+        "back": "Temperature, water level and pressure sensors.\nAdvantages:\n• Temperature above preset: heater OFF; below: heater ON\n• Water level low: tap ON; high: tap OFF\n• Continues until cycle complete"
+      },
+      {
+        "front": "Computer Control: Greenhouse",
+        "back": "Temperature, humidity, light, pH, gas sensors.\nAdvantages:\n• Temperature high: fans ON\n• Temperature low: heaters ON\n• Humidity low: sprinklers ON, windows close"
+      },
+      {
+        "front": "Computer Control: Street lights",
+        "back": "Light sensor.\nAdvantages:\n• Below stored value: lamp ON for 30 minutes\n• Above or equal: lamp OFF for 30 minutes\n• Continuous loop"
+      },
+      {
+        "front": "Computer Control: Cruise control",
+        "back": "Proximity sensor on a car.\nAdvantages:\n• Calculates distance to car in front\n• Less than safe distance: brakes ON, throttle reduced\n• Greater: brakes released, throttle increased"
+      },
+      {
+        "front": "Exam tip: Computer Control",
+        "back": "Every control answer follows the same loop: sensor → ADC → microprocessor compares with preset → actuator → repeat."
+      },
+      {
+        "front": "Common mistake: \"The sensor switches the heater on.\"\nWhat is wrong with it?",
+        "back": "The microprocessor decides; the actuator switches the heater."
+      },
+      {
+        "front": "Smart transport uses: list them",
+        "back": "• Motorway traffic control\n• Congestion zones\n• ANPR\n• Traffic lights\n• Air traffic control\n• Rail networks"
+      },
+      {
+        "front": "Transport Systems: Smart transport",
+        "back": "Computerised traffic and transport control.\nAdvantages:\n• Fewer jams, shorter journeys\n• Adapts to traffic\n• Accidents detected easily\n• Offences penalised by ANPR\n• Stolen cars spotted\n• Less human error\nDisadvantages:\n• Hackers could disrupt it\n• System failure stops everything\n• Poor design risks safety\n• ANPR tracks innocent people (privacy)"
+      },
+      {
+        "front": "Define: Autonomous vehicle",
+        "back": "Relies on sensors, cameras, microprocessors and actuators to control its own movement."
+      },
+      {
+        "front": "How it senses the world",
+        "back": "Sensors: Detect obstacles and conditions\nCameras: Build a 3D image\nLIDAR: Lasers build a 3D image\nRadar / ultrasonic: Obstacle detection\nGPS: Navigation and speed"
+      },
+      {
+        "front": "Autonomous Vehicles: Cars",
+        "back": "Driverless cars.\nAdvantages:\n• Safer — no human error\n• Better for the environment\n• Less congestion, shorter travel\n• Self-parking\nDisadvantages:\n• Very expensive\n• Hacking risk\n• Software glitches\n• Dirty cameras give false results\n• Fail in heavy snow\n• Taxi job losses\n• Passenger reluctance"
+      },
+      {
+        "front": "Autonomous Vehicles: Trains",
+        "back": "Driverless trains.\nAdvantages:\n• Lower running costs\n• Safer\n• Less energy used\nDisadvantages:\n• Hacking fears\n• High operating costs\n• Passenger reluctance"
+      },
+      {
+        "front": "Autonomous Vehicles: Aeroplanes",
+        "back": "Pilotless aircraft.\nAdvantages:\n• Lower running costs\n• Safer\n• Improved aerodynamics\nDisadvantages:\n• Emergencies hard to deal with\n• Hacking\n• Passenger reluctance"
+      },
+      {
+        "front": "Define: Expert system",
+        "back": "Software that acts like a human expert in a particular field."
+      },
+      {
+        "front": "Components",
+        "back": "User interface: Asks questions, shows results\nKnowledge base: Collection of facts and rules\nRules base: Inference rules linking the facts\nInference engine: Applies knowledge to find the solution\nExplanation system: Shows how the result was reached"
+      },
+      {
+        "front": "Medical diagnosis: what are the steps, in order?",
+        "back": "1. Ask – Interface asks about symptoms\n2. Infer – Engine picks next questions from previous answers\n3. Compare – Answers vs knowledge + rules base\n4. Output – Diagnosis shown\n5. Explain – Explanation system shows how"
+      },
+      {
+        "front": "Setting one up: what are the steps, in order?",
+        "back": "1. Gather – Information from experts\n2. Knowledge base – Create and populate\n3. Rules base – Create inference rules\n4. Engine – Set up\n5. Interface – Create\n6. Test – Against known scenarios"
+      },
+      {
+        "front": "Examples: list them",
+        "back": "• Medical diagnosis\n• Plant / animal identification\n• Car fault diagnosis\n• Oil prospecting\n• Chess\n• Financial planning\n• Route scheduling"
+      },
+      {
+        "front": "Expert Systems: Expert systems",
+        "back": "Pros and cons.\nAdvantages:\n• Available 24/7\n• Very fast response\n• Used where experts are unavailable\n• Combine several experts\n• Give probabilities\n• Unbiased\n• Store vast facts\nDisadvantages:\n• Lack common sense\n• Errors in the knowledge base give wrong decisions\n• Expensive\n• Costly operator training\n• Unsuitable for sensitive medical cases"
+      },
+      {
+        "front": "Common mistake: \"The knowledge base makes the decisions.\"\nWhat is wrong with it?",
+        "back": "The inference engine is the active part. The knowledge base only stores facts and rules."
+      },
+      {
+        "front": "Define: Computer model",
+        "back": "A program that simulates a real-life system."
+      },
+      {
+        "front": "Uses: list them",
+        "back": "• Financial modelling\n• Bridge design\n• Flood management\n• Traffic management\n• Weather forecasting\n• Simulators\n• Crash tests"
+      },
+      {
+        "front": "Computer Modelling: Models",
+        "back": "Pros and cons.\nAdvantages:\n• Cheaper than building the real thing\n• Safer in hazardous situations\n• Try many scenarios\n• Often faster\n• Reduces fuel and repair costs\nDisadvantages:\n• Too many variables to cover\n• Costs of programmers and hardware\n• Skilled staff needed\n• Software errors can be catastrophic"
+      },
+      {
+        "front": "Define: Robot",
+        "back": "A machine that can be programmed to carry out a variety of tasks."
+      },
+      {
+        "front": "Robots: Robots",
+        "back": "Pros and cons.\nAdvantages:\n• More accurate\n• Higher productivity, 24/7\n• Consistent results\n• Lower running costs\n• Safer in dangerous places\n• Lift heavy loads\nDisadvantages:\n• Expensive to set up\n• Costly maintenance\n• Unemployment in manual tasks\n• Cannot adapt to unexpected events\n• Deskilling\n• Hacking risk"
+      },
+      {
+        "front": "Give one reason a robot is better than a human on a production line.",
+        "back": "Consistent results — identical output every time; or works 24/7 without wages."
+      }
+    ]
+  },
+  {
+    "title": "Chapter 10 – Banking Applications",
+    "description": "How money moves: cards, ATMs, cheques, tokens and online banking.",
+    "subject": "IGCSE ICT",
+    "cards": [
+      {
+        "front": "Define: EFT",
+        "back": "Electronic Funds Transfer — instructions sent directly to a bank's computer. No actual money moves; it is an electronic transfer between accounts."
+      },
+      {
+        "front": "EFT & EFTPOS: EFT",
+        "back": "Uses: staff salaries · paying by card in a store (EFTPOS).\nAdvantages:\n• Very secure\n• Very quick\n• Cheaper than cheques\n• Customer can dispute for up to 60 days\nDisadvantages:\n• Hard to reverse\n• Funds must be available immediately\n• Cannot guarantee the recipient (fake ID)"
+      },
+      {
+        "front": "Define: EFTPOS",
+        "back": "Payment by card or smartphone at the point of sale, over a secure internet connection to the bank."
+      },
+      {
+        "front": "A typical POS has",
+        "back": "Input: Barcode scanner for goods\nPayment: Chip & PIN / stripe reader\nReceipt: Printer\nStock: Updates stock level on each sale"
+      },
+      {
+        "front": "Benefits of POS to retailers: list them",
+        "back": "• Tracks sales to know when to order\n• Shows what sells well or badly\n• Faster transactions\n• Itemised bills\n• Self-checkout saves staff costs"
+      },
+      {
+        "front": "Card types: Magnetic stripe",
+        "back": "Storage: Magnetic stripe\nSecurity: Lower — easily skimmed"
+      },
+      {
+        "front": "Card types: Chip & PIN",
+        "back": "Storage: Embedded chip\nSecurity: Higher — PIN must match chip; encrypted"
+      },
+      {
+        "front": "Card types: Contactless / NFC",
+        "back": "Storage: Chip + antenna\nSecurity: Medium — no PIN for small amounts"
+      },
+      {
+        "front": "Payment Cards: Chip & PIN",
+        "back": "Compared with magnetic stripe cards.\nAdvantages:\n• Editable memory\n• PIN needed if lost\n• Not affected by magnetic fields\n• Not prone to cloning\nDisadvantages:\n• More shoulder surfing\n• More phishing and pharming\n• Slower transactions"
+      },
+      {
+        "front": "Chip & PIN payment: what are the steps, in order?",
+        "back": "1. Insert – Card in reader; bank contacted\n2. Validity – Expiry, stolen check\n3. PIN – Keyed PIN compared to chip PIN\n4. Funds – Balance checked; authorisation code sent\n5. Transfer – Debit customer, credit shop\n6. Receipt – Proof of purchase"
+      },
+      {
+        "front": "Exam tip: Payment Cards",
+        "back": "PIN trials: 3 only, then the card is retained."
+      },
+      {
+        "front": "Contactless card: what are the steps, in order?",
+        "back": "1. Amount – Operator enters value\n2. Limit – Checks below contactless limit\n3. Tap – Chip read using RFID\n4. Bank check – Validity and funds checked\n5. Transfer – Amount moved between accounts"
+      },
+      {
+        "front": "NFC smartphone payment: what are the steps, in order?",
+        "back": "1. Amount – Operator enters value\n2. Hold – Phone close to terminal\n3. Exchange – Encrypted data back and forth\n4. Funds – Balance checked\n5. Transfer – Wallet / account updated"
+      },
+      {
+        "front": "Contactless & NFC: Contactless / NFC",
+        "back": "Tap to pay.\nAdvantages:\n• Fast — no PIN\n• Shorter queues\n• Encrypted\n• NFC needs only a phone\n• Phone protected by biometrics\nDisadvantages:\n• Small amounts only\n• Fraud risk if lost — no PIN\n• May be read accidentally\n• Wireless theft possible\n• Cards cost more"
+      },
+      {
+        "front": "Define: ATM",
+        "back": "Lets customers bank without visiting a branch: withdraw or deposit cash, check balance, mini statement, pay bills, transfer money."
+      },
+      {
+        "front": "Withdrawing cash: what are the steps, in order?",
+        "back": "1. Insert card – Validity checked\n2. PIN – Compared with chip PIN, 3 trials\n3. Choose – Select withdraw cash\n4. Amount – Enter amount\n5. Checks – Balance and daily limit\n6. Dispense – Card ejected, cash given, account updated"
+      },
+      {
+        "front": "ATMs & Phone Banking: ATMs",
+        "back": "Pros and cons.\nAdvantages:\n• Cash at any time\n• Many services without the bank\n• Access from anywhere in the world\n• Quicker than a queue\nDisadvantages:\n• Theft risk at night\n• Shoulder surfing and cloning\n• Bank charges\n• Withdrawal limits\n• Faulty card means no transaction\n• No personal touch"
+      },
+      {
+        "front": "Phone banking: what are the steps, in order?",
+        "back": "1. Call – The bank hotline\n2. Account – Enter account number\n3. PIN – Automated system asks for PIN\n4. Menu – 1 = transfer, 2 = balance, 0 = customer service"
+      },
+      {
+        "front": "Common mistake: \"The ATM pays out before it checks the balance.\"\nWhat is wrong with it?",
+        "back": "The balance and the daily limit are checked before the cash is dispensed."
+      },
+      {
+        "front": "Tokens & Cheques: Physical token",
+        "back": "A hardware device that generates a one-time password (OTP) valid for under a minute.\nAdvantages:\n• Insert debit card into the token\n• Device accepts the card\n• Press IDENTIFY and enter PIN\n• OTP appears on screen\n• Enter OTP on the bank web page\n• Correct: access given"
+      },
+      {
+        "front": "Tokens & Cheques: Electronic token",
+        "back": "Software on a smartphone that generates an OTP valid for under a minute.\nAdvantages:\n• Install the app\n• Open it when the website asks\n• App generates OTP\n• Enter OTP\n• Server runs the same software and generates the same OTP\n• Verified: access given"
+      },
+      {
+        "front": "Cheque clearing: what are the steps, in order?",
+        "back": "1. Deliver – Payee gives cheque to own bank\n2. MICR – Clearing centre reads and encrypts into an IBDE file\n3. Exchange – Sent to Exchange Centre\n4. Paying bank – Validates signature, checks cheque\n5. Funds – Payer has enough funds?\n6. Pay or return – Pay and transfer, or return"
+      },
+      {
+        "front": "Tokens & Cheques: Cheques",
+        "back": "Code line: account number, sort code, cheque number.\nAdvantages:\n• Safer than cash\n• Payment can be stopped\n• Valid up to six months\n• Can be post-dated\n• Traceable\nDisadvantages:\n• Can be refused\n• Slow — about 3 days\n• Easier for fraudsters\n• Relatively expensive"
+      },
+      {
+        "front": "Processing types: Real-time",
+        "back": "Definition: Processed immediately\nUsed for: ATM, online booking, hospital monitoring"
+      },
+      {
+        "front": "Processing types: Batch",
+        "back": "Definition: Stored and processed all at once at a set time\nUsed for: Cheques, utility bills, payroll, stock update"
+      },
+      {
+        "front": "Automatic re-ordering: what are the steps, in order?",
+        "back": "1. Scan – Barcode scanned\n2. Search – Record found in stock database\n3. Reduce – Number in stock minus quantity sold\n4. Compare – New NIS vs re-order number\n5. Order – Lower: automatically re-order\n6. Update – New NIS written back"
+      },
+      {
+        "front": "Define: Re-order number",
+        "back": "A pre-set minimum allowable stock before more is ordered."
+      },
+      {
+        "front": "Common mistake: \"Batch processing updates immediately.\"\nWhat is wrong with it?",
+        "back": "Real-time processes immediately. Batch waits and processes at a set time."
+      },
+      {
+        "front": "Uses: list them",
+        "back": "• Check balances\n• Pay bills\n• Transfer money (EFT)\n• Apply for loans"
+      },
+      {
+        "front": "Internet Banking: Customers",
+        "back": "For the customer.\nAdvantages:\n• Disabled / elderly can bank from home\n• Any time, any day\n• No queues\n• Less embarrassing to ask for a loan\nDisadvantages:\n• Hacking, stolen card details\n• Fake bank websites\n• Needs computer and internet\n• Easier to transfer to wrong accounts\n• Isolation"
+      },
+      {
+        "front": "Internet Banking: Banks",
+        "back": "For the bank.\nAdvantages:\n• Fewer staff and branches\n• Fewer security staff\n• Global customer base\n• Fewer robberies\nDisadvantages:\n• Retraining cost\n• Website set-up and upkeep\n• Drop in customer loyalty"
+      }
+    ]
+  },
+  {
+    "title": "Chapter 11 – ICT Applications",
+    "description": "Medicine, GPS, number plates, biometrics, robots and the workplace.",
+    "subject": "IGCSE ICT",
+    "cards": [
+      {
+        "front": "Computers in medicine: what are the parts?",
+        "back": "Records and monitoring:\n• Patient records database\n• Sensors monitor patients\n• Expert systems diagnose\nImaging:\n• CT — X-ray slices\n• MRI — magnets and radio waves, no radiation\nMaking things:\n• Prosthetics\n• Tissue engineering\n• 3D-printed medicines"
+      },
+      {
+        "front": "3D-printed customised pill: what are the steps, in order?",
+        "back": "1. Combine – Active ingredients form a fine gas\n2. Spray – Medicines layered by spraying\n3. Solidify – Gas solidifies\n4. Print – 3D printer builds the pill layer by layer"
+      },
+      {
+        "front": "Medical & Educational: CAL",
+        "back": "Computers enhance learning and teaching.\nAdvantages:\n• Learn anytime, own pace\n• Interactive multimedia\n• VR immersion\n• Stop and return later\n• MCQs marked instantly\nDisadvantages:\n• Expensive to integrate\n• Time consuming to integrate\n• Easily distracted\n• Cannot answer unusual questions\n• Isolation"
+      },
+      {
+        "front": "Define: GPS",
+        "back": "A space-based system that uses satellites to calculate a receiver's position. Typically four satellites must be visible."
+      },
+      {
+        "front": "How GPS finds you: what are the steps, in order?",
+        "back": "1. Signal – Satellites send signals constantly\n2. Receive – Receiver picks up four\n3. Distance – Signal travel time gives distance\n4. Position – Located by triangulation"
+      },
+      {
+        "front": "GPS uses: list them",
+        "back": "• Satnav in cars\n• Walkers\n• Runners\n• Livestock control\n• Aircraft and ships\n• Nearest ATM / hospital"
+      },
+      {
+        "front": "GPS & Satellites: Satnav",
+        "back": "Uses GPS readings to navigate to a destination.\nAdvantages:\n• No paper maps — safer\n• Estimates arrival time\n• Fastest route, avoids traffic\n• Shows petrol stations, hospitals\nDisadvantages:\n• Outdated maps give wrong directions\n• Weak signal indoors or in tunnels\n• Wrong start or destination = wrong data"
+      },
+      {
+        "front": "GPS & Satellites: GIS",
+        "back": "Maps, models, analyses and queries data by location.\nUsed for: Emergency services · teachers · biologists · crime mapping · wildfire risk · crops\nAdvantages:\n• Combines geographical and thematic data\n• Handles huge data\n• Many sources\nDisadvantages:\n• Long learning curve\n• Very expensive software\n• Huge data entry means errors\n• Hard to be fast and user-friendly"
+      },
+      {
+        "front": "GPS & Satellites: Satellite comms",
+        "back": "TV, radio, phone, internet and tracking by satellite.\nAdvantages:\n• Covers most of the Earth\n• Cheaper than cables in difficult landscape\n• High bandwidth\n• Easy to expand\n• Good security\n• Portable receivers\nDisadvantages:\n• Time delay\n• Weather and obstructions affect it\n• Sunspots\n• Orbits must be monitored"
+      },
+      {
+        "front": "How ANPR reads a number plate: what are the steps, in order?",
+        "back": "1. Capture – Camera takes an image of the front\n2. Isolate – Algorithm finds the plate\n3. OCR – Each character becomes text\n4. Store – Text saved to database\n5. Check – Matched against records"
+      },
+      {
+        "front": "Recognition Devices: ANPR",
+        "back": "Used for stolen cars, average speed, car parks, tolls and border control.\nAdvantages:\n• No security guards\n• Saves time\n• Fewer errors\n• Prevents illegal parking\n• Analyses driver behaviour\nDisadvantages:\n• All vehicles must be in the database\n• Dirty or damaged plates fail\n• Odd fonts unreadable\n• Expensive\n• Privacy invasion"
+      },
+      {
+        "front": "Recognition Devices: RFID",
+        "back": "Reads tags by radio. Passive tags use the reader's power; active have their own.\nUsed for: Stock tracking · livestock · passports · car parks · contactless payment · security cards\nAdvantages:\n• More secure — biometrics hard to forge\n• Forgeries easily spotted\n• Quicker\nDisadvantages:\n• Signal can be hacked\n• Tag collision"
+      },
+      {
+        "front": "Passport scan: what are the steps, in order?",
+        "back": "1. Place – Passport on the scanner\n2. Read – RFID reads biometric data\n3. Scan – Holder scans a finger\n4. Compare – Fingerprint vs chip data\n5. Match – Allowed through"
+      },
+      {
+        "front": "On a passport chip: list them",
+        "back": "• Name\n• Passport number\n• Date of birth\n• Nationality\n• Biometric data"
+      },
+      {
+        "front": "Biometrics: Biometrics",
+        "back": "Unique body attributes used as a password.\nAdvantages:\n• Unique, almost impossible to duplicate\n• Quicker than manual checks\n• Cannot be forgotten\nDisadvantages:\n• Expensive to set up\n• Injuries affect accuracy\n• Privacy — must be stored securely"
+      },
+      {
+        "front": "Define: Zero login",
+        "back": "Identifies a user by combining biometric data and behavioural patterns, with no manual input."
+      },
+      {
+        "front": "Behavioural patterns: list them",
+        "back": "• How you walk (gait)\n• Typing speed\n• Normal location\n• How you swipe the screen"
+      },
+      {
+        "front": "Define: NFC",
+        "back": "A subset of RFID needing the devices to be in very close proximity."
+      },
+      {
+        "front": "Advantages: list them",
+        "back": "• More secure than RFID\n• Very fast\n• No pairing needed"
+      },
+      {
+        "front": "NFC modes: Peer-to-peer",
+        "back": "Description: Both devices switch active and passive\nUse: Share links, contacts, photos"
+      },
+      {
+        "front": "NFC modes: Read / write",
+        "back": "Description: Active device reads a passive one\nUse: Scan tags in shops, posters"
+      },
+      {
+        "front": "NFC modes: Card emulation",
+        "back": "Description: Device acts as a contactless card\nUse: Payments, public transport"
+      },
+      {
+        "front": "Robotic surgery: list them",
+        "back": "• Greater precision\n• Smaller incisions\n• Faster recovery"
+      },
+      {
+        "front": "Production line robot: what are the steps, in order?",
+        "back": "1. Detect – Sensor sees a product\n2. Signal – Sent to microprocessor\n3. Activate – Actuator (arm, nozzle) starts\n4. Task – Fill, cap, label\n5. Repeat – Next item moves in"
+      },
+      {
+        "front": "Robots in Industry: Drone",
+        "back": "Pilotless flying vehicle. Uses: delivery, surveillance, search and rescue, filming.\nAdvantages:\n• Safer than risking people\n• Reaches inaccessible areas\n• Covers more area\n• Portable\n• Cheaper than a helicopter\nDisadvantages:\n• Camera problems hard to fix\n• Small range\n• May fly out of signal range"
+      },
+      {
+        "front": "What can be monitored: list them",
+        "back": "• Key presses and clicks\n• Websites and apps\n• Storage used\n• Printer use\n• Emails"
+      },
+      {
+        "front": "Common mistake: \"Employee monitoring only tracks working hours.\"\nWhat is wrong with it?",
+        "back": "It can track keystrokes, websites, storage, printing and email."
+      }
+    ]
+  },
+  {
+    "title": "Chapter 12 – ICT Programs",
+    "description": "Software tools, XR, booking systems, communication and the internet.",
+    "subject": "IGCSE ICT",
+    "cards": [
+      {
+        "front": "Define: OS",
+        "back": "System software that lets the user communicate with the hardware. It runs in the background and manages the computer."
+      },
+      {
+        "front": "Functions: list them",
+        "back": "• User interface\n• User accounts\n• Peripherals\n• Memory management\n• Security\n• Files and folders"
+      },
+      {
+        "front": "Application Software: Word processor",
+        "back": "Create and edit text documents with spell check, grammar check and formatting.\nAdvantages:\n• Different language set (US vs UK)\n• Names and technical terms flagged\n• Similar-sounding words (where, were, wear)\n• Badly misspelled words\n• Word not in the dictionary"
+      },
+      {
+        "front": "Application Software: Spreadsheet",
+        "back": "Manipulate numerical data; charts, graphs, financial models.\nUsed for: Student performance · budgeting · survey analysis\nAdvantages:\n• Formulas and charts"
+      },
+      {
+        "front": "Application Software: DBMS",
+        "back": "Store, manipulate and analyse data; reports, queries, add / delete / edit records.\nAdvantages:\n• Reports and queries"
+      },
+      {
+        "front": "Application Software: CAD",
+        "back": "Computer-Aided Design — precise 3D models.\nUsed for: Architecture · engineering · animation characters · 3D printing designs\nAdvantages:\n• Zoom in and out\n• Rotate in 2D and 3D\n• Modify without starting again"
+      },
+      {
+        "front": "Application Software: Voice recognition",
+        "back": "Converts speech into text.\nAdvantages:\n• Hands-free\nDisadvantages:\n• Less accurate than typing\n• Background noise causes errors"
+      },
+      {
+        "front": "Common mistake: \"A spell checker finds every mistake.\"\nWhat is wrong with it?",
+        "back": "It misses similar-sounding words (where / were) and flags names and technical terms."
+      },
+      {
+        "front": "Define: XR",
+        "back": "A mix of virtual and augmented reality, combining the real and digital worlds."
+      },
+      {
+        "front": "Extended Reality: VR",
+        "back": "A 3D computer-generated environment the user fully enters. Hardware: headset, speakers, joystick, wheel, camera, motion sensors.\nUsed for: Simulators · gaming · medical training · education trips · engineering · fashion\nAdvantages:\n• Practise without risk\n• Dangerous situations\n• Better retention\n• Interactive training\n• Quick design changes\nDisadvantages:\n• Confusion with real life\n• Headaches and eye strain\n• Addiction"
+      },
+      {
+        "front": "Extended Reality: AR",
+        "back": "Virtual objects overlaid on the real world, via goggles or smartphone.\nUsed for: Education · try on clothes · sport data · Pokémon GO · medicine · rescue\nAdvantages:\n• Safer activities\n• Better walkthroughs\n• Engaging shopping\nDisadvantages:\n• Distracting\n• Damages social skills\n• Safety issues when immersed"
+      },
+      {
+        "front": "VR vs AR: Environment",
+        "back": "VR: Fully computer-generated\nAR: Real world + digital overlay"
+      },
+      {
+        "front": "VR vs AR: Immersion",
+        "back": "VR: Fully immersive\nAR: Partly — real world visible"
+      },
+      {
+        "front": "VR vs AR: Hardware",
+        "back": "VR: Headset\nAR: Smartphone or smart glasses"
+      },
+      {
+        "front": "VR vs AR: Uses",
+        "back": "VR: Simulators, gaming, training\nAR: Navigation, education, fashion"
+      },
+      {
+        "front": "Define: Hologram",
+        "back": "A 3D image formed by the interference of laser light beams. Uses: advertising, cinema, architecture, medical imaging."
+      },
+      {
+        "front": "Online seat booking: what are the steps, in order?",
+        "back": "1. Select – Performance, date, time, seats\n2. Retrieve – Record found in database\n3. Hold – Seats flagged temporarily\n4. Pay – Cost calculated and paid\n5. Ticket – E-ticket by email / SMS\n6. Update – Available seats reduced"
+      },
+      {
+        "front": "Management Systems: Booking",
+        "back": "If not completed, the hold flag is removed.\nAdvantages:\n• No double bookings\n• Instant feedback\n• 24/7\n• Browse the seating plan\nDisadvantages:\n• Expensive\n• Needs internet\n• Hard to cancel and refund\n• Breakdowns stop bookings\n• Poor design causes mistakes\n• No travel agent offers"
+      },
+      {
+        "front": "Management Systems: Customers",
+        "back": "Shopping online.\nAdvantages:\n• Saves transport cost and time\n• Wider choice\n• Any time\n• No queues\nDisadvantages:\n• Viruses, phishing\n• Fake sites\n• Needs internet\n• Late or damaged goods\n• Returns expensive"
+      },
+      {
+        "front": "Management Systems: Businesses",
+        "back": "Selling online.\nAdvantages:\n• Fewer staff and branches\n• Global reach\nDisadvantages:\n• Retraining\n• Website cost\n• Loss of loyalty"
+      },
+      {
+        "front": "Library system",
+        "back": "Book file: Title, author, genre\nMember file: Name, ID, phone, birth date\nFunctions: Lending, returns, statistics\nProcessing: Real-time updates"
+      },
+      {
+        "front": "Management Systems: ID cards",
+        "back": "Magnetic stripe stores ID number, name, school, date of birth.\nAdvantages:\n• Faster registration\n• Fewer errors\n• Faster reports\n• Safe in a fire"
+      },
+      {
+        "front": "Management Systems: Biometrics",
+        "back": "Fingerprint on arrival and exit.\nAdvantages:\n• More accurate and secure\n• Cannot be lost\n• Not affected by magnets\nDisadvantages:\n• Slow to collect\n• Expensive equipment\n• Cut fingers fail\n• Parents may object"
+      },
+      {
+        "front": "Communication: cc",
+        "back": "Carbon copy — all recipients see who is on the cc list.\nAdvantages:\n• Visible to all"
+      },
+      {
+        "front": "Communication: bcc",
+        "back": "Blind carbon copy — recipients stay hidden from others.\nAdvantages:\n• Private"
+      },
+      {
+        "front": "Communication: Forward / reply",
+        "back": "Forward sends a received message on. Reply goes to the sender.\nAdvantages:\n• Forward → another address\n• Reply → sender"
+      },
+      {
+        "front": "Communication: Group",
+        "back": "Addresses under one name, to send to many at once.\nAdvantages:\n• One name, many recipients"
+      },
+      {
+        "front": "Constraints on email",
+        "back": "Laws: Opt-in permission, clear privacy policy, no false subjects, opt-out option\nLanguage: Clear subject, professional, no capitals, proofread, no offence\nEmployer rules: May restrict email use\nNetiquette: Respect and courtesy\nSecurity: Strong passwords, spam filters"
+      },
+      {
+        "front": "Netiquette: list them",
+        "back": "• Don't be abusive\n• Check spelling\n• Respect privacy\n• No CAPITALS\n• Don't plagiarise\n• Secure your email"
+      },
+      {
+        "front": "Communication: VoIP",
+        "back": "Phone calls sent as data packets over the internet.\nAdvantages:\n• Free or local rate worldwide\n• Webcam adds video\nDisadvantages:\n• Quality depends on internet\n• Security issues"
+      },
+      {
+        "front": "Streaming vs downloading: Definition",
+        "back": "Streaming: Played in real time, not stored\nDownloading: Entire file stored locally"
+      },
+      {
+        "front": "Streaming vs downloading: Internet",
+        "back": "Streaming: Needed throughout\nDownloading: Only to download"
+      },
+      {
+        "front": "Streaming vs downloading: Storage",
+        "back": "Streaming: None\nDownloading: HDD / SSD space"
+      },
+      {
+        "front": "Streaming vs downloading: Quality",
+        "back": "Streaming: Depends on speed\nDownloading: Consistent"
+      },
+      {
+        "front": "Streaming vs downloading: Examples",
+        "back": "Streaming: Netflix, Spotify, YouTube\nDownloading: Downloaded movies, music"
+      },
+      {
+        "front": "Communication: Multimedia",
+        "back": "Uses animation, video and sound as well as text and images.\nAdvantages:\n• Grabs attention\n• Interactive\n• Tailored to the audience\nDisadvantages:\n• Expensive equipment\n• Equipment can fail\n• May need internet\n• Easy to make a bad one\n• Large file size"
+      },
+      {
+        "front": "Social Media: Social sites",
+        "back": "Public sites to share profiles, photos, comments and events.\nAdvantages:\n• New friends worldwide\n• Shared interests\n• Cheap advertising, market research\n• Builds social skills\nDisadvantages:\n• Less face-to-face contact\n• Cyberbullying\n• Privacy risks and fraud\n• Needs internet\n• Addiction"
+      },
+      {
+        "front": "Types of online media: Type vs Key points",
+        "back": "• Blog | Single author, readers can only comment, newest first\n• Microblog | Short posts (e.g. Twitter/X)\n• Wiki | Many authors, anyone can edit — reliability issues\n• Forum | Online discussion board\n• Moderated forum | Admin approves posts first\n• Unmoderated forum | Posted without approval — faster, less controlled"
+      },
+      {
+        "front": "Forum vs blog: list them",
+        "back": "• Chronological posts\n• Students start topics\n• Moderated\n• Private messaging"
+      },
+      {
+        "front": "Common mistake: \"Anyone can edit a blog like a wiki.\"\nWhat is wrong with it?",
+        "back": "A blog has one author; readers can only comment. A wiki lets anyone edit."
+      },
+      {
+        "front": "Publications",
+        "back": "Newsletter: Regular news from an organisation\nPoster: Billboards and digital roadside screens\nePublication: E-books, magazines, newspapers with audio and video"
+      },
+      {
+        "front": "Publications & Advertising: Posters",
+        "back": "Large and eye-catching.\nAdvantages:\n• Hard to miss\n• Target by position\nDisadvantages:\n• Space is rented\n• Affected by weather"
+      },
+      {
+        "front": "Publications & Advertising: Websites",
+        "back": "Advertising online.\nAdvantages:\n• Sound, video, animation\n• Hyperlinks\n• Hit counters\n• Global audience\n• Easy to update\nDisadvantages:\n• Can be hacked\n• Pharming risk\n• Customers need internet\n• Costly to maintain\n• Hard to target"
+      },
+      {
+        "front": "Internet Usage: Search engine",
+        "back": "Software to find information online.\nAdvantages:\n• Vast information\n• Fast\n• Free\n• Multimedia\nDisadvantages:\n• May be unreliable\n• Too general\n• Inappropriate sites\n• Distraction\n• Plagiarism\n• Lose research skills"
+      },
+      {
+        "front": "Check reliability: list them",
+        "back": "• Compare sources\n• Author credentials\n• Last update date\n• Few adverts\n• Endorsed by bodies\n• Spelling and grammar\n• .edu .org .ac .gov URLs"
+      },
+      {
+        "front": "Protect yourself: list them",
+        "back": "• ISP control\n• Parental control\n• Education in schools\n• Ask teachers"
+      },
+      {
+        "front": "Regulation: For vs Against",
+        "back": "• Stops illegal material | Expensive to implement\n• Stops unreliable information | Against freedom of expression\n• Reduces inappropriate content | Hard on a global scale\n• Enforces copyright | Hard to define what to restrict"
+      },
+      {
+        "front": "Define: Plagiarism",
+        "back": "Using someone else's ideas or words without citing the source."
+      }
+    ]
+  },
+  {
+    "title": "Chapter 13 – ICT Effects",
+    "description": "Health, copyright, data protection, e-safety and the impact on jobs and society.",
+    "subject": "IGCSE ICT",
+    "cards": [
+      {
+        "front": "Health & Safety: Eye strain",
+        "back": "Causes: long screen time · wrong lighting · too close · dirty or flickering screens.\nAdvantages:\n• Regular breaks\n• Anti-glare screen\n• Flat screens (LCD/LED)\n• Match room lighting\n• Lower brightness\n• Clean the screen\n• Test eyesight"
+      },
+      {
+        "front": "Health & Safety: Back & neck",
+        "back": "Causes: sitting long in the wrong posture.\nAdvantages:\n• Regular breaks\n• Correct posture\n• Ergonomic chair\n• Exercises\n• Footrest\n• Tiltable monitor"
+      },
+      {
+        "front": "Health & Safety: RSI",
+        "back": "Painful swelling of wrist and fingers, from constant typing or mouse clicking.\nAdvantages:\n• Regular breaks\n• Ergonomic keyboard / mouse\n• Wrist and mouse rests\n• Hand exercises\n• Voice software"
+      },
+      {
+        "front": "Health & Safety: Ozone",
+        "back": "Laser printers release ozone and toner particles — coughing, breathing problems.\nAdvantages:\n• Good ventilation\n• Printer in a separate room\n• Use inkjet instead"
+      },
+      {
+        "front": "Physical safety: Electrocution",
+        "back": "Cause: Bare wires; spilled liquids\nProtection: Check insulation; no drinks near; RCB"
+      },
+      {
+        "front": "Physical safety: Tripping",
+        "back": "Cause: Trailing cables\nProtection: Cable ducts; wires along walls; wireless"
+      },
+      {
+        "front": "Physical safety: Falling equipment",
+        "back": "Cause: Near table edge; weak tables\nProtection: Strong desks; place centrally"
+      },
+      {
+        "front": "Physical safety: Fire",
+        "back": "Cause: Overloaded sockets; overheating\nProtection: CO2 extinguisher; no overloading; ventilation"
+      },
+      {
+        "front": "Common mistake: \"RSI is caused by looking at screens.\"\nWhat is wrong with it?",
+        "back": "RSI is from repetitive typing or clicking. Screens cause eye strain."
+      },
+      {
+        "front": "Exam tip: Health & Safety",
+        "back": "Know 2 health risks + a cause + a precaution for each. Mark schemes want the pair."
+      },
+      {
+        "front": "Define: Copyright",
+        "back": "Legal protection of work from being downloaded, copied or borrowed without the owner's permission."
+      },
+      {
+        "front": "How manufacturers prevent copying",
+        "back": "Product key: Unique activation code\nLicence: Must accept before install\nHologram: Marks a genuine copy\nDisc in drive: Runs only with the disc\nDongle: Runs only with a USB key"
+      },
+      {
+        "front": "Breaching copyright: list them",
+        "back": "• Lending, renting, selling, sharing\n• Installing on a network (non-network version)\n• Modifying or plagiarising code\n• Using code in your own software"
+      },
+      {
+        "front": "Staying legal",
+        "back": "Contact: The copyright holder\nAsk: Permission\nAcknowledge: Your sources"
+      },
+      {
+        "front": "Data Protection: Personal",
+        "back": "Data about a living person who can be identified.\nAdvantages:\n• Name\n• Address / email\n• Date of birth\n• Bank details\n• Photographs\n• Gender\n• National ID\n• Medical history"
+      },
+      {
+        "front": "Data Protection: Sensitive",
+        "back": "Needs higher protection.\nAdvantages:\n• Ethnic origin\n• Political views\n• Religion\n• Criminal activity\n• Medical / mental health record\n• DNA\n• Biometric data"
+      },
+      {
+        "front": "Why keep it confidential?: list them",
+        "back": "• Attack on the person\n• Identity theft\n• Financial fraud\n• Burglary (holiday posts)\n• Kidnapping"
+      },
+      {
+        "front": "Data Protection Act: data must be…",
+        "back": "Fair: Fairly and lawfully processed\nPurposeful: Only for the stated purpose\nRelevant: Sufficient, not excessive\nAccurate: Up to date\nNot kept: Longer than necessary\nRights: Processed per individual rights\nSecure: Against unauthorised access\nTransfers: Only with sufficient protection"
+      },
+      {
+        "front": "Common mistake: \"The DPA lets organisations keep data forever.\"\nWhat is wrong with it?",
+        "back": "Data must not be kept longer than necessary."
+      },
+      {
+        "front": "Define: E-safety",
+        "back": "Taking precautions to keep personal data safe when using the internet."
+      },
+      {
+        "front": "E-safety: Internet",
+        "back": "Browsing.\nAdvantages:\n• Never give personal info to strangers\n• Never send photos of yourself\n• Keep privacy settings\n• Use teacher-recommended, learner-friendly sites"
+      },
+      {
+        "front": "E-safety: Email",
+        "back": "Messaging.\nAdvantages:\n• Open only known sources\n• Never include PIN or card details\n• Avoid links — phishing\n• Use spam filters"
+      },
+      {
+        "front": "E-safety: Social media",
+        "back": "Networking.\nAdvantages:\n• No real name or address publicly\n• Check profiles first\n• Avoid misuse of images\n• Block and report\n• Meeting online contacts: tell an adult, meet in public, never alone"
+      },
+      {
+        "front": "E-safety: Gaming",
+        "back": "Online games.\nAdvantages:\n• Use a nickname\n• No personal or financial data\n• Report and block bullies\n• Privacy settings on\n• Webcam off\n• Check age ratings\n• Limit time"
+      },
+      {
+        "front": "Effects on employment: Jobs",
+        "back": "Positive: New roles: programmers, web designers, technicians, analysts\nNegative: Lost roles: office workers, payroll, typing pools"
+      },
+      {
+        "front": "Effects on employment: Working patterns",
+        "back": "Positive: More flexible patterns\nNegative: Over-monitoring"
+      },
+      {
+        "front": "Effects on employment: Skills",
+        "back": "Positive: High demand for ICT skills\nNegative: Expensive retraining"
+      },
+      {
+        "front": "Working patterns: Pattern vs Description",
+        "back": "• Part-time | Fewer hours than full-time\n• Flexi-time | Choose start and finish, same total hours\n• Job sharing | One full-time job split between two\n• Compressed hours | Full hours over fewer days"
+      },
+      {
+        "front": "Flexible working benefits: list them",
+        "back": "• Hours suit lifestyle (employees)\n• Lower recruitment and training costs (employers)\n• Flexibility at busy times\n• Staff specialise"
+      },
+      {
+        "front": "Smart Home & Society: Smart home",
+        "back": "Washing machines, thermostats, ovens, fridges, street lights.\nAdvantages:\n• Fewer manual tasks\n• Set remotely from a phone\n• More leisure time\n• Fitness tracking\n• Burglar alarms feel safe\nDisadvantages:\n• Unhealthy ready-meal dependence\n• Lazy, less fit\n• Loss of household skills\n• Cyber threats\n• Possible health issues"
+      },
+      {
+        "front": "Smart Home & Society: Security systems",
+        "back": "Cameras viewed from your phone.\nAdvantages:\n• More secure\n• View on phone\n• Instant alerts\nDisadvantages:\n• Malware can sabotage\n• Hackers control devices\n• Cannot act from far away\n• Internet loss = control loss\n• Hackers get personal data"
+      },
+      {
+        "front": "Protect devices: list them",
+        "back": "• Different password per device\n• Install updates"
+      },
+      {
+        "front": "Smart Home & Society: Online social life",
+        "back": "ICT changes how people connect.\nAdvantages:\n• Easy to make friends\n• Find shared interests\n• Cheap VoIP\nDisadvantages:\n• Social isolation\n• Anxiety meeting in person\n• People behave ruder online\n• Cyberbullying"
+      },
+      {
+        "front": "Internet regulation: For vs Against",
+        "back": "• Prevents illegal material | Expensive globally\n• Prevents unreliable information | Against freedom of speech\n• Reduces inappropriate content | Hard across borders\n• Enforces copyright | Hard to define restrictions"
+      },
+      {
+        "front": "Define: ICT and society",
+        "back": "Microprocessors are in almost every modern device — cars, phones, medical kit, smart homes — and have transformed how we live and work."
+      },
+      {
+        "front": "Exam tip: Regulation & Society",
+        "back": "Chapter 13 summary: know 2 health risks + precautions, the DPA principles, copyright protection methods, and both sides of the regulation debate."
+      }
+    ]
+  }
+]

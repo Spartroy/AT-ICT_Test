@@ -8,7 +8,7 @@ import { API_ENDPOINTS } from '../../config/api';
 import { Empty, ErrorNote, Ic, Loading, PageHead, SearchBox, Seg, fmtDate, initials } from '../../components/portal/kit';
 import { useConfirm, useToast } from '../../components/portal/PortalUI';
 import { useTeacher } from './TeacherPortal';
-import { apiError, useTeacherChange } from './modals/form';
+import { announceChange, apiError, useTeacherChange } from './modals/form';
 import { programLabel } from './curriculum';
 import { buildTree, inPath, highlight, sortByPath } from './libraryTree';
 
@@ -51,15 +51,36 @@ export default function Library() {
   const { tab } = useParams();
   const navigate = useNavigate();
   const { base, openModal } = useTeacher();
+  const toast = useToast();
+  const [importing, setImporting] = useState(false);
   const current = TABS.find(t => t.id === tab);
   if (!current) return <Navigate to={`${base}/library/videos`} replace />;
   const addLabel = { videos: 'video', notes: 'note', materials: 'material', flashcards: 'stack' }[tab];
+
+  // Adds the 13 revision stacks built from the study guide (already imported ones are skipped).
+  const importChapters = async () => {
+    setImporting(true);
+    try {
+      const res = await api.post(`${API_ENDPOINTS.FLASHCARDS}/import-chapters`, {});
+      toast(res.message);
+      announceChange('flashcard');
+    } catch (err) {
+      toast(apiError(err));
+    } finally {
+      setImporting(false);
+    }
+  };
 
   return (
     <>
       <PageHead
         title="Library"
-        actions={current.add && <button type="button" className="btn p" onClick={() => openModal(current.add)}><Ic as={Plus} />Add {addLabel}</button>}
+        actions={current.add && (
+          <>
+            {tab === 'flashcards' && <button type="button" className="btn o" onClick={importChapters} disabled={importing}><Ic as={Download} />{importing ? 'Importing…' : 'Import chapter flashcards'}</button>}
+            <button type="button" className="btn p" onClick={() => openModal(current.add)}><Ic as={Plus} />Add {addLabel}</button>
+          </>
+        )}
       />
       <Seg tabs={TABS.map(t => ({ id: t.id, label: t.label, icon: t.icon }))} value={tab} onChange={id => navigate(`${base}/library/${id}`)} label="Library sections" />
       {tab === 'site' ? <SiteContent /> : <LibraryList key={tab} config={current} />}

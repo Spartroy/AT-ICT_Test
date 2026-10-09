@@ -505,7 +505,47 @@ const getMyFlashcardStacks = async (req, res) => {
   }
 };
 
+// @desc    Import the 13 chapter revision stacks (built from the study guide). Existing stacks are left alone.
+// @route   POST /api/flashcards/import-chapters
+// @access  Private (Teacher)
+const importChapterStacks = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ status: 'error', message: 'User not found' });
+
+    const stacks = require('../data/chapterFlashcards.json');
+    const existing = await Flashcard.find({ isTeacherStack: true, title: { $in: stacks.map(s => s.title) } }).select('title');
+    const have = new Set(existing.map(s => s.title));
+    const missing = stacks.filter(s => !have.has(s.title));
+
+    for (const stack of missing) {
+      await Flashcard.create({
+        title: stack.title,
+        description: stack.description,
+        subject: stack.subject,
+        category: 'technology',
+        cards: stack.cards.map((c, order) => ({ front: c.front, back: c.back, order })),
+        createdBy: user._id,
+        creatorName: `${user.firstName} ${user.lastName}`,
+        creatorRole: user.role,
+        isPublic: true,
+        isTeacherStack: true
+      });
+    }
+
+    res.status(200).json({
+      status: 'success',
+      message: missing.length ? `Imported ${missing.length} chapter stack${missing.length === 1 ? '' : 's'}` : 'All chapter stacks are already imported',
+      data: { created: missing.length, skipped: stacks.length - missing.length, total: stacks.length }
+    });
+  } catch (error) {
+    console.error('Import chapter flashcards error:', error);
+    res.status(500).json({ status: 'error', message: 'Server error importing chapter flashcards' });
+  }
+};
+
 module.exports = {
+  importChapterStacks,
   createFlashcardStack,
   getFlashcardStacks,
   getFlashcardStack,
