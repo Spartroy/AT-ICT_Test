@@ -1,14 +1,14 @@
 import React, { forwardRef, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import HTMLFlipBook from 'react-pageflip';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { Ic } from '../kit';
+import { BookLoader, Ic } from '../kit';
 import { useReducedMotion } from '../../../hooks/useMediaQuery';
 import usePdfPages from './usePdfPages';
 
 const Page = forwardRef(function Page({ n, src }, ref) {
   return (
     <div className="pf-page" ref={ref}>
-      {src ? <img src={src} alt={`Page ${n}`} draggable={false} /> : <span className="pf-spin" role="status" aria-label={`Loading page ${n}`} />}
+      {src ? <img src={src} alt={`Page ${n}`} draggable={false} /> : <span role="status" aria-label={`Loading page ${n}`}><BookLoader size="sm" /></span>}
       <i className="pf-num" aria-hidden="true">{n}</i>
     </div>
   );
@@ -57,7 +57,7 @@ export default function FlipBook({ data, title }) {
   }, [go]);
 
   if (error) return <p className="vw-msg" role="alert">This PDF couldn't be opened. Try Download instead.</p>;
-  if (loading) return <div className="vw-msg" role="status"><span className="pf-spin" />Opening “{title}”…</div>;
+  if (loading) return <div className="vw-msg" role="status"><BookLoader>Opening “{title}”…</BookLoader></div>;
 
   const shown = single || page === 0 || page >= total - 1 ? `${page + 1}` : `${page + 1}–${Math.min(page + 2, total)}`;
   const atStart = page <= 0;

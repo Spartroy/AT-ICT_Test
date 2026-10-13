@@ -133,8 +133,20 @@ export const PageHead = ({ title, children, actions }) => (
   </div>
 );
 
+/** Crimson open book whose pages keep turning: the portal's loading indicator. size: 'sm' | 'md'. */
+export function BookLoader({ size = 'md', children }) {
+  return (
+    <span className={`bkl bkl--${size}`}>
+      <span className="bkl-book" aria-hidden="true">
+        {[0, 1, 2, 3, 4].map(i => <i key={i} className="bkl-pg" style={{ '--i': i }} />)}
+      </span>
+      {children && <span className="bkl-label">{children}</span>}
+    </span>
+  );
+}
+
 export function Loading({ label = 'Loading…' }) {
-  return <div className="pt-loading" role="status"><span className="pt-spin" aria-hidden="true" />{label}</div>;
+  return <div className="pt-loading" role="status"><BookLoader size="sm" />{label}</div>;
 }
 
 export function ErrorNote({ error, onRetry }) {

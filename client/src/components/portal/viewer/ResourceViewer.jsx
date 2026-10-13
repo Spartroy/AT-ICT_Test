@@ -2,7 +2,7 @@ import React, { Suspense, lazy, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { ArrowLeft, Download, ExternalLink } from 'lucide-react';
 import { api } from '../../../lib/api';
-import { Ic } from '../kit';
+import { BookLoader, Ic } from '../kit';
 import { usePortalUI } from '../PortalUI';
 import { useFocusTrap } from '../../ui/Modal';
 import { toEmbedUrl } from '../../../lib/embedUrl';
@@ -10,16 +10,17 @@ import '../../../styles/viewer.css';
 
 const FlipBook = lazy(() => import('./FlipBook'));
 
-const Spinner = ({ children }) => <div className="vw-msg" role="status"><span className="pf-spin" />{children}</div>;
+const Spinner = ({ children }) => <div className="vw-msg" role="status"><BookLoader>{children}</BookLoader></div>;
 
 /**
  * Full-page reader that keeps the student inside the portal (no new tab).
  *   kind="pdf": `src` is an API path to a PDF; shown as a page-turning book.
  *   kind="web": `src` is an external URL; shown in a large iframe.
  * The Back button (and Esc) returns to wherever the resource was opened from.
+ * `fromBook` fades the reader in over a book that has grown to fill the screen; `leaving` fades it back out.
  * `actions` adds buttons to the top bar (e.g. Mark as read); `onDownload` adds a Download button.
  */
-export default function ResourceViewer({ kind, src, title, onClose, onDownload, backLabel = 'Back', actions }) {
+export default function ResourceViewer({ kind, src, title, onClose, onDownload, backLabel = 'Back', actions, fromBook = false, leaving = false }) {
   const { layer } = usePortalUI();
   const rootRef = useRef(null);
   const backRef = useRef(null);
@@ -63,7 +64,7 @@ export default function ResourceViewer({ kind, src, title, onClose, onDownload, 
   }, [kind, src]);
 
   return createPortal(
-    <div ref={rootRef} className="vw" role="dialog" aria-modal="true" aria-label={title} tabIndex={-1}>
+    <div ref={rootRef} className={`vw${fromBook ? ' vw--from-book' : ''}${leaving ? ' vw--leave' : ''}`} role="dialog" aria-modal="true" aria-label={title} tabIndex={-1}>
       <header className="vw-top">
         <button ref={backRef} type="button" className="btn o sm" onClick={onClose}><Ic as={ArrowLeft} />{backLabel}</button>
         <h2 className="vw-title">{title}</h2>

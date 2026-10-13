@@ -38,6 +38,8 @@ export default function BookOverlay({ m, spine, style, catLabel, onClosed }) {
   const [opened, setOpened] = useState(false);
   const [busy, setBusy] = useState(false);
   const [reading, setReading] = useState(false);
+  const [leaving, setLeaving] = useState(false);
+  const expanded = useRef(false);
   const closing = useRef(false);
   const timers = useRef([]);
   const later = (fn, ms) => timers.current.push(setTimeout(fn, ms));
@@ -71,11 +73,32 @@ export default function BookOverlay({ m, spine, style, catLabel, onClosed }) {
     return () => cancelAnimationFrame(raf);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // PDFs and links open straight into the in-page reader once the book has finished opening.
+  // Scale that makes the open book (both pages on wide screens, the one page on narrow ones) cover the whole window.
+  const expandTransform = () => {
+    const r = flyRef.current.getBoundingClientRect();
+    const spreadWidth = window.matchMedia('(max-width: 700px)').matches ? r.width : r.width * 2;
+    return `scale(${Math.max(window.innerWidth / spreadWidth, window.innerHeight / r.height) * 1.03})`;
+  };
+
+  // PDFs and links: once the book has finished opening it grows until it fills the screen, and the reader fades in over it.
   useEffect(() => {
     if (!opened) return;
-    if (isPdf || isLink) setReading(true);
-    else viewRef.current?.focus();
+    if (!(isPdf || isLink)) {
+      viewRef.current?.focus();
+      return;
+    }
+    if (reduced) {
+      setReading(true);
+      return;
+    }
+    later(() => {
+      const fly = flyRef.current;
+      if (!fly) return;
+      expanded.current = true;
+      fly.style.transition = 'transform .75s cubic-bezier(.65,0,.25,1)';
+      fly.style.transform = expandTransform();
+      later(() => setReading(true), 700);
+    }, 450);
   }, [opened]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const close = useCallback(() => {
@@ -95,6 +118,28 @@ export default function BookOverlay({ m, spine, style, catLabel, onClosed }) {
       later(done, 750);
     }, 950);
   }, [reduced, fromSpine, spine, onClosed]);
+
+  // Back from the reader: it fades out, the book shrinks back to the middle, then closes onto its spine.
+  const leaveReader = () => {
+    if (closing.current || leaving) return;
+    if (reduced) {
+      setReading(false);
+      close();
+      return;
+    }
+    setLeaving(true);
+    later(() => {
+      setReading(false);
+      setLeaving(false);
+      const fly = flyRef.current;
+      if (fly && expanded.current) {
+        expanded.current = false;
+        fly.style.transition = 'transform .6s cubic-bezier(.22,1,.36,1)';
+        fly.style.transform = 'none';
+      }
+      later(close, 650);
+    }, 300);
+  };
 
   useEffect(() => {
     const onKey = (e) => e.key === 'Escape' && close();
@@ -160,7 +205,9 @@ export default function BookOverlay({ m, spine, style, catLabel, onClosed }) {
           src={isPdf ? downloadUrl : m.externalUrl}
           title={m.title}
           backLabel="Back to materials"
-          onClose={() => { setReading(false); close(); }}
+          onClose={leaveReader}
+          fromBook={!reduced}
+          leaving={leaving}
         />
       )}
     </div>,
