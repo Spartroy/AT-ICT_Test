@@ -8,6 +8,7 @@ import { API_ENDPOINTS } from '../../config/api';
 import { ErrorNote, Ic, Loading, PageHead } from '../../components/portal/kit';
 import { useConfirm, useToast } from '../../components/portal/PortalUI';
 import { apiError, FormDialog } from './modals/form';
+import NotificationSettings from './NotificationSettings';
 import { DEFAULT_QUICK_ACTIONS, MAX_QUICK_ACTIONS, QUICK_ACTION_CATALOG, QUICK_ACTIONS_CHANGED, moveItem, resolveQuickActions } from './quickActionCatalog';
 
 const MONTHS = { JAN: 'January', FEB: 'February', MAR: 'March', APR: 'April', MAY: 'May', JUN: 'June', JUL: 'July', AUG: 'August', SEP: 'September', OCT: 'October', NOV: 'November', DEC: 'December' };
@@ -218,6 +219,8 @@ export default function Settings() {
           <button type="button" className="btn o" onClick={() => setActionIds(DEFAULT_QUICK_ACTIONS)}><Ic as={RotateCcw} />Reset to default</button>
         </div>
       </section>
+
+      <NotificationSettings settings={settings} save={save} reload={reload} />
 
       <section className="card set-card" aria-labelledby="set-account">
         <h3 id="set-account"><Ic as={Key} />Account</h3>

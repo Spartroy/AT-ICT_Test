@@ -107,3 +107,14 @@
 /* Keep the chat's send button clear of the floating quick-actions button */
 .atp-teacher .cmf { padding-right: 84px; }
 @media (max-width: 900px) { .atp-teacher .cmf { padding-right: 84px; } }
+
+/* Notification settings */
+.atp-teacher .set-sub { margin: 22px 0 6px; font-size: 1rem; }
+.atp-teacher .set-nt-main { display: grid; grid-template-columns: auto 1fr; column-gap: 10px; align-items: center; margin-bottom: 14px; font-weight: 600; }
+.atp-teacher .set-nt-main small { grid-column: 2; font-weight: 400; }
+.atp-teacher .set-nt-groups { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
+.atp-teacher .set-nt-group { margin: 0; padding: 12px 14px; border: 1px solid var(--bd2); border-radius: 14px; display: grid; gap: 10px; }
+.atp-teacher .set-nt-group legend { padding: 0 6px; font-size: 0.8rem; font-weight: 700; color: var(--mu); text-transform: uppercase; letter-spacing: 0.08em; }
+.atp-teacher .set-nt-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 10px; }
+.atp-teacher .set-nt-row .inp { width: auto; min-width: 110px; max-width: 220px; }
+.atp-teacher .set-nt-row input[type="number"] { max-width: 100px; }

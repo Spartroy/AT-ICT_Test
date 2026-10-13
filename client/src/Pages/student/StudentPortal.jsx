@@ -1,3 +1,4 @@
+import NotificationBell from '../../components/portal/NotificationBell';
 import React, { createContext, useContext, useMemo } from 'react';
 import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { Home as HomeIcon, BookOpen, ClipboardCheck, CalendarDays, Inbox as InboxIcon, Star } from 'lucide-react';
@@ -73,7 +74,7 @@ export default function StudentPortal() {
         nav={nav}
         title={TITLES[section] || 'Home'}
         user={{ name, sub }}
-        bell={{ label: unread ? `${unread} unread in Inbox` : 'Inbox', dot: unread > 0, onClick: () => navigate(`${BASE}/inbox`) }}
+        bellSlot={<NotificationBell />}
         aside={
           <div className="pts">
             <small>My points{sessionLabel ? ` · ${sessionLabel}` : ''}</small>

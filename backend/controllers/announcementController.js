@@ -1,4 +1,5 @@
 const Announcement = require('../models/Announcement');
+const { notifyAnnouncement } = require('../services/notificationScheduler');
 const { validationResult } = require('express-validator');
 
 // @desc    Create new announcement (Teacher only)
@@ -48,6 +49,9 @@ const createAnnouncement = async (req, res) => {
     if (req.io) {
       req.io.emit('new_announcement', announcement);
     }
+
+    // Announcements set for later are sent by the scheduler when their time comes.
+    if (announcement.scheduledFor <= new Date(Date.now() + 60000)) notifyAnnouncement(announcement);
 
     res.status(201).json({
       status: 'success',

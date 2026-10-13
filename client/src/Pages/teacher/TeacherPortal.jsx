@@ -15,6 +15,7 @@ import Schedule from './Schedule';
 import Inbox from './Inbox';
 import Settings from './Settings';
 import QuickActions from './QuickActions';
+import NotificationBell from '../../components/portal/NotificationBell';
 import TeacherModals from './modals/TeacherModals';
 
 const TeacherContext = createContext(null);
@@ -85,7 +86,7 @@ export default function TeacherPortal() {
         tagline="Teacher portal"
         user={{ name, sub: 'Teacher' }}
         meTo={`${BASE}/settings`}
-        bell={{ label: pendingRegs ? `${pendingRegs} pending registrations` : 'Registrations', dot: pendingRegs > 0, onClick: () => navigate(`${BASE}/students/registrations`) }}
+        bellSlot={<NotificationBell />}
       >
         <Routes>
           <Route index element={<Home />} />

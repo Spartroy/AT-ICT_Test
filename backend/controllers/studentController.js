@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const { notify, teacherIds } = require('../services/notifications');
 const Assignment = require('../models/Assignment');
 const Quiz = require('../models/Quiz');
 const Schedule = require('../models/Schedule');
@@ -440,6 +441,8 @@ const submitAssignment = async (req, res) => {
     };
 
     await assignment.save();
+
+    teacherIds().then(ids => notify(ids, { type: 't_submission', title: `${student.firstName} ${student.lastName} submitted homework`, body: `${assignment.title}${isLate ? ' (late)' : ''}`, url: '/teacher-dashboard/work/submissions', dedupeKey: `sub:${assignment._id}:${student._id}:${submissionDate.getTime()}` }));
 
     // Create activity for assignment submission
     await createActivityFromEvent({

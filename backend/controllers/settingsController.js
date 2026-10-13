@@ -3,11 +3,15 @@ const AppSettings = require('../models/AppSettings');
 const User = require('../models/User');
 const Registration = require('../models/Registration');
 const { withDefaults, normalizeSite } = require('../validators/siteSettings');
+const { withDefaults: notificationDefaults, normalizeNotifications, CATEGORIES } = require('../validators/notificationSettings');
+const { clearSettingsCache } = require('../services/notifications');
 
 const toSettingsView = (settings) => ({
   examSessions: settings.examSessions.map(({ code, label, open }) => ({ code, label, open })),
   royalClasses: [...settings.royalClasses],
   quickActions: settings.quickActions?.length ? [...settings.quickActions] : null,
+  notifications: notificationDefaults(settings.notifications),
+  notificationTypes: CATEGORIES,
   updatedAt: settings.updatedAt
 });
 
@@ -73,7 +77,7 @@ const updateSettings = async (req, res) => {
       return res.status(400).json({ status: 'error', message: 'Validation errors', errors: errors.array() });
     }
 
-    const { examSessions, royalClasses, quickActions, moveStudents = {} } = req.body;
+    const { examSessions, royalClasses, quickActions, notifications, moveStudents = {} } = req.body;
     const settings = await AppSettings.getGlobal();
 
     // Values already held by students can be closed or renamed, but not removed,
@@ -121,6 +125,14 @@ const updateSettings = async (req, res) => {
     }
 
     if (quickActions) settings.quickActions = quickActions;
+
+    if (notifications !== undefined) {
+      const { value, errors: problems } = normalizeNotifications(notifications, settings.notifications);
+      if (problems.length) return res.status(400).json({ status: 'error', message: problems[0].msg, errors: problems });
+      settings.notifications = value;
+      settings.markModified('notifications');
+      clearSettingsCache();
+    }
 
     settings.updatedBy = req.user._id;
     await settings.save();

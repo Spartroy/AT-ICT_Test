@@ -201,3 +201,32 @@
 .atp .rec-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--cr); animation: rec-pulse 1s ease-in-out infinite; }
 @keyframes rec-pulse { 50% { opacity: 0.25; transform: scale(0.8); } }
 @media (prefers-reduced-motion: reduce) { .atp .rec-dot { animation: none; } }
+
+/* ---------- Notification bell ---------- */
+.atp .nt { position: relative; }
+.atp .nt > .ib { position: relative; }
+.atp .nt-count { position: absolute; top: -4px; right: -4px; min-width: 18px; height: 18px; padding: 0 4px; border-radius: 99px; background: var(--cr); color: var(--white); font-size: 0.68rem; font-weight: 800; line-height: 18px; text-align: center; box-shadow: 0 0 0 2px var(--s1, #141414); }
+.atp .nt-panel { position: absolute; top: calc(100% + 10px); right: -64px; z-index: 80; width: min(380px, calc(100vw - 24px)); max-height: min(560px, 80vh); display: flex; flex-direction: column; overflow: hidden; border-radius: 18px; background: var(--s1); border: 1px solid var(--bd2); box-shadow: 0 24px 60px -10px rgb(0 0 0 / 0.7); animation: nt-in 0.18s ease-out; }
+@keyframes nt-in { from { opacity: 0; transform: translateY(-6px); } }
+.atp .nt-head { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-bottom: 1px solid var(--bd); }
+.atp .nt-head .sp { flex: 1; }
+.atp .nt-link { background: none; border: 0; color: var(--cr); font-weight: 700; font-size: 0.8rem; cursor: pointer; padding: 4px 6px; }
+.atp .nt-device { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 10px 14px; border-bottom: 1px solid var(--bd); background: var(--s2); }
+.atp .nt-ok { display: inline-flex; align-items: center; gap: 6px; font-size: 0.82rem; font-weight: 700; color: #4ade80; margin-right: auto; }
+.atp .nt-hint { margin: 0; padding: 12px 14px; font-size: 0.84rem; color: var(--mu); }
+.atp .nt-device + .nt-body, .atp .nt-hint + .nt-body { border-top: 0; }
+.atp .nt-body { overflow-y: auto; overscroll-behavior: contain; }
+.atp .nt-item { width: 100%; display: flex; align-items: flex-start; gap: 10px; padding: 12px 14px; text-align: left; background: none; border: 0; border-bottom: 1px solid var(--bd); color: inherit; cursor: pointer; }
+.atp .nt-item:hover { background: var(--s2); }
+.atp .nt-item.unread { background: rgb(var(--crimson-rgb) / 0.08); }
+.atp .nt-dot { flex: none; width: 8px; height: 8px; margin-top: 7px; border-radius: 50%; background: transparent; }
+.atp .nt-item.unread .nt-dot { background: var(--cr); }
+.atp .nt-txt { flex: 1; min-width: 0; display: grid; gap: 2px; }
+.atp .nt-txt b { font-size: 0.9rem; }
+.atp .nt-txt small { color: var(--mu); font-size: 0.8rem; overflow-wrap: anywhere; }
+.atp .nt-item time { flex: none; font-size: 0.74rem; color: var(--fa); padding-top: 2px; }
+.atp .nt-pref { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-bottom: 1px solid var(--bd); cursor: pointer; }
+.atp .nt-pref input { width: 18px; height: 18px; accent-color: var(--cr); }
+.atp .nt-pref input:disabled + span { opacity: 0.6; }
+@media (max-width: 640px) { .atp .nt { position: static; } .atp .nt-panel { position: fixed; top: 64px; right: 12px; left: 12px; width: auto; } }
+@media (prefers-reduced-motion: reduce) { .atp .nt-panel { animation: none; } }

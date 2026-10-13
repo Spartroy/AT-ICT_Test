@@ -40,6 +40,8 @@ const teacherRoutes = require('./routes/teacherRoutes');
 const parentRoutes = require('./routes/parentRoutes');
 const announcementRoutes = require('./routes/announcementRoutes');
 const chatRoutes = require('./routes/chatRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
+const { startNotificationScheduler } = require('./services/notificationScheduler');
 const registrationRoutes = require('./routes/registrationRoutes');
 const assignmentRoutes = require('./routes/assignmentRoutes');
 const quizRoutes = require('./routes/quizRoutes');
@@ -324,6 +326,12 @@ app.use('/api/announcements', announcementRoutes);
 app.use('/api/chat', chatRoutes);
 
 /**
+ * Notification Routes
+ * In-app notifications, Web Push subscriptions and each person's notification choices
+ */
+app.use('/api/notifications', notificationRoutes);
+
+/**
  * Registration Routes
  * Student registration and approval workflow
  */
@@ -406,6 +414,8 @@ const PORT = process.env.PORT || 5000;
  * Start Server
  * Initialize HTTP server with Socket.IO support
  */
+startNotificationScheduler();
+
 server.listen(PORT, () => {
   console.log(`
 ╔════════════════════════════════════════════════════════════════════╗

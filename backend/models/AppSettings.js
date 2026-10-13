@@ -52,6 +52,11 @@ const appSettingsSchema = new mongoose.Schema({
     type: [String],
     default: undefined
   },
+  // Notification rules (see validators/notificationSettings.js). Missing keys fall back to defaults.
+  notifications: {
+    type: mongoose.Schema.Types.Mixed,
+    default: undefined
+  },
   // Public website content the teacher can change (see validators/siteSettings.js). Missing keys fall back to defaults.
   site: {
     type: mongoose.Schema.Types.Mixed,

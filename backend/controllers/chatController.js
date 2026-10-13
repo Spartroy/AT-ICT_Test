@@ -1,4 +1,5 @@
 const Message = require('../models/Message');
+const { notify } = require('../services/notifications');
 const User = require('../models/User');
 const Student = require('../models/Student');
 const path = require('path');
@@ -487,6 +488,11 @@ const sendMessage = async (req, res) => {
         priority: 'medium'
       });
     }
+
+    const snippet = (content || (attachments.length ? 'Sent an attachment' : '')).slice(0, 120);
+    const fromName = `${req.user.firstName} ${req.user.lastName}`;
+    if (recipient.role === 'student') notify([recipientId], { type: 'chat', title: `New message from ${fromName}`, body: snippet, url: '/student-dashboard/inbox' });
+    else if (recipient.role === 'teacher') notify([recipientId], { type: 't_chat', title: `New message from ${fromName}`, body: snippet, url: '/teacher-dashboard/inbox' });
 
     res.status(201).json({
       status: 'success',

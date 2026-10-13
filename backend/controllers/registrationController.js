@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const { notify, teacherIds } = require('../services/notifications');
 const Assignment = require('../models/Assignment');
 const Quiz = require('../models/Quiz');
 const Activity = require('../models/Activity');
@@ -128,6 +129,8 @@ const submitRegistration = async (req, res) => {
       },
       priority: 'high'
     });
+
+    teacherIds().then(ids => notify(ids, { type: 't_registration', title: 'New student registration', body: `${user.firstName} ${user.lastName} is waiting for approval`, url: '/teacher-dashboard/students/registrations', dedupeKey: `reg:${user._id}` }));
 
     res.status(201).json({
       status: 'success',

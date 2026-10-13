@@ -1,4 +1,5 @@
 const Video = require('../models/Video');
+const { notify, studentIds } = require('../services/notifications');
 const User = require('../models/User');
 
 // @desc    Get all videos for teacher management
@@ -163,6 +164,8 @@ const createVideo = async (req, res) => {
     const video = new Video(videoData);
     
     await video.save();
+
+    studentIds().then(ids => notify(ids, { type: 'content', title: 'New video', body: video.title, url: '/student-dashboard/learn/videos', dedupeKey: `content:${video._id}` }));
     
     const populatedVideo = await Video.findById(video._id)
       .populate('uploadedBy', 'firstName lastName');

@@ -1,4 +1,5 @@
 const Material = require('../models/Material');
+const { notify, studentIds } = require('../services/notifications');
 const { resolveKind } = require('../utils/materialKind');
 const User = require('../models/User');
 const { validationResult } = require('express-validator');
@@ -98,6 +99,8 @@ const uploadMaterial = async (req, res) => {
     }
 
     const material = await Material.create(materialData);
+
+    studentIds().then(ids => notify(ids, { type: 'content', title: 'New material', body: material.title, url: '/student-dashboard/learn/materials', dedupeKey: `content:${material._id}` }));
 
     await material.populate('uploadedBy', 'firstName lastName');
 

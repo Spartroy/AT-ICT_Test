@@ -1,4 +1,5 @@
 const Assignment = require('../models/Assignment');
+const { notify } = require('../services/notifications');
 const User = require('../models/User');
 const { validationResult } = require('express-validator');
 const path = require('path');
@@ -165,6 +166,8 @@ const createAssignment = async (req, res) => {
     if (req.io) {
       req.io.emit('new_assignment', assignment);
     }
+
+    notify(assignment.assignedTo.map(a => a.student), { type: 'hw_assigned', title: 'New homework', body: assignment.title, url: '/student-dashboard/work/assignments', dedupeKey: `hw:${assignment._id}` });
 
     res.status(201).json({
       status: 'success',
@@ -450,6 +453,8 @@ const assignToStudents = async (req, res) => {
     assignment.assignedTo.push(...newAssignments);
     await assignment.save();
 
+    notify(newAssignments.map(a => a.student), { type: 'hw_assigned', title: 'New homework', body: assignment.title, url: '/student-dashboard/work/assignments', dedupeKey: `hw:${assignment._id}` });
+
     res.status(200).json({
       status: 'success',
       message: `Assignment assigned to ${newAssignments.length} students`,
@@ -672,6 +677,8 @@ const gradeAssignment = async (req, res) => {
     studentAssignment.gradedDate = new Date();
 
     await assignment.save();
+
+    notify([studentId], { type: 'hw_graded', title: 'Your homework was graded', body: `${assignment.title}: ${studentAssignment.score}/${assignment.maxScore}`, url: '/student-dashboard/work/assignments', dedupeKey: `graded:${assignment._id}:${studentId}:${Date.now()}` });
 
     // Award points to the student
     try {

@@ -1,4 +1,5 @@
 const Note = require('../models/Note');
+const { notify, studentIds } = require('../services/notifications');
 const User = require('../models/User');
 
 // "CH 6 Networks" → 6. Notes created before the chapter field existed only have it in the title.
@@ -68,6 +69,8 @@ const createNote = async (req, res) => {
       order: order ? parseInt(order) : 0,
       uploadedBy: req.user.id
     });
+
+    studentIds().then(ids => notify(ids, { type: 'content', title: 'New interactive note', body: note.title, url: '/student-dashboard/learn/notes', dedupeKey: `content:${note._id}` }));
 
     const populated = await Note.findById(note._id).populate('uploadedBy', 'firstName lastName');
 
