@@ -27,6 +27,17 @@ export function groupPastPapers(list = [], paper) {
     }));
 }
 
+/** Theory papers are tall (one year per shelf); the practical papers (2 and 3) fit two years side by side on a shelf. */
+export const yearsPerShelf = (paper) => (paper === 1 ? 1 : 2);
+
+/** Splits year groups into shelves: [[year, year], [year], …], keeping the newest-first order. */
+export function shelvesOf(years = [], paper) {
+  const size = yearsPerShelf(paper);
+  const shelves = [];
+  for (let i = 0; i < years.length; i += size) shelves.push(years.slice(i, i + size));
+  return shelves;
+}
+
 // Each variant gets its own accent colour (defined as --pv-1 … --pv-9 in books.css); V10 and up would wrap around.
 const COLOURS = 9;
 const indexOf = (variant) => ((Math.max(1, variant) - 1) % COLOURS) + 1;

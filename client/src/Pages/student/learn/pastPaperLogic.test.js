@@ -1,4 +1,4 @@
-import { groupPastPapers, variantColor } from './pastPaperLogic';
+import { groupPastPapers, shelvesOf, variantColor } from './pastPaperLogic';
 
 const p = (paper, year, session, variant) => ({ _id: `${paper}${year}${session}${variant}`, paper, year, session, variant });
 
@@ -20,6 +20,23 @@ describe('groupPastPapers', () => {
     expect(groups).toHaveLength(1);
     expect(groups[0].sessions.map(s => s.session)).toEqual(['jun']);
     expect(groupPastPapers(list, 3)).toEqual([]);
+  });
+});
+
+describe('shelvesOf', () => {
+  const years = [2025, 2024, 2023, 2022, 2021].map(year => ({ year, sessions: [] }));
+
+  it('puts two practical years on each shelf, newest first, with a short last shelf', () => {
+    expect(shelvesOf(years, 2).map(s => s.map(y => y.year))).toEqual([[2025, 2024], [2023, 2022], [2021]]);
+    expect(shelvesOf(years, 3)).toHaveLength(3);
+  });
+
+  it('keeps one year per shelf for theory', () => {
+    expect(shelvesOf(years, 1).map(s => s.length)).toEqual([1, 1, 1, 1, 1]);
+  });
+
+  it('handles no years', () => {
+    expect(shelvesOf([], 2)).toEqual([]);
   });
 });
 

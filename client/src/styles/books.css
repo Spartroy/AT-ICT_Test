@@ -195,13 +195,15 @@
 
 /* ---------- Past papers: a shelf per year with a metal label ---------- */
 .atp-student .ppyear { margin-top: 30px; }
-.atp-student .metal { position: absolute; left: 24px; top: -14px; z-index: 3; display: flex; align-items: center; gap: 12px; padding: 7px 18px; border-radius: 6px; background: linear-gradient(135deg, #f3f4f6 0%, #a8adb3 22%, #eef0f2 48%, #8c9299 74%, #dfe2e6 100%); border: 1px solid #6e747b; box-shadow: 0 6px 14px rgb(0 0 0 / 0.5), inset 0 1px 0 rgb(255 255 255 / 0.8); }
-.atp-student .metal b { font-family: var(--font-numeric); font-size: 1.4rem; letter-spacing: 0.08em; color: #2a2e33; text-shadow: 0 1px 0 rgb(255 255 255 / 0.7); }
+.atp-student .metal { position: absolute; left: -4px; top: -72px; z-index: 3; display: flex; align-items: center; gap: 12px; padding: 7px 18px; border-radius: 6px; background: linear-gradient(135deg, #f3f4f6 0%, #a8adb3 22%, #eef0f2 48%, #8c9299 74%, #dfe2e6 100%); border: 1px solid #6e747b; box-shadow: 0 6px 14px rgb(0 0 0 / 0.5), inset 0 1px 0 rgb(255 255 255 / 0.8); }
+.atp-student .metal b { font-family: var(--font-numeric); font-size: 1.85rem; font-weight: 900; letter-spacing: 0.1em; line-height: 1; color: #121518; -webkit-text-stroke: 0.7px #121518; text-shadow: 0 1px 0 rgb(255 255 255 / 0.9), 0 -1px 0 rgb(0 0 0 / 0.5), 0 0 2px rgb(0 0 0 / 0.35); }
 .atp-student .metal i { width: 8px; height: 8px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff, #8d9399 62%, #50555b); box-shadow: 0 1px 1px rgb(0 0 0 / 0.5); }
 .atp-student .metal i:first-child { order: -1; }
 
 /* ---------- Past-paper shelves: thin books, boxes on a hung shelf ---------- */
 .atp-student .bshelf.pp { position: relative; padding: 58px 28px 26px; }
+.atp-student .pp-years { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 96px 72px; }
+.atp-student .pp-year { position: relative; }
 .atp-student .pp-sessions { display: flex; flex-wrap: wrap; gap: 30px 60px; align-items: flex-end; }
 .atp-student .pp-session { display: grid; gap: 12px; }
 .atp-student .pp-tag { justify-self: start; padding: 3px 12px; border-radius: 4px; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: #2a2e33; background: linear-gradient(135deg, #eceef0, #aeb3b9 55%, #e4e6e9); border: 1px solid #6e747b; box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.7); }
