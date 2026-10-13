@@ -230,3 +230,19 @@
 .atp .nt-pref input:disabled + span { opacity: 0.6; }
 @media (max-width: 640px) { .atp .nt { position: static; } .atp .nt-panel { position: fixed; top: 64px; right: 12px; left: 12px; width: auto; } }
 @media (prefers-reduced-motion: reduce) { .atp .nt-panel { animation: none; } }
+
+/* ---------- Mobile layout fixes (all portals) ---------- */
+/* A plain 1fr column grows to fit its widest child (a row of chips, a time field…), which pushed whole pages wider than
+   the phone. minmax(0, 1fr) keeps the column at the screen width and lets the content wrap or scroll inside it. */
+@media (max-width: 900px) {
+  .atp .app { grid-template-columns: minmax(0, 1fr); }
+  .atp .main { overflow-x: clip; }
+  .atp .ph.pr { align-items: stretch; }
+  .atp .ph-actions { width: 100%; }
+  .atp .ph-actions .btn { flex: 1 1 auto; justify-content: center; }
+  .atp .card { min-width: 0; }
+}
+/* iOS gives time and date fields a fixed intrinsic width; without this they poke out of their grid cell. */
+.atp input[type="time"], .atp input[type="date"], .atp input[type="datetime-local"], .atp select.inp { min-width: 0; max-width: 100%; }
+.atp input[type="time"], .atp input[type="date"], .atp input[type="datetime-local"] { -webkit-appearance: none; appearance: none; display: block; text-align: left; }
+.atp input[type="time"]::-webkit-date-and-time-value, .atp input[type="date"]::-webkit-date-and-time-value { text-align: left; }

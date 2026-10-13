@@ -89,3 +89,18 @@
 .atp-student .fc-chap__name { flex: 1; min-width: 0; display: grid; gap: 2px; }
 .atp-student .fc-chap__name small { font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--mu); }
 .atp-student .fc-chap__name b { font-size: 1rem; line-height: 1.25; }
+
+/* ---------- Student: mobile layout ---------- */
+/* The announcement / week cards use a 3-class selector for their uneven columns, which beat the generic 1-column rule
+   on small screens, so they stayed side by side and got crushed. */
+@media (max-width: 1100px) {
+  .atp-student .g2.g2-rev { grid-template-columns: minmax(0, 1fr); }
+}
+.atp-student .card h3 { flex-wrap: wrap; row-gap: 4px; }
+.atp-student .card h3 .lk { margin-left: auto; white-space: nowrap; }
+.atp #wk .wd { min-width: 0; }
+.atp #wk .wd > small, .atp #wk .ev { overflow: hidden; text-overflow: clip; }
+@media (max-width: 420px) {
+  .atp #wk { gap: 4px !important; }
+  .atp #wk .wd > small { font-size: 0.62rem; letter-spacing: -0.02em; }
+}

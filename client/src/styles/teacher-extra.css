@@ -118,3 +118,35 @@
 .atp-teacher .set-nt-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 10px; }
 .atp-teacher .set-nt-row .inp { width: auto; min-width: 110px; max-width: 220px; }
 .atp-teacher .set-nt-row input[type="number"] { max-width: 100px; }
+
+/* ---------- Teacher: mobile layout ---------- */
+.atp-teacher .tbl { grid-template-columns: minmax(0, 1fr); }
+.atp-teacher .tchips { display: contents; } /* chips sit in the row on desktop; on phones they wrap under the title */
+.atp-teacher .trow-open > *, .atp-teacher .lrow > * { min-width: 0; }
+.atp-teacher .lmain b { overflow-wrap: anywhere; }
+@media (hover: none) { .atp-teacher .lact { opacity: 1; } } /* touch screens have no hover to reveal the buttons */
+
+@media (max-width: 640px) {
+  /* Assignment / quiz rows: title on the first line, the chips on the second (indented under the title), no chevron. */
+  .atp-teacher .trow { align-items: flex-start; padding: 8px; }
+  .atp-teacher .trow-open { flex-wrap: wrap; row-gap: 8px; align-items: flex-start; }
+  .atp-teacher .trow-open .lmain { flex: 1 1 calc(100% - 56px); }
+  .atp-teacher .trow-open .lmain b { white-space: normal; }
+  .atp-teacher .trow-open .lmain small { white-space: normal; overflow: visible; }
+  .atp-teacher .trow-open .tchips { flex: 1 1 100%; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding-left: 50px; }
+  .atp-teacher .trow-open > svg { display: none; }
+  .atp-teacher .trow > .ib { margin-top: 4px; }
+
+  /* Library rows: let the title wrap and keep the edit/delete buttons on the right. */
+  .atp-teacher .lrow { align-items: flex-start; gap: 10px; padding: 10px 8px; }
+  .atp-teacher .lmain small { white-space: normal; overflow: visible; }
+  .atp-teacher .fbar { flex-wrap: nowrap; }
+  .atp-teacher .fbar .sub { white-space: nowrap; font-size: 0.8rem; }
+  .atp-teacher .fbar .search { min-width: 0; }
+
+  /* Create schedule: each session's fields in two even columns, Remove across the bottom. */
+  .atp-teacher .ses { grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 12px; margin: 0 8px 10px; }
+  .atp-teacher .ses .fld { min-width: 0; }
+  .atp-teacher .ses > .btn { grid-column: 1 / -1; justify-content: center; }
+  .atp-teacher .ses-add { padding: 0 8px 12px; }
+}

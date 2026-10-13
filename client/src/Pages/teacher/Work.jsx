@@ -82,10 +82,12 @@ function AssignmentTable() {
               <button type="button" className="trow-open" onClick={() => navigate(`${base}/work/submissions?status=all&assignment=${a._id}`)}>
                 <span className="lic"><Ic as={ClipboardCheck} /></span>
                 <span className="lmain"><b>{a.title}</b><small>Due {fmtDate(a.dueDate, { day: 'numeric', month: 'numeric', year: 'numeric' })} · max {a.maxScore}{a.lesson?.section ? ` · ${lessonLabel(a.lesson)}` : ''}</small></span>
-                <span className={`chip ${a.section === 'theory' ? 'c-th' : 'c-pr'}`}>{a.section}</span>
-                <span className="chip c-gy hide-sm">{a.type}</span>
-                <span className="tcount"><b>{handed.length}</b> submitted</span>
-                {toGrade ? <span className="chip c-am">{toGrade} to grade</span> : <span className="chip c-gy">—</span>}
+                <span className="tchips">
+                  <span className={`chip ${a.section === 'theory' ? 'c-th' : 'c-pr'}`}>{a.section}</span>
+                  <span className="chip c-gy hide-sm">{a.type}</span>
+                  <span className="tcount"><b>{handed.length}</b> submitted</span>
+                  {toGrade ? <span className="chip c-am">{toGrade} to grade</span> : <span className="chip c-gy">—</span>}
+                </span>
                 <Ic as={ChevronRight} />
               </button>
               <button type="button" className="ib sm dng" aria-label={`Delete ${a.title}`} onClick={() => remove(a)}><Ic as={Trash2} /></button>
@@ -116,8 +118,10 @@ function QuizTable() {
               <button type="button" className="trow-open" onClick={() => setOpen(q)}>
                 <span className="lic"><Ic as={GraduationCap} /></span>
                 <span className="lmain"><b>{q.title}</b><small>{q.duration} min · max {q.maxScore} · {fmtDate(q.startDate)} {q.startTime}</small></span>
-                <span className="chip c-th">{q.type}</span>
-                <span className="tcount"><b>{done}</b> / {(q.assignedTo || []).length} completed</span>
+                <span className="tchips">
+                  <span className="chip c-th">{q.type}</span>
+                  <span className="tcount"><b>{done}</b> / {(q.assignedTo || []).length} completed</span>
+                </span>
                 <Ic as={ChevronRight} />
               </button>
             </div>
