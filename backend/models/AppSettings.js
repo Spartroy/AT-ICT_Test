@@ -47,6 +47,11 @@ const appSettingsSchema = new mongoose.Schema({
       message: 'Royal classes must be unique'
     }
   },
+  // Quick-actions menu (the + button in the teacher portal): ordered action ids. Unset = the built-in list.
+  quickActions: {
+    type: [String],
+    default: undefined
+  },
   // Public website content the teacher can change (see validators/siteSettings.js). Missing keys fall back to defaults.
   site: {
     type: mongoose.Schema.Types.Mixed,

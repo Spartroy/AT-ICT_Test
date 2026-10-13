@@ -51,6 +51,13 @@
 
 /* Settings */
 .atp-teacher .set-card { margin-bottom: 18px; }
+.atp-teacher .set-pending { display: flex; gap: 14px; align-items: center; justify-content: space-between; flex-wrap: wrap; margin: 4px 0 12px; padding: 12px 14px; border-radius: 14px; background: rgb(var(--gold-rgb) / 0.1); border: 1px solid rgb(var(--gold-rgb) / 0.4); font-size: 0.9rem; }
+.atp-teacher .set-pending p { margin: 2px 0; }
+.atp-teacher .set-qa { list-style: none; padding: 0; margin: 0 0 14px; display: grid; gap: 8px; }
+.atp-teacher .set-qa li { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 14px; background: var(--s2); }
+.atp-teacher .set-qa__ic { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; background: var(--s1); border: 1px solid var(--bd2); }
+.atp-teacher .set-qa__l { flex: 1; min-width: 0; font-weight: 600; }
+.atp-teacher .set-qa__add { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 14px; }
 .atp-teacher .set-note { margin: -8px 0 16px; font-size: 0.88rem; }
 .atp-teacher .set-row { display: grid; grid-template-columns: 130px 1fr auto auto auto; gap: 12px; align-items: end; padding: 12px; border-radius: 14px; background: var(--s2); margin-bottom: 10px; }
 .atp-teacher .set-row .fld { margin: 0; }

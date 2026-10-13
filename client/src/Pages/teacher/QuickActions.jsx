@@ -1,24 +1,15 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, ClipboardCheck, GraduationCap, Megaphone, Play, Library, Users, CalendarDays } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { useTeacher } from './TeacherPortal';
-
-const ACTIONS = [
-  { id: 'hw', label: 'Create H.W', icon: ClipboardCheck },
-  { id: 'quiz', label: 'Create quiz', icon: GraduationCap },
-  { id: 'announcement', label: 'Send announcement', icon: Megaphone },
-  { id: 'video', label: 'Add video', icon: Play },
-  { id: 'note', label: 'Add interactive note', icon: Library },
-  { id: 'regs', label: 'Approve registrations', icon: Users },
-  { id: 'schedule', label: 'Create schedule', icon: CalendarDays }
-];
+import useTeacherSettings from '../../hooks/useTeacherSettings';
+import { QUICK_ACTIONS_CHANGED, resolveQuickActions } from './quickActionCatalog';
 
 /** Offsets for each action: a gently curved column above the button, spaced to fit the viewport. */
-function layout() {
-  const n = ACTIONS.length;
+function layout(n) {
   const bottomUi = window.innerWidth <= 900 ? 92 : 24;
   const spacing = Math.max(50, Math.min(60, (window.innerHeight - 130 - bottomUi) / (n + 1)));
-  return ACTIONS.map((_, i) => ({
+  return Array.from({ length: n }, (_, i) => ({
     dy: -(i + 1) * spacing,
     dx: -Math.round(44 * Math.sin(((i + 1) / (n + 1)) * Math.PI))
   }));
@@ -29,8 +20,15 @@ export default function QuickActions() {
   const { base, openModal } = useTeacher();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
-  const [pos, setPos] = useState(layout);
+  const { settings, reload } = useTeacherSettings();
+  const actions = useMemo(() => resolveQuickActions(settings?.quickActions), [settings?.quickActions]);
+  const [pos, setPos] = useState(() => layout(actions.length));
   const mainRef = useRef(null);
+
+  useEffect(() => {
+    window.addEventListener(QUICK_ACTIONS_CHANGED, reload);
+    return () => window.removeEventListener(QUICK_ACTIONS_CHANGED, reload);
+  }, [reload]);
 
   const close = useCallback((refocus = true) => {
     setOpen(false);
@@ -39,35 +37,35 @@ export default function QuickActions() {
 
   useEffect(() => {
     if (!open) return undefined;
-    setPos(layout());
+    setPos(layout(actions.length));
     const onKey = (e) => e.key === 'Escape' && close();
-    const onResize = () => setPos(layout());
+    const onResize = () => setPos(layout(actions.length));
     document.addEventListener('keydown', onKey);
     window.addEventListener('resize', onResize);
     return () => {
       document.removeEventListener('keydown', onKey);
       window.removeEventListener('resize', onResize);
     };
-  }, [open, close]);
+  }, [open, close, actions.length]);
 
-  const run = (id) => {
+  const run = (action) => {
     close(false);
     // Let the fan retract before the dialog opens.
-    setTimeout(() => (id === 'regs' ? navigate(`${base}/students/registrations`) : openModal(id)), 180);
+    setTimeout(() => (action.to ? navigate(`${base}${action.to}`) : openModal(action.modal)), 180);
   };
 
   return (
     <div className={`qfab ${open ? 'open' : ''}`}>
       <div className="qf-bd" onClick={() => close()} aria-hidden="true" />
-      {ACTIONS.map((a, i) => (
+      {actions.map((a, i) => (
         <button
           key={a.id}
           type="button"
           className="qf-i"
-          style={{ '--i': i, '--dx': `${pos[i].dx}px`, '--dy': `${pos[i].dy}px` }}
+          style={{ '--i': i, '--dx': `${pos[i]?.dx ?? 0}px`, '--dy': `${pos[i]?.dy ?? 0}px` }}
           tabIndex={open ? 0 : -1}
           aria-hidden={!open}
-          onClick={() => run(a.id)}
+          onClick={() => run(a)}
         >
           <span className="qf-l">{a.label}</span>
           <span className="qf-c"><a.icon className="i" aria-hidden="true" /></span>

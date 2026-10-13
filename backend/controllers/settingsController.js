@@ -1,11 +1,13 @@
 const { validationResult } = require('express-validator');
 const AppSettings = require('../models/AppSettings');
 const User = require('../models/User');
+const Registration = require('../models/Registration');
 const { withDefaults, normalizeSite } = require('../validators/siteSettings');
 
 const toSettingsView = (settings) => ({
   examSessions: settings.examSessions.map(({ code, label, open }) => ({ code, label, open })),
   royalClasses: [...settings.royalClasses],
+  quickActions: settings.quickActions?.length ? [...settings.quickActions] : null,
   updatedAt: settings.updatedAt
 });
 
@@ -71,7 +73,7 @@ const updateSettings = async (req, res) => {
       return res.status(400).json({ status: 'error', message: 'Validation errors', errors: errors.array() });
     }
 
-    const { examSessions, royalClasses } = req.body;
+    const { examSessions, royalClasses, quickActions, moveStudents = {} } = req.body;
     const settings = await AppSettings.getGlobal();
 
     // Values already held by students can be closed or renamed, but not removed,
@@ -88,12 +90,20 @@ const updateSettings = async (req, res) => {
         settings.examSessions.map(s => s.code),
         examSessions.map(s => s.code)
       );
-      if (inUse.length) {
+      // A session that still has students can only be removed if the teacher says where they go.
+      const newCodes = examSessions.map(s => s.code);
+      const stuck = inUse.filter(code => !newCodes.includes(moveStudents[code]));
+      if (stuck.length) {
         return res.status(409).json({
           status: 'error',
-          message: `These sessions still have students: ${inUse.join(', ')}. Close them instead of removing them.`,
-          errors: [{ path: 'examSessions', msg: `In use: ${inUse.join(', ')}` }]
+          message: `These sessions still have students: ${stuck.join(', ')}. Move them to another session, or close the session instead of removing it.`,
+          errors: [{ path: 'examSessions', msg: `In use: ${stuck.join(', ')}` }]
         });
+      }
+      // Students and pending registrations move first, so nobody is ever left on a session that no longer exists.
+      for (const code of inUse) {
+        await User.updateMany({ role: 'student', 'studentInfo.session': code }, { $set: { 'studentInfo.session': moveStudents[code] } });
+        await Registration.updateMany({ session: code }, { $set: { session: moveStudents[code] } });
       }
       settings.examSessions = examSessions;
     }
@@ -109,6 +119,8 @@ const updateSettings = async (req, res) => {
       }
       settings.royalClasses = royalClasses;
     }
+
+    if (quickActions) settings.quickActions = quickActions;
 
     settings.updatedBy = req.user._id;
     await settings.save();

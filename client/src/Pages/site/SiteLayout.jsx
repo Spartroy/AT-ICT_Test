@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Award, CheckCircle2, Play, BookOpen, CalendarDays, Video, BarChart3, FileText, Check, Star, Users, Clock,
@@ -53,17 +53,59 @@ export default function SiteLayout(props) {
   return <SiteSettingsProvider><SiteChrome {...props} /></SiteSettingsProvider>;
 }
 
-/** Announcement banner (teacher-controlled) above the navigation. */
-function Banner({ banner, onDismiss }) {
+const TICKER_SPEED = 70; // px per second
+
+/** One run of the banner message (text + link). Copies made only for the loop are hidden from assistive tech and the tab order. */
+function TickerItem({ banner, real, itemRef }) {
   const external = /^https?:/.test(banner.link);
+  const props = real ? {} : { tabIndex: -1 };
+  return (
+    <span className="ann-item" ref={itemRef} aria-hidden={real ? undefined : true}>
+      {banner.text}
+      {banner.link && (external
+        ? <a href={banner.link} target="_blank" rel="noopener noreferrer" {...props}>Learn more<SI name="arrow" /></a>
+        : <Link to={banner.link} {...props}>Learn more<SI name="arrow" /></Link>)}
+    </span>
+  );
+}
+
+/**
+ * Announcement banner (teacher-controlled) above the navigation, styled as a TV news ticker: a NEWS tag, then the message
+ * scrolling right to left in a seamless loop. It pauses on hover/focus; with reduced motion it stays still and wraps.
+ */
+function Banner({ banner, onDismiss }) {
+  const viewRef = useRef(null);
+  const itemRef = useRef(null);
+  const [loop, setLoop] = useState({ copies: 3, seconds: 24 });
+
+  // Enough copies that one run is wider than the bar, so the second run always follows the first with no gap.
+  useLayoutEffect(() => {
+    const measure = () => {
+      const item = itemRef.current;
+      const view = viewRef.current;
+      if (!item || !view || !item.offsetWidth) return;
+      const copies = Math.max(1, Math.ceil(view.offsetWidth / item.offsetWidth));
+      setLoop(prev => (prev.copies === copies && prev.item === item.offsetWidth ? prev : { copies, item: item.offsetWidth, seconds: Math.max(12, (copies * item.offsetWidth) / TICKER_SPEED) }));
+    };
+    measure();
+    window.addEventListener('resize', measure);
+    return () => window.removeEventListener('resize', measure);
+  }, [banner.text, banner.link]);
+
   return (
     <div className="ann" role="region" aria-label="Announcement">
-      <p>
-        {banner.text}
-        {banner.link && (external
-          ? <a href={banner.link} target="_blank" rel="noopener noreferrer">Learn more<SI name="arrow" /></a>
-          : <Link to={banner.link}>Learn more<SI name="arrow" /></Link>)}
-      </p>
+      <span className="ann-tag"><i aria-hidden="true" />News</span>
+      <div className="ann-view" ref={viewRef}>
+        <div className="ann-track" style={{ '--dur': `${loop.seconds}s` }}>
+          {[0, 1].map(run => (
+            <div className="ann-run" key={run} aria-hidden={run === 1 ? true : undefined}>
+              {Array.from({ length: loop.copies }, (_, k) => (
+                <TickerItem key={k} banner={banner} real={run === 0 && k === 0} itemRef={run === 0 && k === 0 ? itemRef : null} />
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
       <button type="button" aria-label="Dismiss announcement" onClick={onDismiss}><SI name="x" /></button>
     </div>
   );
