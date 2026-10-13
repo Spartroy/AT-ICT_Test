@@ -150,3 +150,5 @@
   .atp-teacher .ses > .btn { grid-column: 1 / -1; justify-content: center; }
   .atp-teacher .ses-add { padding: 0 8px 12px; }
 }
+.atp-teacher .set-qa__n { flex: none; width: 22px; text-align: center; font-family: var(--font-numeric); font-size: 0.85rem; color: var(--fa); }
+.atp-teacher [role="tabpanel"][hidden] { display: none; }

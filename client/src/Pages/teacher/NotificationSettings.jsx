@@ -16,8 +16,10 @@ export default function NotificationSettings({ settings, save, reload }) {
   const [problem, setProblem] = useState('');
   const [saving, setSaving] = useState(false);
 
+  // Follow the server only when the saved notification rules change, so saving other settings never wipes edits here.
+  const savedKey = JSON.stringify(settings?.notifications || null);
   useEffect(() => {
-    const n = settings?.notifications;
+    const n = JSON.parse(savedKey);
     if (!n) return;
     setForm({
       studentsCanChoose: n.studentsCanChoose,
@@ -28,7 +30,7 @@ export default function NotificationSettings({ settings, save, reload }) {
       quietHours: { ...n.quietHours },
       timezone: n.timezone
     });
-  }, [settings?.notifications]);
+  }, [savedKey]);
 
   if (!form) return null;
   const types = settings.notificationTypes || [];

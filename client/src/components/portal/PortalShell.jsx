@@ -29,7 +29,7 @@ function ProfilePill({ user }) {
   );
 }
 
-export default function PortalShell({ variant, nav, title, user, tagline, aside, bell, bellSlot, meTo, children }) {
+export default function PortalShell({ variant, nav, user, tagline, aside, bell, bellSlot, meTo, children }) {
   const navigate = useNavigate();
 
   const logout = async () => {
@@ -66,7 +66,6 @@ export default function PortalShell({ variant, nav, title, user, tagline, aside,
           <div className="main">
             <header className="top">
               <LogoTile mark className="mlogo" />
-              <h2>{title}</h2>
               <span className="sp" />
               {bellSlot || (bell && (
                 <button type="button" className="ib" aria-label={bell.label || 'Notifications'} onClick={bell.onClick}>

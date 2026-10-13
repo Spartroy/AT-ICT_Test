@@ -19,7 +19,7 @@ export const timeAgo = (iso, now = Date.now()) => {
 };
 
 /** This device's push status with the one action that makes sense for it (turn on, turn off, install, or why not). */
-function DevicePush({ onTest }) {
+function DevicePush() {
   const toast = useToast();
   const [state, setState] = useState(null);
   const [busy, setBusy] = useState(false);
@@ -46,7 +46,6 @@ function DevicePush({ onTest }) {
       {state === 'on' ? (
         <>
           <span className="nt-ok"><Ic as={BellRing} />On for this device</span>
-          <button type="button" className="btn o sm" onClick={onTest}>Send a test</button>
           <button type="button" className="btn o sm" disabled={busy} onClick={() => run(disablePush)}><Ic as={BellOff} />Turn off</button>
         </>
       ) : (
@@ -88,7 +87,6 @@ function Preferences({ onBack }) {
 /** Header bell: unread badge, the list of notifications, this device's push switch, and personal settings. */
 export default function NotificationBell() {
   const navigate = useNavigate();
-  const toast = useToast();
   const { items, unread, reload, markRead, markAllRead } = useNotifications();
   const [open, setOpen] = useState(false);
   const [view, setView] = useState('list');
@@ -111,10 +109,6 @@ export default function NotificationBell() {
     if (n.url && n.url.startsWith('/')) navigate(n.url);
   };
 
-  const sendTest = async () => {
-    try { await api.post(API_ENDPOINTS.NOTIFICATIONS.TEST); toast('Test sent. It should arrive in a moment.'); setTimeout(reload, 1500); } catch { toast("Couldn't send a test notification."); }
-  };
-
   return (
     <div className="nt" ref={rootRef}>
       <button type="button" className="ib" aria-label={unread ? `Notifications, ${unread} unread` : 'Notifications'} aria-expanded={open} onClick={() => { setOpen(o => !o); if (!open) reload(); }}>
@@ -131,7 +125,7 @@ export default function NotificationBell() {
                 {unread > 0 && <button type="button" className="nt-link" onClick={markAllRead}>Mark all read</button>}
                 <button type="button" className="ib sm" aria-label="Notification settings" onClick={() => setView('settings')}><Ic as={Settings2} /></button>
               </div>
-              <DevicePush onTest={sendTest} />
+              <DevicePush />
               <div className="nt-body">
                 {!items.length && <p className="nt-hint">Nothing yet. New homework, messages and reminders will show up here.</p>}
                 {items.map(n => (

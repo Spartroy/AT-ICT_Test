@@ -4,7 +4,7 @@ import { setAuthHeaders, handleAuthResponse } from '../utils/auth';
 
 /**
  * Teacher-editable settings (exam sessions, Royal College classes).
- * Returns { settings, loading, error, reload, save }. save() resolves to { ok, message, errors }.
+ * Returns { settings, loading, error, reload, save }. save() resolves to { ok, message, errors, data } (data is what the server kept).
  */
 export default function useTeacherSettings() {
   const [settings, setSettings] = useState(null);
@@ -40,7 +40,7 @@ export default function useTeacherSettings() {
       const body = await res.json();
       if (!res.ok) return { ok: false, message: body.message, errors: body.errors || [] };
       setSettings(s => ({ ...s, ...body.data }));
-      return { ok: true, message: body.message };
+      return { ok: true, message: body.message, data: body.data };
     } catch {
       return { ok: false, message: "We couldn't reach the server. Please try again." };
     }

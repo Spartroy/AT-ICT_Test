@@ -23,6 +23,8 @@ export default function QuickActions() {
   const { settings, reload } = useTeacherSettings();
   const actions = useMemo(() => resolveQuickActions(settings?.quickActions), [settings?.quickActions]);
   const [pos, setPos] = useState(() => layout(actions.length));
+  // Recompute straight away when the number of actions changes, so a menu opened right after saving never has stale offsets.
+  const offsets = useMemo(() => (pos.length === actions.length ? pos : layout(actions.length)), [pos, actions.length]);
   const mainRef = useRef(null);
 
   useEffect(() => {
@@ -62,7 +64,7 @@ export default function QuickActions() {
           key={a.id}
           type="button"
           className="qf-i"
-          style={{ '--i': i, '--dx': `${pos[i]?.dx ?? 0}px`, '--dy': `${pos[i]?.dy ?? 0}px` }}
+          style={{ '--i': i, '--dx': `${offsets[i]?.dx ?? 0}px`, '--dy': `${offsets[i]?.dy ?? 0}px` }}
           tabIndex={open ? 0 : -1}
           aria-hidden={!open}
           onClick={() => run(a)}

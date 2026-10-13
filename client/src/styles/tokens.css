@@ -60,7 +60,7 @@
   --dark-text-soft: #D1D1D6;
   --dark-text-muted: #A3A3AB;
   --dark-text-faint: #8A8A93;
-  --dark-label: #FFB3C2;       /* field labels inside the auth modal */
+  --dark-label: #FFFFFF;       /* field labels inside the auth modal (plain white) */
   --dark-accent-text: #FF7D98; /* eyebrow / error text on dark */
   --dark-error: #FB7185;       /* error borders */
   --dark-error-rgb: 251 113 133;
