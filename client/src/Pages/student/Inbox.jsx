@@ -35,5 +35,5 @@ function StudentChat({ onRead }) {
   if (teacher.error) return <ErrorNote error={teacher.error} onRetry={teacher.reload} />;
   const t = teacher.data?.teacher;
   const threads = t ? [{ id: String(t.id), name: t.fullName, sub: 'Teacher · direct', unread: teacher.data.unreadCount || 0 }] : [];
-  return <ChatPanel threads={threads} emptyText="Your teacher's chat isn't available yet." onRead={() => setTimeout(onRead, 1000)} />;
+  return <ChatPanel threads={threads} emptyText="Your teacher's chat isn't available yet." onRead={() => { onRead(); teacher.reload(); }} />;
 }

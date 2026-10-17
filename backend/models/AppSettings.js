@@ -62,6 +62,16 @@ const appSettingsSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.Mixed,
     default: undefined
   },
+  // Free-samples opt-in test: { mode: 'ab' | 'A' | 'B' | 'off' }. Unset = 'ab' (visitors are split 50/50).
+  leadTest: {
+    type: mongoose.Schema.Types.Mixed,
+    default: undefined
+  },
+  // Set once the starter free-sample cards have been inserted (so deleting them sticks).
+  samplesSeeded: {
+    type: Boolean,
+    default: false
+  },
   // Set once the preset Hall of Fame names have been inserted (so deleting them sticks).
   hofSeeded: {
     type: Boolean,

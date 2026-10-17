@@ -2,14 +2,17 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import Seo from '../../components/Seo';
 import { useStories } from '../../context/StoriesContext';
-import { useReducedMotion } from '../../hooks/useMediaQuery';
+import useMediaQuery, { useReducedMotion } from '../../hooks/useMediaQuery';
 import tutorPhoto from '../../assets/PP.jpg';
 import videoThumbnail from '../../assets/video-thumbnail.png';
 import SiteLayout, { SI, useReveal } from './SiteLayout';
 import Method from './Method';
 import { HallSection } from './HallOfFame';
 import { useSite } from './SiteSettings';
-import { SAMPLES, SAMPLE_FILTERS, PLANS, PERKS, CONTACT } from './siteContent';
+import { SAMPLE_FILTERS, PLANS, PERKS, CONTACT } from './siteContent';
+import SampleViewer, { OptInGate } from './SampleViewer';
+import { hasLead, track, variantFor } from '../../lib/leadTest';
+import { API_ENDPOINTS } from '../../config/api';
 
 /** Number that counts up (1.4s, ease-out) the first time it is 60% visible. */
 export function CountUp({ to }) {
@@ -163,8 +166,44 @@ function Tutor() {
   );
 }
 
+const KIND_META = {
+  notes: { cat: 'notes', icon: 'file', type: 'Interactive Notes', points: ['Interactive diagrams', 'Quick revision notes'] },
+  video: { cat: 'videos', icon: 'vid', type: 'Video Explanation', points: ['HD video quality', 'Practice files included'] },
+  file: { cat: 'exercises', icon: 'cc', type: 'Practice File', points: ['Exam-style questions', 'Detailed solutions'] }
+};
+
 function Samples() {
   const [filter, setFilter] = useState('all');
+  const [items, setItems] = useState(null);
+  const [mode, setMode] = useState('ab');
+  const [gate, setGate] = useState(null); // { sample, variant } waiting for the form (version A)
+  const [viewer, setViewer] = useState(null); // { sample, variant, askLater }
+
+  useEffect(() => {
+    let off = false;
+    fetch(API_ENDPOINTS.SAMPLES)
+      .then(r => (r.ok ? r.json() : Promise.reject()))
+      .then(b => { if (!off) { setItems(b.data.samples || []); setMode(b.data.test?.mode || 'ab'); } })
+      .catch(() => { if (!off) setItems([]); });
+    return () => { off = true; };
+  }, []);
+
+  const open = (sample) => {
+    if (!sample.url) return;
+    if (mode === 'off' || hasLead()) { setViewer({ sample, variant: 'none', askLater: false }); return; }
+    const variant = variantFor(mode);
+    track('open', { variant, sampleId: sample.id });
+    if (variant === 'A') {
+      setGate({ sample, variant });
+      track('prompt', { variant, sampleId: sample.id });
+    } else {
+      setViewer({ sample, variant, askLater: true });
+    }
+  };
+
+  const cards = (items || []).map(s => ({ ...s, ...KIND_META[s.kind] || KIND_META.notes }));
+  const shown = cards.filter(s => filter === 'all' || s.cat === filter);
+
   return (
     <section id="samples" className="sec dark" aria-labelledby="samples-title">
       <div className="wrap">
@@ -180,20 +219,33 @@ function Samples() {
             </button>
           ))}
         </div>
+        {items && !cards.length && <p className="center lead rv" style={{ marginTop: 32 }}>New free samples are on the way. Check back soon.</p>}
         <div className="cards" aria-live="polite">
-          {SAMPLES.filter(s => filter === 'all' || s.cat === filter).map(s => (
-            <article className="sc" key={s.title}>
+          {shown.map(s => (
+            <article className="sc" key={s.id}>
               <div className="sc-h">
                 <span className="chip"><SI name={s.icon} /></span>
                 <div><h3>{s.title}</h3><small>{s.type}</small></div>
                 <span className="free">FREE</span>
               </div>
-              <p>{s.text}</p>
+              <p>{s.description}</p>
               <ul>{s.points.map(p => <li key={p}><SI name="cc" />{p}</li>)}</ul>
+              <button type="button" className="btn btn-p sc-go" disabled={!s.url} onClick={() => open(s)}>
+                {s.url ? <>Open free sample <SI name="arrow" /></> : 'Coming soon'}
+              </button>
             </article>
           ))}
         </div>
       </div>
+      {gate && (
+        <OptInGate
+          sample={gate.sample}
+          variant={gate.variant}
+          onClose={() => { track('dismiss', { variant: gate.variant, sampleId: gate.sample.id }); setGate(null); }}
+          onDone={() => { setViewer({ sample: gate.sample, variant: gate.variant, askLater: false }); setGate(null); }}
+        />
+      )}
+      {viewer && <SampleViewer sample={viewer.sample} variant={viewer.variant} askLater={viewer.askLater} onClose={() => setViewer(null)} />}
     </section>
   );
 }
@@ -237,20 +289,34 @@ function Fees() {
   );
 }
 
+const STORY_MS = 4000;
+
 function Results() {
   const { site } = useSite();
   const { stories } = useStories();
-  const trackRef = useRef(null);
-  const [index, setIndex] = useState(0);
   const reduced = useReducedMotion();
+  const wide = useMediaQuery('(min-width: 1001px)');
+  const mid = useMediaQuery('(min-width: 641px)');
+  // Always two rows: 3×2 on desktop, 2×2 on tablets, 1×2 on phones.
+  const perPage = wide ? 6 : mid ? 4 : 2;
+  const pages = useMemo(() => {
+    const out = [];
+    for (let i = 0; i < stories.length; i += perPage) out.push(stories.slice(i, i + perPage));
+    return out;
+  }, [stories, perPage]);
+  const [page, setPage] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const count = pages.length;
+  const current = Math.min(page, Math.max(0, count - 1));
 
-  const step = () => {
-    const card = trackRef.current?.querySelector('.tc');
-    return card ? card.offsetWidth + 20 : 300;
-  };
-  const onScroll = () => setIndex(Math.round((trackRef.current?.scrollLeft || 0) / step()));
-  const go = (dir) => trackRef.current?.scrollBy({ left: dir * step(), behavior: reduced ? 'auto' : 'smooth' });
-  const goTo = (i) => trackRef.current?.scrollTo({ left: i * step(), behavior: reduced ? 'auto' : 'smooth' });
+  const go = (dir) => setPage(p => (Math.min(p, count - 1) + dir + count) % count);
+
+  // Advance every 4s; the timer restarts whenever the page changes, so manual clicks get a full 4s too.
+  useEffect(() => {
+    if (reduced || paused || count < 2) return undefined;
+    const t = setTimeout(() => go(1), STORY_MS);
+    return () => clearTimeout(t);
+  }, [current, paused, reduced, count]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <section id="results" className="sec deep" aria-labelledby="results-title">
@@ -260,23 +326,36 @@ function Results() {
           <h2 className="h2" id="results-title">Real students, <em>real results.</em></h2>
           <p className="lead">Don't just take our word for it.</p>
         </div>
-        <div className="car rv">
-          <div className="track" ref={trackRef} tabIndex={0} role="region" aria-label="Student reviews" onScroll={onScroll}
-            onKeyDown={e => { if (e.key === 'ArrowRight') { e.preventDefault(); go(1); } if (e.key === 'ArrowLeft') { e.preventDefault(); go(-1); } }}>
-            {stories.map((s, i) => (
-              <figure className="tc" key={`${s.name}-${i}`}>
-                <div className="stars" aria-label="5 stars">★★★★★</div>
-                <blockquote dir="auto">“{s.text}”</blockquote>
-                <figcaption><span className="av" aria-hidden="true">{(s.name || '?')[0]}</span><div><b>{s.name}</b><small>{s.country}</small></div></figcaption>
-              </figure>
+        <div
+          className="car rv"
+          role="region"
+          aria-roledescription="carousel"
+          aria-label="Student reviews"
+          onMouseEnter={() => setPaused(true)}
+          onMouseLeave={() => setPaused(false)}
+          onFocus={() => setPaused(true)}
+          onBlur={() => setPaused(false)}
+          onKeyDown={e => { if (e.key === 'ArrowRight') go(1); if (e.key === 'ArrowLeft') go(-1); }}
+        >
+          <div className="tstack">
+            {pages.map((group, pi) => (
+              <div className={`tgrid ${pi === current ? 'on' : ''}`} key={pi} aria-hidden={pi !== current} inert={pi !== current ? '' : undefined}>
+                {group.map((s, i) => (
+                  <figure className="tc" key={`${s.name}-${i}`}>
+                    <div className="stars" aria-label="5 stars">★★★★★</div>
+                    <blockquote dir="auto">“{s.text}”</blockquote>
+                    <figcaption><span className="av" aria-hidden="true">{(s.name || '?')[0]}</span><div><b>{s.name}</b><small>{s.country}</small></div></figcaption>
+                  </figure>
+                ))}
+              </div>
             ))}
           </div>
           <div className="car-ctl">
-            <button type="button" className="cb" aria-label="Previous review" onClick={() => go(-1)}>‹</button>
+            <button type="button" className="cb" aria-label="Previous reviews" onClick={() => go(-1)}>‹</button>
             <span className="cdots">
-              {stories.map((s, i) => <button type="button" key={i} className={i === index ? 'on' : ''} aria-label={`Review ${i + 1}`} aria-current={i === index} onClick={() => goTo(i)} />)}
+              {pages.map((_, i) => <button type="button" key={i} className={i === current ? 'on' : ''} aria-label={`Reviews page ${i + 1} of ${count}`} aria-current={i === current} onClick={() => setPage(i)} />)}
             </span>
-            <button type="button" className="cb" aria-label="Next review" onClick={() => go(1)}>›</button>
+            <button type="button" className="cb" aria-label="Next reviews" onClick={() => go(1)}>›</button>
           </div>
         </div>
         <div className="res">

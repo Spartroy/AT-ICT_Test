@@ -13,6 +13,7 @@ import Learn from './Learn';
 import Work from './Work';
 import Schedule from './Schedule';
 import Inbox from './Inbox';
+import LiveClassPopup from '../../components/portal/LiveClassPopup';
 
 const StudentContext = createContext(null);
 export const useStudent = () => useContext(StudentContext);
@@ -97,6 +98,7 @@ export default function StudentPortal() {
           <Route path="inbox/:tab" element={<Inbox />} />
           <Route path="*" element={<Navigate to={BASE} replace />} />
         </Routes>
+        <LiveClassPopup role="student" scheduleHref={`${BASE}/schedule`} />
       </PortalShell>
     </StudentContext.Provider>
   );

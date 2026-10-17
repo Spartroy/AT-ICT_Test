@@ -102,7 +102,7 @@ function TeacherChat() {
     sub: s.lastMessage ? `${s.lastMessage.isFromCurrentUser ? 'You: ' : ''}${s.lastMessage.content || 'Attachment'}` : 'Student',
     unread: s.unreadCount || 0
   }));
-  return <ChatPanel broadcast threads={threads} emptyText="No students to chat with yet." onRead={() => setTimeout(refreshBadges, 1000)} />;
+  return <ChatPanel broadcast threads={threads} emptyText="No students to chat with yet." onRead={refreshBadges} />;
 }
 
 function Sessions() {

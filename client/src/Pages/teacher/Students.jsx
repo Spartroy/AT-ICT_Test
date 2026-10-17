@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Navigate, useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { Users, Bell, Eye, MoreHorizontal, CheckCircle2, XCircle, GraduationCap, MapPin, Clock, Phone, User, Mail, Copy } from 'lucide-react';
+import { Users, Bell, Gift, Eye, MoreHorizontal, CheckCircle2, XCircle, GraduationCap, MapPin, Clock, Phone, User, Mail, Copy } from 'lucide-react';
 import useApi from '../../hooks/useApi';
 import { api } from '../../lib/api';
 import { API_ENDPOINTS } from '../../config/api';
@@ -10,6 +10,7 @@ import useTeacherSettings from '../../hooks/useTeacherSettings';
 import { useTeacher } from './TeacherPortal';
 import { apiError, useTeacherChange } from './modals/form';
 import StudentModal from './StudentModal';
+import LeadsPanel from './LeadsPanel';
 
 const PAGE = 20;
 const known = (v) => v !== null && v !== undefined && v !== '' && v !== 'N/A' && v !== 'Not assigned';
@@ -19,17 +20,17 @@ export default function Students() {
   const { tab } = useParams();
   const navigate = useNavigate();
   const { base, counts } = useTeacher();
-  if (!['all', 'registrations'].includes(tab)) return <Navigate to={`${base}/students/all`} replace />;
+  if (!['all', 'registrations', 'leads'].includes(tab)) return <Navigate to={`${base}/students/all`} replace />;
   return (
     <>
       <PageHead title="Students" />
       <Seg
-        tabs={[{ id: 'all', label: 'All students', icon: Users }, { id: 'registrations', label: 'Registrations', icon: Bell, count: counts.pendingRegs || '' }]}
+        tabs={[{ id: 'all', label: 'All students', icon: Users }, { id: 'registrations', label: 'Registrations', icon: Bell, count: counts.pendingRegs || '' }, { id: 'leads', label: 'Leads', icon: Gift }]}
         value={tab}
         onChange={id => navigate(`${base}/students/${id}`)}
         label="Student sections"
       />
-      {tab === 'all' ? <StudentList /> : <Registrations />}
+      {tab === 'all' ? <StudentList /> : tab === 'leads' ? <LeadsPanel /> : <Registrations />}
     </>
   );
 }

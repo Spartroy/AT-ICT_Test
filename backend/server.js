@@ -52,6 +52,8 @@ const pastPaperRoutes = require('./routes/pastPaperRoutes');
 const sessionRoutes = require('./routes/sessionRoutes');
 const teacherSessionRoutes = require('./routes/teacherSessionRoutes');
 const leaderboardRoutes = require('./routes/leaderboardRoutes');
+const liveRoutes = require('./routes/liveRoutes');
+const sampleRoutes = require('./routes/sampleRoutes');
 
 // ===================================================================
 // SERVER INITIALIZATION
@@ -298,14 +300,18 @@ app.use('/api/student', studentRoutes);
  */
 app.use('/api/teacher/settings', settingsRoutes.teacherRouter);
 app.use('/api/teacher/pastpapers', pastPaperRoutes.teacherRouter);
+app.use('/api/teacher/live', liveRoutes.teacherRouter);
+app.use('/api/teacher/samples', sampleRoutes.teacherRouter);
 app.use('/api/teacher', teacherRoutes);
 
 /**
  * Settings Routes
  * Public options for the registration form (teacher-editable via /api/teacher/settings)
  */
+app.use('/api/settings/samples', sampleRoutes.publicRouter);
 app.use('/api/settings', settingsRoutes.publicRouter);
 app.use('/api/pastpapers', pastPaperRoutes.publicRouter);
+app.use('/api/live', liveRoutes.studentRouter);
 
 /**
  * Parent-specific Routes

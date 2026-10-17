@@ -3,6 +3,8 @@ import HomeworkModal from './HomeworkModal';
 import { QuizModal, AnnouncementModal, VideoModal, NoteModal } from './ContentModals';
 import { MaterialModal } from './MaterialWizard';
 import { ScheduleModal, AssignStudentsModal } from './ScheduleModals';
+import { LiveSessionModal, AttendanceModal } from './LiveModals';
+import { SampleModal } from './SampleModal';
 import { StackFormDialog } from '../../../components/portal/Flashcards';
 import { announceChange } from './form';
 
@@ -19,6 +21,9 @@ export default function TeacherModals({ modal, onClose }) {
       <MaterialModal open={type === 'material'} onClose={onClose} material={modal?.material} pastpaper={modal?.pastpaper} />
       <ScheduleModal open={type === 'schedule'} onClose={onClose} schedule={modal?.schedule} />
       <AssignStudentsModal open={type === 'assign'} onClose={onClose} schedule={modal?.schedule} />
+      <LiveSessionModal open={type === 'live'} onClose={onClose} session={modal?.session} />
+      <AttendanceModal open={type === 'attendance'} onClose={onClose} session={modal?.session} />
+      <SampleModal open={type === 'sample'} onClose={onClose} sample={modal?.sample} />
       <StackFormDialog open={type === 'flashcard'} onClose={onClose} stack={modal?.stack} onSaved={() => announceChange('flashcard')} />
     </>
   );

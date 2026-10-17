@@ -113,6 +113,15 @@ export default function ChatPanel({ threads, emptyText = 'No conversations yet.'
   const recRef = useRef(null);
   const toast = useToast();
   const me = myId();
+  const onReadRef = useRef(onRead);
+  onReadRef.current = onRead;
+  const seenCount = useRef(0);
+  // Threads whose unread badge was cleared by opening them (until the next refresh brings real numbers)
+  const [cleared, setCleared] = useState(() => new Set());
+
+  // Fresh counts from the server replace the local "cleared" markers.
+  const unreadSig = threads.map(t => `${t.id}:${t.unread || 0}`).join('|');
+  useEffect(() => { setCleared(new Set()); }, [unreadSig]);
 
   const allThread = useMemo(() => (broadcast ? { id: ALL_ID, name: 'All students', sub: 'One message to every student', isAll: true } : null), [broadcast]);
   const list = useMemo(() => {
@@ -127,7 +136,15 @@ export default function ChatPanel({ threads, emptyText = 'No conversations yet.'
     if (!id || id === ALL_ID) return;
     try {
       const res = await api.get(`${API_ENDPOINTS.CHAT.CONVERSATIONS}/${id}`);
-      setMessages(res.data?.messages || []);
+      const list = res.data?.messages || [];
+      setMessages(list);
+      // The server marks the thread read on fetch: clear its badge now and refresh the counters
+      // (on open, and whenever new messages arrive while it stays open).
+      if (!quiet || list.length !== seenCount.current) {
+        setCleared(c => (c.has(id) ? c : new Set(c).add(id)));
+        onReadRef.current?.(id);
+      }
+      seenCount.current = list.length;
     } catch (err) {
       if (!quiet) toast(err.message || "Couldn't load messages");
     }
@@ -135,11 +152,13 @@ export default function ChatPanel({ threads, emptyText = 'No conversations yet.'
 
   useEffect(() => {
     if (!active || isAll) { setMessages([]); return undefined; }
+    // On phones the list shows first; don't mark a thread read until the user actually opens it.
+    if (!mobileOpen && window.matchMedia('(max-width: 900px)').matches) return undefined;
+    seenCount.current = 0;
     load(active.id);
-    onRead?.(active.id);
     const t = setInterval(() => load(active.id, true), POLL_MS);
     return () => clearInterval(t);
-  }, [active?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [active?.id, mobileOpen]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (bodyRef.current) bodyRef.current.scrollTop = bodyRef.current.scrollHeight;
@@ -249,7 +268,7 @@ export default function ChatPanel({ threads, emptyText = 'No conversations yet.'
             >
               <span className={`av ${t.isAll ? 'av--all' : ''}`} aria-hidden="true">{t.isAll ? <Ic as={Megaphone} /> : initials(t.name)}</span>
               <span className="chl-txt"><b>{t.name}</b><small>{t.sub}</small></span>
-              {!!t.unread && <span className="bd chl-bd" aria-label={`${t.unread} unread`}>{t.unread}</span>}
+              {!!t.unread && !cleared.has(t.id) && <span className="bd chl-bd" aria-label={`${t.unread} unread`}>{t.unread}</span>}
             </button>
           ))}
           {!list.length && <p className="sub chl-none">No one matches “{query}”.</p>}

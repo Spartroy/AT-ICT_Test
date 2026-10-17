@@ -19,6 +19,16 @@
       ],
       "port": 3005,
       "autoPort": false
+    },
+    {
+      "name": "static-build",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "-e",
+        "const h=require('http'),f=require('fs'),p=require('path');const R='/Users/Ahmad/Documents/GitHub/AT-ICT_Test/client/build';const T={'.html':'text/html','.js':'text/javascript','.css':'text/css','.png':'image/png','.jpg':'image/jpeg','.svg':'image/svg+xml','.woff2':'font/woff2','.json':'application/json','.webp':'image/webp'};h.createServer((q,s)=>{let u=decodeURIComponent(q.url.split('?')[0]);let fp=p.join(R,u);if(!fp.startsWith(R)||!f.existsSync(fp)||f.statSync(fp).isDirectory())fp=p.join(R,'index.html');s.writeHead(200,{'content-type':T[p.extname(fp)]||'application/octet-stream'});f.createReadStream(fp).pipe(s);}).listen(3010);"
+      ],
+      "port": 3010,
+      "autoPort": false
     }
   ]
 }

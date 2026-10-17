@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
-import { Play, Library as LibIcon, Folder, LayoutGrid, Star, Plus, Search, Pencil, Trash2, Link2, Trophy, MessageSquare, Download, ClipboardList } from 'lucide-react';
+import { Play, Library as LibIcon, Folder, LayoutGrid, Star, Plus, Search, Pencil, Trash2, Link2, Trophy, MessageSquare, Download, ClipboardList, Gift } from 'lucide-react';
 import useApi from '../../hooks/useApi';
 import useMediaQuery from '../../hooks/useMediaQuery';
 import { api, downloadFile } from '../../lib/api';
@@ -10,6 +10,7 @@ import { useConfirm, useToast } from '../../components/portal/PortalUI';
 import { useTeacher } from './TeacherPortal';
 import { announceChange, apiError, useTeacherChange } from './modals/form';
 import { programLabel } from './curriculum';
+import SamplesManager from './SamplesManager';
 import { buildTree, inPath, highlight, sortByPath } from './libraryTree';
 
 const TYPE_LABEL = { theory: 'Theory', practical: 'Practical', other: 'Revision' };
@@ -67,6 +68,7 @@ const TABS = [
     toItem: s => ({ id: s._id, title: s.title, raw: s, path: [s.isTeacherStack ? 'Teacher stacks' : 'Student stacks'], meta: `${s.totalCards || s.cards?.length || 0} cards · by ${s.creatorName || 'student'}` }),
     remove: id => api.del(`${API_ENDPOINTS.FLASHCARDS}/${id}`)
   },
+  { id: 'samples', label: 'Free samples', icon: Gift, add: 'sample' },
   { id: 'site', label: 'Website content', icon: Star, add: null }
 ];
 
@@ -78,7 +80,7 @@ export default function Library() {
   const [importing, setImporting] = useState(false);
   const current = TABS.find(t => t.id === tab);
   if (!current) return <Navigate to={`${base}/library/videos`} replace />;
-  const addLabel = { videos: 'video', notes: 'note', materials: 'material', pastpapers: 'past papers', flashcards: 'stack' }[tab];
+  const addLabel = { videos: 'video', notes: 'note', materials: 'material', pastpapers: 'past papers', flashcards: 'stack', samples: 'sample' }[tab];
 
   // Adds the 13 revision stacks built from the study guide (already imported ones are skipped).
   const importChapters = async () => {
@@ -106,7 +108,7 @@ export default function Library() {
         )}
       />
       <Seg tabs={TABS.map(t => ({ id: t.id, label: t.label, icon: t.icon }))} value={tab} onChange={id => navigate(`${base}/library/${id}`)} label="Library sections" />
-      {tab === 'site' ? <SiteContent /> : <LibraryList key={tab} config={current} />}
+      {tab === 'site' ? <SiteContent /> : tab === 'samples' ? <SamplesManager /> : <LibraryList key={tab} config={current} />}
     </>
   );
 }

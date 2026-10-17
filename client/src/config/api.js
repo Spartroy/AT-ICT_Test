@@ -84,6 +84,13 @@ export const API_ENDPOINTS = {
     STATS: `${API_BASE_URL}/api/sessions/stats`,
     ALL: `${API_BASE_URL}/api/sessions/all`,
   },
+  LIVE: {
+    CURRENT: `${API_BASE_URL}/api/live/current`,
+    BASE: `${API_BASE_URL}/api/live`,
+  },
+  SAMPLES: `${API_BASE_URL}/api/settings/samples`,
+  TEACHER_SAMPLES: `${API_BASE_URL}/api/teacher/samples`,
+  TEACHER_LIVE: `${API_BASE_URL}/api/teacher/live`,
   TEACHER_SESSIONS: {
     BASE: `${API_BASE_URL}/api/teacher/sessions`,
     STUDENTS: `${API_BASE_URL}/api/teacher/sessions/students`,
