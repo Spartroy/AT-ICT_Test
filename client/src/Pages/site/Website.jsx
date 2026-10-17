@@ -101,7 +101,7 @@ function Hero() {
         <div className="hero-g">
           <div>
             <span className="badge"><SI name="award" />92% average across students.an A*? It's Our standard.</span>
-            <h1 id="hero-title">Struggling with ICT ? Let's fix that — <span className="hl">fast.</span></h1>
+            <h1 id="hero-title">Struggling with <span className="hl">ICT</span> ? Let's fix that — <span className="hl">fast.</span></h1>
             <p className="lead">The only ICT tutoring course built on interactive sessions. No boring sessions. No memorizing.</p>
             <div className="ctas">
               <a className="btn btn-p" href="#samples"><SI name="play" />Watch a free lesson</a>

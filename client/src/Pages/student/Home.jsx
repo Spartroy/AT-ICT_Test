@@ -1,12 +1,13 @@
 import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { ClipboardCheck, Play, GraduationCap, Trophy, Clock, Inbox as InboxIcon, CalendarDays, Megaphone, RefreshCw } from 'lucide-react';
+import { ClipboardCheck, Play, GraduationCap, Trophy, Clock, Inbox as InboxIcon, CalendarDays, Megaphone, RefreshCw, Video } from 'lucide-react';
 import { useStudent } from './StudentPortal';
 import useApi from '../../hooks/useApi';
 import { API_ENDPOINTS } from '../../config/api';
 import { Ic, Ring, Stat, Empty, initials, fmtDate } from '../../components/portal/kit';
-import LiveClassCard from '../../components/portal/LiveClassCard';
-import { WEEK, weekFromSchedule, typeChip, shortTime, sessionsAhead } from './scheduleUtils';
+import WeekGrid from '../../components/portal/WeekGrid';
+import { startsIn, useLiveActions, useLiveFeed } from '../../components/portal/LiveFeed';
+import { weekFromSchedule, typeChip, shortTime, sessionsAhead } from './scheduleUtils';
 
 const pct = (a, b) => (b ? Math.round((a / b) * 100) : 0);
 const MEDALS = ['a1', 'a2', 'a3'];
@@ -40,11 +41,11 @@ export default function Home() {
   }, [schedule.data, assignments.data]);
 
   const latest = (announcements.data || [])[0];
+  const { sessions: liveSessions, now } = useLiveFeed();
+  const { busy: joining, join } = useLiveActions();
 
   return (
     <>
-      <LiveClassCard scheduleHref={`${base}/schedule`} />
-
       <div className="hero">
         <div>
           <h1 className="big">Hi {me.firstName} — let's get that <em>A*.</em></h1>
@@ -72,10 +73,30 @@ export default function Home() {
           ring={<Ring p={avg} color="var(--dark-warn)" size={72} fs=".95rem" w={6} />} />
       </div>
 
+      <div className="card">
+        <h3><Ic as={CalendarDays} />This week<Link className="lk" to={`${base}/schedule`}>Full schedule →</Link></h3>
+        <WeekGrid week={week} todayIdx={todayIdx} />
+      </div>
+
       <div className="g2">
         <div className="card">
           <h3><Ic as={Clock} />Up next<Link className="lk" to={`${base}/schedule`}>Full schedule →</Link></h3>
-          {!upNext.length && <Empty icon={CalendarDays}>Nothing scheduled yet.</Empty>}
+          {liveSessions.map(ls => {
+            const live = ls.status === 'live';
+            return (
+              <div className={`next next-live ${live ? 'on' : ''}`} key={ls.id}>
+                <div className="tm">{live ? 'LIVE' : shortTime(new Date(ls.startsAt).toTimeString().slice(0, 5))}<small>{live ? 'now' : 'soon'}</small></div>
+                <div>
+                  <h4>{ls.title}</h4>
+                  <p>{ls.topic ? `${ls.topic} · ` : ''}{live ? 'Started — join from here' : startsIn(ls.startsAt, now)}</p>
+                </div>
+                {live
+                  ? <button type="button" className="btn p sm" disabled={joining} onClick={() => join(ls)}><Ic as={Video} />{ls.joinedByMe ? 'Rejoin' : 'Join'}</button>
+                  : <button type="button" className="btn o sm" disabled>Not started</button>}
+              </div>
+            );
+          })}
+          {!upNext.length && !liveSessions.length && <Empty icon={CalendarDays}>Nothing scheduled yet.</Empty>}
           {upNext.map((item, i) => item.kind === 'session' ? (
             <div className="next" key={`s${i}`}>
               <div className="tm">{shortTime(item.startTime)}<small>{item.when}</small></div>
@@ -109,32 +130,15 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="g2 g2-rev">
-        <div className="card">
-          <h3><Ic as={InboxIcon} />Latest announcement<Link className="lk" to={`${base}/inbox`}>View all →</Link></h3>
-          {latest ? (
-            <Link className="ann" style={{ margin: 0 }} to={`${base}/inbox/announcements?open=${latest._id}`}>
-              <h4>{latest.title} <span className="chip c-th">{latest.type}</span></h4>
-              <p className="clamp2">{latest.content}</p>
-              <div className="m"><span>{fmtDate(latest.createdAt)}</span><span>{latest.createdBy ? `${latest.createdBy.firstName} ${latest.createdBy.lastName}` : ''}</span></div>
-            </Link>
-          ) : <Empty icon={Megaphone}>No announcements yet.</Empty>}
-        </div>
-        <div className="card">
-          <h3><Ic as={CalendarDays} />This week</h3>
-          <div className="week" id="wk">
-            {WEEK.map((d, i) => (
-              <div className={`wd ${i === todayIdx ? 'today' : ''}`} key={d}>
-                <small>{d.slice(0, 3)}</small>
-                {week[i].length ? week[i].map((s, k) => (
-                  <div className={`ev ${s.type === 'practical' ? 'pr' : 'th'}`} key={k} title={`${s.type} · ${s.startTime} – ${s.endTime}${s.topic ? ` · ${s.topic}` : ''}`}>
-                    <b>{s.type === 'practical' ? 'PR' : 'TH'}</b>{shortTime(s.startTime, true)}
-                  </div>
-                )) : <span className="no" aria-label="No sessions">—</span>}
-              </div>
-            ))}
-          </div>
-        </div>
+      <div className="card">
+        <h3><Ic as={InboxIcon} />Latest announcement<Link className="lk" to={`${base}/inbox`}>View all →</Link></h3>
+        {latest ? (
+          <Link className="ann" style={{ margin: 0 }} to={`${base}/inbox/announcements?open=${latest._id}`}>
+            <h4>{latest.title} <span className="chip c-th">{latest.type}</span></h4>
+            <p className="clamp2">{latest.content}</p>
+            <div className="m"><span>{fmtDate(latest.createdAt)}</span><span>{latest.createdBy ? `${latest.createdBy.firstName} ${latest.createdBy.lastName}` : ''}</span></div>
+          </Link>
+        ) : <Empty icon={Megaphone}>No announcements yet.</Empty>}
       </div>
     </>
   );

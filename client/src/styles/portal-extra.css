@@ -355,3 +355,19 @@
 .atp .lvc-badge i { width: 9px; height: 9px; border-radius: 50%; background: #ef4444; animation: lv-pulse 1.6s infinite; }
 .atp .lvc-act { display: flex; flex-wrap: wrap; gap: 8px; }
 @media (prefers-reduced-motion: reduce) { .atp .lvc-badge i { animation: none; } }
+
+/* ---------- Learn › Labs ---------- */
+.atp .lab-banner { display: flex; align-items: center; gap: 14px; padding: 14px 16px; margin-bottom: 16px; border-radius: 18px; background: rgb(251 191 36 / 0.1); border: 1px dashed rgb(251 191 36 / 0.45); }
+.atp .lab-banner b { display: block; color: var(--am); }
+.atp .lab-banner p { margin: 2px 0 0; font-size: 0.85rem; color: var(--mu); }
+.atp .lab-ic { width: 42px; height: 42px; border-radius: 14px; display: grid; place-items: center; flex: none; background: rgb(251 191 36 / 0.15); color: var(--am); }
+.atp .lab-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+.atp .lab-card { display: grid; align-content: start; justify-items: stretch; gap: 10px; text-align: left; cursor: pointer; transition: transform 0.2s, border-color 0.2s; }
+.atp .lab-card:hover { transform: translateY(-3px); border-color: var(--bd2); }
+.atp .lab-card h3 { margin: 0; font-size: 1.15rem; font-family: var(--font-body); letter-spacing: 0; }
+.atp .lab-card p { margin: 0; }
+.atp .lab-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.atp .lab-go { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; font-size: 0.85rem; color: var(--crimson-bright, #ff4d73); }
+.atp .next-live .tm { color: var(--mu); }
+.atp .next-live.on { border-color: rgb(239 68 68 / 0.5); background: linear-gradient(135deg, rgb(202 19 62 / 0.14), transparent 70%); }
+.atp .next-live.on .tm { color: #fca5a5; font-weight: 800; }

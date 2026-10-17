@@ -1,18 +1,20 @@
 import React from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
-import { Folder, Play, BookOpen, LayoutGrid } from 'lucide-react';
+import { Folder, Play, BookOpen, LayoutGrid, FlaskConical } from 'lucide-react';
 import { Seg } from '../../components/portal/kit';
 import { useStudent } from './StudentPortal';
 import Bookshelf from './learn/Bookshelf';
 import VideoMaps from './learn/VideoMaps';
 import NotesOrbit from './learn/NotesOrbit';
 import Flashcards from './learn/Flashcards';
+import Labs from './learn/Labs';
 
 const TABS = [
   { id: 'materials', label: 'Materials', icon: Folder, Component: Bookshelf },
   { id: 'videos', label: 'Videos', icon: Play, Component: VideoMaps },
   { id: 'notes', label: 'Notes', icon: BookOpen, Component: NotesOrbit },
-  { id: 'flashcards', label: 'Flashcards', icon: LayoutGrid, Component: Flashcards }
+  { id: 'flashcards', label: 'Flashcards', icon: LayoutGrid, Component: Flashcards },
+  { id: 'labs', label: 'Labs', icon: FlaskConical, Component: Labs }
 ];
 
 export default function Learn() {
