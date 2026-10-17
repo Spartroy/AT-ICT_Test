@@ -1,22 +1,15 @@
 import React from 'react';
 import { Video, Play, Square, ClipboardCheck, Pencil, Trash2, ExternalLink, CalendarClock } from 'lucide-react';
-import useApi from '../../hooks/useApi';
 import { api } from '../../lib/api';
 import { API_ENDPOINTS } from '../../config/api';
 import { Empty, ErrorNote, Ic, Loading, fmtDateTime } from '../../components/portal/kit';
 import { useConfirm, useToast } from '../../components/portal/PortalUI';
 import { typeChip } from '../student/scheduleUtils';
-import openTab from '../../lib/openTab';
+import { useLiveActions, useLiveFeed } from '../../components/portal/LiveFeed';
 import { useTeacher } from './TeacherPortal';
-import { apiError, useTeacherChange } from './modals/form';
+import { announceChange, apiError } from './modals/form';
 
 const openMeeting = (url) => window.open(url, '_blank', 'noopener,noreferrer');
-
-export function useLiveSessions() {
-  const list = useApi(API_ENDPOINTS.TEACHER_LIVE, b => b.data?.sessions || []);
-  useTeacherChange('live', list.reload);
-  return list;
-}
 
 function Row({ s, onStart, onEnd, onEdit, onRemove, onAttendance }) {
   const live = s.status === 'live';
@@ -51,49 +44,37 @@ export default function LiveTab() {
   const { openModal } = useTeacher();
   const toast = useToast();
   const confirm = useConfirm();
-  const list = useLiveSessions();
-  const all = list.data || [];
+  const feed = useLiveFeed();
+  const actions = useLiveActions();
+  const all = feed.sessions;
   const live = all.filter(s => s.status === 'live');
   const upcoming = all.filter(s => s.status === 'scheduled');
   const past = all.filter(s => s.status === 'ended');
 
-  const run = async (fn, okMsg) => {
-    try {
-      const r = await fn();
-      if (okMsg) toast(okMsg);
-      list.reload();
-      return r;
-    } catch (err) {
-      toast(apiError(err));
-      return undefined;
-    }
-  };
-  const start = async (s) => {
-    const tab = openTab();
-    const res = await run(() => api.post(`${API_ENDPOINTS.TEACHER_LIVE}/${s.id}/start`), 'Session is live: students were notified');
-    if (res) tab.go(s.meetingUrl); else tab.cancel();
-  };
-  const end = (s) => run(() => api.post(`${API_ENDPOINTS.TEACHER_LIVE}/${s.id}/end`), 'Session ended');
   const remove = async (s) => {
     if (!(await confirm({ title: `Delete “${s.title}”?`, body: 'Its attendance record is deleted too.', confirmLabel: 'Delete' }))) return;
-    run(() => api.del(`${API_ENDPOINTS.TEACHER_LIVE}/${s.id}`), 'Session deleted');
+    try {
+      await api.del(`${API_ENDPOINTS.TEACHER_LIVE}/${s.id}`);
+      toast('Session deleted');
+      announceChange('live');
+    } catch (err) { toast(apiError(err)); }
   };
-  const rowProps = { onStart: start, onEnd: end, onRemove: remove, onEdit: s => openModal('live', { session: s }), onAttendance: s => openModal('attendance', { session: s }) };
+  const rowProps = { onStart: actions.start, onEnd: actions.end, onRemove: remove, onEdit: s => openModal('live', { session: s }), onAttendance: s => openModal('attendance', { session: s }) };
 
   return (
     <>
       <div className="card lv-cta">
         <div>
           <h3 style={{ margin: 0 }}>Online classes</h3>
-          <p className="sub" style={{ margin: '4px 0 0' }}>Paste your Zoom or Meet link, go live, and see who entered. Students get a join popup in their portal.</p>
+          <p className="sub" style={{ margin: '4px 0 0' }}>Hover a slot above and tap Go live, or start one from here. Students get a join popup in their portal.</p>
         </div>
         <div className="lact">
           <button type="button" className="btn p" onClick={() => openModal('live')}><Ic as={Video} />New session</button>
         </div>
       </div>
-      {list.loading && !list.data && <Loading label="Loading sessions…" />}
-      {list.error && <ErrorNote error={list.error} onRetry={list.reload} />}
-      {list.data && !all.length && <div className="card"><Empty icon={CalendarClock}>No online classes yet. Start one now or schedule it.</Empty></div>}
+      {feed.loading && !all.length && <Loading label="Loading sessions…" />}
+      {feed.error && <ErrorNote error={feed.error} onRetry={feed.reload} />}
+      {!feed.loading && !feed.error && !all.length && <div className="card"><Empty icon={CalendarClock}>No online classes yet. Start one now or schedule it.</Empty></div>}
       {live.length > 0 && <div className="card"><h4 className="lv-h">Live now</h4>{live.map(s => <Row key={s.id} s={s} {...rowProps} />)}</div>}
       {upcoming.length > 0 && <div className="card"><h4 className="lv-h">Upcoming</h4>{upcoming.map(s => <Row key={s.id} s={s} {...rowProps} />)}</div>}
       {past.length > 0 && <div className="card"><h4 className="lv-h">Past sessions</h4>{past.map(s => <Row key={s.id} s={s} {...rowProps} />)}</div>}

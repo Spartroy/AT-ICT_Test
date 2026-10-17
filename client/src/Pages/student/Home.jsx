@@ -5,6 +5,7 @@ import { useStudent } from './StudentPortal';
 import useApi from '../../hooks/useApi';
 import { API_ENDPOINTS } from '../../config/api';
 import { Ic, Ring, Stat, Empty, initials, fmtDate } from '../../components/portal/kit';
+import LiveClassCard from '../../components/portal/LiveClassCard';
 import { WEEK, weekFromSchedule, typeChip, shortTime, sessionsAhead } from './scheduleUtils';
 
 const pct = (a, b) => (b ? Math.round((a / b) * 100) : 0);
@@ -42,6 +43,8 @@ export default function Home() {
 
   return (
     <>
+      <LiveClassCard scheduleHref={`${base}/schedule`} />
+
       <div className="hero">
         <div>
           <h1 className="big">Hi {me.firstName} — let's get that <em>A*.</em></h1>

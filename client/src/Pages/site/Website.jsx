@@ -100,15 +100,15 @@ function Hero() {
       <div className="wrap">
         <div className="hero-g">
           <div>
-            <span className="badge"><SI name="award" />92% average across students. Grade 9? Our standard.</span>
-            <h1 id="hero-title">Struggling with IGCSE? Let's fix that — <span className="hl">fast.</span></h1>
+            <span className="badge"><SI name="award" />92% average across students.an A*? It's Our standard.</span>
+            <h1 id="hero-title">Struggling with ICT ? Let's fix that — <span className="hl">fast.</span></h1>
             <p className="lead">The only ICT tutoring course built on interactive sessions. No boring sessions. No memorizing.</p>
             <div className="ctas">
               <a className="btn btn-p" href="#samples"><SI name="play" />Watch a free lesson</a>
               {site.sections.fees ? <a className="btn btn-o" href="#fees">See plans</a> : <a className="btn btn-o" href="#method">See how it works</a>}
             </div>
             <div className="trust">
-              {['Scoring A+', 'No coding required', '24/7 support'].map(t => <span key={t}><SI name="cc" />{t}</span>)}
+              {['Scoring A*','Interactive Learning', '24/7 support'].map(t => <span key={t}><SI name="cc" />{t}</span>)}
             </div>
           </div>
           <div className="vid">

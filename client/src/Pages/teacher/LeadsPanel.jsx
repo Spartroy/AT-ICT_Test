@@ -7,7 +7,7 @@ import { Empty, ErrorNote, Ic, Loading, SearchBox, fmtDateTime } from '../../com
 import { useConfirm, useToast } from '../../components/portal/PortalUI';
 import { apiError } from './modals/form';
 
-const VARIANT_NAME = { A: 'A · ask first', B: 'B · ask after ~20s', none: 'No test' };
+const VARIANT_NAME = { A: 'A · ask first', B: 'B · ask after 15s', none: 'No test' };
 
 /** Number for wa.me: Egyptian local 01… becomes 201…; +20… loses the plus. */
 const waNumber = (phone) => {

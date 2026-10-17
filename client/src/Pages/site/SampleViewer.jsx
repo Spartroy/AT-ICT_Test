@@ -120,10 +120,12 @@ export default function SampleViewer({ sample, variant, askLater, onClose }) {
         />
         <p className="sv-hint">Page not showing? Some sites don't allow being embedded. Use <b>Open in new tab</b>.</p>
         {asking && (
-          <div className="sv-ask" role="dialog" aria-label="Get the full course details">
-            <h3>Enjoying this?</h3>
-            <p>Leave your name and WhatsApp number and we'll send you the next free lesson and the course details.</p>
-            <OptInForm compact variant={variant} sample={sample} onDone={done} onSkip={dismiss} />
+          <div className="sv-ask-back">
+            <div className="sv-ask" role="dialog" aria-modal="true" aria-label="Get the full course details">
+              <h3>Enjoying this?</h3>
+              <p>Leave your name and WhatsApp number and we'll send you the next free lesson and the course details.</p>
+              <OptInForm compact variant={variant} sample={sample} onDone={done} onSkip={dismiss} />
+            </div>
           </div>
         )}
         {thanks && <div className="sv-thanks" role="status">Thank you! We'll be in touch on WhatsApp.</div>}

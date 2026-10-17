@@ -53,7 +53,7 @@ export function SampleModal({ open, onClose, sample }) {
   return (
     <FormDialog open={open} onClose={onClose} icon={Gift} title={sample ? 'Edit free sample' : 'Add free sample'} sub="Shown on the public website; visitors leave their details to open it" submitLabel="Save" busy={busy} error={error} onSubmit={submit}>
       <Fld label="Title">
-        <select value={f.pick} onChange={e => update({ pick: e.target.value })}>
+        <select className="inp" value={f.pick} onChange={e => update({ pick: e.target.value })}>
           <option value="" disabled>Choose a chapter or practical…</option>
           {TITLE_GROUPS.map(g => (
             <optgroup key={g.label} label={g.label}>{g.options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}</optgroup>
@@ -61,13 +61,13 @@ export function SampleModal({ open, onClose, sample }) {
           <option value={CUSTOM_TITLE}>Other (type my own)…</option>
         </select>
       </Fld>
-      {f.pick === CUSTOM_TITLE && <Fld label="Custom title"><input value={f.custom} maxLength={120} onChange={e => update({ custom: e.target.value })} placeholder="e.g. Paper 2 revision" /></Fld>}
+      {f.pick === CUSTOM_TITLE && <Fld label="Custom title"><input className="inp" value={f.custom} maxLength={120} onChange={e => update({ custom: e.target.value })} placeholder="e.g. Paper 2 revision" /></Fld>}
       <ChoiceRow title="What is the link?" value={f.kind} onChange={kind => update({ kind })} options={KIND_OPTIONS.map(k => ({ value: k.value, label: k.label }))} />
       <Fld label="Link (opens in a large window on the site)">
-        <input type="url" inputMode="url" value={f.url} onChange={e => setF(p => ({ ...p, url: e.target.value }))} placeholder="https://prezi.com/… · YouTube · Google Drive…" />
+        <input className="inp" type="url" inputMode="url" value={f.url} onChange={e => setF(p => ({ ...p, url: e.target.value }))} placeholder="https://prezi.com/… · YouTube · Google Drive…" />
       </Fld>
       <Fld label="Description">
-        <textarea rows={3} maxLength={400} value={f.description} onChange={e => { setTouched(true); setF(p => ({ ...p, description: e.target.value })); }} />
+        <textarea className="inp" rows={3} maxLength={400} value={f.description} onChange={e => { setTouched(true); setF(p => ({ ...p, description: e.target.value })); }} />
       </Fld>
       {touched && title && (
         <button type="button" className="btn o sm" style={{ justifySelf: 'start', marginBottom: 10 }} onClick={() => { setTouched(false); setF(p => ({ ...p, description: presetDescription(title, p.kind) })); }}>Reset to the preset description</button>

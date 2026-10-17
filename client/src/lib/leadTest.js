@@ -1,9 +1,9 @@
 import { API_ENDPOINTS } from '../config/api';
 
 // Visitor identity and opt-in A/B test helpers for the public free samples.
-// A: ask for name + phone before the sample opens. B: open it, ask after PROMPT_DELAY_MS.
+// A: ask for name + phone before the sample opens. B: open it, ask (centred) after PROMPT_DELAY_MS.
 
-export const PROMPT_DELAY_MS = 20000;
+export const PROMPT_DELAY_MS = 15000;
 
 const read = (key) => { try { return localStorage.getItem(key); } catch { return null; } };
 const write = (key, value) => { try { localStorage.setItem(key, value); } catch { /* private mode: the test just can't remember */ } };

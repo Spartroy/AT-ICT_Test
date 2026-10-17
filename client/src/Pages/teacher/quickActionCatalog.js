@@ -1,4 +1,4 @@
-import { ClipboardCheck, GraduationCap, Megaphone, Play, Library, Users, CalendarDays, BookOpen, Layers, CheckCheck, Inbox } from 'lucide-react';
+import { ClipboardCheck, GraduationCap, Megaphone, Play, Library, Users, CalendarDays, BookOpen, Layers, CheckCheck, Inbox, Video } from 'lucide-react';
 
 // Everything the teacher can pin to the quick-actions (+) menu. `modal` opens a global dialog, `to` navigates.
 // The ids must match backend/validators/quickActions.js.
@@ -11,6 +11,7 @@ export const QUICK_ACTION_CATALOG = [
   { id: 'material', label: 'Add material', icon: BookOpen, modal: 'material' },
   { id: 'flashcard', label: 'Add flashcards', icon: Layers, modal: 'flashcard' },
   { id: 'schedule', label: 'Create schedule', icon: CalendarDays, modal: 'schedule' },
+  { id: 'live', label: 'Start live class', icon: Video, modal: 'live' },
   { id: 'regs', label: 'Approve registrations', icon: Users, to: '/students/registrations' },
   { id: 'grade', label: 'Grade submissions', icon: CheckCheck, to: '/work/submissions' },
   { id: 'inbox', label: 'Open inbox', icon: Inbox, to: '/inbox/announcements' }
@@ -19,8 +20,8 @@ export const QUICK_ACTION_CATALOG = [
 /** Settings fires this after saving the list so the menu picks it up without a reload. */
 export const QUICK_ACTIONS_CHANGED = 'at:quick-actions-changed';
 
-export const DEFAULT_QUICK_ACTIONS = ['hw', 'quiz', 'announcement', 'video', 'note', 'regs', 'schedule'];
-export const MAX_QUICK_ACTIONS = 8;
+export const DEFAULT_QUICK_ACTIONS = ['hw', 'quiz', 'announcement', 'video', 'note', 'live', 'regs', 'schedule'];
+export const MAX_QUICK_ACTIONS = 10;
 
 /** Saved ids → catalog entries in that order; unknown ids are dropped, and nothing saved means the default list. */
 export function resolveQuickActions(ids) {

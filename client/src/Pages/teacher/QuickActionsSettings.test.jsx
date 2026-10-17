@@ -38,11 +38,11 @@ describe('QuickActionsSettings', () => {
     const server = jest.fn(changes => ({ quickActions: changes.quickActions }));
     render(<Harness server={server} />);
     await userEvent.click(screen.getByRole('button', { name: /Add material/ }));
-    expect(rows()).toHaveLength(8);
+    expect(rows()).toHaveLength(DEFAULT_QUICK_ACTIONS.length + 1);
     await userEvent.click(screen.getByRole('button', { name: 'Save quick actions' }));
 
     expect(server).toHaveBeenCalledWith({ quickActions: [...DEFAULT_QUICK_ACTIONS, 'material'] });
-    expect(rows()).toHaveLength(8);
+    expect(rows()).toHaveLength(DEFAULT_QUICK_ACTIONS.length + 1);
     expect(rows()).toContain('Create H.W');
     expect(rows()).toContain('Add material');
     expect(mockToast).toHaveBeenCalledWith('Quick actions saved');
@@ -64,7 +64,7 @@ describe('QuickActionsSettings', () => {
     expect(labelsOf(rows())).toBe(DEFAULT_QUICK_ACTIONS.length);
   });
 
-  it('reorders and removes, and cannot go below one action or above eight', async () => {
+  it('reorders and removes, and cannot go below one action or above ten', async () => {
     render(<Harness server={() => ({})} initial={['hw', 'quiz']} />);
     await userEvent.click(screen.getByRole('button', { name: 'Move Create quiz up' }));
     expect(rows()).toEqual(['Create quiz', 'Create H.W']);
@@ -73,7 +73,7 @@ describe('QuickActionsSettings', () => {
   });
 
   it('only offers Add while there is room', async () => {
-    render(<Harness server={() => ({})} initial={['hw', 'quiz', 'announcement', 'video', 'note', 'regs', 'schedule', 'material']} />);
+    render(<Harness server={() => ({})} initial={['hw', 'quiz', 'announcement', 'video', 'note', 'regs', 'schedule', 'material', 'flashcard', 'live']} />);
     expect(screen.queryByText('Add:')).toBeNull();
   });
 });

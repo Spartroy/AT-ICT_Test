@@ -18,6 +18,7 @@ import QuickActions from './QuickActions';
 import NotificationBell from '../../components/portal/NotificationBell';
 import TeacherModals from './modals/TeacherModals';
 import LiveClassPopup from '../../components/portal/LiveClassPopup';
+import { LiveFeedProvider } from '../../components/portal/LiveFeed';
 
 const TeacherContext = createContext(null);
 export const useTeacher = () => useContext(TeacherContext);
@@ -89,6 +90,7 @@ export default function TeacherPortal() {
         meTo={`${BASE}/settings`}
         bellSlot={<NotificationBell />}
       >
+        <LiveFeedProvider role="teacher">
         <Routes>
           <Route index element={<Home />} />
           <Route path="students" element={<Navigate to="all" replace />} />
@@ -104,7 +106,8 @@ export default function TeacherPortal() {
           <Route path="settings" element={<Settings />} />
           <Route path="*" element={<Navigate to={BASE} replace />} />
         </Routes>
-        <LiveClassPopup role="teacher" scheduleHref={`${BASE}/schedule/live`} onAttendance={(session) => openModal('attendance', { session })} />
+        <LiveClassPopup hideAt={BASE} scheduleHref={`${BASE}/schedule/week`} onAttendance={(session) => openModal('attendance', { session })} />
+        </LiveFeedProvider>
         <QuickActions />
         <TeacherModals modal={modal} onClose={() => setModal(null)} />
       </PortalShell>

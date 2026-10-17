@@ -6,6 +6,7 @@ import { api } from '../../lib/api';
 import { API_ENDPOINTS } from '../../config/api';
 import { Accordion, Empty, Ic, Stat, initials, fmtDate, PageHead } from '../../components/portal/kit';
 import { useToast } from '../../components/portal/PortalUI';
+import LiveClassCard from '../../components/portal/LiveClassCard';
 import { useTeacher } from './TeacherPortal';
 import { useTeacherChange } from './modals/form';
 
@@ -21,7 +22,7 @@ const ACTIVITY_GROUPS = [
 const MEDALS = ['a1', 'a2', 'a3'];
 
 export default function Home() {
-  const { base, counts, registrations, refreshBadges } = useTeacher();
+  const { base, counts, registrations, refreshBadges, openModal } = useTeacher();
   const navigate = useNavigate();
   const toast = useToast();
   const dash = useApi(API_ENDPOINTS.TEACHER.DASHBOARD, b => b.data || {});
@@ -74,9 +75,15 @@ export default function Home() {
 
   return (
     <>
-      <PageHead title={<>Welcome back, <span className="hl">Maestro.</span></>}>
+      <PageHead title={<>Welcome back, <span className="hl">El Grande Maestro.</span></>}>
         <p className="sub">{overview.totalStudents ?? '—'} students enrolled</p>
       </PageHead>
+
+      <LiveClassCard
+        scheduleHref={`${base}/schedule/week`}
+        onNew={() => openModal('live')}
+        onAttendance={(session) => openModal('attendance', { session })}
+      />
 
       <div className="att">
         {attention.map(a => (

@@ -143,14 +143,15 @@ html.site-html { scroll-behavior: smooth; scroll-padding-top: 90px; }
 .site .sv-frame { flex: 1; width: 100%; border: 0; background: #fff; }
 .site .sv-hint { margin: 0; padding: 8px 16px; font-size: 0.8rem; color: var(--ink-300); text-align: center; background: rgb(0 0 0 / 0.4); }
 .site .sv-load { position: absolute; inset: 0; display: grid; place-items: center; color: var(--ink-300); }
-.site .sv-ask { position: absolute; right: 20px; bottom: 56px; width: min(380px, calc(100% - 32px)); padding: 22px; border-radius: 20px; background: linear-gradient(160deg, #2a1216, #151012 60%); border: 1px solid rgb(202 19 62 / 0.45); box-shadow: 0 24px 60px rgb(0 0 0 / 0.6); animation: sv-up 0.4s ease both; }
+.site .sv-ask-back { position: absolute; inset: 0; z-index: 5; display: grid; place-items: center; padding: 16px; background: rgb(0 0 0 / 0.6); backdrop-filter: blur(4px); animation: sv-fade 0.3s ease both; }
+.site .sv-ask { position: relative; width: min(420px, 100%); max-height: 100%; overflow: auto; padding: 26px 24px; border-radius: 20px; background: linear-gradient(160deg, #2a1216, #151012 60%); border: 1px solid rgb(202 19 62 / 0.45); box-shadow: 0 24px 60px rgb(0 0 0 / 0.6); animation: sv-up 0.4s ease both; }
 .site .sv-ask h3 { margin: 0 0 4px; font-size: 1.15rem; }
 .site .sv-ask > p { margin: 0 0 14px; color: var(--ink-300); font-size: 0.88rem; }
 .site .sv-thanks { position: absolute; left: 50%; bottom: 64px; transform: translateX(-50%); padding: 12px 20px; border-radius: 99px; background: #14532d; color: #dcfce7; font-size: 0.9rem; font-weight: 600; box-shadow: 0 12px 30px rgb(0 0 0 / 0.5); }
+@keyframes sv-fade { from { opacity: 0; } to { opacity: 1; } }
 @keyframes sv-up { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: none; } }
 @media (max-width: 640px) {
   .site .sv-open span { display: none; }
   .site .sv-back-btn { padding: 9px 12px; }
-  .site .sv-ask { right: 12px; left: 12px; width: auto; bottom: 48px; }
 }
-@media (prefers-reduced-motion: reduce) { .site .sv-ask { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .site .sv-ask, .site .sv-ask-back { animation: none; } }

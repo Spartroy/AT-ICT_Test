@@ -14,6 +14,7 @@ import Work from './Work';
 import Schedule from './Schedule';
 import Inbox from './Inbox';
 import LiveClassPopup from '../../components/portal/LiveClassPopup';
+import { LiveFeedProvider } from '../../components/portal/LiveFeed';
 
 const StudentContext = createContext(null);
 export const useStudent = () => useContext(StudentContext);
@@ -87,6 +88,7 @@ export default function StudentPortal() {
           </div>
         }
       >
+        <LiveFeedProvider role="student">
         <Routes>
           <Route index element={<Home />} />
           <Route path="learn" element={<Navigate to="materials" replace />} />
@@ -98,7 +100,8 @@ export default function StudentPortal() {
           <Route path="inbox/:tab" element={<Inbox />} />
           <Route path="*" element={<Navigate to={BASE} replace />} />
         </Routes>
-        <LiveClassPopup role="student" scheduleHref={`${BASE}/schedule`} />
+        <LiveClassPopup scheduleHref={`${BASE}/schedule`} />
+        </LiveFeedProvider>
       </PortalShell>
     </StudentContext.Provider>
   );

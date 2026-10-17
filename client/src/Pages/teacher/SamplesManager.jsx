@@ -12,7 +12,7 @@ import { kindLabel } from './sampleOptions';
 const MODES = [
   { id: 'ab', label: 'A/B test', hint: 'Half of visitors get A, half get B. Compare results in Students › Leads.' },
   { id: 'A', label: 'Always A', hint: 'Ask for name and phone before the sample opens.' },
-  { id: 'B', label: 'Always B', hint: 'Open the sample right away and ask about 20 seconds in.' },
+  { id: 'B', label: 'Always B', hint: 'Open the sample right away and ask in the middle of the screen after 15 seconds.' },
   { id: 'off', label: 'No form', hint: 'Samples open freely and nothing is collected.' }
 ];
 

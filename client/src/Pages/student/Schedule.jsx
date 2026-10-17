@@ -4,6 +4,7 @@ import useApi from '../../hooks/useApi';
 import { API_ENDPOINTS } from '../../config/api';
 import { Empty, ErrorNote, Ic, Loading, PageHead, fmtDate } from '../../components/portal/kit';
 import { WEEK, weekFromSchedule, typeChip, shortTime, sessionsAhead } from './scheduleUtils';
+import WeekGrid from '../../components/portal/WeekGrid';
 
 export default function Schedule() {
   const res = useApi(API_ENDPOINTS.STUDENT.SCHEDULE, b => b.data || {});
@@ -39,18 +40,7 @@ export default function Schedule() {
       {head}
       {view === 'week' ? (
         <div className="card">
-          <div className="week" id="wk2">
-            {WEEK.map((d, i) => (
-              <div className={`wd ${i === todayIdx ? 'today' : ''}`} key={d}>
-                <small>{d.slice(0, 3)}</small>
-                {week[i].length ? week[i].map((s, k) => (
-                  <div className={`ev ${s.type === 'practical' ? 'pr' : 'th'}`} key={k}>
-                    <b>{s.type}</b>{shortTime(s.startTime)}{s.topic ? <span className="ev-topic">{s.topic}</span> : null}
-                  </div>
-                )) : <span className="no" aria-label="No sessions">—</span>}
-              </div>
-            ))}
-          </div>
+          <WeekGrid week={week} todayIdx={todayIdx} />
         </div>
       ) : (
         <div className="card">
