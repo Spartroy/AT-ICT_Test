@@ -80,6 +80,8 @@ const scheduleSchema = new mongoose.Schema({
     }],
     default: []
   },
+  // Groups this schedule is for; their students see it without being assigned one by one.
+  groups: { type: [String], default: [] },
   assignedStudents: [{
     student: {
       type: mongoose.Schema.ObjectId,

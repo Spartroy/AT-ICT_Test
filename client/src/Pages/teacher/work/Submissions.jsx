@@ -248,7 +248,7 @@ function SubmissionPane({ row, onBack, onGraded, onNext }) {
             <span className="chip c-gy">{row.assignment.type}</span>
           </p>
         </div>
-        <div className="sp-d"><span>Submitted <b>{fmtDateTime(row.submittedAt)}</b></span>{row.late && <span className="chip c-rd">Late</span>}</div>
+        <div className="sp-d"><span>Submitted <b>{fmtDateTime(row.submittedAt)}</b></span>{row.late && <span className="chip c-rd">Late</span>}{row.editedAt && <span className="chip c-am" title={fmtDateTime(row.editedAt)}>Changed {fmtDateTime(row.editedAt)}</span>}</div>
       </div>
       <div className="sp-body">
         <div className="prev">

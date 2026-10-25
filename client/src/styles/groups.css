@@ -1,0 +1,74 @@
+/* Teaching groups: the coloured chip used everywhere, and the Students > Groups board. */
+
+.atp .gchip { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px 3px 8px; border-radius: 99px; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.02em; white-space: nowrap; color: var(--gc); background: color-mix(in srgb, var(--gc) 14%, transparent); border: 1px solid color-mix(in srgb, var(--gc) 42%, transparent); }
+.atp .gchip i { width: 7px; height: 7px; border-radius: 50%; background: var(--gc); }
+
+/* ---- toolbar ---- */
+.atp-teacher .gbar { display: flex; flex-wrap: wrap; gap: 14px 24px; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.atp-teacher .gbar h3 { display: flex; align-items: center; gap: 8px; margin: 0 0 4px; }
+.atp-teacher .gbar .sub { margin: 0; }
+.atp-teacher .gbar-acts { display: flex; flex-wrap: wrap; gap: 10px; }
+
+/* ---- board ---- */
+.atp-teacher .gboard { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 14px; align-items: start; margin-bottom: 16px; }
+.atp-teacher .gcol { display: flex; flex-direction: column; min-width: 0; border-radius: 20px; background: var(--s1); border: 1px solid var(--bd); transition: border-color 0.25s, background 0.25s, box-shadow 0.25s, transform 0.25s; }
+.atp-teacher .gcol.over { border-color: var(--gc); background: color-mix(in srgb, var(--gc) 8%, var(--s1)); box-shadow: 0 0 0 3px color-mix(in srgb, var(--gc) 22%, transparent), 0 14px 34px rgb(0 0 0 / 0.35); transform: translateY(-2px); }
+.atp-teacher .gcol--none { border-style: dashed; }
+.atp-teacher .gcol-h { display: flex; align-items: center; gap: 10px; padding: 14px 14px 10px; }
+.atp-teacher .gcol-dot { display: grid; place-items: center; flex: none; width: 36px; height: 36px; border-radius: 12px; font-weight: 800; font-size: 0.95rem; color: var(--gc); background: color-mix(in srgb, var(--gc) 16%, transparent); border: 1px solid color-mix(in srgb, var(--gc) 45%, transparent); }
+.atp-teacher .gcol-dot svg { width: 18px; height: 18px; }
+.atp-teacher .gcol-t { flex: 1; min-width: 0; }
+.atp-teacher .gcol-t h4 { margin: 0; font-size: 0.98rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.atp-teacher .gcol-n { display: block; color: var(--mu); font-size: 0.78rem; animation: gcount 0.35s cubic-bezier(0.34, 1.56, 0.64, 1); }
+@keyframes gcount { from { transform: translateY(-5px) scale(0.9); opacity: 0.2; } }
+.atp-teacher .gcol-link { display: grid; place-items: center; color: var(--gc); }
+.atp-teacher .gcol-link svg { width: 16px; height: 16px; }
+.atp-teacher .gcol-set { display: grid; gap: 10px; margin: 0 12px 10px; padding: 12px; border-radius: 14px; background: var(--s2); animation: gcount 0.25s ease-out; }
+.atp-teacher .gcol-set .fld { margin: 0; }
+.atp-teacher .gcol-acts { display: flex; flex-wrap: wrap; gap: 8px; }
+.atp-teacher .gcol-b { display: flex; flex-direction: column; gap: 8px; min-height: 96px; max-height: min(62vh, 640px); overflow-y: auto; padding: 4px 12px 14px; scrollbar-width: thin; }
+.atp-teacher .gcol-empty { display: grid; place-items: center; flex: 1; min-height: 70px; margin: 0; border: 1.5px dashed var(--bd2); border-radius: 14px; color: var(--fa); font-size: 0.85rem; }
+.atp-teacher .gcol.over .gcol-empty { border-color: var(--gc); color: var(--gc); }
+
+/* ---- student cards ---- */
+.atp-teacher .gcard { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 14px; background: var(--s2); border: 1px solid var(--bd); touch-action: manipulation; user-select: none; -webkit-user-select: none; cursor: default; }
+@media (pointer: fine) { .atp-teacher .gcard { cursor: grab; } }
+.atp-teacher .gcard:hover { border-color: var(--bd2); }
+.atp-teacher .gcard:focus-visible { outline: 2px solid var(--white); outline-offset: 2px; }
+.atp-teacher .gcard.is-dragging { opacity: 0.35; }
+.atp-teacher .gcard.is-overlay { cursor: grabbing; background: var(--s3); border-color: var(--cr); box-shadow: 0 18px 40px rgb(0 0 0 / 0.55), 0 0 0 2px color-mix(in srgb, var(--cr) 55%, transparent); transform: scale(1.04) rotate(1.2deg); }
+.atp-teacher .gcard .av { width: 34px; height: 34px; flex: none; font-size: 0.72rem; }
+.atp-teacher .gcard-main { flex: 1; min-width: 0; display: grid; }
+.atp-teacher .gcard-main b { font-size: 0.9rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.atp-teacher .gcard-main small { color: var(--fa); font-size: 0.72rem; }
+.atp-teacher .gcard-grip { display: grid; place-items: center; flex: none; width: 28px; height: 32px; color: var(--fa); touch-action: none; }
+.atp-teacher .gcard-grip svg { width: 16px; height: 16px; }
+@media (pointer: coarse) { .atp-teacher .gcard-grip { width: 38px; height: 40px; color: var(--mu); cursor: grab; } }
+.atp-teacher .gcard-move { max-width: 104px; min-height: 34px; padding: 0 8px; border-radius: 10px; border: 1px solid var(--bd2); background: var(--s1); color: var(--white); font: inherit; font-size: 0.75rem; }
+
+/* ---- live class links ---- */
+.atp-teacher .glive-modes { display: grid; gap: 10px; margin-bottom: 14px; }
+.atp-teacher .glive-mode { display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px; border-radius: 14px; background: var(--s2); border: 1px solid var(--bd); cursor: pointer; transition: border-color 0.2s, background 0.2s; }
+.atp-teacher .glive-mode.on { border-color: var(--cr); background: color-mix(in srgb, var(--cr) 9%, var(--s2)); }
+.atp-teacher .glive-mode input { margin-top: 3px; accent-color: var(--cr); width: 18px; height: 18px; flex: none; }
+.atp-teacher .glive-mode b { display: block; }
+.atp-teacher .glive-mode small { display: block; margin-top: 2px; color: var(--mu); font-size: 0.82rem; }
+.atp-teacher .glive-note { display: flex; gap: 8px; align-items: flex-start; margin: 0 0 14px; }
+.atp-teacher .glive-note svg { flex: none; margin-top: 2px; }
+.atp-teacher .gauto { align-items: flex-start; margin: 4px 0 18px; }
+.atp-teacher .gauto input { margin-top: 3px; flex: none; }
+.atp-teacher .gauto small { display: block; }
+
+/* ---- audience picker used in the create dialogs ---- */
+.atp-teacher .aud-groups { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 12px; }
+.atp-teacher .aud-g { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 99px; border: 1px solid var(--bd2); background: var(--s2); color: var(--white); font: inherit; font-size: 0.88rem; cursor: pointer; transition: all 0.2s; }
+.atp-teacher .aud-g i { width: 9px; height: 9px; border-radius: 50%; background: var(--gc); }
+.atp-teacher .aud-g small { color: var(--mu); }
+.atp-teacher .aud-g.on { border-color: var(--gc); background: color-mix(in srgb, var(--gc) 16%, var(--s2)); box-shadow: 0 0 0 2px color-mix(in srgb, var(--gc) 25%, transparent); }
+.atp-teacher .aud-sum { margin: -4px 0 12px; font-size: 0.85rem; }
+
+@media (prefers-reduced-motion: reduce) {
+  .atp-teacher .gcol, .atp-teacher .gcol-n, .atp-teacher .gcol-set, .atp-teacher .aud-g { transition: none; animation: none; }
+  .atp-teacher .gcol.over { transform: none; }
+  .atp-teacher .gcard.is-overlay { transform: none; }
+}

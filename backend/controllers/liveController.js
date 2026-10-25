@@ -2,6 +2,8 @@ const LiveSession = require('../models/LiveSession');
 const Schedule = require('../models/Schedule');
 const User = require('../models/User');
 const { notify, studentIds } = require('../services/notifications');
+const groupsSvc = require('../services/groups');
+const groupRules = require('../validators/groups');
 
 const EARLY_MS = 15 * 60 * 1000; // students see a class this long before it starts
 const STALE_LIVE_MS = 10 * 60 * 60 * 1000; // a class left "live" this long is closed automatically
@@ -25,9 +27,20 @@ const closeStale = () => LiveSession.updateMany(
   { status: 'ended', endedAt: new Date() }
 );
 
+/** Ids of the students a class is meant for: hand-picked ones, a group's members, or the whole roster. */
+async function audienceIds(session) {
+  const picked = session.students?.length ? session.students : null;
+  const grouped = session.groups?.length ? await groupsSvc.membersOf(session.groups) : null;
+  if (picked && grouped) {
+    const inGroup = new Set(grouped.map(String));
+    return picked.filter(id => inGroup.has(String(id)));
+  }
+  return picked || grouped || studentIds();
+}
+
 /** The students a class is meant for (the whole roster when none are picked). */
 async function audienceOf(session) {
-  const ids = session.students?.length ? session.students : await studentIds();
+  const ids = await audienceIds(session);
   return User.find({ _id: { $in: ids }, role: 'student' }).select('firstName lastName studentInfo.studentId').sort({ firstName: 1, lastName: 1 });
 }
 
@@ -35,8 +48,24 @@ async function audienceOf(session) {
 async function readForm(body, existing) {
   const title = String(body.title ?? existing?.title ?? '').trim();
   if (!title) return { error: 'Give the session a title' };
-  const meetingUrl = cleanUrl(body.meetingUrl ?? existing?.meetingUrl);
-  if (!meetingUrl) return { error: 'Paste the meeting link (Zoom, Google Meet…) starting with https://' };
+  let groups = existing?.groups || [];
+  if ('groups' in body) {
+    const g = await groupsSvc.cleanCodes(body.groups);
+    if (g.error) return { error: g.error };
+    groups = g.codes;
+  }
+
+  // The link is typed by hand, taken from the saved (group) link, or made fresh for this class.
+  let meetingUrl;
+  const mode = ['manual', 'preset', 'auto'].includes(body.linkMode) ? body.linkMode : 'manual';
+  if (mode === 'manual') {
+    meetingUrl = cleanUrl(body.meetingUrl ?? existing?.meetingUrl);
+    if (!meetingUrl) return { error: 'Paste the meeting link (Zoom, Google Meet…) starting with https://' };
+  } else {
+    const link = groupRules.resolveLiveLink({ mode, groupCodes: groups, config: await groupsSvc.getConfig() });
+    if (link.error) return { error: link.error };
+    meetingUrl = link.url;
+  }
   const type = TYPES.includes(body.type) ? body.type : existing?.type || 'theory';
   const startsAt = body.startsAt ? new Date(body.startsAt) : existing?.startsAt || new Date();
   if (Number.isNaN(startsAt.getTime())) return { error: 'The start time is not valid' };
@@ -48,6 +77,7 @@ async function readForm(body, existing) {
     type,
     notes: String(body.notes ?? existing?.notes ?? '').trim().slice(0, 2000),
     meetingUrl,
+    groups,
     startsAt,
     durationMin
   };
@@ -79,15 +109,15 @@ function shape(session, extra = {}) {
     startedAt: o.startedAt,
     endedAt: o.endedAt,
     slot: o.slot?.scheduleTitle || o.slot?.day ? { schedule: o.slot.schedule, scheduleTitle: o.slot.scheduleTitle, day: o.slot.day, startTime: o.slot.startTime, topic: o.slot.topic } : null,
-    audienceSize: o.students?.length || null, // null = everyone
+    groups: o.groups || [],
+    audienceSize: o.students?.length || null, // null = everyone (or a whole group, see groups)
     joined: (o.attendance || []).length,
     ...extra
   };
 }
 
-function notifyLive(session) {
-  const recipients = session.students?.length ? session.students : null;
-  const send = (ids) => notify(ids, {
+async function notifyLive(session) {
+  return notify(await audienceIds(session), {
     type: 'class_soon',
     title: `Class is live: ${session.title}`,
     body: session.topic || 'Tap to join the session.',
@@ -95,8 +125,6 @@ function notifyLive(session) {
     dedupeKey: `live:${session._id}`,
     urgent: true
   });
-  if (recipients) return send(recipients);
-  return studentIds().then(send);
 }
 
 // ---------------------------------------------------------------- teacher
@@ -239,7 +267,13 @@ exports.attendance = async (req, res) => {
 
 // ---------------------------------------------------------------- student
 
-const forMe = (userId) => ({ $or: [{ students: { $size: 0 } }, { students: userId }] });
+/** Classes meant for me: nobody picked or me picked, and no group set or my group. */
+const forMe = (user) => ({
+  $and: [
+    { $or: [{ students: { $size: 0 } }, { students: user._id }] },
+    { $or: [{ groups: { $exists: false } }, { groups: { $size: 0 } }, ...(user.studentInfo?.group ? [{ groups: user.studentInfo.group }] : [])] }
+  ]
+});
 
 /** GET /api/live/current — my classes that are live or about to start (the meeting link is only given on join). */
 exports.current = async (req, res) => {
@@ -248,7 +282,7 @@ exports.current = async (req, res) => {
     const soon = new Date(Date.now() + EARLY_MS);
     const sessions = await LiveSession.find({
       $and: [
-        forMe(req.user._id),
+        forMe(req.user),
         { $or: [{ status: 'live' }, { status: 'scheduled', startsAt: { $lte: soon, $gte: new Date(Date.now() - 3 * 3600 * 1000) } }] }
       ]
     }).sort({ status: -1, startsAt: 1 }).limit(5);
@@ -268,7 +302,7 @@ exports.current = async (req, res) => {
 /** POST /api/live/:id/join — records my entry and returns the meeting link. */
 exports.join = async (req, res) => {
   try {
-    const session = await LiveSession.findOne({ _id: req.params.id, ...forMe(req.user._id) });
+    const session = await LiveSession.findOne({ _id: req.params.id, ...forMe(req.user) });
     if (!session) return fail(res, 404, 'Session not found');
     if (session.status !== 'live') return fail(res, 409, session.status === 'ended' ? 'This session has ended' : 'The teacher has not started this session yet');
     const mine = session.attendance.find(a => String(a.student) === String(req.user._id));

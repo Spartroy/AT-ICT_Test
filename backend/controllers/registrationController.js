@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const groupsSvc = require('../services/groups');
 const { notify, teacherIds } = require('../services/notifications');
 const Assignment = require('../models/Assignment');
 const Quiz = require('../models/Quiz');
@@ -396,6 +397,16 @@ const approveRegistration = async (req, res) => {
     
     await user.save();
 
+    // New students join the smallest teaching group (when groups exist and auto-assign is on).
+    let groupCode = null;
+    try {
+      groupCode = user.role === 'student' ? await groupsSvc.autoAssignNewStudent(user._id) : null;
+    } catch (groupError) {
+      console.error('Error auto-assigning the new student to a group:', groupError);
+    }
+    // Work made for a particular group only goes to that group's students.
+    const forThisStudent = (doc) => !doc.groups?.length || (groupCode && doc.groups.includes(groupCode));
+
     // Automatically assign existing assignments and quizzes to the newly approved student
     try {
       // Get all active assignments
@@ -405,7 +416,7 @@ const approveRegistration = async (req, res) => {
       const quizzes = await Quiz.find({ isActive: true });
       
       // Assign existing assignments to the new student
-      for (const assignment of assignments) {
+      for (const assignment of assignments.filter(forThisStudent)) {
         // Check if student is not already assigned to this assignment
         const isAlreadyAssigned = assignment.assignedTo.some(
           a => a.student.toString() === user._id.toString()
@@ -422,7 +433,7 @@ const approveRegistration = async (req, res) => {
       }
       
       // Assign existing quizzes to the new student
-      for (const quiz of quizzes) {
+      for (const quiz of quizzes.filter(forThisStudent)) {
         // Check if student is not already assigned to this quiz
         const isAlreadyAssigned = quiz.assignedTo.some(
           a => a.student.toString() === user._id.toString()

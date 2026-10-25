@@ -67,6 +67,8 @@ const quizSchema = new mongoose.Schema({
       enum: ['video', 'document', 'link', 'image']
     }
   }],
+  // Teaching groups this was made for (empty = every student). Members are copied into assignedTo.
+  groups: { type: [String], default: [] },
   assignedTo: [{
     student: {
       type: mongoose.Schema.ObjectId,

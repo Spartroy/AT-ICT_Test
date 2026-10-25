@@ -165,3 +165,29 @@
   (default **3000 per 15 min**, `RATE_LIMIT_MAX_REQUESTS`) and signed-out visitors per IP (default **600**, `RATE_LIMIT_ANON_MAX_REQUESTS`).
   `RATE_LIMIT_WINDOW` (minutes, default 15) is unchanged. Tokens are verified, so the account key can't be faked.
 - On Railway, remove `RATE_LIMIT_MAX_REQUESTS` if it was set to a small number, or set it to the value you want.
+
+## Teaching groups, editable submissions, message fixes
+
+### Database
+- **No manual migration.** `User.studentInfo.group` (e.g. `A`), `groups: [String]` on Assignment, Quiz, Announcement, Schedule and
+  LiveSession, `Assignment.assignedTo[].submission.editedAt`, and `AppSettings.groupsConfig` (groups, live-link rules, auto-assign)
+  are all optional. Nobody is in a group until the teacher runs **Students › Groups › Divide alphabetically** (existing
+  students are not touched before that).
+- Empty `groups` means "everyone", so all existing homework, quizzes, announcements, schedules and live classes behave as before.
+
+### API
+- `GET/PUT /api/teacher/groups` (groups, per-group meeting link, live-link mode, auto-assign), `POST /api/teacher/groups/divide`,
+  `PUT /api/teacher/groups/assign` (move students; they receive the open work made for their new group).
+- `POST /api/assignments` and `/api/quizzes` accept `groups: ['A']` (combined with `selectedStudents`); announcements accept `groups`;
+  `POST /api/teacher/schedule/schedules/:id/assign-students` accepts `groups`.
+- `POST/PUT /api/teacher/live` accept `groups` and `linkMode: 'manual' | 'preset' | 'auto'`. `auto` makes a fresh `meet.jit.si` room.
+  Google Meet links cannot be created automatically without a Google OAuth integration.
+- `PUT /api/student/assignments/:id/submission` changes the files of a submitted (not graded) assignment.
+- `GET /api/teacher/students?group=A|none`; students and the student dashboard now include the group.
+
+### Fixes
+- Announcements for "Students" never reached students (audience `students` was compared with role `student`).
+- The Inbox badge counted deleted messages and messages from anyone but the chat teacher, and opening a chat only marked the first
+  page of messages as read. Now all of a conversation is marked read, the badge counts only the chat teacher's unread messages,
+  and the "new message" notifications in the bell are cleared once nothing is left unread.
+- New dependency: `@dnd-kit/core`, `@dnd-kit/sortable`, `@dnd-kit/utilities` (drag and drop).

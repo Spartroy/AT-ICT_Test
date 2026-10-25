@@ -5,7 +5,7 @@ import { API_ENDPOINTS } from '../../../config/api';
 import { useToast } from '../../../components/portal/PortalUI';
 import { PHASES, PROGRAMS, autoTitle } from '../curriculum';
 import { FormDialog, Fld, ChoiceRow, apiError, announceChange } from './form';
-import StudentChecklist from './StudentChecklist';
+import AudiencePicker, { audienceBody, audienceError, emptyAudience } from './AudiencePicker';
 
 const SCORES = [10, 20, 30, 40, 50, 100];
 const empty = { section: '', phase: null, chapter: '', program: '', kind: '', number: null };
@@ -17,8 +17,7 @@ export default function HomeworkModal({ open, onClose }) {
   const [title, setTitle] = useState('');
   const [max, setMax] = useState(30);
   const [due, setDue] = useState('');
-  const [assignTo, setAssignTo] = useState('all');
-  const [chosen, setChosen] = useState(() => new Set());
+  const [audience, setAudience] = useState(emptyAudience);
   const [instructions, setInstructions] = useState('');
   const [difficulty, setDifficulty] = useState('medium');
   const [errors, setErrors] = useState({});
@@ -26,7 +25,7 @@ export default function HomeworkModal({ open, onClose }) {
 
   useEffect(() => {
     if (!open) return;
-    setLesson(empty); setTitle(''); setMax(30); setDue(''); setAssignTo('all'); setChosen(new Set());
+    setLesson(empty); setTitle(''); setMax(30); setDue(''); setAudience(emptyAudience());
     setInstructions(''); setDifficulty('medium'); setErrors({});
   }, [open]);
 
@@ -44,7 +43,8 @@ export default function HomeworkModal({ open, onClose }) {
     else if (finalTitle.length < 3) next.title = 'Title must be at least 3 characters';
     if (!due) next.due = 'Choose a due date';
     if (!(Number(max) >= 1)) next.max = 'Max score must be at least 1';
-    if (assignTo === 'selected' && !chosen.size) next.students = 'Choose at least one student';
+    const audienceProblem = audienceError(audience);
+    if (audienceProblem) next.students = audienceProblem;
     setErrors(next);
     if (Object.keys(next).length) return;
 
@@ -57,8 +57,7 @@ export default function HomeworkModal({ open, onClose }) {
       maxScore: Number(max),
       difficulty,
       instructions: instructions.trim() || undefined,
-      assignToAll: assignTo === 'all',
-      ...(assignTo === 'selected' && { selectedStudents: [...chosen] }),
+      ...audienceBody(audience),
       ...(lesson.section && {
         lesson: lesson.section === 'theory'
           ? { section: 'theory', phase: lesson.phase, ...(lesson.chapter && { chapter: lesson.chapter }) }
@@ -140,13 +139,7 @@ export default function HomeworkModal({ open, onClose }) {
           </select>
         </Fld>
       </div>
-      <Fld label="Assign to">
-        <select className="inp" value={assignTo} onChange={e => setAssignTo(e.target.value)}>
-          <option value="all">All students</option>
-          <option value="selected">Selected students</option>
-        </select>
-      </Fld>
-      {assignTo === 'selected' && <StudentChecklist chosen={chosen} onChange={setChosen} error={errors.students} />}
+      <AudiencePicker value={audience} onChange={setAudience} error={errors.students} />
       <Fld label="Instructions (optional)">
         <textarea className="inp" rows={3} value={instructions} onChange={e => setInstructions(e.target.value)} />
       </Fld>

@@ -57,6 +57,11 @@ const appSettingsSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.Mixed,
     default: undefined
   },
+  // Teaching groups, live-class link rules and auto-assignment (see validators/groups.js).
+  groupsConfig: {
+    type: mongoose.Schema.Types.Mixed,
+    default: undefined
+  },
   // Public website content the teacher can change (see validators/siteSettings.js). Missing keys fall back to defaults.
   site: {
     type: mongoose.Schema.Types.Mixed,

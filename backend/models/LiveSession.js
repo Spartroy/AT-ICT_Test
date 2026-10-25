@@ -20,7 +20,8 @@ const liveSessionSchema = new mongoose.Schema({
     startTime: String,
     topic: String
   },
-  students: [{ type: mongoose.Schema.ObjectId, ref: 'User' }], // empty = every approved student
+  students: [{ type: mongoose.Schema.ObjectId, ref: 'User' }], // empty (and no groups) = every approved student
+  groups: { type: [String], default: [] }, // only these teaching groups (empty = not limited by group)
   createdBy: { type: mongoose.Schema.ObjectId, ref: 'User', required: true },
   attendance: [{
     student: { type: mongoose.Schema.ObjectId, ref: 'User', required: true },

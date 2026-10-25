@@ -1,4 +1,6 @@
+const fs = require('fs');
 const User = require('../models/User');
+const groupsSvc = require('../services/groups');
 const { notify, teacherIds } = require('../services/notifications');
 const Assignment = require('../models/Assignment');
 const Quiz = require('../models/Quiz');
@@ -63,7 +65,7 @@ const getDashboardStats = async (req, res) => {
     ]);
 
     // Get announcement stats
-    const announcements = await Announcement.getForUser(student._id, 'student', { includeExpired: false });
+    const announcements = await Announcement.getForUser(student._id, 'student', { includeExpired: false, group: student.studentInfo?.group });
     const unreadAnnouncements = announcements.filter(
       ann => !ann.readBy.some(read => read.user.toString() === student._id.toString())
     );
@@ -75,16 +77,18 @@ const getDashboardStats = async (req, res) => {
       pinnedAnnouncements: announcements.filter(ann => ann.isPinned).length
     };
 
-    // Get unread messages count
-    const unreadMessages = await Message.countDocuments({
-      recipient: student._id,
-      isRead: false
-    });
+    // Unread messages in the one chat the student can open (their teacher's); deleted ones don't count.
+    // Counting every sender left a badge that no amount of reading could clear.
+    const chatTeacher = await User.findOne({ role: 'teacher', isActive: true }).select('_id');
+    const unreadMessages = chatTeacher
+      ? await Message.countDocuments({ recipient: student._id, sender: chatTeacher._id, isRead: false, 'deleted.isDeleted': { $ne: true } })
+      : 0;
 
     res.status(200).json({
       status: 'success',
       data: {
         student,
+        group: await groupsSvc.groupOf(student),
         stats: {
           assignments: assignmentStats[0] || {
             totalAssignments: 0,
@@ -483,6 +487,89 @@ const submitAssignment = async (req, res) => {
   }
 };
 
+const MAX_SUBMISSION_FILES = 10;
+
+/** Removes files that were just uploaded (or just replaced) from disk; never throws. */
+const discardFiles = (files = []) => files.forEach(f => {
+  if (f?.path && !/^https?:/i.test(f.path)) fs.unlink(f.path, () => {});
+});
+
+/** Which attachments to keep: a JSON array of stored file names sent by the client. */
+const parseKeep = (value) => {
+  if (value === undefined) return null;
+  try {
+    const list = typeof value === 'string' ? JSON.parse(value) : value;
+    return Array.isArray(list) ? list.map(String) : null;
+  } catch {
+    return null;
+  }
+};
+
+// @desc    Change a submission (swap, add or remove files) until it has been graded
+// @route   PUT /api/student/assignments/:id/submission
+// @access  Private (Student)
+const updateSubmission = async (req, res) => {
+  const uploaded = req.files || [];
+  try {
+    const student = await User.findById(req.user.id);
+    if (!student || student.role !== 'student') {
+      discardFiles(uploaded);
+      return res.status(404).json({ status: 'error', message: 'Student profile not found' });
+    }
+
+    const assignment = await Assignment.findById(req.params.id);
+    const mine = assignment?.assignedTo.find(a => a.student.toString() === student._id.toString());
+    if (!mine) {
+      discardFiles(uploaded);
+      return res.status(assignment ? 403 : 404).json({ status: 'error', message: assignment ? 'You are not assigned to this assignment' : 'Assignment not found' });
+    }
+    if (mine.status === 'graded') {
+      discardFiles(uploaded);
+      return res.status(400).json({ status: 'error', message: 'This work has already been graded, so it can no longer be changed' });
+    }
+    if (mine.status !== 'submitted') {
+      discardFiles(uploaded);
+      return res.status(400).json({ status: 'error', message: 'Submit your work first, then you can change it' });
+    }
+
+    const current = mine.submission?.attachments || [];
+    const keepNames = parseKeep(req.body.keep);
+    const kept = keepNames ? current.filter(a => keepNames.includes(a.filename)) : current;
+    const removed = current.filter(a => !kept.includes(a));
+    const added = uploaded.map(file => ({ filename: file.filename, originalName: file.originalname, path: file.path, size: file.size, mimetype: file.mimetype }));
+
+    if (!kept.length && !added.length) {
+      discardFiles(uploaded);
+      return res.status(400).json({ status: 'error', message: 'Keep or add at least one file' });
+    }
+    if (kept.length + added.length > MAX_SUBMISSION_FILES) {
+      discardFiles(uploaded);
+      return res.status(400).json({ status: 'error', message: `You can submit up to ${MAX_SUBMISSION_FILES} files` });
+    }
+
+    const editedAt = new Date();
+    mine.submission = {
+      text: typeof req.body.text === 'string' ? req.body.text : mine.submission?.text || '',
+      attachments: [...kept, ...added],
+      editedAt
+    };
+    await assignment.save();
+    discardFiles(removed);
+
+    teacherIds().then(ids => notify(ids, { type: 't_submission', title: `${student.firstName} ${student.lastName} updated their submission`, body: assignment.title, url: '/teacher-dashboard/work/submissions', dedupeKey: `subedit:${assignment._id}:${student._id}:${editedAt.getTime()}` }));
+
+    return res.status(200).json({
+      status: 'success',
+      message: 'Your submission was updated',
+      data: { assignment: { _id: assignment._id, title: assignment.title, submission: mine.submission } }
+    });
+  } catch (error) {
+    discardFiles(uploaded);
+    console.error('Update submission error:', error);
+    return res.status(500).json({ status: 'error', message: 'Server error updating your submission' });
+  }
+};
+
 // @desc    Submit quiz
 // @route   POST /api/student/quizzes/:id/submit
 // @access  Private (Student)
@@ -712,6 +799,7 @@ module.exports = {
   getMaterials,
   getVideos,
   submitAssignment,
+  updateSubmission,
   submitQuiz,
   startQuiz
 }; 

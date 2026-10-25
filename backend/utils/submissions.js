@@ -31,6 +31,7 @@ function flattenSubmissions(assignments, students = new Map()) {
           lesson: a.lesson || null
         },
         submittedAt: entry.submissionDate || null,
+        editedAt: entry.submission?.editedAt || null,
         late: !!entry.isLate || (!!entry.submissionDate && !!a.dueDate && new Date(entry.submissionDate) > new Date(a.dueDate)),
         files: (entry.submission?.attachments || []).map(f => ({
           filename: f.filename,

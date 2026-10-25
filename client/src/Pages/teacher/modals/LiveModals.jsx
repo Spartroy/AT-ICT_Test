@@ -7,6 +7,8 @@ import { Dialog, DialogHeader, useToast } from '../../../components/portal/Porta
 import { Empty, ErrorNote, Ic, Loading, fmtDateTime } from '../../../components/portal/kit';
 import { WEEK, shortTime, toMinutes } from '../../student/scheduleUtils';
 import { ChoiceRow, FormDialog, Fld, announceChange, apiError, toLocalInput } from './form';
+import { GroupChoice } from './AudiencePicker';
+import useGroups from '../../../hooks/useGroups';
 
 const TYPES = ['theory', 'practical', 'revision', 'quiz'].map(t => ({ value: t, label: t[0].toUpperCase() + t.slice(1) }));
 
@@ -25,7 +27,13 @@ function nextOccurrence(day, startTime) {
   return d;
 }
 
-const blank = () => ({ title: '', topic: '', type: 'theory', notes: '', meetingUrl: '', when: 'now', startsAt: '', durationMin: 90, slotKey: '', onlyAssigned: true });
+const LINK_MODES = [
+  { value: 'preset', label: 'My saved link' },
+  { value: 'auto', label: 'New room automatically' },
+  { value: 'manual', label: 'Paste a link' }
+];
+
+const blank = (linkMode = 'manual') => ({ title: '', topic: '', type: 'theory', notes: '', meetingUrl: '', linkMode, groups: new Set(), when: 'now', startsAt: '', durationMin: 90, slotKey: '', onlyAssigned: true });
 
 /** Start a class now or schedule one; optionally tie it to a slot of the weekly timetable. */
 const slotKey = (scheduleId, day, startTime, endTime, topic) => [scheduleId, day, startTime, endTime || '', topic || ''].join('|');
@@ -33,6 +41,7 @@ const slotKey = (scheduleId, day, startTime, endTime, topic) => [scheduleId, day
 export function LiveSessionModal({ open, onClose, session, slot }) {
   const toast = useToast();
   const schedules = useApi(open ? API_ENDPOINTS.SCHEDULE.SCHEDULES : null, b => b.data?.schedules || []);
+  const { groups, live } = useGroups(open);
   const [f, setF] = useState(blank);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
@@ -48,20 +57,26 @@ export function LiveSessionModal({ open, onClose, session, slot }) {
       // Opened from a slot in the weekly schedule (hover › Go live): prefill from it.
       const at = nextOccurrence(slot.day, slot.startTime);
       setF({
-        ...blank(), title: slot.topic || `${slot.day} class`, topic: slot.topic || '', type: slot.type || 'theory',
+        ...blank(live.mode), title: slot.topic || `${slot.day} class`, topic: slot.topic || '', type: slot.type || 'theory',
         when: 'later', startsAt: at ? toLocalInput(at) : '', slotKey: slotKey(slot.scheduleId, slot.day, slot.startTime, slot.endTime, slot.topic), slotObj: slot
       });
       return;
     }
-    if (!session) { setF(blank()); return; }
+    if (!session) { setF(blank(live.mode)); return; }
     setF({
-      title: session.title, topic: session.topic || '', type: session.type, notes: session.notes || '', meetingUrl: session.meetingUrl || '',
+      title: session.title, topic: session.topic || '', type: session.type, notes: session.notes || '', meetingUrl: session.meetingUrl || '', linkMode: 'manual', groups: new Set(session.groups || []),
       when: 'later', startsAt: toLocalInput(session.startsAt), durationMin: session.durationMin || 90,
       slotKey: '', onlyAssigned: true
     });
-  }, [open, session, slot]);
+  }, [open, session, slot, live.mode]);
 
   const set = (patch) => setF(x => ({ ...x, ...patch }));
+
+  // What "My saved link" means right now: the chosen group's own link, otherwise the default one.
+  const presetUrl = useMemo(() => {
+    const chosenGroups = groups.filter(g => f.groups.has(g.code));
+    return (chosenGroups.length === 1 && chosenGroups[0].meetingUrl) || live.url || chosenGroups.find(g => g.meetingUrl)?.meetingUrl || '';
+  }, [groups, f.groups, live.url]);
   const pickSlot = (key) => {
     const picked = slots.find(s => s.key === key);
     if (!picked) { set({ slotKey: '' }); return; }
@@ -77,11 +92,13 @@ export function LiveSessionModal({ open, onClose, session, slot }) {
 
   const submit = async () => {
     if (!f.title.trim()) { setError('Give the session a title'); return; }
-    if (!/^https?:\/\//i.test(f.meetingUrl.trim())) { setError('Paste the meeting link (Zoom, Google Meet…) starting with https://'); return; }
+    if (f.linkMode === 'manual' && !/^https?:\/\//i.test(f.meetingUrl.trim())) { setError('Paste the meeting link (Zoom, Google Meet…) starting with https://'); return; }
+    if (f.linkMode === 'preset' && !presetUrl) { setError('No saved link yet. Add one in Students › Groups, or paste a link instead.'); return; }
     if (f.when === 'later' && !f.startsAt) { setError('Pick when the session starts'); return; }
     const chosen = slots.find(s => s.key === f.slotKey) || (f.slotKey ? f.slotObj : null);
     const body = {
-      title: f.title.trim(), topic: f.topic.trim(), type: f.type, notes: f.notes.trim(), meetingUrl: f.meetingUrl.trim(), durationMin: Number(f.durationMin) || 90,
+      title: f.title.trim(), topic: f.topic.trim(), type: f.type, notes: f.notes.trim(), durationMin: Number(f.durationMin) || 90,
+      linkMode: f.linkMode, groups: [...f.groups], ...(f.linkMode === 'manual' && { meetingUrl: f.meetingUrl.trim() }),
       startsAt: f.when === 'later' ? new Date(f.startsAt).toISOString() : undefined,
       ...(chosen ? { scheduleId: chosen.scheduleId, day: chosen.day, startTime: chosen.startTime, slotTopic: chosen.topic, onlyAssigned: f.onlyAssigned } : {})
     };
@@ -117,7 +134,24 @@ export function LiveSessionModal({ open, onClose, session, slot }) {
         <Fld label="Title"><input className="inp" value={f.title} maxLength={140} onChange={e => set({ title: e.target.value })} placeholder="e.g. Databases: revision class" /></Fld>
         <Fld label="Topic"><input className="inp" value={f.topic} maxLength={200} onChange={e => set({ topic: e.target.value })} placeholder="What the class covers" /></Fld>
         <ChoiceRow title="Type" value={f.type} onChange={type => set({ type })} options={TYPES} />
-        <Fld label="Meeting link" className="lv-wide"><input className="inp" type="url" inputMode="url" value={f.meetingUrl} onChange={e => set({ meetingUrl: e.target.value })} placeholder="https://zoom.us/j/… or https://meet.google.com/…" /></Fld>
+        {groups.length > 0 && (
+          <div className="hwq lv-wide">
+            <small>Who is this class for? (none selected = everyone)</small>
+            <GroupChoice value={f.groups} onChange={g => set({ groups: g })} groups={groups} />
+          </div>
+        )}
+        <div className="lv-wide">
+          <ChoiceRow title="Meeting link" value={f.linkMode} onChange={linkMode => set({ linkMode })} options={LINK_MODES} />
+          {f.linkMode === 'manual' && (
+            <Fld label="Link"><input className="inp" type="url" inputMode="url" value={f.meetingUrl} onChange={e => set({ meetingUrl: e.target.value })} placeholder="https://zoom.us/j/… or https://meet.google.com/…" /></Fld>
+          )}
+          {f.linkMode === 'preset' && (
+            presetUrl
+              ? <p className="sub lv-link">Students will join: <a href={presetUrl} target="_blank" rel="noreferrer">{presetUrl}</a></p>
+              : <p className="fld-err">No saved link yet. Add one in Students › Groups, then it is filled in for every class.</p>
+          )}
+          {f.linkMode === 'auto' && <p className="sub lv-link">A fresh private room is made when you save. Open it yourself first so you are the host.</p>}
+        </div>
         {f.when === 'later' && (
           <>
             <Fld label="Starts"><input className="inp" type="datetime-local" value={f.startsAt} onChange={e => set({ startsAt: e.target.value })} /></Fld>

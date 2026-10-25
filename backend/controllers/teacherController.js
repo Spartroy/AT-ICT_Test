@@ -101,7 +101,7 @@ const getDashboardStats = async (req, res) => {
 // @access  Private (Teacher)
 const getStudents = async (req, res) => {
   try {
-    const { all, search, session, year, status, schoolType, royalClass, unclassified } = req.query;
+    const { all, search, session, year, status, schoolType, royalClass, unclassified, group } = req.query;
 
     // Support for fetching all students without pagination (for dropdowns, selectors, etc.)
     const page = all === 'true' ? 1 : parseInt(req.query.page) || 1;
@@ -125,6 +125,10 @@ const getStudents = async (req, res) => {
 
     // Filter by royal class (only for Royal College students)
     if (royalClass) query['studentInfo.royalClass'] = royalClass;
+
+    // Filter by teaching group ('none' = students not in a group yet)
+    if (group === 'none') query['studentInfo.group'] = { $in: [null, ''] };
+    else if (group) query['studentInfo.group'] = String(group).toUpperCase();
 
     // Build search conditions
     let searchConditions = [];
@@ -191,6 +195,7 @@ const getStudents = async (req, res) => {
       nationality: student.studentInfo?.nationality || 'N/A',
       schoolType: student.studentInfo?.schoolType || null,
       royalClass: student.studentInfo?.royalClass || null,
+      group: student.studentInfo?.group || null,
       registrationStatus: student.registrationStatus,
       isActive: student.isActive,
       lastLogin: student.lastLogin,

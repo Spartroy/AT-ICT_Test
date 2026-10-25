@@ -1,4 +1,5 @@
 const Announcement = require('../models/Announcement');
+const groupsSvc = require('../services/groups');
 const { notifyAnnouncement } = require('../services/notificationScheduler');
 const { validationResult } = require('express-validator');
 
@@ -29,12 +30,16 @@ const createAnnouncement = async (req, res) => {
       tags
     } = req.body;
 
+    const g = await groupsSvc.cleanCodes(req.body.groups);
+    if (g.error) return res.status(400).json({ status: 'error', message: g.error });
+
     const announcement = await Announcement.create({
       title,
       content,
       type,
       priority,
-      targetAudience,
+      targetAudience: g.codes.length && targetAudience === 'all' ? 'students' : targetAudience,
+      groups: g.codes,
       specificTargets,
       scheduledFor: scheduledFor ? new Date(scheduledFor) : new Date(),
       expiresAt: expiresAt ? new Date(expiresAt) : undefined,
@@ -151,6 +156,7 @@ const getAnnouncements = async (req, res) => {
       {
         limit,
         skip: (page - 1) * limit,
+        group: req.user.studentInfo?.group,
         includeExpired: includeExpired === 'true'
       }
     );
@@ -252,13 +258,21 @@ const updateAnnouncement = async (req, res) => {
       });
     }
 
+    let groupCodes = announcement.groups;
+    if ('groups' in req.body) {
+      const g = await groupsSvc.cleanCodes(req.body.groups);
+      if (g.error) return res.status(400).json({ status: 'error', message: g.error });
+      groupCodes = g.codes;
+    }
+
     // Update announcement
     Object.assign(announcement, {
       title,
       content,
       type,
       priority,
-      targetAudience,
+      targetAudience: groupCodes.length && targetAudience === 'all' ? 'students' : targetAudience,
+      groups: groupCodes,
       specificTargets,
       scheduledFor: scheduledFor ? new Date(scheduledFor) : announcement.scheduledFor,
       expiresAt: expiresAt ? new Date(expiresAt) : announcement.expiresAt,

@@ -48,6 +48,7 @@ const quizRoutes = require('./routes/quizRoutes');
 const flashcardRoutes = require('./routes/flashcardRoutes');
 const activityRoutes = require('./routes/activityRoutes');
 const settingsRoutes = require('./routes/settingsRoutes');
+const groupRoutes = require('./routes/groupRoutes');
 const pastPaperRoutes = require('./routes/pastPaperRoutes');
 const sessionRoutes = require('./routes/sessionRoutes');
 const teacherSessionRoutes = require('./routes/teacherSessionRoutes');
@@ -299,6 +300,7 @@ app.use('/api/student', studentRoutes);
  * Teacher dashboard, student management, grading
  */
 app.use('/api/teacher/settings', settingsRoutes.teacherRouter);
+app.use('/api/teacher/groups', groupRoutes);
 app.use('/api/teacher/pastpapers', pastPaperRoutes.teacherRouter);
 app.use('/api/teacher/live', liveRoutes.teacherRouter);
 app.use('/api/teacher/samples', sampleRoutes.teacherRouter);

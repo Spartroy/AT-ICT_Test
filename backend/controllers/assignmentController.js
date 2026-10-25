@@ -1,6 +1,7 @@
 const Assignment = require('../models/Assignment');
 const { notify } = require('../services/notifications');
 const User = require('../models/User');
+const groups = require('../services/groups');
 const { validationResult } = require('express-validator');
 const path = require('path');
 const { calculateAssignmentPoints, awardPoints } = require('../utils/pointsHelper');
@@ -93,72 +94,15 @@ const createAssignment = async (req, res) => {
       publishDate: new Date()
     });
 
-    // Handle student assignment
-    if (assignToAll === true || assignToAll === 'true') {
-      // Assign to all approved students
-      const students = await User.find({
-        role: 'student',
-        registrationStatus: 'approved',
-        isActive: true
-      }).select('_id');
-
-      assignment.assignedTo = students.map(student => ({
-        student: student._id,
-        assignedDate: new Date(),
-        status: 'assigned'
-      }));
-    } else if (selectedStudents) {
-      // Assign to selected students
-      let studentIds = selectedStudents;
-
-      // Parse if it's a JSON string (from FormData)
-      if (typeof selectedStudents === 'string') {
-        try {
-          studentIds = JSON.parse(selectedStudents);
-        } catch (error) {
-          return res.status(400).json({
-            status: 'error',
-            message: 'Invalid student selection format'
-          });
-        }
-      }
-
-      // Validate that studentIds is an array
-      if (!Array.isArray(studentIds) || studentIds.length === 0) {
-        return res.status(400).json({
-          status: 'error',
-          message: 'At least one student must be selected'
-        });
-      }
-
-      // Verify all selected students exist and are active
-      const validStudents = await User.find({
-        _id: { $in: studentIds },
-        role: 'student',
-        registrationStatus: 'approved',
-        isActive: true
-      }).select('_id');
-
-      if (validStudents.length !== studentIds.length) {
-        return res.status(400).json({
-          status: 'error',
-          message: 'Some selected students are not valid or active'
-        });
-      }
-
-      assignment.assignedTo = validStudents.map(student => ({
-        student: student._id,
-        assignedDate: new Date(),
-        status: 'assigned'
-      }));
-    } else {
-      return res.status(400).json({
-        status: 'error',
-        message: 'Please select students to assign this assignment to'
-      });
+    // Who it is for: everyone, one or more groups, and/or hand-picked students.
+    const audience = await groups.resolveAudience({ assignToAll, selectedStudents, groups: req.body.groups });
+    if (audience.error) {
+      return res.status(400).json({ status: 'error', message: audience.error });
     }
+    assignment.groups = audience.groups;
+    assignment.assignedTo = groups.toAssignedTo(audience.studentIds);
 
-    await assignment.save();
+await assignment.save();
 
     await assignment.populate('createdBy', 'firstName lastName');
 

@@ -1,5 +1,5 @@
 import React, { createContext, useCallback, useContext, useMemo, useState } from 'react';
-import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { Home as HomeIcon, Users, ClipboardCheck, Library as LibraryIcon, CalendarDays, Inbox as InboxIcon } from 'lucide-react';
 import PortalShell from '../../components/portal/PortalShell';
 import Seo from '../../components/Seo';
@@ -37,7 +37,6 @@ const storedUser = () => {
 /** Teacher portal: Home, Students, Work, Library, Schedule, Inbox (+ Settings behind the profile). */
 export default function TeacherPortal() {
   const location = useLocation();
-  const navigate = useNavigate();
   const me = storedUser();
   const regs = useApi(`${API_ENDPOINTS.REGISTRATION.PENDING}?limit=50`, b => b.data || {});
   const subs = useApi('/api/teacher/submissions?status=needs&limit=1', b => b.data?.counts || {});

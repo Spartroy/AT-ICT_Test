@@ -11,6 +11,7 @@ const {
   getMaterials,
   getVideos,
   submitAssignment,
+  updateSubmission,
   submitQuiz,
   startQuiz
 } = require('../controllers/studentController');
@@ -68,6 +69,17 @@ router.post('/assignments/:id/submit', protect, upload.array('files', 10), handl
   }
   next();
 }, submitAssignment);
+
+// Change an already submitted assignment (swap, add or remove files) until it is graded
+router.put('/assignments/:id/submission', protect, upload.array('files', 10), handleMulterError, (req, res, next) => {
+  if (req.user.role !== 'student') {
+    return res.status(403).json({
+      status: 'error',
+      message: 'Access denied. Student role required.'
+    });
+  }
+  next();
+}, updateSubmission);
 
 // Quiz routes
 router.get('/quizzes', protect, (req, res, next) => {

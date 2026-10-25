@@ -364,6 +364,20 @@ const userSchema = new mongoose.Schema({
     },
 
     /**
+     * Teaching group code, e.g. 'A' (shown as "GRP A"). Null = not in a group yet.
+     * The groups themselves are defined in AppSettings.groupsConfig.
+     * @type {String}
+     */
+    group: {
+      type: String,
+      trim: true,
+      uppercase: true,
+      maxlength: 6,
+      default: null,
+      index: true
+    },
+
+    /**
      * Royal College class (for Royal College students only), e.g. '9H'
      * @type {String}
      */

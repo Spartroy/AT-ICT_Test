@@ -1,4 +1,5 @@
 const Message = require('../models/Message');
+const Notification = require('../models/Notification');
 const { notify } = require('../services/notifications');
 const User = require('../models/User');
 const Student = require('../models/Student');
@@ -249,15 +250,18 @@ const getConversationMessages = async (req, res) => {
     .limit(limit)
     .skip(skip);
 
-    // Mark messages as read if they were sent to current user
-    const unreadMessages = messages.filter(
-      msg => msg.recipient._id.toString() === req.user.id && !msg.isRead
+    // Opening a conversation reads ALL of its unread messages, not only the page that was loaded
+    // (older ones used to stay unread forever and kept the badge on).
+    await Message.updateMany(
+      { conversationId, recipient: req.user.id, isRead: false },
+      { $set: { isRead: true, readAt: new Date() } }
     );
-
-    if (unreadMessages.length > 0) {
-      await Promise.all(
-        unreadMessages.map(msg => msg.markAsRead(req.user.id))
-      );
+    messages.forEach(msg => {
+      if (msg.recipient?._id?.toString() === req.user.id) msg.isRead = true;
+    });
+    // Once nothing is left unread, the "new message" notifications in the bell are done with too.
+    if (await Message.getUnreadCount(req.user.id) === 0) {
+      await Notification.updateMany({ user: req.user.id, type: { $in: ['chat', 't_chat'] }, read: false }, { $set: { read: true } });
     }
 
     // Get total count for pagination

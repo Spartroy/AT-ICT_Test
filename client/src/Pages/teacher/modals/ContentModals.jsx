@@ -5,7 +5,8 @@ import { API_ENDPOINTS } from '../../../config/api';
 import { useToast } from '../../../components/portal/PortalUI';
 import { PHASES, PROGRAMS } from '../curriculum';
 import { FormDialog, Fld, apiError, announceChange, toLocalInput } from './form';
-import StudentChecklist from './StudentChecklist';
+import AudiencePicker, { GroupChoice, audienceBody, audienceError, emptyAudience } from './AudiencePicker';
+import useGroups from '../../../hooks/useGroups';
 
 // Shared form state helper: values + per-field errors + reset when opened.
 function useForm(open, initial) {
@@ -37,7 +38,7 @@ async function save(f, request, { toast, okMsg, kind, onClose, onSaved }) {
 /** Create quiz: timed quiz for students. */
 export function QuizModal({ open, onClose }) {
   const toast = useToast();
-  const f = useForm(open, { title: '', duration: 10, maxScore: 30, section: 'theory', date: '', time: '', difficulty: 'medium', instructions: '', assignTo: 'all', chosen: new Set() });
+  const f = useForm(open, { title: '', duration: 10, maxScore: 30, section: 'theory', date: '', time: '', difficulty: 'medium', instructions: '', audience: emptyAudience() });
   const { v, set } = f;
   const submit = () => {
     const e = {};
@@ -46,13 +47,14 @@ export function QuizModal({ open, onClose }) {
     if (!v.time) e.time = 'Choose a start time';
     if (!(Number(v.duration) >= 1)) e.duration = 'At least 1 minute';
     if (!(Number(v.maxScore) >= 1)) e.maxScore = 'At least 1';
-    if (v.assignTo === 'selected' && !v.chosen.size) e.students = 'Choose at least one student';
+    const audienceProblem = audienceError(v.audience);
+    if (audienceProblem) e.students = audienceProblem;
     f.setErrors(e);
     if (Object.keys(e).length) return;
     save(f, () => api.post(API_ENDPOINTS.QUIZZES, {
       title: v.title.trim(), type: v.section, section: v.section, startDate: new Date(`${v.date}T00:00`).toISOString(), startTime: v.time,
       duration: Number(v.duration), maxScore: Number(v.maxScore), difficulty: v.difficulty, instructions: v.instructions.trim() || undefined,
-      assignToAll: v.assignTo === 'all', ...(v.assignTo === 'selected' && { selectedStudents: [...v.chosen] })
+      ...audienceBody(v.audience)
     }), { toast, okMsg: 'Quiz created', kind: 'quiz', onClose });
   };
   return (
@@ -70,8 +72,7 @@ export function QuizModal({ open, onClose }) {
         <Fld label="Type"><select className="inp" value={v.section} onChange={set('section')}><option value="theory">Theory</option><option value="practical">Practical</option></select></Fld>
         <Fld label="Difficulty"><select className="inp" value={v.difficulty} onChange={set('difficulty')}><option value="easy">Easy</option><option value="medium">Medium</option><option value="hard">Hard</option></select></Fld>
       </div>
-      <Fld label="Assign to"><select className="inp" value={v.assignTo} onChange={set('assignTo')}><option value="all">All students</option><option value="selected">Selected students</option></select></Fld>
-      {v.assignTo === 'selected' && <StudentChecklist chosen={v.chosen} onChange={c => f.setV(x => ({ ...x, chosen: c }))} error={f.errors.students} />}
+      <AudiencePicker value={v.audience} onChange={audience => f.setV(x => ({ ...x, audience }))} error={f.errors.students} />
       <Fld label="Instructions (optional)"><textarea className="inp" rows={3} value={v.instructions} onChange={set('instructions')} /></Fld>
     </FormDialog>
   );
@@ -85,17 +86,19 @@ export function AnnouncementModal({ open, onClose, announcement }) {
   const a = announcement;
   const f = useForm(open, {
     title: a?.title || '', content: a?.content || '', type: a?.type || 'general', priority: a?.priority || 'medium',
-    targetAudience: a?.targetAudience || 'all', scheduledFor: toLocalInput(a?.scheduledFor), expiresAt: toLocalInput(a?.expiresAt), isPinned: !!a?.isPinned
+    targetAudience: a?.groups?.length ? 'groups' : a?.targetAudience || 'all', groups: new Set(a?.groups || []), scheduledFor: toLocalInput(a?.scheduledFor), expiresAt: toLocalInput(a?.expiresAt), isPinned: !!a?.isPinned
   });
   const { v, set } = f;
+  const { groups: allGroups } = useGroups(open);
   const submit = () => {
     const e = {};
+    if (v.targetAudience === 'groups' && !v.groups.size) e.groups = 'Choose at least one group';
     if (v.title.trim().length < 5) e.title = 'Title must be 5–200 characters';
     if (v.content.trim().length < 10) e.content = 'Content must be at least 10 characters';
     f.setErrors(e);
     if (Object.keys(e).length) return;
     const body = {
-      title: v.title.trim(), content: v.content.trim(), type: v.type, priority: v.priority, targetAudience: v.targetAudience, isPinned: v.isPinned, isPublished: true,
+      title: v.title.trim(), content: v.content.trim(), type: v.type, priority: v.priority, targetAudience: v.targetAudience === 'groups' ? 'students' : v.targetAudience, groups: v.targetAudience === 'groups' ? [...v.groups] : [], isPinned: v.isPinned, isPublished: true,
       scheduledFor: v.scheduledFor ? new Date(v.scheduledFor).toISOString() : undefined,
       expiresAt: v.expiresAt ? new Date(v.expiresAt).toISOString() : undefined
     };
@@ -110,7 +113,8 @@ export function AnnouncementModal({ open, onClose, announcement }) {
         <Fld label="Category"><select className="inp" value={v.type} onChange={set('type')}>{ANN_TYPES.map(t => <option key={t} value={t}>{t}</option>)}</select></Fld>
         <Fld label="Priority"><select className="inp" value={v.priority} onChange={set('priority')}>{['low', 'medium', 'high', 'urgent'].map(t => <option key={t} value={t}>{t}</option>)}</select></Fld>
       </div>
-      <Fld label="Target audience"><select className="inp" value={v.targetAudience} onChange={set('targetAudience')}><option value="all">Everyone</option><option value="students">Students</option><option value="parents">Parents</option></select></Fld>
+      <Fld label="Target audience"><select className="inp" value={v.targetAudience} onChange={set('targetAudience')}><option value="all">Everyone</option><option value="students">Students</option>{allGroups.length > 0 && <option value="groups">Specific groups</option>}<option value="parents">Parents</option></select></Fld>
+      {v.targetAudience === 'groups' && <GroupChoice value={v.groups} onChange={g => f.setV(x => ({ ...x, groups: g }))} groups={allGroups} error={f.errors.groups} />}
       <div className="r2">
         <Fld label="Publish date (optional)"><input className="inp" type="datetime-local" value={v.scheduledFor} onChange={set('scheduledFor')} /></Fld>
         <Fld label="Expiry date (optional)"><input className="inp" type="datetime-local" value={v.expiresAt} onChange={set('expiresAt')} /></Fld>

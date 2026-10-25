@@ -1,6 +1,6 @@
 import React, { useEffect, useId, useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
-import { ClipboardCheck, GraduationCap, CheckCircle2, XCircle, RefreshCw, ChevronDown, Clock, Play, Upload, Paperclip } from 'lucide-react';
+import { ClipboardCheck, GraduationCap, CheckCircle2, XCircle, RefreshCw, ChevronDown, Clock, Play, Upload, Paperclip, FileText, Pencil, RotateCcw, X } from 'lucide-react';
 import useApi from '../../hooks/useApi';
 import { api } from '../../lib/api';
 import { API_ENDPOINTS } from '../../config/api';
@@ -61,6 +61,87 @@ function ScoreBox({ score, max }) {
       <small>Score</small>
       <b className={graded ? 'ok' : ''}>{graded ? score : '—'}/{max}</b>
       {graded && max ? <em>{Math.round((score / max) * 100)}%</em> : null}
+    </div>
+  );
+}
+
+const MAX_FILES = 10;
+const sizeOf = (n) => (n > 1048576 ? `${(n / 1048576).toFixed(1)} MB` : `${Math.max(1, Math.round((n || 0) / 1024))} KB`);
+
+/** A submitted (not yet graded) assignment: see the files, and swap, add or remove them until the teacher grades it. */
+function SubmissionEditor({ assignment, data, onSaved }) {
+  const toast = useToast();
+  const id = useId();
+  const current = data.submission?.attachments || [];
+  const [editing, setEditing] = useState(false);
+  const [keep, setKeep] = useState(() => new Set(current.map(f => f.filename)));
+  const [added, setAdded] = useState([]);
+  const [busy, setBusy] = useState(false);
+
+  const begin = () => { setKeep(new Set(current.map(f => f.filename))); setAdded([]); setEditing(true); };
+  const total = keep.size + added.length;
+  const changed = added.length > 0 || keep.size !== current.length;
+  const flip = (name) => setKeep(k => { const n = new Set(k); n.has(name) ? n.delete(name) : n.add(name); return n; });
+  const addFiles = (list) => setAdded(a => [...a, ...list.filter(f => !a.some(x => x.name === f.name && x.size === f.size))].slice(0, MAX_FILES));
+
+  const save = async () => {
+    if (!total) return toast('Keep or add at least one file');
+    if (total > MAX_FILES) return toast(`You can submit up to ${MAX_FILES} files`);
+    setBusy(true);
+    try {
+      const fd = new FormData();
+      fd.append('keep', JSON.stringify([...keep]));
+      added.forEach(f => fd.append('files', f));
+      await api.put(`${API_ENDPOINTS.STUDENT.ASSIGNMENTS}/${assignment._id}/submission`, fd);
+      toast('Your submission was updated');
+      setEditing(false);
+      onSaved();
+    } catch (err) {
+      toast(err.message || "We couldn't save your changes");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="box bl">
+      <b><Ic as={Clock} /> Awaiting grade</b>
+      <p className="sub" style={{ marginTop: 6 }}>
+        Submitted {fmtDateTime(data.submissionDate)}{data.submission?.editedAt ? ` · changed ${fmtDateTime(data.submission.editedAt)}` : ''}
+      </p>
+
+      <ul className="sub-files" aria-label="Submitted files">
+        {current.map(f => {
+          const removed = editing && !keep.has(f.filename);
+          return (
+            <li key={f.filename} className={removed ? 'gone' : ''}>
+              <Ic as={FileText} /><span>{f.originalName || f.filename}</span><small>{sizeOf(f.size)}</small>
+              {editing && (
+                <button type="button" className="ib sm" aria-label={removed ? `Keep ${f.originalName}` : `Remove ${f.originalName}`} onClick={() => flip(f.filename)}><Ic as={removed ? RotateCcw : X} /></button>
+              )}
+            </li>
+          );
+        })}
+        {editing && added.map((f, i) => (
+          <li key={`${f.name}-${i}`} className="new">
+            <Ic as={Paperclip} /><span>{f.name}</span><small>{sizeOf(f.size)} · new</small>
+            <button type="button" className="ib sm" aria-label={`Remove ${f.name}`} onClick={() => setAdded(a => a.filter((_, k) => k !== i))}><Ic as={X} /></button>
+          </li>
+        ))}
+        {!current.length && !editing && <li><span>No files</span></li>}
+      </ul>
+
+      {editing ? (
+        <div className="sub-acts">
+          <label className="btn o sm" htmlFor={id}><Ic as={Paperclip} />Add files</label>
+          <input id={id} type="file" multiple className="sr-only" aria-label={`Add files to ${assignment.title}`} onChange={e => { addFiles([...e.target.files]); e.target.value = ''; }} />
+          <button type="button" className="btn p sm" disabled={busy || !changed || !total} onClick={save}><Ic as={Upload} />{busy ? 'Saving…' : 'Save changes'}</button>
+          <button type="button" className="btn o sm" disabled={busy} onClick={() => setEditing(false)}>Cancel</button>
+        </div>
+      ) : (
+        <div className="sub-acts"><button type="button" className="btn o sm" onClick={begin}><Ic as={Pencil} />Change files</button></div>
+      )}
+      {editing && <p className="sub" style={{ marginTop: 8 }}>You can change your files until your teacher grades this work.</p>}
     </div>
   );
 }
@@ -146,10 +227,7 @@ function AssignmentList({ onChange }) {
                         {sd.feedback && <p style={{ marginTop: 6 }}>{sd.feedback}</p>}
                       </div>
                     ) : submitted ? (
-                      <div className="box bl">
-                        <b><Ic as={Clock} /> Awaiting grade</b>
-                        <p className="sub" style={{ marginTop: 6 }}>Submitted {fmtDateTime(sd.submissionDate)}{sd.submission?.attachments?.length ? ` · ${sd.submission.attachments.length} file(s)` : ''}</p>
-                      </div>
+                      <SubmissionEditor assignment={a} data={sd} onSaved={() => { list.reload(); onChange?.(); }} />
                     ) : (
                       <div className="box">
                         <FilePicker files={files[a._id] || []} onChange={f => setFiles(x => ({ ...x, [a._id]: f }))} label={`Files for ${a.title}`} />

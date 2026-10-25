@@ -1,5 +1,6 @@
 const Schedule = require('../models/Schedule');
 const User = require('../models/User');
+const groups = require('../services/groups');
 const { validationResult } = require('express-validator');
 const jwt = require('jsonwebtoken');
 
@@ -242,6 +243,12 @@ const resetSchedule = async (req, res) => {
   }
 };
 
+/** A student's schedule: one they were assigned to by name, or one made for their teaching group. */
+const studentScheduleMatch = (user) => [
+  { 'assignedStudents.student': user.id },
+  ...(user.studentInfo?.group ? [{ groups: user.studentInfo.group }] : [])
+];
+
 // @desc    Get schedule for student (their assigned schedule)
 // @route   GET /api/student/schedule
 // @access  Private (Student)
@@ -250,7 +257,7 @@ const getScheduleForStudent = async (req, res) => {
     // Find the schedule the student is assigned to
     let schedule = await Schedule.findOne({
       isActive: true,
-      'assignedStudents.student': req.user.id
+      $or: studentScheduleMatch(req.user)
     })
       .populate('createdBy', 'firstName lastName')
       .populate('lastUpdatedBy', 'firstName lastName');
@@ -295,7 +302,7 @@ const getTodayScheduleForStudent = async (req, res) => {
   try {
     const schedule = await Schedule.findOne({
       isActive: true,
-      'assignedStudents.student': req.user.id
+      $or: studentScheduleMatch(req.user)
     });
 
     if (!schedule) {
@@ -564,14 +571,14 @@ const getStudentsByClassification = async (req, res) => {
 const assignStudentsToSpecificSchedule = async (req, res) => {
   try {
     const { scheduleId } = req.params;
-    const { studentIds, groupType } = req.body;
-    
-    if (!studentIds || !Array.isArray(studentIds) || studentIds.length === 0) {
-      return res.status(400).json({
-        status: 'error',
-        message: 'Student IDs are required'
-      });
+    const { groupType } = req.body;
+
+    // Students can be picked one by one, by teaching group, or both.
+    const audience = await groups.resolveAudience({ assignToAll: false, selectedStudents: req.body.studentIds || [], groups: req.body.groups });
+    if (audience.error) {
+      return res.status(400).json({ status: 'error', message: audience.error });
     }
+    const studentIds = audience.studentIds.map(String);
 
     // Find the schedule
     const schedule = await Schedule.findById(scheduleId);
@@ -581,21 +588,14 @@ const assignStudentsToSpecificSchedule = async (req, res) => {
         message: 'Schedule not found'
       });
     }
+    if ('groups' in req.body) schedule.groups = audience.groups;
 
-    // Verify all students exist and are active
     const validStudents = await User.find({
       _id: { $in: studentIds },
       role: 'student',
       registrationStatus: 'approved',
       isActive: true
     }).select('_id firstName lastName email studentInfo');
-
-    if (validStudents.length !== studentIds.length) {
-      return res.status(400).json({
-        status: 'error',
-        message: 'Some selected students are not valid or active'
-      });
-    }
 
     // Add students to schedule
     const newAssignments = studentIds.map(studentId => ({

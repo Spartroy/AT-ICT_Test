@@ -104,3 +104,17 @@
   .atp #wk { gap: 4px !important; }
   .atp #wk .wd > small { font-size: 0.62rem; letter-spacing: -0.02em; }
 }
+
+.atp-student .home-group { margin: 10px 0 0; }
+
+/* Submitted work: file list you can change until it is graded */
+.atp-student .sub-files { list-style: none; display: grid; gap: 6px; margin: 12px 0 0; padding: 0; }
+.atp-student .sub-files li { display: flex; align-items: center; gap: 8px; padding: 7px 10px; border-radius: 12px; background: var(--s2); border: 1px solid var(--bd); font-size: 0.88rem; transition: opacity 0.2s, border-color 0.2s; }
+.atp-student .sub-files li span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.atp-student .sub-files li small { color: var(--fa); white-space: nowrap; }
+.atp-student .sub-files li.gone { opacity: 0.45; }
+.atp-student .sub-files li.gone span { text-decoration: line-through; }
+.atp-student .sub-files li.new { border-color: color-mix(in srgb, var(--cr) 55%, transparent); animation: sub-in 0.3s cubic-bezier(0.22, 1, 0.36, 1); }
+@keyframes sub-in { from { opacity: 0; transform: translateY(-6px); } }
+.atp-student .sub-acts { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 12px; }
+@media (prefers-reduced-motion: reduce) { .atp-student .sub-files li.new { animation: none; } }

@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Navigate, useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { Users, Bell, Gift, Eye, MoreHorizontal, CheckCircle2, XCircle, GraduationCap, MapPin, Clock, Phone, User, Mail, Copy } from 'lucide-react';
+import { Users, Bell, Gift, Layers, Eye, MoreHorizontal, CheckCircle2, XCircle, GraduationCap, MapPin, Clock, Phone, User, Mail, Copy } from 'lucide-react';
 import useApi from '../../hooks/useApi';
 import { api } from '../../lib/api';
 import { API_ENDPOINTS } from '../../config/api';
@@ -11,6 +11,9 @@ import { useTeacher } from './TeacherPortal';
 import { apiError, useTeacherChange } from './modals/form';
 import StudentModal from './StudentModal';
 import LeadsPanel from './LeadsPanel';
+import GroupsPanel from './groups/GroupsPanel';
+import GroupChip from '../../components/portal/GroupChip';
+import useGroups from '../../hooks/useGroups';
 
 const PAGE = 20;
 const known = (v) => v !== null && v !== undefined && v !== '' && v !== 'N/A' && v !== 'Not assigned';
@@ -20,17 +23,17 @@ export default function Students() {
   const { tab } = useParams();
   const navigate = useNavigate();
   const { base, counts } = useTeacher();
-  if (!['all', 'registrations', 'leads'].includes(tab)) return <Navigate to={`${base}/students/all`} replace />;
+  if (!['all', 'groups', 'registrations', 'leads'].includes(tab)) return <Navigate to={`${base}/students/all`} replace />;
   return (
     <>
       <PageHead title="Students" />
       <Seg
-        tabs={[{ id: 'all', label: 'All students', icon: Users }, { id: 'registrations', label: 'Registrations', icon: Bell, count: counts.pendingRegs || '' }, { id: 'leads', label: 'Leads', icon: Gift }]}
+        tabs={[{ id: 'all', label: 'All students', icon: Users }, { id: 'groups', label: 'Groups', icon: Layers }, { id: 'registrations', label: 'Registrations', icon: Bell, count: counts.pendingRegs || '' }, { id: 'leads', label: 'Leads', icon: Gift }]}
         value={tab}
         onChange={id => navigate(`${base}/students/${id}`)}
         label="Student sections"
       />
-      {tab === 'all' ? <StudentList /> : tab === 'leads' ? <LeadsPanel /> : <Registrations />}
+      {tab === 'all' ? <StudentList /> : tab === 'groups' ? <GroupsPanel /> : tab === 'leads' ? <LeadsPanel /> : <Registrations />}
     </>
   );
 }
@@ -58,7 +61,8 @@ function StudentList() {
   const confirm = useConfirm();
   const navigate = useNavigate();
   const { base } = useTeacher();
-  const [filters, setFilters] = useState({ search: '', session: '', year: '', status: '', schoolType: '' });
+  const [filters, setFilters] = useState({ search: '', session: '', year: '', status: '', schoolType: '', group: '' });
+  const { groups } = useGroups();
   const [debounced, setDebounced] = useState(filters);
   const [limit, setLimit] = useState(PAGE);
   const [menu, setMenu] = useState(null);
@@ -126,6 +130,13 @@ function StudentList() {
         <select className="inp sel-s" value={filters.status} onChange={set('status')} aria-label="Status">
           <option value="">All statuses</option><option value="approved">Status: Approved</option><option value="pending">Status: Pending</option><option value="rejected">Status: Rejected</option>
         </select>
+        {groups.length > 0 && (
+          <select className="inp sel-s" value={filters.group} onChange={set('group')} aria-label="Group">
+            <option value="">All groups</option>
+            {groups.map(g => <option key={g.code} value={g.code}>{g.name}</option>)}
+            <option value="none">No group</option>
+          </select>
+        )}
         <select className="inp sel-s" value={filters.schoolType} onChange={set('schoolType')} aria-label="School type">
           <option value="">All schools</option><option value="royal">Royal College</option><option value="center">Center / other</option>
         </select>
@@ -138,7 +149,7 @@ function StudentList() {
           <div className="srow2" key={s._id}>
             <span className="av" style={{ width: 42, height: 42 }} aria-hidden="true">{initials(s.fullName)}</span>
             <div className="lmain">
-              <b>{s.fullName} {s.registrationStatus === 'pending' && <span className="chip c-am">Pending</span>}{s.schoolType === 'royal' && <span className="chip c-th">Royal</span>}</b>
+              <b>{s.fullName} {s.registrationStatus === 'pending' && <span className="chip c-am">Pending</span>}{s.schoolType === 'royal' && <span className="chip c-th">Royal</span>} <GroupChip code={s.group} name={groups.find(g => g.code === s.group)?.name} /></b>
               <small>{[known(s.studentId) ? s.studentId : null, yearOrClass(s), known(s.session) ? s.session : null].filter(Boolean).join(' · ')}</small>
             </div>
             <span className="sc-c">{known(s.school) ? s.school : '—'}</span>

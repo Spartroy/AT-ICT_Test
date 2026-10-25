@@ -7,6 +7,8 @@ import { useToast } from '../../../components/portal/PortalUI';
 import { WEEK, toMinutes } from '../../student/scheduleUtils';
 import { FormDialog, Fld, apiError, announceChange } from './form';
 import StudentChecklist from './StudentChecklist';
+import { GroupChoice } from './AudiencePicker';
+import useGroups from '../../../hooks/useGroups';
 
 const TYPES = ['theory', 'practical', 'revision', 'quiz'];
 const blankSession = () => ({ startTime: '19:00', endTime: '20:30', type: 'theory', topic: '', isActive: true });
@@ -119,12 +121,15 @@ export function ScheduleModal({ open, onClose, schedule }) {
 export function AssignStudentsModal({ open, onClose, schedule }) {
   const toast = useToast();
   const [chosen, setChosen] = useState(() => new Set());
+  const [pickedGroups, setPickedGroups] = useState(() => new Set());
+  const { groups } = useGroups(open);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
 
   useEffect(() => {
     if (open) {
       setChosen(new Set((schedule?.assignedStudents || []).map(a => String(a.student?._id || a.student))));
+      setPickedGroups(new Set(schedule?.groups || []));
       setError('');
     }
   }, [open, schedule]);
@@ -132,7 +137,7 @@ export function AssignStudentsModal({ open, onClose, schedule }) {
   const submit = async () => {
     setBusy(true);
     try {
-      await api.post(`${API_ENDPOINTS.SCHEDULE.SCHEDULES}/${schedule._id}/assign-students`, { studentIds: [...chosen] });
+      await api.post(`${API_ENDPOINTS.SCHEDULE.SCHEDULES}/${schedule._id}/assign-students`, { studentIds: [...chosen], groups: [...pickedGroups] });
       toast(`Assigned ${chosen.size} student${chosen.size === 1 ? '' : 's'}`);
       announceChange('schedule');
       onClose();
@@ -144,8 +149,14 @@ export function AssignStudentsModal({ open, onClose, schedule }) {
   };
 
   return (
-    <FormDialog open={open} onClose={onClose} icon={Users} title="Assign students" sub={schedule ? `Schedule: ${schedule.title}` : ''} submitLabel={`Assign ${chosen.size} student${chosen.size === 1 ? '' : 's'}`} busy={busy} error={error} onSubmit={submit}>
-      <StudentChecklist chosen={chosen} onChange={setChosen} height={340} />
+    <FormDialog open={open} onClose={onClose} icon={Users} title="Assign students" sub={schedule ? `Schedule: ${schedule.title}` : ''} submitLabel={pickedGroups.size && !chosen.size ? 'Assign groups' : `Assign ${chosen.size} student${chosen.size === 1 ? '' : 's'}`} busy={busy} error={error} onSubmit={submit}>
+      {groups.length > 0 && (
+        <>
+          <p className="sub" style={{ margin: '0 0 8px' }}>Whole groups: their students see this schedule, and so does anyone who joins the group later.</p>
+          <GroupChoice value={pickedGroups} onChange={setPickedGroups} groups={groups} />
+        </>
+      )}
+      <StudentChecklist chosen={chosen} onChange={setChosen} height={groups.length ? 260 : 340} />
     </FormDialog>
   );
 }

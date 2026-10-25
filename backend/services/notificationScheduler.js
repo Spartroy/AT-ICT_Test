@@ -45,13 +45,13 @@ async function runHomeworkReminders(now = new Date()) {
 async function runClassReminders(now = new Date()) {
   const s = await getNotificationSettings();
   const today = zonedParts(now, s.timezone);
-  const schedules = await Schedule.find({ isActive: { $ne: false } }).select('title schedule assignedStudents startDate endDate');
+  const schedules = await Schedule.find({ isActive: { $ne: false } }).select('title schedule assignedStudents groups startDate endDate');
   let sent = 0;
   for (const sch of schedules) {
     if ((sch.startDate && sch.startDate > now) || (sch.endDate && sch.endDate < new Date(now.getTime() - 24 * 3600 * 1000))) continue;
     const day = (sch.schedule || []).find(d => d.day === today.weekday);
     if (!day) continue;
-    const students = (sch.assignedStudents || []).map(x => x.student);
+    const students = [...(sch.assignedStudents || []).map(x => x.student), ...(sch.groups?.length ? await require('./groups').membersOf(sch.groups) : [])];
     for (const session of day.sessions || []) {
       if (session.isActive === false) continue;
       const start = clockToMinutes(session.startTime);
@@ -75,7 +75,7 @@ async function runScheduledAnnouncements(now = new Date()) {
   const due = await Announcement.find({
     isPublished: { $ne: false },
     scheduledFor: { $lte: now, $gte: new Date(now.getTime() - 24 * 3600 * 1000) }
-  }).select('title content targetAudience specificTargets expiresAt');
+  }).select('title content targetAudience groups specificTargets expiresAt');
   let sent = 0;
   for (const a of due) {
     if (a.expiresAt && a.expiresAt < now) continue;
@@ -88,6 +88,7 @@ async function runScheduledAnnouncements(now = new Date()) {
 async function notifyAnnouncement(a) {
   let ids = [];
   if (a.targetAudience === 'specific') ids = a.specificTargets || [];
+  else if (a.groups?.length) ids = await require('./groups').membersOf(a.groups);
   else if (a.targetAudience === 'all' || a.targetAudience === 'students') ids = await studentIds();
   return notify(ids, {
     type: 'announcement',

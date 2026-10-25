@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { ClipboardCheck, Play, GraduationCap, Trophy, Clock, Inbox as InboxIcon, CalendarDays, Megaphone, RefreshCw, Video } from 'lucide-react';
 import { useStudent } from './StudentPortal';
+import GroupChip from '../../components/portal/GroupChip';
 import useApi from '../../hooks/useApi';
 import { API_ENDPOINTS } from '../../config/api';
 import { Ic, Ring, Stat, Empty, initials, fmtDate } from '../../components/portal/kit';
@@ -13,7 +14,7 @@ const pct = (a, b) => (b ? Math.round((a / b) * 100) : 0);
 const MEDALS = ['a1', 'a2', 'a3'];
 
 export default function Home() {
-  const { base, me, stats, student, leaderboard } = useStudent();
+  const { base, me, stats, student, leaderboard, group } = useStudent();
   const assignments = useApi(API_ENDPOINTS.STUDENT.ASSIGNMENTS, b => b.data?.assignments || []);
   const schedule = useApi(API_ENDPOINTS.STUDENT.SCHEDULE, b => b.data || {});
   const announcements = useApi(API_ENDPOINTS.ANNOUNCEMENTS.BASE, b => b.data?.announcements || []);
@@ -50,6 +51,7 @@ export default function Home() {
         <div>
           <h1 className="big">Hi {me.firstName} — let's get that <em>A*.</em></h1>
           <p className="sub">You're {progress}% through this term's plan. Keep the streak alive.</p>
+          {group && <p className="home-group"><GroupChip code={group.code} name={group.name} /></p>}
           <div className="acts">
             <Link className="btn p" to={`${base}/work`}><Ic as={ClipboardCheck} />{pending ? `${pending} assignment${pending === 1 ? '' : 's'} pending` : 'All work submitted'}</Link>
             <Link className="btn o" to={`${base}/learn/videos`}><Ic as={Play} />Continue learning</Link>

@@ -27,6 +27,8 @@ const announcementSchema = new mongoose.Schema({
     enum: ['all', 'students', 'parents', 'specific'],
     default: 'all'
   },
+  // Only students in these groups see it (empty = no group restriction).
+  groups: { type: [String], default: [] },
   specificTargets: [{
     type: mongoose.Schema.ObjectId,
     ref: 'User'
@@ -208,24 +210,37 @@ announcementSchema.statics.getForUser = async function(userId, userRole, options
     scheduledFor: { $lte: new Date() },
     $or: [
       { targetAudience: 'all' },
-      { targetAudience: userRole },
+      // The audience names are plural ('students', 'parents') but roles are singular, so "Students" never matched.
+      { targetAudience: { $in: [userRole, `${userRole}s`] } },
       { specificTargets: userId }
     ]
   };
   
+  const and = [];
+
   // Exclude expired announcements unless specified
   if (!options.includeExpired) {
-    query.$and = [
-      {
-        $or: [
-          { expiresAt: { $exists: false } },
-          { expiresAt: null },
-          { expiresAt: { $gt: new Date() } }
-        ]
-      }
-    ];
+    and.push({
+      $or: [
+        { expiresAt: { $exists: false } },
+        { expiresAt: null },
+        { expiresAt: { $gt: new Date() } }
+      ]
+    });
   }
-  
+
+  // Group-targeted announcements only reach students in those groups (parents see the unrestricted ones).
+  if (userRole !== 'teacher' && userRole !== 'admin') {
+    and.push({
+      $or: [
+        { groups: { $exists: false } },
+        { groups: { $size: 0 } },
+        ...(options.group ? [{ groups: options.group }] : [])
+      ]
+    });
+  }
+  if (and.length) query.$and = and;
+
   return await this.find(query)
     .populate('createdBy', 'firstName lastName profileImage')
     .populate('comments.user', 'firstName lastName profileImage')

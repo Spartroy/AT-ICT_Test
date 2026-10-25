@@ -1,6 +1,6 @@
 import NotificationBell from '../../components/portal/NotificationBell';
 import React, { createContext, useContext, useMemo } from 'react';
-import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { Home as HomeIcon, BookOpen, ClipboardCheck, CalendarDays, Inbox as InboxIcon, Star } from 'lucide-react';
 import PortalShell from '../../components/portal/PortalShell';
 import useApi from '../../hooks/useApi';
@@ -33,7 +33,6 @@ const storedUser = () => {
 /** Student portal: Home, Learn, Work, Schedule, Inbox (design/AT-ICT Student Portal v2.html). */
 export default function StudentPortal() {
   const location = useLocation();
-  const navigate = useNavigate();
   const dashboard = useApi(API_ENDPOINTS.STUDENT.DASHBOARD);
   const leaderboard = useApi(API_ENDPOINTS.LEADERBOARD.BASE, b => b.data?.leaderboard || []);
 
@@ -42,7 +41,8 @@ export default function StudentPortal() {
   const stats = dashboard.data?.stats;
   const info = student?.studentInfo || {};
   const name = [student?.firstName || me.firstName, student?.lastName || me.lastName].filter(Boolean).join(' ') || 'Student';
-  const sub = ['IGCSE', info.year ? `Year ${info.year}` : info.royalClass ? `Class ${info.royalClass}` : null].filter(Boolean).join(' · ');
+  const group = dashboard.data?.group || null;
+  const sub = ['IGCSE', info.year ? `Year ${info.year}` : info.royalClass ? `Class ${info.royalClass}` : null, group?.name].filter(Boolean).join(' · ');
 
   const pendingWork = (stats?.assignments?.pendingAssignments || 0) + (stats?.quizzes?.pendingQuizzes || 0);
   const unread = (stats?.announcements?.unreadAnnouncements || 0) + (stats?.unreadMessages || 0);
@@ -63,10 +63,11 @@ export default function StudentPortal() {
     base: BASE,
     me: { ...me, _id: student?._id || me.id || me._id, name, firstName: student?.firstName || me.firstName || 'there' },
     student,
+    group,
     stats,
     dashboard,
     leaderboard
-  }), [student, stats, dashboard, leaderboard, name]); // eslint-disable-line react-hooks/exhaustive-deps
+  }), [student, group, stats, dashboard, leaderboard, name]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <StudentContext.Provider value={ctx}>
