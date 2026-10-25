@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
-  DndContext, DragOverlay, KeyboardSensor, PointerSensor, TouchSensor, closestCorners, defaultDropAnimationSideEffects,
-  pointerWithin, useDroppable, useSensor, useSensors
+  DndContext, DragOverlay, KeyboardSensor, MeasuringStrategy, PointerSensor, TouchSensor, closestCenter, closestCorners,
+  defaultDropAnimationSideEffects, pointerWithin, useDroppable, useSensor, useSensors
 } from '@dnd-kit/core';
 import { SortableContext, arrayMove, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -14,12 +14,6 @@ const DROP_ANIMATION = {
   duration: 280,
   easing: 'cubic-bezier(0.2, 0.9, 0.3, 1.15)',
   sideEffects: defaultDropAnimationSideEffects({ styles: { active: { opacity: '0.3' } } })
-};
-
-/** Pointer first (so the column under the finger wins), then the closest card. */
-const collision = (args) => {
-  const within = pointerWithin(args);
-  return within.length ? within : closestCorners(args);
 };
 
 /** { __none: [ids], A: [ids], … } from the student list. */
@@ -144,6 +138,18 @@ export default function GroupsBoard({ groups, students, onMove, onSaveGroup, onR
   // already shows the same people in the same groups (so the order you just made is not shuffled back).
   const latest = useRef(containers);
   latest.current = containers;
+
+  // The column under the pointer decides where a card goes; inside it, the nearest card decides the position.
+  // (Judging by individual cards alone picked the wrong column once the layout shifted mid-drag.)
+  const collision = useCallback((args) => {
+    const board = latest.current;
+    const column = pointerWithin(args).find(c => c.id in board);
+    if (!column) return closestCorners(args);
+    const inside = board[column.id];
+    if (!inside.length) return [column];
+    const near = closestCenter({ ...args, droppableContainers: args.droppableContainers.filter(d => inside.includes(d.id)) });
+    return near.length ? near : [column];
+  }, []);
   useEffect(() => {
     if (activeId) return;
     if (boardSignature(latest.current) !== dataSignature(students, groups)) setContainers(build(students, groups));
@@ -217,7 +223,7 @@ export default function GroupsBoard({ groups, students, onMove, onSaveGroup, onR
   const columns = [{ id: UNASSIGNED, group: null }, ...groups.map(g => ({ id: g.code, group: g }))];
 
   return (
-    <DndContext sensors={sensors} collisionDetection={collision} onDragStart={onDragStart} onDragOver={onDragOver} onDragEnd={onDragEnd} onDragCancel={revert}>
+    <DndContext sensors={sensors} collisionDetection={collision} measuring={{ droppable: { strategy: MeasuringStrategy.Always } }} onDragStart={onDragStart} onDragOver={onDragOver} onDragEnd={onDragEnd} onDragCancel={revert}>
       <div className="gboard">
         {columns.map(c => (
           <Column
