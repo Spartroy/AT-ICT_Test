@@ -149,3 +149,43 @@
 .atp-student .facts dd { margin: 3px 0 0; font-size: 0.92rem; color: var(--tx); text-transform: capitalize; overflow-wrap: anywhere; }
 .atp-student .facts-note { margin-top: 16px; }
 .atp-student .facts-note .box { white-space: pre-wrap; }
+
+/* Past papers: layout toggle + phone-friendly list */
+.atp-student .pp-bar { display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: flex-start; justify-content: space-between; }
+.atp-student .pp-view { margin-left: auto; }
+.atp-student .ppl { display: grid; gap: 0; }
+.atp-student .ppl-years { display: flex; gap: 8px; overflow-x: auto; padding: 2px 2px 14px; margin: 0 -2px; scrollbar-width: none; scroll-snap-type: x proximity; }
+.atp-student .ppl-years::-webkit-scrollbar { display: none; }
+.atp-student .ppl-year { flex: none; scroll-snap-align: center; min-width: 78px; padding: 8px 14px; border-radius: 14px; background: var(--s1); border: 1px solid var(--bd); color: var(--mu); display: grid; justify-items: center; gap: 1px; transition: background 0.25s, border-color 0.25s, color 0.25s, transform 0.25s; }
+.atp-student .ppl-year b { font-family: var(--font-numeric); font-size: 1.15rem; letter-spacing: 0.04em; }
+.atp-student .ppl-year small { font-size: 0.68rem; color: var(--fa); }
+.atp-student .ppl-year.on { background: rgb(202 19 62 / 0.16); border-color: var(--cr); color: var(--white); transform: translateY(-1px); }
+.atp-student .ppl-year.on small { color: var(--dark-accent-text); }
+.atp-student .ppl-list { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); animation: in 0.35s; }
+.atp-student .ppl-card { --c: var(--crimson-500); display: flex; border-radius: 18px; background: var(--s1); border: 1px solid var(--bd); overflow: hidden; transition: border-color 0.25s; }
+.atp-student .ppl-card.is-done { border-color: rgb(52 211 153 / 0.4); }
+.atp-student .ppl-spine { flex: none; width: 48px; display: grid; justify-items: center; align-content: space-between; padding: 12px 0; background: linear-gradient(180deg, rgb(255 255 255 / 0.05), rgb(0 0 0 / 0.3)), #17181b; border-right: 3px solid var(--c); box-shadow: 0 0 18px -8px var(--c); }
+.atp-student .ppl-spine img { width: 26px; height: 26px; border-radius: 50%; object-fit: cover; }
+.atp-student .ppl-spine b { font-family: var(--font-numeric); font-size: 1rem; color: var(--c); }
+.atp-student .ppl-body { flex: 1; min-width: 0; padding: 14px; display: grid; gap: 12px; align-content: start; }
+.atp-student .ppl-body header { display: flex; align-items: center; gap: 10px; }
+.atp-student .ppl-body h4 { font-family: var(--font-body); letter-spacing: 0; font-size: 1rem; margin: 0; flex: 1; min-width: 0; }
+.atp-student .ppl-acts { display: grid; gap: 8px; }
+.atp-student .ppl-btn { display: flex; align-items: center; gap: 10px; min-height: 46px; padding: 0 14px; border-radius: 12px; background: var(--s2); border: 1px solid var(--bd); color: var(--tx); font-weight: 600; font-size: 0.9rem; text-align: left; transition: border-color 0.2s, background 0.2s; }
+.atp-student .ppl-btn:hover, .atp-student .ppl-btn:focus-visible { border-color: var(--c); background: var(--s3); }
+.atp-student .ppl-btn .i { color: var(--c); }
+.atp-student .ppl-tick { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 12px; border-radius: 99px; font-size: 0.78rem; font-weight: 700; background: var(--s3); color: var(--mu); border: 1px solid transparent; transition: background 0.25s, color 0.25s; }
+.atp-student .ppl-tick:hover { color: var(--white); }
+.atp-student .ppl-tick.on { background: rgb(52 211 153 / 0.15); color: var(--ok); border-color: rgb(52 211 153 / 0.35); }
+@media (max-width: 520px) {
+  .atp-student .ppl-list { grid-template-columns: 1fr; }
+  .atp-student .pp-kind, .atp-student .pp-vl { display: none; }
+  .atp-student .pp-bar { column-gap: 8px; }
+  .atp-student .pp-bar .seg button { padding-inline: 10px; }
+  .atp-student .pp-view { margin-left: auto; }
+}
+
+/* Shelf view: a green tick above the books of a practised variant */
+.atp-student .pp-cell--books { position: relative; }
+.atp-student .pp-done { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); z-index: 2; width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; background: var(--ok); color: #06251a; box-shadow: 0 4px 10px rgb(0 0 0 / 0.5), 0 0 0 2px var(--s1); animation: in 0.3s; }
+.atp-student .pp-done .i { width: 13px; height: 13px; stroke-width: 3; }

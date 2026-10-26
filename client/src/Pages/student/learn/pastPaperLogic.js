@@ -43,3 +43,22 @@ const COLOURS = 9;
 const indexOf = (variant) => ((Math.max(1, variant) - 1) % COLOURS) + 1;
 export const variantColor = (variant) => `var(--pv-${indexOf(variant)})`;
 variantColor.index = indexOf;
+
+/** Stable id of a variant for the "practised" ticks, e.g. "2-2024-jun-1" (matches the backend). */
+export const paperKey = (p) => `${p.paper}-${p.year}-${p.session}-${p.variant}`;
+
+/** Per-year totals for the year chips: [{ year, done, total }], in the order of `years` (from groupPastPapers). */
+export function yearStats(years = [], done = new Set()) {
+  return years.map(({ year, sessions }) => {
+    const all = sessions.flatMap(s => s.variants);
+    return { year, total: all.length, done: all.filter(v => done.has(paperKey(v))).length };
+  });
+}
+
+/** Keeps a remembered year/session only if it still exists; otherwise the newest year and its first session. */
+export function resolveSelection(years = [], saved = {}) {
+  const y = years.find(g => g.year === saved.year) || years[0];
+  if (!y) return { year: null, session: null };
+  const s = y.sessions.find(x => x.session === saved.session) || y.sessions[0];
+  return { year: y.year, session: s?.session || null };
+}

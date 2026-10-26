@@ -1,4 +1,4 @@
-import { groupPastPapers, shelvesOf, variantColor } from './pastPaperLogic';
+import { groupPastPapers, paperKey, resolveSelection, shelvesOf, variantColor, yearStats } from './pastPaperLogic';
 
 const p = (paper, year, session, variant) => ({ _id: `${paper}${year}${session}${variant}`, paper, year, session, variant });
 
@@ -51,5 +51,27 @@ describe('variantColor', () => {
   it('wraps around instead of failing for large variant numbers', () => {
     expect(variantColor.index(10)).toBe(1);
     expect(variantColor.index(0)).toBe(1);
+  });
+});
+
+describe('practised ticks', () => {
+  const list = [p(2, 2024, 'jun', 1), p(2, 2024, 'jun', 2), p(2, 2024, 'nov', 1), p(2, 2023, 'nov', 1)];
+  const years = groupPastPapers(list, 2);
+
+  it('builds the same key the backend stores', () => {
+    expect(paperKey(p(2, 2024, 'jun', 1))).toBe('2-2024-jun-1');
+  });
+
+  it('counts done variants per year', () => {
+    const done = new Set(['2-2024-jun-1', '2-2024-nov-1', '2-2020-jun-1']);
+    expect(yearStats(years, done)).toEqual([{ year: 2024, total: 3, done: 2 }, { year: 2023, total: 1, done: 0 }]);
+  });
+
+  it('restores a saved year/session and falls back to the newest', () => {
+    expect(resolveSelection(years, { year: 2023, session: 'nov' })).toEqual({ year: 2023, session: 'nov' });
+    expect(resolveSelection(years, { year: 2023, session: 'jun' })).toEqual({ year: 2023, session: 'nov' });
+    expect(resolveSelection(years, { year: 1999, session: 'nov' })).toEqual({ year: 2024, session: 'nov' });
+    expect(resolveSelection(years, { year: 1999, session: 'dec' })).toEqual({ year: 2024, session: 'jun' });
+    expect(resolveSelection([], {})).toEqual({ year: null, session: null });
   });
 });

@@ -18,7 +18,7 @@ const {
 
 // Notes (interactive) - student view
 const { getNotesForStudent } = require('../controllers/noteController');
-const { getProgress, setProgress } = require('../controllers/progressController');
+const { getProgress, setProgress, getPastPaperProgress, setPastPaperProgress } = require('../controllers/progressController');
 
 // Import material controller functions
 const {
@@ -199,5 +199,7 @@ const studentOnly = (req, res, next) => {
 };
 router.get('/progress', protect, studentOnly, getProgress);
 router.put('/progress/:kind/:itemId', protect, studentOnly, setProgress);
+router.get('/pastpaper-progress', protect, studentOnly, getPastPaperProgress);
+router.put('/pastpaper-progress/:key', protect, studentOnly, setPastPaperProgress);
 
 module.exports = router; 
