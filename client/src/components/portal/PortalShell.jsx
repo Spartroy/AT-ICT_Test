@@ -12,7 +12,7 @@ import '../../styles/portal-extra.css';
 
 /**
  * Shared portal layout: 248px sticky sidebar (desktop) / bottom tab bar (≤900px), sticky top bar.
- * nav: [{ to, label, icon, badge?, end? }]. `aside` renders under the nav (points card, etc.).
+ * nav: [{ to, label, icon, badge?, end?, tour? }] (tour = data-tour hook for the guided tour). `aside` renders under the nav (points card, etc.).
  * meTo: optional link for the profile pill (the teacher's Settings).
  */
 /** Profile pill that opens "Change password" (students and parents). */
@@ -54,7 +54,7 @@ export default function PortalShell({ variant, nav, user, tagline, aside, bell, 
             {tagline && <small className="tp">{tagline}</small>}
             <nav aria-label="Main">
               {nav.map(n => (
-                <NavLink key={n.to} to={n.to} end={n.end} className={navClass('nv')}>
+                <NavLink key={n.to} to={n.to} end={n.end} className={navClass('nv')} data-tour={n.tour}>
                   <n.icon className="i" aria-hidden="true" />
                   <span>{n.label}</span>
                   {!!n.badge && <span className="bd" aria-label={`${n.badge} new`}>{n.badge}</span>}
@@ -92,7 +92,7 @@ export default function PortalShell({ variant, nav, user, tagline, aside, bell, 
         </div>
         <nav className="tabbar" aria-label="Main (mobile)" style={{ gridTemplateColumns: `repeat(${nav.length}, 1fr)` }}>
           {nav.map(n => (
-            <NavLink key={n.to} to={n.to} end={n.end} className={navClass('')}>
+            <NavLink key={n.to} to={n.to} end={n.end} className={navClass('')} data-tour={n.tour}>
               <n.icon className="i" aria-hidden="true" />
               <span>{n.label}</span>
               {!!n.badge && <span className="bd" aria-label={`${n.badge} new`}>{n.badge}</span>}

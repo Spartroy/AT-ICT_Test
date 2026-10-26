@@ -1,4 +1,4 @@
-import React, { useEffect, useId, useState } from 'react';
+import React, { useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
 import { ChevronDown, Search as SearchIcon, X, Info } from 'lucide-react';
 import logoFull from '../../assets/brand/logo-full-light.png';
 import logoMark from '../../assets/brand/logo-mark-light.png';
@@ -36,10 +36,49 @@ export function Ring({ p = 0, color = 'var(--crimson-glow)', size = 76, fs = '1r
   );
 }
 
-/** Segmented tabs. tabs: [{ id, label, icon?, count? }]. Renders buttons with aria-pressed. */
-export function Seg({ tabs, value, onChange, label = 'Sections', className = '' }) {
+/**
+ * Segmented tabs. tabs: [{ id, label, icon?, count? }]. Renders buttons with aria-selected.
+ * slide: a crimson pill glides to the selected tab instead of the fill jumping (student portal).
+ */
+export function Seg({ tabs, value, onChange, label = 'Sections', className = '', slide = false }) {
+  const root = useRef(null);
+  const [pill, setPill] = useState(null);
+  const [armed, setArmed] = useState(false);
+  const signature = tabs.map(t => `${t.label}${t.count ?? ''}`).join('|');
+
+  // Measure the selected tab (offsets are relative to the scrolling track, so the pill stays put when it scrolls).
+  useLayoutEffect(() => {
+    if (!slide) return undefined;
+    const el = root.current;
+    if (!el) return undefined;
+    const measure = () => {
+      const on = el.querySelector('[aria-selected="true"]');
+      setPill(on ? { x: on.offsetLeft, y: on.offsetTop, w: on.offsetWidth, h: on.offsetHeight } : null);
+      if (on && el.scrollWidth > el.clientWidth) el.scrollTo({ left: on.offsetLeft - (el.clientWidth - on.offsetWidth) / 2, behavior: 'smooth' });
+    };
+    measure();
+    if (typeof ResizeObserver === 'undefined') return undefined;
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [slide, value, signature]);
+
+  // The first placement must not animate in from the corner.
+  useEffect(() => {
+    if (!pill || armed) return undefined;
+    const t = requestAnimationFrame(() => setArmed(true));
+    return () => cancelAnimationFrame(t);
+  }, [pill, armed]);
+
   return (
-    <div className={`seg ${className}`} role="tablist" aria-label={label}>
+    <div ref={root} className={`seg ${slide ? 'seg-slide' : ''} ${className}`} role="tablist" aria-label={label}>
+      {slide && pill && (
+        <span
+          className={`seg-pill ${armed ? 'go' : ''}`}
+          aria-hidden="true"
+          style={{ width: pill.w, height: pill.h, transform: `translate(${pill.x}px, ${pill.y}px)` }}
+        />
+      )}
       {tabs.map(t => (
         <button
           key={t.id}

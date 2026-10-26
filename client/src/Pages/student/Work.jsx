@@ -10,7 +10,28 @@ import { useStudent } from './StudentPortal';
 
 const DONE = ['submitted', 'graded'];
 const STATUS_LABEL = { assigned: 'Not submitted', in_progress: 'In progress', submitted: 'Submitted', graded: 'Graded', late: 'Late' };
-const DIFF_CHIP = { hard: 'c-rd', medium: 'c-am', easy: 'c-pr' };
+
+/** Key/value tiles for the details panel; entries without a value are left out. */
+function Facts({ items }) {
+  const rows = items.filter(([, v]) => v !== undefined && v !== null && v !== '');
+  return (
+    <dl className="facts">
+      {rows.map(([k, v]) => <div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}
+    </dl>
+  );
+}
+
+/** Teacher-written instructions; the panel only exists when there is something to show. */
+function Instructions({ text }) {
+  const t = (text || '').trim();
+  if (!t) return null;
+  return (
+    <div className="facts-note">
+      <div className="lbl">Instructions</div>
+      <div className="box">{t}</div>
+    </div>
+  );
+}
 
 const TABS = [
   { id: 'assignments', label: 'Assignments', icon: ClipboardCheck },
@@ -25,7 +46,7 @@ export default function Work() {
   return (
     <>
       <PageHead title="Your work" />
-      <Seg tabs={TABS} value={tab} onChange={id => navigate(`${base}/work/${id}`)} label="Work sections" />
+      <Seg tabs={TABS} value={tab} onChange={id => navigate(`${base}/work/${id}`)} label="Work sections" slide />
       {tab === 'assignments' ? <AssignmentList onChange={dashboard.reload} /> : <QuizList onChange={dashboard.reload} />}
     </>
   );
@@ -197,26 +218,29 @@ function AssignmentList({ onChange }) {
                 <h4>
                   {a.title}
                   <span className={`chip ${graded ? 'c-pr' : submitted ? 'c-th' : overdue ? 'c-rd' : 'c-gy'}`}>{overdue ? 'Overdue' : STATUS_LABEL[sd.status] || sd.status}</span>
-                  {sd.isLate && <span className="chip c-rd">Late</span>}
-                  {a.difficulty && <span className={`chip ${DIFF_CHIP[a.difficulty] || 'c-am'}`}>{a.difficulty}</span>}
                 </h4>
                 <div className="meta">
                   <span>Due <b className={overdue ? 'due' : ''}>{fmtDateTime(a.dueDate)}</b></span>
-                  <span>Type <b>{a.type}</b></span>
-                  <span>Section <b>{a.section}</b></span>
                 </div>
               </div>
               <div className="sc">
                 <ScoreBox score={graded ? sd.score : null} max={a.maxScore} />
-                <span className="chip c-gy">Details <Ic as={ChevronDown} /></span>
+                <span className="more" aria-hidden="true"><Ic as={ChevronDown} /></span>
               </div>
             </button>
             <div className="dt" id={`asg-${a._id}`}>
               <div inert={isOpen ? undefined : ''}>
                 <div className="dtin">
                   <div>
-                    <div className="lbl">Instructions</div>
-                    <div className="box">{a.instructions || a.description || 'No instructions provided.'}</div>
+                    <div className="lbl">Details</div>
+                    <Facts items={[
+                      ['Type', a.type],
+                      ['Section', a.section],
+                      ['Difficulty', a.difficulty],
+                      ['Max score', a.maxScore],
+                      ['Handed in', submitted ? `${fmtDateTime(sd.submissionDate)}${sd.isLate ? ' · late' : ''}` : '']
+                    ]} />
+                    <Instructions text={a.instructions || a.description} />
                   </div>
                   <div>
                     <div className="lbl">Submission</div>
@@ -345,7 +369,11 @@ function QuizList({ onChange }) {
             <div className="dt" id={`qz-${q._id}`}>
               <div inert={isOpen ? undefined : ''}>
                 <div className="dtin">
-                  <div><div className="lbl">Instructions</div><div className="box">{q.instructions || q.description || 'No instructions provided.'}</div></div>
+                  <div>
+                    <div className="lbl">Details</div>
+                    <Facts items={[['Section', q.section], ['Difficulty', q.difficulty], ['Duration', q.duration ? `${q.duration} min` : ''], ['Max score', q.maxScore]]} />
+                    <Instructions text={q.instructions || q.description} />
+                  </div>
                   <div>
                     <div className="lbl">Quiz status</div>
                     {graded ? (

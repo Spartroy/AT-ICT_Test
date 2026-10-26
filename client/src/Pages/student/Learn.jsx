@@ -1,6 +1,6 @@
 import React from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
-import { Folder, Play, BookOpen, LayoutGrid, FlaskConical } from 'lucide-react';
+import { Folder, Play, BookOpen, LayoutGrid, FlaskConical, FileClock } from 'lucide-react';
 import { Seg } from '../../components/portal/kit';
 import { useStudent } from './StudentPortal';
 import Bookshelf from './learn/Bookshelf';
@@ -8,12 +8,14 @@ import VideoMaps from './learn/VideoMaps';
 import NotesOrbit from './learn/NotesOrbit';
 import Flashcards from './learn/Flashcards';
 import Labs from './learn/Labs';
+import PastPapers from './learn/PastPapers';
 
 const TABS = [
   { id: 'materials', label: 'Materials', icon: Folder, Component: Bookshelf },
   { id: 'videos', label: 'Videos', icon: Play, Component: VideoMaps },
   { id: 'notes', label: 'Notes', icon: BookOpen, Component: NotesOrbit },
   { id: 'flashcards', label: 'Flashcards', icon: LayoutGrid, Component: Flashcards },
+  { id: 'pastpapers', label: 'Past papers', icon: FileClock, Component: PastPapers },
   { id: 'labs', label: 'Labs', icon: FlaskConical, Component: Labs }
 ];
 
@@ -28,7 +30,7 @@ export default function Learn() {
   return (
     <>
       <div className="ph"><h1>Everything you study, in one place</h1></div>
-      <Seg tabs={TABS} value={tab} onChange={id => navigate(`${base}/learn/${id}`)} label="Learning sections" />
+      <Seg tabs={TABS} value={tab} onChange={id => navigate(`${base}/learn/${id}`)} label="Learning sections" slide />
       <div className="sub-v on" key={tab}>
         <Component />
       </div>

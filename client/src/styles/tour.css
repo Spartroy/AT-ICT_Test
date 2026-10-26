@@ -1,0 +1,58 @@
+/* Guided tour overlay (student portal). Lives in the portal's dialog layer, above dialogs. */
+.atp .tour { position: fixed; inset: 0; z-index: 140; }
+.atp .tour-block { position: absolute; inset: 0; }
+.atp .tour-dim { position: absolute; inset: 0; background: rgb(0 0 0 / 0.78); backdrop-filter: blur(6px); animation: tour-fade 0.3s both; }
+.atp .tour-spot {
+  position: absolute; border-radius: 16px; pointer-events: none;
+  box-shadow: 0 0 0 9999px rgb(0 0 0 / 0.74), 0 0 0 2px var(--cr), 0 0 28px 4px rgb(202 19 62 / 0.55);
+  transition: top 0.45s cubic-bezier(0.22, 1, 0.36, 1), left 0.45s cubic-bezier(0.22, 1, 0.36, 1), width 0.45s cubic-bezier(0.22, 1, 0.36, 1), height 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.atp .tour-spot::after {
+  content: ''; position: absolute; inset: -2px; border-radius: inherit; border: 2px solid var(--crimson-glow);
+  animation: tour-ping 1.8s ease-out infinite;
+}
+.atp .tour-tip {
+  position: absolute; width: min(360px, calc(100vw - 24px)); padding: 18px 20px 16px; border-radius: 20px;
+  background: var(--s2); border: 1px solid var(--bd2); color: var(--tx);
+  box-shadow: 0 30px 70px -10px rgb(0 0 0 / 0.75);
+  transition: top 0.45s cubic-bezier(0.22, 1, 0.36, 1), left 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  animation: tour-pop 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.atp .tour-tip.side-center { width: min(420px, calc(100vw - 24px)); padding: 26px 26px 20px; text-align: center; }
+.atp .tour-tip.side-center .tour-top { justify-content: space-between; }
+.atp .tour-tip.side-center .tour-dots, .atp .tour-tip.side-center .tour-acts { justify-content: center; }
+.atp .tour-copy { animation: tour-fade 0.35s both; }
+.atp .tour-tip h3 { font-family: var(--font-display); font-size: 1.25rem; letter-spacing: -0.01em; margin: 8px 0 6px; line-height: 1.2; }
+.atp .tour-tip p { margin: 0; font-size: 0.92rem; line-height: 1.55; color: var(--mu); }
+.atp .tour-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.atp .tour-count { font-family: var(--font-numeric); font-size: 0.72rem; letter-spacing: 0.1em; color: var(--dark-accent-text); font-weight: 700; }
+.atp .tour-skip { font-size: 0.78rem; color: var(--fa); padding: 4px 8px; margin: -4px -8px; border-radius: 8px; }
+.atp .tour-skip:hover { color: var(--white); }
+.atp .tour-dots { display: flex; gap: 5px; margin: 14px 0 14px; flex-wrap: wrap; }
+.atp .tour-dots i { width: 6px; height: 6px; border-radius: 99px; background: var(--s3); transition: width 0.3s, background 0.3s; }
+.atp .tour-dots i.done { background: rgb(202 19 62 / 0.55); }
+.atp .tour-dots i.on { width: 20px; background: var(--cr); }
+.atp .tour-acts { display: flex; justify-content: flex-end; gap: 8px; }
+.atp .tour-acts .btn { cursor: pointer; }
+.atp .tour-arrow {
+  position: absolute; width: 14px; height: 14px; background: var(--s2); border: 1px solid var(--bd2);
+  transform: rotate(45deg); pointer-events: none;
+}
+.atp .side-bottom .tour-arrow { top: -8px; left: calc(var(--arrow) - 7px); border-right: 0; border-bottom: 0; }
+.atp .side-top .tour-arrow { bottom: -8px; left: calc(var(--arrow) - 7px); border-left: 0; border-top: 0; }
+.atp .side-right .tour-arrow { left: -8px; top: calc(var(--arrow) - 7px); border-right: 0; border-top: 0; }
+.atp .side-left .tour-arrow { right: -8px; top: calc(var(--arrow) - 7px); border-left: 0; border-bottom: 0; }
+.atp .side-over .tour-arrow { display: none; }
+
+.atp .tour-help { cursor: pointer; }
+
+@keyframes tour-fade { from { opacity: 0; } }
+@keyframes tour-pop { from { opacity: 0; transform: translateY(8px) scale(0.97); } }
+@keyframes tour-ping { 0% { opacity: 0.9; transform: scale(1); } 100% { opacity: 0; transform: scale(1.12); } }
+.atp .tour.calm .tour-spot, .atp .tour.calm .tour-tip, .atp .tour.calm .tour-copy { transition: none; animation: none; }
+.atp .tour.calm .tour-spot::after { animation: none; display: none; }
+@media (prefers-reduced-motion: reduce) {
+  .atp .tour-spot, .atp .tour-tip, .atp .tour-copy { transition: none; animation: none; }
+  .atp .tour-spot::after { animation: none; display: none; }
+}
+.atp .tour-bell { display: inline-flex; }

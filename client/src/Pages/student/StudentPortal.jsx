@@ -1,7 +1,7 @@
 import NotificationBell from '../../components/portal/NotificationBell';
-import React, { createContext, useContext, useMemo } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
-import { Home as HomeIcon, BookOpen, ClipboardCheck, CalendarDays, Inbox as InboxIcon, Star } from 'lucide-react';
+import { Home as HomeIcon, BookOpen, ClipboardCheck, CalendarDays, Inbox as InboxIcon, Star, CircleHelp } from 'lucide-react';
 import PortalShell from '../../components/portal/PortalShell';
 import useApi from '../../hooks/useApi';
 import { API_ENDPOINTS } from '../../config/api';
@@ -13,6 +13,8 @@ import Learn from './Learn';
 import Work from './Work';
 import Schedule from './Schedule';
 import Inbox from './Inbox';
+import Tour from '../../components/portal/Tour';
+import { studentTourSteps } from './tourSteps';
 import LiveClassPopup from '../../components/portal/LiveClassPopup';
 import { LiveFeedProvider } from '../../components/portal/LiveFeed';
 
@@ -21,6 +23,13 @@ export const useStudent = () => useContext(StudentContext);
 
 const TITLES = { '': 'Home', learn: 'Learn', work: 'Work', schedule: 'Schedule', inbox: 'Inbox' };
 const BASE = '/student-dashboard';
+const tourKey = (id) => `atict:tour:student:v1:${id || 'anon'}`;
+const tourSeen = (id) => {
+  try { return !!localStorage.getItem(tourKey(id)); } catch { return true; }
+};
+const markTourSeen = (id) => {
+  try { localStorage.setItem(tourKey(id), '1'); } catch { /* the tour just shows again next time */ }
+};
 
 const storedUser = () => {
   try {
@@ -53,11 +62,23 @@ export default function StudentPortal() {
   const section = location.pathname.replace(BASE, '').split('/')[1] || '';
   const nav = [
     { to: BASE, end: true, label: 'Home', icon: HomeIcon },
-    { to: `${BASE}/learn`, label: 'Learn', icon: BookOpen },
-    { to: `${BASE}/work`, label: 'Work', icon: ClipboardCheck, badge: pendingWork },
-    { to: `${BASE}/schedule`, label: 'Schedule', icon: CalendarDays },
-    { to: `${BASE}/inbox`, label: 'Inbox', icon: InboxIcon, badge: unread }
+    { to: `${BASE}/learn`, label: 'Learn', icon: BookOpen, tour: 'nav-learn' },
+    { to: `${BASE}/work`, label: 'Work', icon: ClipboardCheck, badge: pendingWork, tour: 'nav-work' },
+    { to: `${BASE}/schedule`, label: 'Schedule', icon: CalendarDays, tour: 'nav-schedule' },
+    { to: `${BASE}/inbox`, label: 'Inbox', icon: InboxIcon, badge: unread, tour: 'nav-inbox' }
   ];
+
+  // First visit: the tour starts by itself once the dashboard has loaded. The ? button replays it.
+  const userId = student?._id || me.id || me._id;
+  const [tourOpen, setTourOpen] = useState(false);
+  const firstName = student?.firstName || me.firstName;
+  const tourSteps = useMemo(() => studentTourSteps(firstName), [firstName]);
+  useEffect(() => {
+    if (dashboard.loading || !userId || tourSeen(userId)) return undefined;
+    const t = setTimeout(() => setTourOpen(true), 700);
+    return () => clearTimeout(t);
+  }, [dashboard.loading, userId]);
+  const closeTour = useCallback(() => { markTourSeen(userId); setTourOpen(false); }, [userId]);
 
   const ctx = useMemo(() => ({
     base: BASE,
@@ -77,7 +98,14 @@ export default function StudentPortal() {
         nav={nav}
         title={TITLES[section] || 'Home'}
         user={{ name, sub }}
-        bellSlot={<NotificationBell />}
+        bellSlot={(
+          <>
+            <button type="button" className="ib tour-help" aria-label="Take the portal tour" title="Take the portal tour" onClick={() => setTourOpen(true)}>
+              <CircleHelp className="i" aria-hidden="true" />
+            </button>
+            <span className="tour-bell" data-tour="bell"><NotificationBell /></span>
+          </>
+        )}
         aside={
           <div className="pts">
             <small>My points{sessionLabel ? ` · ${sessionLabel}` : ''}</small>
@@ -101,6 +129,7 @@ export default function StudentPortal() {
           <Route path="inbox/:tab" element={<Inbox />} />
           <Route path="*" element={<Navigate to={BASE} replace />} />
         </Routes>
+        <Tour open={tourOpen} steps={tourSteps} base={BASE} onClose={closeTour} />
         <LiveClassPopup scheduleHref={`${BASE}/schedule`} />
         </LiveFeedProvider>
       </PortalShell>
