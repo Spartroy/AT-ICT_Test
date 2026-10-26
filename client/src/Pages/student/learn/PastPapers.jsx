@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { ClipboardCheck, FilePenLine, LayoutList, Library } from 'lucide-react';
+import { Check, ClipboardCheck, FilePenLine, LayoutList, Library } from 'lucide-react';
 import useApi from '../../../hooks/useApi';
 import { API_ENDPOINTS } from '../../../config/api';
 import { Empty, ErrorNote, Loading, Seg } from '../../../components/portal/kit';
@@ -9,7 +9,7 @@ import SourceBoxFront from './SourceBoxFront';
 import PastPaperList from './PastPaperList';
 import usePastPaperProgress from './usePastPaperProgress';
 import useMediaQuery from '../../../hooks/useMediaQuery';
-import { groupPastPapers, PAPERS, shelvesOf, SESSION_LABEL, variantColor } from './pastPaperLogic';
+import { groupPastPapers, paperKey, PAPERS, shelvesOf, SESSION_LABEL, variantColor } from './pastPaperLogic';
 
 const VIEW_KEY = 'atict:pp-view';
 const VIEWS = [
@@ -96,6 +96,7 @@ export default function PastPapers() {
                         <div className="pp-rack" style={{ '--n': variants.length }}>
                           {variants.map(v => (
                             <div className={`pp-cell pp-cell--books pv-${variantColor.index(v.variant)}`} key={`b${v._id}`}>
+                              {progress.done.has(paperKey(v)) && <i className="pp-done" role="img" aria-label={`Variant ${v.variant} practised`} title="Practised"><Check className="i" aria-hidden="true" /></i>}
                               {v.qp && <PaperBook code="QP" variant={v.variant} title={`Question paper, ${SESSION_LABEL[session]} ${year}, variant ${v.variant}`} icon={FilePenLine} hidden={open?.m._id === `${v._id}-qp`} onOpen={sp => openBook(sp, v, 'qp', year, session)} />}
                               {v.ms && <PaperBook code="MS" variant={v.variant} title={`Mark scheme, ${SESSION_LABEL[session]} ${year}, variant ${v.variant}`} icon={ClipboardCheck} hidden={open?.m._id === `${v._id}-ms`} onOpen={sp => openBook(sp, v, 'ms', year, session)} />}
                             </div>
