@@ -1,12 +1,24 @@
 import React, { useMemo, useState } from 'react';
-import { ClipboardCheck, FilePenLine } from 'lucide-react';
+import { ClipboardCheck, FilePenLine, LayoutList, Library } from 'lucide-react';
 import useApi from '../../../hooks/useApi';
 import { API_ENDPOINTS } from '../../../config/api';
 import { Empty, ErrorNote, Loading, Seg } from '../../../components/portal/kit';
 import logoCircle from '../../../assets/brand/logo-circle.png';
 import BookOverlay, { SPINE } from './BookOverlay';
 import SourceBoxFront from './SourceBoxFront';
+import PastPaperList from './PastPaperList';
+import usePastPaperProgress from './usePastPaperProgress';
+import useMediaQuery from '../../../hooks/useMediaQuery';
 import { groupPastPapers, PAPERS, shelvesOf, SESSION_LABEL, variantColor } from './pastPaperLogic';
+
+const VIEW_KEY = 'atict:pp-view';
+const VIEWS = [
+  { id: 'list', label: <span className="pp-vl">List</span>, icon: LayoutList },
+  { id: 'shelf', label: <span className="pp-vl">Shelf</span>, icon: Library }
+];
+const savedView = () => {
+  try { const v = localStorage.getItem(VIEW_KEY); return VIEWS.some(x => x.id === v) ? v : null; } catch { return null; }
+};
 
 /** A thin question-paper or mark-scheme book: code on top, variant under it. */
 function PaperBook({ code, variant, title, icon: Icon, onOpen, hidden }) {
@@ -33,8 +45,18 @@ export default function PastPapers() {
   const papers = useApi(API_ENDPOINTS.PASTPAPERS, b => b.data?.papers || []);
   const [paper, setPaper] = useState(1);
   const [open, setOpen] = useState(null);
+  const progress = usePastPaperProgress();
+  // Phones start on the compact list (no endless shelves); a student's own choice is remembered.
+  const phone = useMediaQuery('(max-width: 900px)');
+  const [picked, setPicked] = useState(savedView);
+  const view = picked || (phone ? 'list' : 'shelf');
+  const chooseView = (v) => {
+    setPicked(v);
+    try { localStorage.setItem(VIEW_KEY, v); } catch { /* the choice just isn't remembered */ }
+  };
 
-  const shelves = useMemo(() => shelvesOf(groupPastPapers(papers.data || [], paper), paper), [papers.data, paper]);
+  const years = useMemo(() => groupPastPapers(papers.data || [], paper), [papers.data, paper]);
+  const shelves = useMemo(() => shelvesOf(years, paper), [years, paper]);
 
   if (papers.loading && !papers.data) return <Loading label="Loading past papers…" />;
   if (papers.error) return <ErrorNote error={papers.error} onRetry={papers.reload} />;
@@ -51,8 +73,13 @@ export default function PastPapers() {
 
   return (
     <>
-      <Seg tabs={PAPERS.map(p => ({ id: p.id, label: p.label }))} value={paper} onChange={setPaper} label="Past paper" slide />
-      {shelves.length ? shelves.map(group => (
+      <div className="pp-bar">
+        <Seg tabs={PAPERS.map(p => ({ id: p.id, label: <>Paper {p.id}<span className="pp-kind"> · {p.id === 1 ? 'Theory' : 'Practical'}</span></> }))} value={paper} onChange={setPaper} label="Past paper" slide />
+        <Seg tabs={VIEWS} value={view} onChange={chooseView} label="Past paper layout" slide className="pp-view" />
+      </div>
+      {!years.length ? <Empty icon={FilePenLine}>No past papers for Paper {paper} yet.</Empty> : view === 'list' ? (
+        <PastPaperList years={years} paper={paper} done={progress.done} onToggle={progress.setDone} onOpen={(el, v, kind, year, session) => openBook(el, v, kind, year, session)} />
+      ) : shelves.map(group => (
         <section className="ppyear" key={group[0].year} aria-label={`Paper ${paper}, ${group.map(g => g.year).join(' and ')}`}>
           <div className="bshelf pp">
             <div className="pp-years">
@@ -95,7 +122,7 @@ export default function PastPapers() {
             </div>
           </div>
         </section>
-      )) : <Empty icon={FilePenLine}>No past papers for Paper {paper} yet.</Empty>}
+      ))}
       {open && <BookOverlay key={open.m._id} {...open} onClosed={() => setOpen(null)} />}
     </>
   );
