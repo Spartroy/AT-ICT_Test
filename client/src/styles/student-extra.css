@@ -118,3 +118,34 @@
 @keyframes sub-in { from { opacity: 0; transform: translateY(-6px); } }
 .atp-student .sub-acts { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 12px; }
 @media (prefers-reduced-motion: reduce) { .atp-student .sub-files li.new { animation: none; } }
+
+/* Sliding segmented control: one crimson pill glides under the tabs */
+.atp-student .seg-slide { position: relative; isolation: isolate; scrollbar-width: none; }
+.atp-student .seg-slide::-webkit-scrollbar { display: none; }
+.atp-student .seg-slide button { position: relative; z-index: 1; background: none; transition: color 0.25s; }
+.atp-student .seg-slide button.on { background: none; color: var(--white); }
+.atp-student .seg-slide button em { transition: background 0.25s; }
+.atp-student .seg-slide button.on em { background: rgb(255 255 255 / 0.22); }
+.atp-student .seg-pill {
+  position: absolute; top: 0; left: 0; z-index: 0; border-radius: 12px; pointer-events: none;
+  background: var(--cr); box-shadow: 0 10px 24px -10px rgb(202 19 62 / 0.75);
+}
+.atp-student .seg-pill.go { transition: transform 0.38s cubic-bezier(0.34, 1.26, 0.64, 1), width 0.38s cubic-bezier(0.34, 1.26, 0.64, 1), height 0.3s; }
+.atp-student .phase-seg button em { margin: 0; font-size: 0.7rem; }
+@media (prefers-reduced-motion: reduce) {
+  .atp-student .seg-pill.go { transition: none; }
+}
+
+/* Work cards: quiet header, details in a tidy grid */
+.atp-student .row .sc .more {
+  width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; flex: none;
+  background: var(--s3); color: var(--mu); transition: transform 0.3s, background 0.2s, color 0.2s;
+}
+.atp-student .row > .hd:hover .more { color: var(--white); background: var(--s2); }
+.atp-student .row.open .sc .more { transform: rotate(180deg); color: var(--white); }
+.atp-student .facts { margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 8px; }
+.atp-student .facts > div { padding: 10px 14px; border-radius: 12px; background: var(--s2); min-width: 0; }
+.atp-student .facts dt { font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--fa); font-weight: 600; }
+.atp-student .facts dd { margin: 3px 0 0; font-size: 0.92rem; color: var(--tx); text-transform: capitalize; overflow-wrap: anywhere; }
+.atp-student .facts-note { margin-top: 16px; }
+.atp-student .facts-note .box { white-space: pre-wrap; }

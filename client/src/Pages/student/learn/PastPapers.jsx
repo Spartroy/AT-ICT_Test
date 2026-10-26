@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { ClipboardCheck, FilePenLine } from 'lucide-react';
 import useApi from '../../../hooks/useApi';
 import { API_ENDPOINTS } from '../../../config/api';
-import { Chips, Empty, ErrorNote, Loading } from '../../../components/portal/kit';
+import { Empty, ErrorNote, Loading, Seg } from '../../../components/portal/kit';
 import logoCircle from '../../../assets/brand/logo-circle.png';
 import BookOverlay, { SPINE } from './BookOverlay';
 import SourceBoxFront from './SourceBoxFront';
@@ -51,7 +51,7 @@ export default function PastPapers() {
 
   return (
     <>
-      <Chips items={PAPERS.map(p => ({ id: p.id, label: p.label }))} value={paper} onChange={setPaper} label="Past paper" />
+      <Seg tabs={PAPERS.map(p => ({ id: p.id, label: p.label }))} value={paper} onChange={setPaper} label="Past paper" slide />
       {shelves.length ? shelves.map(group => (
         <section className="ppyear" key={group[0].year} aria-label={`Paper ${paper}, ${group.map(g => g.year).join(' and ')}`}>
           <div className="bshelf pp">

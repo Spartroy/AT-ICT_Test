@@ -2,7 +2,7 @@ import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 're
 import { Play, FileText, Presentation, Database, Table, Share2, Star, CheckCircle2, X, RotateCcw, PlayCircle, Check } from 'lucide-react';
 import useApi from '../../../hooks/useApi';
 import { API_ENDPOINTS } from '../../../config/api';
-import { Accordion, Chips, Empty, ErrorNote, Ic, Loading } from '../../../components/portal/kit';
+import { Accordion, Empty, ErrorNote, Ic, Loading, Seg } from '../../../components/portal/kit';
 import { Dialog, useToast } from '../../../components/portal/PortalUI';
 import useProgress from './useProgress';
 import { buildVideoGroups, nodeStates, doneCount, defaultOpenGroup, serpentineRows } from './mapLogic';
@@ -63,7 +63,7 @@ export default function VideoMaps() {
 
   return (
     <>
-      <Chips items={SECTIONS} value={section} onChange={setSection} label="Video section" />
+      <Seg tabs={SECTIONS} value={section} onChange={setSection} label="Video section" slide />
       <div ref={areaRef}>
       {groups.map((g, gi) => {
         const cols = colsFor(g.items.length);

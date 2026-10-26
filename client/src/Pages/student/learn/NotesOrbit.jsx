@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { BookOpen, BookX, CheckCircle2, RotateCcw } from 'lucide-react';
 import useApi from '../../../hooks/useApi';
 import { API_ENDPOINTS } from '../../../config/api';
-import { Empty, ErrorNote, Ic, Loading } from '../../../components/portal/kit';
+import { Empty, ErrorNote, Ic, Loading, Seg } from '../../../components/portal/kit';
 import { useToast } from '../../../components/portal/PortalUI';
 import { useReducedMotion } from '../../../hooks/useMediaQuery';
 import ResourceViewer from '../../../components/portal/viewer/ResourceViewer';
@@ -72,16 +72,17 @@ export default function NotesOrbit() {
   };
 
   const phaseTabs = (
-    <div className="seg phase-seg" role="tablist" aria-label="Phases">
-      {[0, 1, 2].map(p => {
+    <Seg
+      className="phase-seg"
+      label="Phases"
+      slide
+      value={phase}
+      onChange={p => { if (p !== phase) { setPhase(p); setSelId(null); } }}
+      tabs={[0, 1, 2].map(p => {
         const list = notes.data?.[p] || [];
-        return (
-          <button key={p} type="button" role="tab" aria-selected={p === phase} className={p === phase ? 'on' : ''} onClick={() => { if (p !== phase) { setPhase(p); setSelId(null); } }}>
-            Phase {p + 1}<em className="oc">{list.filter(n => read.has(n._id)).length}/{list.length}</em>
-          </button>
-        );
+        return { id: p, label: `Phase ${p + 1}`, count: `${list.filter(n => read.has(n._id)).length}/${list.length}` };
       })}
-    </div>
+    />
   );
 
   return (

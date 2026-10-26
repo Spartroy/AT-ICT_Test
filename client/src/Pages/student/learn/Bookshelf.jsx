@@ -1,14 +1,13 @@
 import React, { useMemo, useState } from 'react';
 import useApi from '../../../hooks/useApi';
 import { API_ENDPOINTS } from '../../../config/api';
-import { Chips, ErrorNote, Loading, SearchBox } from '../../../components/portal/kit';
+import { ErrorNote, Loading, SearchBox, Seg } from '../../../components/portal/kit';
 import { Download } from 'lucide-react';
 import ResourceViewer from '../../../components/portal/viewer/ResourceViewer';
 import { usePortalUI } from '../../../components/portal/PortalUI';
 import { directDownload, startDownload } from '../../../lib/directDownload';
 import logoCircle from '../../../assets/brand/logo-circle.png';
 import BookOverlay, { CoverTitle, SPINE } from './BookOverlay';
-import PastPapers from './PastPapers';
 import RevSheet from './RevSheet';
 import SourceBox from './SourceBox';
 import { iconFor, sizeTier } from './bookDesign';
@@ -17,8 +16,7 @@ import '../../../styles/books.css';
 const CATS = [
   { id: 'theory', label: 'Theory' },
   { id: 'practical', label: 'Practical' },
-  { id: 'other', label: 'Revision' },
-  { id: 'pastpapers', label: 'Past papers' }
+  { id: 'other', label: 'Revision' }
 ];
 
 /** book | revsheet | source (older materials only have the isSourceFile flag). */
@@ -56,10 +54,10 @@ export default function Bookshelf() {
 
   return (
     <>
-      {cat !== 'pastpapers' && <SearchBox value={q} onChange={setQ} placeholder="Search materials…" />}
-      <Chips items={CATS.map(c => ({ ...c, count: c.id === 'pastpapers' ? undefined : counts[c.id] }))} value={cat} onChange={setCat} label="Material category" />
+      <SearchBox value={q} onChange={setQ} placeholder="Search materials…" />
+      <Seg tabs={CATS.map(c => ({ ...c, count: counts[c.id] }))} value={cat} onChange={setCat} label="Material category" slide />
 
-      {cat === 'pastpapers' ? <PastPapers /> : matches.length ? (
+      {matches.length ? (
         <>
           <div className={`bshelf${sources.length || sheets.length ? ' has-box' : ''}`}>
             <div className="books">
