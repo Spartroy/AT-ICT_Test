@@ -328,7 +328,7 @@ const submitInstapayWithProof = async (req, res) => {
       type: 't_payment',
       title: 'Payment proof to review',
       body: `${student ? `${student.firstName} ${student.lastName}` : 'A parent'} sent proof for ${Number(payment.amount).toLocaleString()} ${payment.currency || 'EGP'}`,
-      url: '/teacher-dashboard/students',
+      url: '/teacher-dashboard/income/proofs',
       urgent: false,
     })).catch(() => {});
 

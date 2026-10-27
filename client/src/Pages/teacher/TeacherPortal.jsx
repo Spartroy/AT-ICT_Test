@@ -1,6 +1,6 @@
 import React, { createContext, useCallback, useContext, useMemo, useState } from 'react';
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
-import { Home as HomeIcon, Users, ClipboardCheck, Library as LibraryIcon, CalendarDays, Inbox as InboxIcon } from 'lucide-react';
+import { Home as HomeIcon, Users, ClipboardCheck, Library as LibraryIcon, CalendarDays, Inbox as InboxIcon, Wallet } from 'lucide-react';
 import PortalShell from '../../components/portal/PortalShell';
 import Seo from '../../components/Seo';
 import useApi from '../../hooks/useApi';
@@ -12,6 +12,7 @@ import Students from './Students';
 import Work from './Work';
 import Library from './Library';
 import Schedule from './Schedule';
+import Income from './Income';
 import Inbox from './Inbox';
 import Settings from './Settings';
 import QuickActions from './QuickActions';
@@ -24,7 +25,7 @@ const TeacherContext = createContext(null);
 export const useTeacher = () => useContext(TeacherContext);
 
 const BASE = '/teacher-dashboard';
-const TITLES = { '': 'Home', students: 'Students', work: 'Work', library: 'Library', schedule: 'Schedule', inbox: 'Inbox', settings: 'Settings' };
+const TITLES = { '': 'Home', students: 'Students', work: 'Work', library: 'Library', schedule: 'Schedule', income: 'Income', inbox: 'Inbox', settings: 'Settings' };
 
 const storedUser = () => {
   try {
@@ -40,18 +41,21 @@ export default function TeacherPortal() {
   const me = storedUser();
   const regs = useApi(`${API_ENDPOINTS.REGISTRATION.PENDING}?limit=50`, b => b.data || {});
   const subs = useApi('/api/teacher/submissions?status=needs&limit=1', b => b.data?.counts || {});
+  const proofs = useApi('/api/teacher/income/proofs', b => b.data?.proofs || []);
   const chats = useApi(`${API_ENDPOINTS.CHAT.BASE}/teacher/students`, b => b.data?.students || []);
   const [modal, setModal] = useState(null);
 
   const pendingRegs = regs.data?.pagination?.total ?? regs.data?.registrations?.length ?? 0;
   const needsGrading = subs.data?.needs || 0;
+  const proofsWaiting = (proofs.data || []).length;
   const unreadChats = (chats.data || []).reduce((n, s) => n + (s.unreadCount || 0), 0);
 
   const refreshBadges = useCallback(() => {
     regs.reload();
     subs.reload();
     chats.reload();
-  }, [regs, subs, chats]);
+    proofs.reload();
+  }, [regs, subs, chats, proofs]);
 
   /** Opens a global modal: { type: 'hw' | 'quiz' | 'announcement' | 'video' | 'note' | 'schedule', props?, onDone? } */
   const openModal = useCallback((type, props = {}) => setModal({ type, ...props }), []);
@@ -64,18 +68,19 @@ export default function TeacherPortal() {
     { to: `${BASE}/work`, label: 'Work', icon: ClipboardCheck, badge: needsGrading },
     { to: `${BASE}/library`, label: 'Library', icon: LibraryIcon },
     { to: `${BASE}/schedule`, label: 'Schedule', icon: CalendarDays },
+    { to: `${BASE}/income`, label: 'Income', icon: Wallet, badge: proofsWaiting },
     { to: `${BASE}/inbox`, label: 'Inbox', icon: InboxIcon, badge: unreadChats }
   ];
 
   const ctx = useMemo(() => ({
     base: BASE,
     me: { ...me, name },
-    counts: { pendingRegs, needsGrading, unreadChats },
+    counts: { pendingRegs, needsGrading, unreadChats, proofs: proofsWaiting },
     registrations: regs,
     chats,
     refreshBadges,
     openModal
-  }), [pendingRegs, needsGrading, unreadChats, regs, chats, refreshBadges, openModal, name]); // eslint-disable-line react-hooks/exhaustive-deps
+  }), [pendingRegs, needsGrading, unreadChats, proofsWaiting, regs, chats, refreshBadges, openModal, name]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <TeacherContext.Provider value={ctx}>
@@ -100,6 +105,8 @@ export default function TeacherPortal() {
           <Route path="library/:tab" element={<Library />} />
           <Route path="schedule" element={<Navigate to="list" replace />} />
           <Route path="schedule/:tab" element={<Schedule />} />
+          <Route path="income" element={<Navigate to="overview" replace />} />
+          <Route path="income/:tab" element={<Income />} />
           <Route path="inbox" element={<Navigate to="announcements" replace />} />
           <Route path="inbox/:tab" element={<Inbox />} />
           <Route path="settings" element={<Settings />} />
