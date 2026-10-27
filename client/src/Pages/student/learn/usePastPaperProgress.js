@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 import useApi from '../../../hooks/useApi';
 import { api } from '../../../lib/api';
+import { announcePoints } from '../pointsEvents';
 
 /** Keys of the past papers the student has marked as practised, with optimistic tick/untick. */
 export default function usePastPaperProgress() {
@@ -14,7 +15,8 @@ export default function usePastPaperProgress() {
     });
     apply(done);
     try {
-      await api.put(`/api/student/pastpaper-progress/${key}`, { done });
+      const res = await api.put(`/api/student/pastpaper-progress/${key}`, { done });
+      announcePoints(res.data?.points);
       return true;
     } catch {
       apply(!done);

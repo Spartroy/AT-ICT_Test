@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { ClipboardCheck, Play, GraduationCap, Trophy, Clock, Inbox as InboxIcon, CalendarDays, Megaphone, RefreshCw, Video } from 'lucide-react';
+import { ClipboardCheck, GraduationCap, Trophy, Clock, Inbox as InboxIcon, CalendarDays, Megaphone, RefreshCw, Video } from 'lucide-react';
 import { useStudent } from './StudentPortal';
 import GroupChip from '../../components/portal/GroupChip';
 import useApi from '../../hooks/useApi';
@@ -14,7 +14,7 @@ const pct = (a, b) => (b ? Math.round((a / b) * 100) : 0);
 const MEDALS = ['a1', 'a2', 'a3'];
 
 export default function Home() {
-  const { base, me, stats, student, leaderboard, group } = useStudent();
+  const { base, me, stats, student, leaderboard, group, openPointsGuide } = useStudent();
   const assignments = useApi(API_ENDPOINTS.STUDENT.ASSIGNMENTS, b => b.data?.assignments || []);
   const schedule = useApi(API_ENDPOINTS.STUDENT.SCHEDULE, b => b.data || {});
   const announcements = useApi(API_ENDPOINTS.ANNOUNCEMENTS.BASE, b => b.data?.announcements || []);
@@ -54,7 +54,6 @@ export default function Home() {
           {group && <p className="home-group"><GroupChip code={group.code} name={group.name} /></p>}
           <div className="acts">
             <Link className="btn p" to={`${base}/work`}><Ic as={ClipboardCheck} />{pending ? `${pending} assignment${pending === 1 ? '' : 's'} pending` : 'All work submitted'}</Link>
-            <Link className="btn o" to={`${base}/learn/videos`}><Ic as={Play} />Continue learning</Link>
           </div>
         </div>
         <Ring p={progress} color="var(--crimson-glow)" size={140} fs="1.7rem" w={12} label={`Term plan ${progress}% complete`} />
@@ -116,7 +115,7 @@ export default function Home() {
           ))}
         </div>
         <div className="card">
-          <h3><Ic as={Trophy} />Leaderboard<button type="button" className="lk" aria-label="Refresh leaderboard" onClick={leaderboard.reload}><Ic as={RefreshCw} /></button></h3>
+          <h3><Ic as={Trophy} />Leaderboard<button type="button" className="lk" onClick={openPointsGuide}>How points work</button><button type="button" className="lk" aria-label="Refresh leaderboard" onClick={leaderboard.reload}><Ic as={RefreshCw} /></button></h3>
           {!(leaderboard.data || []).length && <Empty icon={Trophy}>Complete assignments to earn points.</Empty>}
           {(leaderboard.data || []).map((l, i) => {
             const mine = String(l._id) === String(me._id);

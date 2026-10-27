@@ -25,9 +25,9 @@ const sameRect = (a, b) => (!a && !b) || (a && b && a.top === b.top && a.left ==
  * Guided tour: dims the page, spotlights one element at a time and explains it in a card.
  * steps: [{ id, target?: CSS selector, path?: route under `base`, title, body, optional?, side?, cta? }].
  * Steps whose target never shows up (hidden at this screen size, no data yet) are skipped when `optional`,
- * otherwise the card is shown centred.
+ * otherwise the card is shown centred. `forced` (first login) hides Skip and ignores Esc, so the student sees it through.
  */
-export default function Tour({ open, steps, base, onClose }) {
+export default function Tour({ open, steps, base, onClose, forced = false }) {
   const { layer } = usePortalUI();
   const navigate = useNavigate();
   const location = useLocation();
@@ -123,7 +123,7 @@ export default function Tour({ open, steps, base, onClose }) {
   useEffect(() => {
     if (!open) return undefined;
     const onKey = (e) => {
-      if (e.key === 'Escape') { e.preventDefault(); finish(false); }
+      if (e.key === 'Escape') { e.preventDefault(); if (!forced) finish(false); }
       else if (e.key === 'ArrowRight') { e.preventDefault(); go(1); }
       else if (e.key === 'ArrowLeft') { e.preventDefault(); go(-1); }
       else if (e.key === 'Tab' && tipRef.current) {
@@ -138,7 +138,7 @@ export default function Tour({ open, steps, base, onClose }) {
     };
     document.addEventListener('keydown', onKey, true);
     return () => document.removeEventListener('keydown', onKey, true);
-  }, [open, go, finish]);
+  }, [open, go, finish, forced]);
 
   if (!open || !step || !layer) return null;
 
@@ -159,7 +159,7 @@ export default function Tour({ open, steps, base, onClose }) {
         {active && <i className="tour-arrow" aria-hidden="true" />}
         <div className="tour-top">
           <span className="tour-count">{index + 1} / {total}</span>
-          <button type="button" className="tour-skip" onClick={() => finish(false)}>{isLast ? 'Close' : 'Skip tour'}</button>
+          {!forced && <button type="button" className="tour-skip" onClick={() => finish(false)}>{isLast ? 'Close' : 'Skip tour'}</button>}
         </div>
         <div className="tour-copy" key={step.id}>
           <h3 id="tour-title">{step.title}</h3>

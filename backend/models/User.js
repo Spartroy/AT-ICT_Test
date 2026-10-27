@@ -211,6 +211,16 @@ const userSchema = new mongoose.Schema({
     },
 
     /**
+     * How many times the student has signed in (counted at login). Drives the first-login tutorial and the
+     * "need help?" hint on the first few logins. Students who signed in before this existed start past the hint window.
+     * @type {Number}
+     */
+    loginCount: {
+      type: Number,
+      min: 0
+    },
+
+    /**
      * Academic year level
      * @type {Number}
      * @enum [10, 11, 12]
@@ -469,11 +479,15 @@ const userSchema = new mongoose.Schema({
         {
           source: {
             type: String,
-            enum: ['assignment', 'quiz']
+            enum: ['assignment', 'quiz', 'video', 'note', 'pastpaper', 'live', 'streak']
           },
           sourceId: {
             type: mongoose.Schema.ObjectId
           },
+          // Items without a database id (a past paper is "2-2024-jun-1"; a streak points at the homework that completed it)
+          sourceKey: String,
+          // Homework only: handed in by the due date (drives the streak)
+          onTime: Boolean,
           title: String,
           basePoints: Number,
           bonusPoints: Number,

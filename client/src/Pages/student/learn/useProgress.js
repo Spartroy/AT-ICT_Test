@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 import useApi from '../../../hooks/useApi';
 import { api } from '../../../lib/api';
+import { announcePoints } from '../pointsEvents';
 
 /** Completed video / note ids for the signed-in student, with optimistic mark/unmark. */
 export default function useProgress() {
@@ -18,7 +19,8 @@ export default function useProgress() {
     });
     apply(done);
     try {
-      await api.put(`/api/student/progress/${kind}/${id}`, { done });
+      const res = await api.put(`/api/student/progress/${kind}/${id}`, { done });
+      announcePoints(res.data?.points);
       return true;
     } catch {
       apply(!done);

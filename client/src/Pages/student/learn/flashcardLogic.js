@@ -31,3 +31,17 @@ export function groupStacks(stacks = []) {
   groups.forEach(g => g.stacks.sort((a, b) => a.number - b.number));
   return [...groups, other].filter(g => g.stacks.length);
 }
+
+/** Total cards in a group of { stack } entries. */
+export const countCards = (entries = []) => entries.reduce((n, { stack }) => n + (stack.cards?.length || 0), 0);
+
+/** One study stack out of a whole phase: every card of every chapter in it, chapter by chapter. Not stored on the server. */
+export function combinedStack(group) {
+  return {
+    _id: `combined-${group.key}`,
+    synthetic: true,
+    title: group.label,
+    creatorName: 'AT-ICT',
+    cards: group.stacks.flatMap(({ stack, number, name }) => (stack.cards || []).map(c => ({ ...c, from: number ? `Chapter ${number} · ${name}` : name })))
+  };
+}

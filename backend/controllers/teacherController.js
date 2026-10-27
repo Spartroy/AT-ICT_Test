@@ -519,8 +519,7 @@ const updateAssignmentFeedback = async (req, res) => {
         score,
         assignment.maxScore,
         studentEntry.submissionDate || new Date(),
-        assignment.dueDate,
-        assignment.publishDate || assignment.createdAt
+        assignment.dueDate
       );
 
       await awardPoints(studentId, {
@@ -529,7 +528,8 @@ const updateAssignmentFeedback = async (req, res) => {
         title: assignment.title,
         basePoints: pts.base,
         bonusPoints: pts.bonusPoints,
-        total: pts.total
+        total: pts.total,
+        onTime: pts.onTime
       });
 
       // Notify the student via Socket.IO if available

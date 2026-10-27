@@ -4,6 +4,7 @@ const User = require('../models/User');
 const { notify, studentIds } = require('../services/notifications');
 const groupsSvc = require('../services/groups');
 const groupRules = require('../validators/groups');
+const { awardEffort } = require('../utils/pointsHelper');
 
 const EARLY_MS = 15 * 60 * 1000; // students see a class this long before it starts
 const STALE_LIVE_MS = 10 * 60 * 60 * 1000; // a class left "live" this long is closed automatically
@@ -29,7 +30,12 @@ const closeStale = () => LiveSession.updateMany(
 
 /** Ids of the students a class is meant for: hand-picked ones, a group's members, or the whole roster. */
 async function audienceIds(session) {
-  const picked = session.students?.length ? session.students : null;
+  let picked = session.students?.length ? session.students : null;
+  // A class tied to a timetable slot also belongs to the schedule's teaching groups, not only the students named on it.
+  if (picked && session.slot?.schedule) {
+    const sch = await Schedule.findById(session.slot.schedule).select('groups').lean();
+    if (sch?.groups?.length) picked = [...new Set([...picked.map(String), ...(await groupsSvc.membersOf(sch.groups)).map(String)])];
+  }
   const grouped = session.groups?.length ? await groupsSvc.membersOf(session.groups) : null;
   if (picked && grouped) {
     const inGroup = new Set(grouped.map(String));
@@ -83,10 +89,13 @@ async function readForm(body, existing) {
   };
 
   if (body.scheduleId) {
-    const sch = await Schedule.findById(body.scheduleId).select('title assignedStudents');
+    const sch = await Schedule.findById(body.scheduleId).select('title assignedStudents groups');
     if (!sch) return { error: 'That schedule no longer exists' };
     value.slot = { schedule: sch._id, scheduleTitle: sch.title, day: String(body.day || ''), startTime: String(body.startTime || ''), topic: String(body.slotTopic || '') };
-    value.students = body.onlyAssigned === false ? [] : (sch.assignedStudents || []).map(a => a.student).filter(Boolean);
+    const named = (sch.assignedStudents || []).map(a => a.student).filter(Boolean);
+    // "Only this schedule's students" means the ones named on it plus everyone in the groups it is made for.
+    const inGroups = sch.groups?.length && named.length ? await groupsSvc.membersOf(sch.groups) : [];
+    value.students = body.onlyAssigned === false ? [] : [...new Map([...named, ...inGroups].map(id => [String(id), id])).values()];
   } else if (body.scheduleId === '' || body.scheduleId === null) {
     value.slot = undefined;
     value.students = [];
@@ -275,14 +284,32 @@ const forMe = (user) => ({
   ]
 });
 
+/**
+ * Everything a student may see: classes meant for them (forMe), plus classes tied to a schedule they are in,
+ * whether they were named on it or belong to one of its groups (older classes only listed the named students).
+ */
+async function visibleTo(user) {
+  const group = user.studentInfo?.group;
+  const mine = await Schedule.find({ isActive: true, $or: [{ 'assignedStudents.student': user._id }, ...(group ? [{ groups: group }] : [])] }).select('_id').lean();
+  if (!mine.length) return forMe(user);
+  return {
+    $or: [
+      forMe(user),
+      { 'slot.schedule': { $in: mine.map(m => m._id) }, $or: [{ groups: { $exists: false } }, { groups: { $size: 0 } }, ...(group ? [{ groups: group }] : [])] }
+    ]
+  };
+}
+
 /** GET /api/live/current — my classes that are live or about to start (the meeting link is only given on join). */
+exports.visibleTo = visibleTo;
+exports.forMe = forMe;
 exports.current = async (req, res) => {
   try {
     await closeStale();
     const soon = new Date(Date.now() + EARLY_MS);
     const sessions = await LiveSession.find({
       $and: [
-        forMe(req.user),
+        await visibleTo(req.user),
         { $or: [{ status: 'live' }, { status: 'scheduled', startsAt: { $lte: soon, $gte: new Date(Date.now() - 3 * 3600 * 1000) } }] }
       ]
     }).sort({ status: -1, startsAt: 1 }).limit(5);
@@ -302,7 +329,7 @@ exports.current = async (req, res) => {
 /** POST /api/live/:id/join — records my entry and returns the meeting link. */
 exports.join = async (req, res) => {
   try {
-    const session = await LiveSession.findOne({ _id: req.params.id, ...forMe(req.user) });
+    const session = await LiveSession.findOne({ $and: [{ _id: req.params.id }, await visibleTo(req.user)] });
     if (!session) return fail(res, 404, 'Session not found');
     if (session.status !== 'live') return fail(res, 409, session.status === 'ended' ? 'This session has ended' : 'The teacher has not started this session yet');
     const mine = session.attendance.find(a => String(a.student) === String(req.user._id));
@@ -313,7 +340,9 @@ exports.join = async (req, res) => {
       session.attendance.push({ student: req.user._id });
     }
     await session.save();
-    return ok(res, { meetingUrl: session.meetingUrl });
+    // First time in this class: attendance points (rejoining pays nothing more)
+    const points = await awardEffort(req.user._id, 'live', { id: session._id }, `Joined: ${session.title}`);
+    return ok(res, { meetingUrl: session.meetingUrl, points });
   } catch (err) {
     console.error('Live join error:', err);
     return fail(res, 500, 'Could not join the session');

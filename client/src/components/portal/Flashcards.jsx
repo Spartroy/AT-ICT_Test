@@ -94,30 +94,52 @@ export function StackFormDialog({ open, onClose, onSaved, stack }) {
 export function StudyDialog({ stack, onClose }) {
   const [i, setI] = useState(0);
   const [flipped, setFlipped] = useState(false);
+  const [dir, setDir] = useState(1);
   useEffect(() => {
     if (!stack) return;
     setI(0);
     setFlipped(false);
-    api.post(`${API_ENDPOINTS.FLASHCARDS}/${stack._id}/study`).catch(() => {});
+    setDir(1);
+    if (!stack.synthetic) api.post(`${API_ENDPOINTS.FLASHCARDS}/${stack._id}/study`).catch(() => {});
   }, [stack]);
+
+  const count = stack?.cards?.length || 0;
+  const go = (d) => {
+    if (i + d < 0 || i + d >= count) return;
+    setDir(d);
+    setI(x => x + d);
+    setFlipped(false);
+  };
+  // Arrow keys move through the pile
+  useEffect(() => {
+    if (!stack) return undefined;
+    const onKey = (e) => {
+      if (e.key === 'ArrowRight') go(1);
+      else if (e.key === 'ArrowLeft') go(-1);
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  });
   if (!stack) return null;
   const cards = stack.cards || [];
   const card = cards[i];
-  const go = (d) => { setI(x => x + d); setFlipped(false); };
 
   return (
     <Dialog open onClose={onClose} labelledBy="study-title">
       <button type="button" className="ib x" aria-label="Close" onClick={onClose}><Ic as={X} /></button>
       <h3 id="study-title" className="node-title" style={{ marginTop: 0 }}>{stack.title}</h3>
-      <p className="sub">{cards.length} card{cards.length === 1 ? '' : 's'} · By {stack.creatorName || 'AT-ICT'}</p>
+ <p className="sub">{cards.length} card{cards.length === 1 ? '' : 's'} · By {stack.creatorName || 'AT-ICT'}</p>
       {card ? (
         <>
-          <div className={`fcard ${flipped ? 'fl' : ''}`}>
+          <div className="fc-prog" role="progressbar" aria-valuemin={1} aria-valuemax={cards.length} aria-valuenow={i + 1} aria-label="Cards studied"><i style={{ width: `${((i + 1) / cards.length) * 100}%` }} /></div>
+          <div className={`fc-pile ${cards.length - i > 2 ? 'deep' : cards.length - i > 1 ? 'mid' : 'last'}`}>
+          <div className={`fcard ${flipped ? 'fl' : ''} slide-${dir > 0 ? 'next' : 'prev'}`} key={i}>
             <div role="button" tabIndex={0} aria-label={flipped ? 'Answer. Press to show the question' : 'Question. Press to show the answer'}
               onClick={() => setFlipped(f => !f)} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setFlipped(f => !f); } }}>
-              <div className="f fr" aria-hidden={flipped}><span>{card.front}<small>Click to flip</small></span></div>
+              <div className="f fr" aria-hidden={flipped}><span>{card.from && <em className="fc-from">{card.from}</em>}{card.front}<small>Click to flip</small></span></div>
               <div className="f bk" aria-hidden={!flipped}><span>{card.back}</span></div>
             </div>
+          </div>
           </div>
           <div className="fc-nav">
             <button type="button" className="btn o sm" onClick={() => go(-1)} disabled={i === 0}><Ic as={ChevronLeft} />Previous</button>

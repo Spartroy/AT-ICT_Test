@@ -630,8 +630,7 @@ const gradeAssignment = async (req, res) => {
         parseInt(score),
         assignment.maxScore,
         studentAssignment.submissionDate || new Date(),
-        assignment.dueDate,
-        assignment.publishDate || assignment.createdAt
+        assignment.dueDate
       );
 
       await awardPoints(studentId, {
@@ -640,7 +639,8 @@ const gradeAssignment = async (req, res) => {
         title: assignment.title,
         basePoints: pts.base,
         bonusPoints: pts.bonusPoints,
-        total: pts.total
+        total: pts.total,
+        onTime: pts.onTime
       });
 
       if (req.io) {

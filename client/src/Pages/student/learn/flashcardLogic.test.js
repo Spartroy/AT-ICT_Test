@@ -32,3 +32,27 @@ describe('flashcard grouping', () => {
     expect(groupStacks([])).toEqual([]);
   });
 });
+
+describe('phase decks', () => {
+  const { countCards, combinedStack } = require('./flashcardLogic');
+  const cards = (n) => Array.from({ length: n }, (_, i) => ({ front: `q${i}`, back: `a${i}` }));
+  const groups = groupStacks([
+    stack('Chapter 2 – Input Devices', { cards: cards(3) }),
+    stack('Chapter 1 – Computer Structure', { cards: cards(2) }),
+    stack('Chapter 6 – Networks', { cards: cards(4) })
+  ]);
+
+  it('counts the cards in a phase', () => {
+    expect(countCards(groups[0].stacks)).toBe(5);
+    expect(countCards(groups[1].stacks)).toBe(4);
+    expect(countCards([])).toBe(0);
+  });
+
+  it('merges a phase into one study stack in chapter order, remembering each card\'s chapter', () => {
+    const s = combinedStack(groups[0]);
+    expect(s).toMatchObject({ synthetic: true, title: 'Phase 1' });
+    expect(s.cards).toHaveLength(5);
+    expect(s.cards[0].from).toBe('Chapter 1 · Computer Structure');
+    expect(s.cards[4].from).toBe('Chapter 2 · Input Devices');
+  });
+});

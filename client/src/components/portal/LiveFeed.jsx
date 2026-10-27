@@ -4,6 +4,7 @@ import { API_ENDPOINTS } from '../../config/api';
 import openTab from '../../lib/openTab';
 import { useToast } from './PortalUI';
 import { announceChange } from '../../Pages/teacher/modals/form';
+import { announcePoints } from '../../Pages/student/pointsEvents';
 
 const POLL_MS = 20000;
 export const SOON_MS = 15 * 60 * 1000;
@@ -86,6 +87,7 @@ export function useLiveActions() {
     try {
       const res = await api.post(`${API_ENDPOINTS.LIVE.BASE}/${s.id}/join`);
       tab.go(res.data.meetingUrl);
+      announcePoints(res.data.points);
       setSessions(list => list.map(x => (x.id === s.id ? { ...x, joinedByMe: true } : x)));
     } catch (err) {
       tab.cancel();

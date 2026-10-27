@@ -1,67 +1,23 @@
 /**
  * Points calculation and award utilities for the AT-ICT gamification system.
- *
- * Assignment points formula:
- *   base    = Math.round((score / maxScore) * 50)   → max 50 pts
- *   onTime  = +10 if submissionDate <= dueDate
- *   sameDay = +20 if submission calendar day === publishDate calendar day (stacks with onTime)
- *   total   = base + onTime + sameDay               → max 80 pts
- *
- * Quiz points formula (mark only):
- *   base  = Math.round((score / maxScore) * 100)    → max 100 pts
- *   total = base
+ * The numbers live in utils/pointsRules.js (and are shown to students at GET /api/student/points).
  */
 
 const User = require('../models/User');
 const Assignment = require('../models/Assignment');
 const Quiz = require('../models/Quiz');
+const { RULES, assignmentPoints, quizPoints, effortPoints, streakReached } = require('./pointsRules');
 
 /**
- * Strips time from a Date object for calendar-day comparison.
- * @param {Date} date
- * @returns {string} 'YYYY-MM-DD'
+ * Points for a graded assignment: grade (up to 70) + on time (20) + handed in 24h+ early (10); late work earns half the grade part.
+ * (publishDate is no longer used; the same-day bonus was replaced by the early bonus.)
+ * @returns {{ base, onTimeBonus, earlyBonus, bonusPoints, total, onTime }}
  */
-const toDateString = (date) => new Date(date).toISOString().slice(0, 10);
+const calculateAssignmentPoints = (score, maxScore, submissionDate, dueDate) =>
+  assignmentPoints({ score, maxScore, submissionDate, dueDate });
 
-/**
- * Calculate points for a graded assignment.
- * @param {number} score            - Student's score
- * @param {number} maxScore         - Maximum possible score
- * @param {Date}   submissionDate   - When the student submitted
- * @param {Date}   dueDate          - Assignment due date
- * @param {Date}   publishDate      - When the assignment was published/created
- * @returns {{ base: number, bonusPoints: number, onTimeBonus: number, sameDayBonus: number, total: number }}
- */
-const calculateAssignmentPoints = (score, maxScore, submissionDate, dueDate, publishDate) => {
-  const base = maxScore > 0 ? Math.round((score / maxScore) * 50) : 0;
-
-  const sub = new Date(submissionDate);
-  const due = new Date(dueDate);
-  const pub = new Date(publishDate);
-
-  const isOnTime = sub <= due;
-  const isSameDay = toDateString(sub) === toDateString(pub);
-
-  // Same-day submission always qualifies as on-time too
-  const onTimeBonus = isOnTime || isSameDay ? 10 : 0;
-  const sameDayBonus = isSameDay ? 20 : 0;
-
-  const bonusPoints = onTimeBonus + sameDayBonus;
-  const total = base + bonusPoints;
-
-  return { base, onTimeBonus, sameDayBonus, bonusPoints, total };
-};
-
-/**
- * Calculate points for a graded quiz (mark only, no timing bonus).
- * @param {number} score    - Student's score
- * @param {number} maxScore - Maximum possible score
- * @returns {{ base: number, bonusPoints: number, total: number }}
- */
-const calculateQuizPoints = (score, maxScore) => {
-  const base = maxScore > 0 ? Math.round((score / maxScore) * 100) : 0;
-  return { base, bonusPoints: 0, total: base };
-};
+/** Points for a graded quiz: the mark out of 100, no timing bonus. */
+const calculateQuizPoints = (score, maxScore) => quizPoints({ score, maxScore });
 
 /**
  * Award or update points for a student after grading.
@@ -85,12 +41,11 @@ const awardPoints = async (userId, payload) => {
   }
 
   const points = user.studentInfo.points;
-  const sourceIdStr = payload.sourceId.toString();
+  const sourceIdStr = String(payload.sourceId ?? payload.sourceKey);
+  const sameItem = (h) => h.source === payload.source && String(h.sourceId ?? h.sourceKey) === sourceIdStr;
 
   // Check for existing entry (re-grade scenario)
-  const existingIdx = points.history.findIndex(
-    (h) => h.sourceId && h.sourceId.toString() === sourceIdStr
-  );
+  const existingIdx = points.history.findIndex(sameItem);
 
   if (existingIdx !== -1) {
     const old = points.history[existingIdx];
@@ -104,6 +59,8 @@ const awardPoints = async (userId, payload) => {
     points.history[existingIdx] = {
       source: payload.source,
       sourceId: payload.sourceId,
+      sourceKey: payload.sourceKey,
+      onTime: payload.onTime,
       title: payload.title,
       basePoints: payload.basePoints,
       bonusPoints: payload.bonusPoints,
@@ -118,12 +75,25 @@ const awardPoints = async (userId, payload) => {
     points.history.push({
       source: payload.source,
       sourceId: payload.sourceId,
+      sourceKey: payload.sourceKey,
+      onTime: payload.onTime,
       title: payload.title,
       basePoints: payload.basePoints,
       bonusPoints: payload.bonusPoints,
       total: payload.total,
       awardedAt: new Date()
     });
+  }
+
+  // A third on-time homework in a row earns the streak bonus (once per homework that completes a run)
+  if (payload.source === 'assignment' && payload.onTime) {
+    const homework = points.history.filter(h => h.source === 'assignment');
+    const alreadyPaid = points.history.some(h => h.source === 'streak' && h.sourceKey === sourceIdStr);
+    if (!alreadyPaid && streakReached(homework)) {
+      points.total = (points.total || 0) + RULES.streak.bonus;
+      points.currentSession = (points.currentSession || 0) + RULES.streak.bonus;
+      points.history.push({ source: 'streak', sourceKey: sourceIdStr, title: `${RULES.streak.length} on-time homeworks in a row`, basePoints: 0, bonusPoints: RULES.streak.bonus, total: RULES.streak.bonus, awardedAt: new Date() });
+    }
   }
 
   // Recalculate overallProgress as average score % across all graded assignments
@@ -161,4 +131,38 @@ const awardPoints = async (userId, payload) => {
   await user.save();
 };
 
-module.exports = { calculateAssignmentPoints, calculateQuizPoints, awardPoints };
+const startOfToday = () => { const d = new Date(); d.setHours(0, 0, 0, 0); return d; };
+
+/**
+ * Pays a self-study or attendance item once: a video marked done, a notes chapter read, a past paper practised,
+ * or a live class joined. Video, notes and past papers share a daily cap. Returns the points given (0 if already paid or capped).
+ * `item` is { id } for database ids or { key } for string ids (past papers).
+ */
+const awardEffort = async (userId, source, item, title) => {
+  try {
+    const user = await User.findById(userId);
+    if (!user || user.role !== 'student') return 0;
+    const points = user.studentInfo.points || (user.studentInfo.points = { total: 0, currentSession: 0, sessionLabel: '', history: [] });
+    const ref = String(item.id ?? item.key);
+    if (points.history.some(h => h.source === source && String(h.sourceId ?? h.sourceKey) === ref)) return 0; // each item pays once
+
+    const since = startOfToday();
+    const earnedToday = points.history
+      .filter(h => RULES.effort.capped.includes(h.source) && new Date(h.awardedAt) >= since)
+      .reduce((n, h) => n + (h.total || 0), 0);
+    const total = effortPoints(source, earnedToday);
+
+    // A capped (0 point) entry is still recorded, so marking the item again later can't earn it back.
+    points.history.push({ source, ...(item.id ? { sourceId: item.id } : { sourceKey: item.key }), title, basePoints: total, bonusPoints: 0, total, awardedAt: new Date() });
+    points.total = (points.total || 0) + total;
+    points.currentSession = (points.currentSession || 0) + total;
+    user.markModified('studentInfo');
+    await user.save();
+    return total;
+  } catch (err) {
+    console.warn('Non-fatal: effort points failed:', err.message);
+    return 0;
+  }
+};
+
+module.exports = { calculateAssignmentPoints, calculateQuizPoints, awardPoints, awardEffort };

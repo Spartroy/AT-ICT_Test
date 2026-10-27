@@ -1,7 +1,7 @@
 import NotificationBell from '../../components/portal/NotificationBell';
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
-import { Home as HomeIcon, BookOpen, ClipboardCheck, CalendarDays, Inbox as InboxIcon, Star, CircleHelp } from 'lucide-react';
+import { Home as HomeIcon, BookOpen, ClipboardCheck, CalendarDays, Inbox as InboxIcon, Star } from 'lucide-react';
 import PortalShell from '../../components/portal/PortalShell';
 import useApi from '../../hooks/useApi';
 import { API_ENDPOINTS } from '../../config/api';
@@ -14,6 +14,11 @@ import Work from './Work';
 import Schedule from './Schedule';
 import Inbox from './Inbox';
 import Tour from '../../components/portal/Tour';
+import TourHelp from '../../components/portal/TourHelp';
+import PointsGuide from './PointsGuide';
+import { POINTS_EVENT } from './pointsEvents';
+import { useToast } from '../../components/portal/PortalUI';
+import { tourPlan } from './tourPlan';
 import { studentTourSteps } from './tourSteps';
 import LiveClassPopup from '../../components/portal/LiveClassPopup';
 import { LiveFeedProvider } from '../../components/portal/LiveFeed';
@@ -29,6 +34,17 @@ const tourSeen = (id) => {
 };
 const markTourSeen = (id) => {
   try { localStorage.setItem(tourKey(id), '1'); } catch { /* the tour just shows again next time */ }
+};
+const helpKey = (id) => `atict:tour:help:${id || 'anon'}`;
+const helpUsed = (id) => {
+  try { return !!localStorage.getItem(helpKey(id)); } catch { return false; }
+};
+const GUIDE_SEEN = 'atict:points-guide:seen:';
+const guideSeen = (id) => { try { return !!localStorage.getItem(GUIDE_SEEN + (id || 'anon')); } catch { return true; } };
+const markGuideSeen = (id) => { try { localStorage.setItem(GUIDE_SEEN + (id || 'anon'), '1'); } catch { /* shows again */ } };
+const HINT_SESSION = 'atict:tour:hint-dismissed';
+const hintDismissedThisSession = () => {
+  try { return !!sessionStorage.getItem(HINT_SESSION); } catch { return false; }
 };
 
 const storedUser = () => {
@@ -68,17 +84,45 @@ export default function StudentPortal() {
     { to: `${BASE}/inbox`, label: 'Inbox', icon: InboxIcon, badge: unread, tour: 'nav-inbox' }
   ];
 
-  // First visit: the tour starts by itself once the dashboard has loaded. The ? button replays it.
+  // The tour starts by itself on the very first login (and can't be skipped). For the first 6 logins the ? button
+  // gets a halo and a "need help?" bubble. After that the ? button still replays the tour.
   const userId = student?._id || me.id || me._id;
+  const loginCount = info.loginCount;
   const [tourOpen, setTourOpen] = useState(false);
+  const [tourForced, setTourForced] = useState(false);
+  const [justFinished, setJustFinished] = useState(false);
+  const [hintGone, setHintGone] = useState(hintDismissedThisSession);
+  const [helped, setHelped] = useState(() => helpUsed(userId));
   const firstName = student?.firstName || me.firstName;
   const tourSteps = useMemo(() => studentTourSteps(firstName), [firstName]);
+  const plan = tourPlan({ loginCount, seen: tourSeen(userId), helpUsed: helped, hintDismissed: hintGone, justFinished });
   useEffect(() => {
-    if (dashboard.loading || !userId || tourSeen(userId)) return undefined;
-    const t = setTimeout(() => setTourOpen(true), 700);
+    if (dashboard.loading || !userId || !plan.autoStart) return undefined;
+    const t = setTimeout(() => { setTourForced(true); setTourOpen(true); }, 700);
     return () => clearTimeout(t);
-  }, [dashboard.loading, userId]);
-  const closeTour = useCallback(() => { markTourSeen(userId); setTourOpen(false); }, [userId]);
+  }, [dashboard.loading, userId, plan.autoStart]);
+  const [guideOpen, setGuideOpen] = useState(false);
+  // The points intro: shown once, right after the first tour. Anyone can reopen it from the points card.
+  const closeTour = useCallback((completed) => {
+    markTourSeen(userId);
+    setTourOpen(false);
+    setTourForced(false);
+    if (completed) {
+      setJustFinished(true);
+      if (!guideSeen(userId)) setTimeout(() => setGuideOpen(true), 450);
+    }
+  }, [userId]);
+  const closeGuide = useCallback(() => { markGuideSeen(userId); setGuideOpen(false); }, [userId]);
+  const openTourFromHelp = useCallback(() => {
+    try { localStorage.setItem(helpKey(userId), '1'); } catch { /* the hint may show again */ }
+    setHelped(true);
+    setTourForced(false);
+    setTourOpen(true);
+  }, [userId]);
+  const dismissHint = useCallback(() => {
+    try { sessionStorage.setItem(HINT_SESSION, '1'); } catch { /* shows again on reload */ }
+    setHintGone(true);
+  }, []);
 
   const ctx = useMemo(() => ({
     base: BASE,
@@ -87,7 +131,8 @@ export default function StudentPortal() {
     group,
     stats,
     dashboard,
-    leaderboard
+    leaderboard,
+    openPointsGuide: () => setGuideOpen(true)
   }), [student, group, stats, dashboard, leaderboard, name]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
@@ -100,9 +145,7 @@ export default function StudentPortal() {
         user={{ name, sub }}
         bellSlot={(
           <>
-            <button type="button" className="ib tour-help" aria-label="Take the portal tour" title="Take the portal tour" onClick={() => setTourOpen(true)}>
-              <CircleHelp className="i" aria-hidden="true" />
-            </button>
+            <TourHelp hint={plan.showHint && !tourOpen} onOpen={openTourFromHelp} onDismiss={dismissHint} />
             <span className="tour-bell" data-tour="bell"><NotificationBell /></span>
           </>
         )}
@@ -114,6 +157,7 @@ export default function StudentPortal() {
               <i style={{ width: `${Math.max(4, (points / topPoints) * 100)}%` }} />
             </div>
             <small className="pts-hint">Complete work to climb the board</small>
+            <button type="button" className="pts-how" onClick={() => setGuideOpen(true)}>How points work →</button>
           </div>
         }
       >
@@ -129,10 +173,27 @@ export default function StudentPortal() {
           <Route path="inbox/:tab" element={<Inbox />} />
           <Route path="*" element={<Navigate to={BASE} replace />} />
         </Routes>
-        <Tour open={tourOpen} steps={tourSteps} base={BASE} onClose={closeTour} />
+        <PointsWatcher onEarned={dashboard.reload} />
+        <PointsGuide open={guideOpen} onClose={closeGuide} />
+        <Tour open={tourOpen} steps={tourSteps} base={BASE} onClose={closeTour} forced={tourForced} />
         <LiveClassPopup scheduleHref={`${BASE}/schedule`} />
         </LiveFeedProvider>
       </PortalShell>
     </StudentContext.Provider>
   );
+}
+
+/** Shows "+n pts" when something earns points and refreshes the totals in the sidebar. Lives inside the portal shell for the toast. */
+function PointsWatcher({ onEarned }) {
+  const toast = useToast();
+  useEffect(() => {
+    const on = (e) => {
+      const n = e.detail?.points || 0;
+      if (n > 0) toast(`+${n} point${n === 1 ? '' : 's'}`);
+      onEarned?.();
+    };
+    window.addEventListener(POINTS_EVENT, on);
+    return () => window.removeEventListener(POINTS_EVENT, on);
+  }, [toast, onEarned]);
+  return null;
 }

@@ -56,3 +56,26 @@
   .atp .tour-spot::after { animation: none; display: none; }
 }
 .atp .tour-bell { display: inline-flex; }
+
+/* "Need a hand?" halo + bubble on the help button (first logins) */
+.atp .tour-help-wrap { position: relative; display: inline-flex; }
+.atp .tour-help.halo { color: var(--white); border-color: var(--cr); animation: tour-halo 1.8s ease-out infinite; }
+.atp .tour-hint { position: absolute; top: calc(100% + 14px); inset-inline-end: -8px; z-index: 30; width: min(280px, calc(100vw - 32px)); padding: 14px 16px; border-radius: 16px; background: var(--s2); border: 1px solid var(--cr); box-shadow: 0 20px 50px -10px rgb(0 0 0 / 0.7), 0 0 30px -8px rgb(202 19 62 / 0.5); animation: tour-pop 0.4s 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.atp .tour-hint::before { content: ""; position: absolute; top: -8px; inset-inline-end: 22px; width: 14px; height: 14px; transform: rotate(45deg); background: var(--s2); border-top: 1px solid var(--cr); border-left: 1px solid var(--cr); }
+.atp .tour-hint b { display: block; font-size: 0.98rem; padding-inline-end: 22px; }
+.atp .tour-hint p { margin: 4px 0 12px; font-size: 0.84rem; line-height: 1.5; color: var(--mu); }
+.atp .tour-hint-acts { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.atp .tour-hint-no { font-size: 0.8rem; color: var(--fa); padding: 6px 8px; border-radius: 8px; }
+.atp .tour-hint-no:hover { color: var(--white); }
+.atp .tour-hint-x { position: absolute; top: 8px; inset-inline-end: 8px; width: 26px; height: 26px; border-radius: 8px; display: grid; place-items: center; color: var(--fa); }
+.atp .tour-hint-x:hover { color: var(--white); background: var(--s3); }
+.atp .tour-hint-x .i { width: 15px; height: 15px; }
+@keyframes tour-halo {
+  0% { box-shadow: 0 0 0 0 rgb(202 19 62 / 0.75), 0 0 14px 2px rgb(202 19 62 / 0.45); }
+  70% { box-shadow: 0 0 0 16px rgb(202 19 62 / 0), 0 0 14px 2px rgb(202 19 62 / 0.45); }
+  100% { box-shadow: 0 0 0 0 rgb(202 19 62 / 0), 0 0 14px 2px rgb(202 19 62 / 0.45); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .atp .tour-help.halo { animation: none; box-shadow: 0 0 0 3px rgb(202 19 62 / 0.55); }
+  .atp .tour-hint { animation: none; }
+}

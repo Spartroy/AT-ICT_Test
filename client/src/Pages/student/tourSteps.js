@@ -16,7 +16,7 @@ export const studentTourSteps = (firstName) => [
     path: '',
     target: '.hero',
     title: 'Your home base',
-    body: "This is the first thing you see each time: your progress through the term plan, plus quick buttons for pending work and picking up your lessons where you left off."
+    body: 'This is the first thing you see each time: your progress through the term plan, and a quick button to the work that is waiting for you.'
   },
   {
     id: 'stats',
@@ -31,7 +31,7 @@ export const studentTourSteps = (firstName) => [
     target: '[data-tour="nav-learn"]',
     side: 'right',
     title: 'Learn',
-    body: 'All your study material: books, video lessons, interactive notes, flashcards, past papers and labs. We will look inside in a moment.'
+    body: 'All your study material: books, video lessons, interactive notes, past papers and labs (which hold the flashcards). We will look inside in a moment.'
   },
   {
     id: 'nav-work',
@@ -64,7 +64,7 @@ export const studentTourSteps = (firstName) => [
     side: 'right',
     optional: true,
     title: 'Your points',
-    body: 'You earn points for finishing work on time. The bar shows how close you are to the top of the leaderboard.'
+    body: 'You earn points for good grades, handing in on time, studying a little every day and joining live classes. Tap "How points work" under the bar to see every rule. The bar shows how close you are to the top of the leaderboard.'
   },
   {
     id: 'bell',
@@ -84,8 +84,8 @@ export const studentTourSteps = (firstName) => [
     id: 'learn-tabs',
     path: 'learn/materials',
     target: '[aria-label="Learning sections"]',
-    title: 'Six ways to study',
-    body: 'Materials are books, Videos are step-by-step lessons, Notes are interactive chapters, Flashcards help you memorise, Past papers are exam practice, and Labs are hands-on.'
+    title: 'Five ways to study',
+    body: 'Materials are books, Videos are step-by-step lessons, Notes are interactive chapters, Past papers are exam practice, and Labs hold the extras: flashcards to memorise, a mindmap and a study guide.'
   },
   {
     id: 'learn-materials',

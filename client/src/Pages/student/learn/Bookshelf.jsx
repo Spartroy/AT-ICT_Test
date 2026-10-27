@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import useApi from '../../../hooks/useApi';
 import { API_ENDPOINTS } from '../../../config/api';
-import { ErrorNote, Loading, SearchBox, Seg } from '../../../components/portal/kit';
+import { ErrorNote, Loading, Seg } from '../../../components/portal/kit';
 import { Download } from 'lucide-react';
 import ResourceViewer from '../../../components/portal/viewer/ResourceViewer';
 import { usePortalUI } from '../../../components/portal/PortalUI';
@@ -26,7 +26,6 @@ export const kindOf = (m) => m.kind === 'revsheet' || m.kind === 'source' ? m.ki
 export default function Bookshelf() {
   const materials = useApi(API_ENDPOINTS.STUDENT.MATERIALS, b => b.data?.allMaterials || []);
   const [cat, setCat] = useState('theory');
-  const [q, setQ] = useState('');
   const [open, setOpen] = useState(null);
   const [sheet, setSheet] = useState(null);
   const { toast } = usePortalUI();
@@ -38,7 +37,7 @@ export default function Bookshelf() {
   };
 
   const counts = useMemo(() => Object.fromEntries(CATS.map(c => [c.id, (materials.data || []).filter(m => m.type === c.id).length])), [materials.data]);
-  const matches = (materials.data || []).filter(m => m.type === cat && m.title.toLowerCase().includes(q.trim().toLowerCase()));
+  const matches = (materials.data || []).filter(m => m.type === cat);
   const books = matches.filter(m => kindOf(m) === 'book');
   const sheets = matches.filter(m => kindOf(m) === 'revsheet');
   const sources = matches.filter(m => kindOf(m) === 'source');
@@ -54,7 +53,6 @@ export default function Bookshelf() {
 
   return (
     <>
-      <SearchBox value={q} onChange={setQ} placeholder="Search materials…" />
       <Seg tabs={CATS.map(c => ({ ...c, count: counts[c.id] }))} value={cat} onChange={setCat} label="Material category" slide />
 
       {matches.length ? (
@@ -86,7 +84,7 @@ export default function Bookshelf() {
           <p className="sub" style={{ marginTop: 12, fontSize: '.85rem' }}>{hint}</p>
         </>
       ) : (
-        <p className="sub" style={{ padding: '30px 0' }}>{q ? 'No materials match your search.' : 'Nothing here yet.'}</p>
+        <p className="sub" style={{ padding: '30px 0' }}>Nothing here yet.</p>
       )}
 
       {open && <BookOverlay key={open.m._id} {...open} catLabel={CATS.find(c => c.id === open.m.type)?.label} onClosed={() => setOpen(null)} />}

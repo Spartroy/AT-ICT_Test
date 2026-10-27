@@ -5,6 +5,7 @@
  * @version 1.0.0
  */
 
+const { nextLoginCount } = require('../utils/loginCount');
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
@@ -349,6 +350,11 @@ const login = async (req, res) => {
     // Reset login attempts on successful login
     if (user.loginAttempts > 0) {
       await user.resetLoginAttempts();
+    }
+
+    // Students: count the login (first-run tutorial and help hint), before lastLogin is overwritten
+    if (user.role === 'student') {
+      user.studentInfo.loginCount = nextLoginCount(user.studentInfo?.loginCount, user.lastLogin);
     }
 
     // Update last login timestamp
