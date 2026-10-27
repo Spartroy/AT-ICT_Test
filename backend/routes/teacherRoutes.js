@@ -6,6 +6,8 @@ const {
   updateStudent,
   updateQuizFeedback,
   createParentAccount,
+  deleteParentAccount,
+  recreateParentAccount,
   deleteStudent,
   addLegacyStudent
 } = require('../controllers/teacherController');
@@ -24,6 +26,7 @@ const {
   createPayment,
   getStudentPayments,
   updatePayment,
+  reviewPayment,
   deletePayment,
   resetStudentPassword,
 } = require('../controllers/paymentController');
@@ -61,6 +64,9 @@ router.put('/students/:id', updateStudent);
 router.delete('/students/:id', deleteStudent);
 // Create parent account for a student
 router.post('/students/:id/create-parent', createParentAccount);
+// Delete a student's parent account, or delete it and create a fresh one
+router.delete('/students/:id/parent', deleteParentAccount);
+router.post('/students/:id/recreate-parent', recreateParentAccount);
 // Add legacy student
 router.post('/legacy-students', addLegacyStudent);
 
@@ -102,6 +108,7 @@ router.delete('/stories/:id', deleteStudentStory);
 router.get('/students/:studentId/payments', getStudentPayments);
 router.post('/students/:studentId/payments', createPayment);
 router.put('/payments/:paymentId', updatePayment);
+router.post('/payments/:paymentId/review', reviewPayment);
 router.delete('/payments/:paymentId', deletePayment);
 
 // Force-reset student password

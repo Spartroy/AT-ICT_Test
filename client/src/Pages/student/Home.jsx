@@ -110,7 +110,7 @@ export default function Home() {
           ) : (
             <div className="next" key={item._id}>
               <div className={`tm ${new Date(item.dueDate) < new Date() ? 'bad' : ''}`}>{fmtDate(item.dueDate, { day: 'numeric', month: 'numeric' })}<small>{new Date(item.dueDate) < new Date() ? 'Overdue' : 'Due'}</small></div>
-              <div><h4>{item.title}</h4><p>{[item.difficulty, item.section].filter(Boolean).join(' · ')}</p></div>
+              <div><h4>{item.title}</h4><p>{item.section}</p></div>
               <Link className="btn o sm" to={`${base}/work/assignments`}>View</Link>
             </div>
           ))}

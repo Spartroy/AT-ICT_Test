@@ -19,14 +19,13 @@ export default function HomeworkModal({ open, onClose }) {
   const [due, setDue] = useState('');
   const [audience, setAudience] = useState(emptyAudience);
   const [instructions, setInstructions] = useState('');
-  const [difficulty, setDifficulty] = useState('medium');
   const [errors, setErrors] = useState({});
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
     if (!open) return;
     setLesson(empty); setTitle(''); setMax(30); setDue(''); setAudience(emptyAudience());
-    setInstructions(''); setDifficulty('medium'); setErrors({});
+    setInstructions(''); setErrors({});
   }, [open]);
 
   const auto = autoTitle(lesson);
@@ -55,7 +54,6 @@ export default function HomeworkModal({ open, onClose }) {
       section,
       dueDate: new Date(due).toISOString(),
       maxScore: Number(max),
-      difficulty,
       instructions: instructions.trim() || undefined,
       ...audienceBody(audience),
       ...(lesson.section && {
@@ -129,16 +127,9 @@ export default function HomeworkModal({ open, onClose }) {
         {errors.max && <span className="fld-err">{errors.max}</span>}
       </div>
 
-      <div className="r2">
-        <Fld label="Due date *" error={errors.due}>
-          <input className="inp" type="datetime-local" value={due} onChange={e => setDue(e.target.value)} />
-        </Fld>
-        <Fld label="Difficulty">
-          <select className="inp" value={difficulty} onChange={e => setDifficulty(e.target.value)}>
-            <option value="easy">Easy</option><option value="medium">Medium</option><option value="hard">Hard</option>
-          </select>
-        </Fld>
-      </div>
+      <Fld label="Due date *" error={errors.due}>
+        <input className="inp" type="datetime-local" value={due} onChange={e => setDue(e.target.value)} />
+      </Fld>
       <AudiencePicker value={audience} onChange={setAudience} error={errors.students} />
       <Fld label="Instructions (optional)">
         <textarea className="inp" rows={3} value={instructions} onChange={e => setInstructions(e.target.value)} />

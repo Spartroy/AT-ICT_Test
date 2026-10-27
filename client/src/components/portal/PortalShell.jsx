@@ -7,6 +7,7 @@ import { LogoTile, initials } from './kit';
 import { clearAuth } from '../../utils/auth';
 import { API_ENDPOINTS } from '../../config/api';
 import { api } from '../../lib/api';
+import { useLang } from '../../i18n/context';
 import '../../styles/generated/portal.css';
 import '../../styles/portal-extra.css';
 
@@ -18,9 +19,10 @@ import '../../styles/portal-extra.css';
 /** Profile pill that opens "Change password" (students and parents). */
 function ProfilePill({ user }) {
   const [open, setOpen] = useState(false);
+  const { t } = useLang();
   return (
     <>
-      <button type="button" className="me me-link" aria-label={`${user?.name}: change password`} onClick={() => setOpen(true)}>
+      <button type="button" className="me me-link" aria-label={`${user?.name}: ${t('change password')}`} onClick={() => setOpen(true)}>
         <span className="av" aria-hidden="true">{initials(user?.name)}</span>
         <div><b>{user?.name}</b><small>{user?.sub}</small></div>
       </button>
@@ -31,6 +33,7 @@ function ProfilePill({ user }) {
 
 export default function PortalShell({ variant, nav, user, tagline, aside, bell, bellSlot, meTo, children }) {
   const navigate = useNavigate();
+  const { t, dir, lang } = useLang();
 
   const logout = async () => {
     try {
@@ -45,19 +48,19 @@ export default function PortalShell({ variant, nav, user, tagline, aside, bell, 
   const navClass = (base) => ({ isActive }) => `${base} ${isActive ? 'on' : ''}`.trim();
 
   return (
-    <div className={`atp atp-${variant}`}>
+    <div className={`atp atp-${variant}`} dir={dir} lang={lang}>
       <PortalUIProvider>
-        <a href="#main-content" className="pt-skip">Skip to content</a>
+        <a href="#main-content" className="pt-skip">{t('Skip to content')}</a>
         <div className="app">
-          <aside className="side" aria-label="Sidebar">
+          <aside className="side" aria-label={t('Sidebar')}>
             <div className="brand"><LogoTile /></div>
-            {tagline && <small className="tp">{tagline}</small>}
-            <nav aria-label="Main">
+            {tagline && <small className="tp">{t(tagline)}</small>}
+            <nav aria-label={t('Main')}>
               {nav.map(n => (
                 <NavLink key={n.to} to={n.to} end={n.end} className={navClass('nv')} data-tour={n.tour}>
                   <n.icon className="i" aria-hidden="true" />
-                  <span>{n.label}</span>
-                  {!!n.badge && <span className="bd" aria-label={`${n.badge} new`}>{n.badge}</span>}
+                  <span>{t(n.label)}</span>
+                  {!!n.badge && <span className="bd" aria-label={`${n.badge} ${t('new')}`}>{n.badge}</span>}
                 </NavLink>
               ))}
             </nav>
@@ -68,16 +71,16 @@ export default function PortalShell({ variant, nav, user, tagline, aside, bell, 
               <LogoTile mark className="mlogo" />
               <span className="sp" />
               {bellSlot || (bell && (
-                <button type="button" className="ib" aria-label={bell.label || 'Notifications'} onClick={bell.onClick}>
+                <button type="button" className="ib" aria-label={bell.label || t('Notifications')} onClick={bell.onClick}>
                   <Bell className="i" aria-hidden="true" />
                   {bell.dot && <span className="dot" />}
                 </button>
               ))}
-              <button type="button" className="ib" aria-label="Log out" onClick={logout}>
+              <button type="button" className="ib" aria-label={t('Log out')} onClick={logout}>
                 <LogOut className="i" aria-hidden="true" />
               </button>
               {meTo ? (
-                <NavLink to={meTo} className="me me-link" aria-label={`${user?.name}, settings`}>
+                <NavLink to={meTo} className="me me-link" aria-label={`${user?.name}, ${t('settings')}`}>
                   <span className="av" aria-hidden="true">{initials(user?.name)}</span>
                   <div><b>{user?.name}</b><small>{user?.sub}</small></div>
                 </NavLink>
@@ -90,12 +93,12 @@ export default function PortalShell({ variant, nav, user, tagline, aside, bell, 
             </main>
           </div>
         </div>
-        <nav className="tabbar" aria-label="Main (mobile)" style={{ gridTemplateColumns: `repeat(${nav.length}, 1fr)` }}>
+         <nav className="tabbar" aria-label={t('Main (mobile)')} style={{ gridTemplateColumns: `repeat(${nav.length}, 1fr)` }}>
           {nav.map(n => (
             <NavLink key={n.to} to={n.to} end={n.end} className={navClass('')} data-tour={n.tour}>
               <n.icon className="i" aria-hidden="true" />
-              <span>{n.label}</span>
-              {!!n.badge && <span className="bd" aria-label={`${n.badge} new`}>{n.badge}</span>}
+              <span>{t(n.label)}</span>
+              {!!n.badge && <span className="bd" aria-label={`${n.badge} ${t('new')}`}>{n.badge}</span>}
             </NavLink>
           ))}
         </nav>

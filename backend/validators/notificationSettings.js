@@ -12,6 +12,7 @@ const CATEGORIES = [
   { id: 't_registration', audience: 'teacher', label: 'New registrations' },
   { id: 't_submission', audience: 'teacher', label: 'New submissions to grade' },
   { id: 't_chat', audience: 'teacher', label: 'Messages from students' },
+  { id: 't_payment', audience: 'teacher', label: 'Payment proofs to review' },
   { id: 't_digest', audience: 'teacher', label: 'Daily digest' }
 ];
 const CATEGORY_IDS = CATEGORIES.map(c => c.id);

@@ -371,3 +371,70 @@
 .atp .next-live .tm { color: var(--mu); }
 .atp .next-live.on { border-color: rgb(239 68 68 / 0.5); background: linear-gradient(135deg, rgb(202 19 62 / 0.14), transparent 70%); }
 .atp .next-live.on .tm { color: #fca5a5; font-weight: 800; }
+
+/* Parent payments: summary tiles + detailed payment cards */
+.atp .pay-sum { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin-bottom: 16px; }
+.atp .pay-tile { display: flex; gap: 14px; align-items: center; padding: 16px 18px; border-radius: 18px; background: var(--s1); border: 1px solid var(--bd); }
+.atp .pay-tile small { display: block; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--fa); font-weight: 600; }
+.atp .pay-tile b { display: block; font-family: var(--font-numeric); font-size: 1.3rem; margin-top: 2px; }
+.atp .pay-tile em { display: block; font-style: normal; font-size: 0.76rem; color: var(--dark-error); margin-top: 2px; }
+.atp .pay-tile-ic { width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center; flex: none; background: var(--s3); color: var(--mu); }
+.atp .pay-tile.warn .pay-tile-ic { background: rgb(251 191 36 / 0.15); color: var(--am); }
+.atp .pay-tile.info .pay-tile-ic { background: rgb(96 165 250 / 0.15); color: var(--bl); }
+.atp .pay-tile.ok .pay-tile-ic { background: rgb(52 211 153 / 0.15); color: var(--ok); }
+
+.atp .pay-card { padding: 20px 22px; display: grid; gap: 16px; border-inline-start: 4px solid var(--bd2, var(--bd)); }
+.atp .pay-card.st-pending { border-inline-start-color: var(--am); }
+.atp .pay-card.st-review { border-inline-start-color: var(--bl); }
+.atp .pay-card.st-paid { border-inline-start-color: var(--ok); }
+.atp .pay-card.st-overdue { border-inline-start-color: var(--dark-error); }
+.atp .pay-top { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.atp .pay-ic { width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; flex: none; background: rgb(202 19 62 / 0.14); color: var(--dark-accent-text); }
+.atp .pay-title { flex: 1; min-width: 180px; }
+.atp .pay-title h3 { margin: 0 0 6px; font-size: 1.1rem; }
+.atp .pay-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.atp .pay-amount { text-align: end; }
+.atp .pay-amount small { display: block; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--fa); }
+.atp .pay-total { font-family: var(--font-numeric); font-size: 1.6rem; white-space: nowrap; }
+.atp .pay-facts { margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 8px; }
+.atp .pay-fact { padding: 10px 14px; border-radius: 12px; background: var(--s2); min-width: 0; }
+.atp .pay-fact dt { display: flex; align-items: center; gap: 6px; font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--fa); font-weight: 600; }
+.atp .pay-fact dt .i { width: 14px; height: 14px; }
+.atp .pay-fact dd { margin: 4px 0 0; font-size: 0.92rem; overflow-wrap: anywhere; }
+.atp .pay-fact dd em { font-style: normal; color: var(--mu); }
+.atp .pay-fact dd em.bad, .atp .pay-fact.bad dd { color: var(--dark-error); }
+.atp .pay-fact.ok dd { color: var(--ok); }
+.atp .pay-note { margin: 0; padding: 12px 14px; border-radius: 12px; background: var(--s2); font-size: 0.88rem; color: var(--mu); }
+.atp .pay-note b { color: var(--tx); }
+
+.atp .pay-steps { list-style: none; margin: 0; padding: 0; display: flex; gap: 8px; align-items: flex-start; }
+.atp .pay-steps li { flex: 1; display: grid; justify-items: center; gap: 6px; text-align: center; font-size: 0.76rem; color: var(--fa); position: relative; }
+.atp .pay-steps li::before { content: ""; position: absolute; top: 13px; inset-inline: calc(-50% + 18px) calc(50% + 18px); height: 2px; background: var(--s3); }
+.atp .pay-steps li:first-child::before { display: none; }
+.atp .pay-steps li.done::before { background: var(--ok); }
+.atp .pay-dot { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: var(--s3); color: var(--mu); font-weight: 700; font-size: 0.78rem; position: relative; z-index: 1; }
+.atp .pay-dot .i { width: 15px; height: 15px; stroke-width: 3; }
+.atp .pay-steps li.done { color: var(--tx); }
+.atp .pay-steps li.done .pay-dot { background: var(--ok); color: #06251a; }
+.atp .pay-steps li.now .pay-dot { background: var(--cr); color: var(--white); box-shadow: 0 0 0 4px rgb(202 19 62 / 0.25); }
+.atp .pay-steps li.now { color: var(--white); font-weight: 600; }
+
+.atp .pay-alert { display: flex; gap: 12px; padding: 14px 16px; border-radius: 14px; border: 1px solid; }
+.atp .pay-alert > .i { flex: none; margin-top: 2px; }
+.atp .pay-alert p { margin: 4px 0 0; font-size: 0.88rem; color: var(--mu); }
+.atp .pay-alert small { display: block; margin-top: 4px; color: var(--fa); }
+.atp .pay-alert.bad { background: rgb(251 113 133 / 0.1); border-color: rgb(251 113 133 / 0.35); }
+.atp .pay-alert.bad > .i, .atp .pay-alert.bad b { color: var(--dark-error); }
+.atp .pay-alert.info { background: rgb(96 165 250 / 0.1); border-color: rgb(96 165 250 / 0.3); }
+.atp .pay-alert.info > .i, .atp .pay-alert.info b { color: var(--bl); }
+.atp .pay-alert.ok { background: rgb(52 211 153 / 0.1); border-color: rgb(52 211 153 / 0.3); }
+.atp .pay-alert.ok > .i, .atp .pay-alert.ok b { color: var(--ok); }
+.atp .pay-proof { display: inline-flex; align-items: center; gap: 8px; margin-top: 8px; font-size: 0.84rem; color: var(--bl); font-weight: 600; }
+.atp .pay-actions { display: grid; gap: 12px; padding-top: 14px; border-top: 1px solid var(--bd); }
+.atp .pay-how { list-style: decimal; margin: 0; padding-inline-start: 20px; display: grid; gap: 2px; font-size: 0.84rem; color: var(--mu); }
+.atp .pay-btns { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.atp .pay-file { cursor: pointer; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+@media (max-width: 600px) {
+  .atp .pay-amount { text-align: start; width: 100%; }
+  .atp .pay-btns .btn { flex: 1 1 100%; justify-content: center; }
+}

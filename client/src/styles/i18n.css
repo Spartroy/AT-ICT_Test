@@ -1,0 +1,56 @@
+/* Language switch loader + right-to-left layout for the parent portal (.atp[dir="rtl"]). */
+.lang-loader { position: fixed; inset: 0; z-index: 400; display: grid; place-items: center; background: rgb(8 8 9 / 0.94); backdrop-filter: blur(10px); color: var(--white, #fff); animation: lang-in 0.25s both, lang-out 0.4s 0.85s both; }
+.lang-loader .bkl { gap: 22px; }
+.lang-loader-text { display: inline-flex; align-items: center; gap: 10px; font-size: 1rem; font-weight: 600; letter-spacing: 0.02em; font-family: "Cairo", "Poppins", system-ui, sans-serif; }
+.lang-loader-text .i { width: 20px; height: 20px; color: var(--crimson-glow, #ff5a7c); }
+.lang-loader.calm { animation: none; }
+@keyframes lang-in { from { opacity: 0; } }
+@keyframes lang-out { to { opacity: 0; } }
+
+.atp .lang-toggle { width: auto; padding: 0 16px; font-weight: 700; font-size: 0.88rem; color: var(--tx, #fff); cursor: pointer; font-family: "Cairo", "Poppins", system-ui, sans-serif; }
+.atp .lang-toggle:disabled { opacity: 0.6; cursor: progress; }
+
+/* Arabic type: Poppins and Jumper have no Arabic glyphs, so Cairo carries the text. Digits stay in the numeric face. */
+.atp[dir="rtl"] { --font-body: "Cairo", "Poppins", system-ui, "Segoe UI", Tahoma, sans-serif; --font-display: "Cairo", "Poppins", system-ui, sans-serif; letter-spacing: 0; }
+.atp[dir="rtl"] h1, .atp[dir="rtl"] h2, .atp[dir="rtl"] h3, .atp[dir="rtl"] h4 { letter-spacing: 0; }
+.atp[dir="rtl"] .lbl, .atp[dir="rtl"] .chip, .atp[dir="rtl"] small, .atp[dir="rtl"] .tp { letter-spacing: 0; text-transform: none; }
+.atp[dir="rtl"] .big em { font-style: normal; }
+
+/* Sidebar, nav, top bar */
+.atp[dir="rtl"] .side { border-right: 0; border-left: 1px solid var(--bd); }
+.atp[dir="rtl"] .nv { text-align: right; }
+.atp[dir="rtl"] .nv .bd { margin-left: 0; margin-right: auto; }
+.atp[dir="rtl"] .ib .dot { right: auto; left: 11px; }
+.atp[dir="rtl"] .me { padding: 5px 5px 5px 14px; }
+.atp[dir="rtl"] .tabbar .bd { right: auto; left: calc(50% - 20px); }
+
+/* Cards, rows, stats */
+.atp[dir="rtl"] .hero::after { right: auto; left: -60px; }
+.atp[dir="rtl"] .card h3 .lk { margin-left: 0; margin-right: auto; }
+.atp[dir="rtl"] .next .btn { margin-left: 0; margin-right: auto; }
+.atp[dir="rtl"] .lb .pt { margin-left: 0; margin-right: auto; }
+.atp[dir="rtl"] .row > .hd { text-align: right; }
+.atp[dir="rtl"] .row .sc { margin-left: 0; margin-right: auto; text-align: left; }
+.atp[dir="rtl"] .search svg { left: auto; right: 15px; }
+.atp[dir="rtl"] .search input { padding: 13px 44px 13px 16px; }
+.atp[dir="rtl"] .search-clear { right: auto; left: 8px; }
+.atp[dir="rtl"] .ann { text-align: right; border-left: 1px solid var(--bd); border-right: 4px solid var(--bl); }
+.atp[dir="rtl"] .ann:hover { border-left-color: var(--bd); border-right-color: var(--cr); transform: translateX(-4px); }
+.atp[dir="rtl"] .dlg .x { right: auto; left: 18px; }
+.atp[dir="rtl"] .acc > button { text-align: right; }
+.atp[dir="rtl"] .acc > button > svg:last-child { margin-left: 0; margin-right: auto; }
+.atp[dir="rtl"] .wd .ev, .atp[dir="rtl"] .ev { border-left: 0; border-right: 3px solid; }
+.atp[dir="rtl"] .mfoot { flex-direction: row-reverse; justify-content: flex-start; }
+.atp[dir="rtl"] input, .atp[dir="rtl"] textarea, .atp[dir="rtl"] select { text-align: right; }
+.atp[dir="rtl"] input[type="password"], .atp[dir="rtl"] input[type="email"], .atp[dir="rtl"] input[type="number"] { direction: ltr; text-align: right; }
+.atp[dir="rtl"] .fld-err { text-align: right; }
+.atp[dir="rtl"] .toast { left: 50%; right: auto; }
+.atp[dir="rtl"] .ph-actions { margin-right: auto; }
+
+/* Arrows that point "forward" */
+.atp[dir="rtl"] .lk, .atp[dir="rtl"] .rtl-flip { unicode-bidi: plaintext; }
+.atp[dir="rtl"] svg.flip { transform: scaleX(-1); }
+@media (max-width: 900px) {
+  .atp[dir="rtl"] .row .sc { margin-right: 0; padding-left: 0; padding-right: 58px; }
+  .atp[dir="rtl"] .next .btn { margin-right: 0; }
+}

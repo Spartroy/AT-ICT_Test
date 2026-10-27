@@ -40,15 +40,24 @@ const paymentSchema = new mongoose.Schema(
       type: Number,
       default: null,
     },
-    /** InstaPay screenshot uploaded by parent */
+    /** InstaPay screenshot uploaded by the parent. It only counts once the teacher confirms it (status 'review' -> 'paid'). */
     paymentProof: {
       path: { type: String },
       originalName: { type: String },
       uploadedAt: { type: Date },
     },
+    /** Set when the teacher turns a proof down, so the parent sees why and can send a new one. */
+    lastRejection: {
+      reason: { type: String, trim: true },
+      rejectedAt: { type: Date },
+      proofPath: { type: String },
+    },
+    /** Who confirmed the payment and when (teacher). */
+    confirmedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     status: {
       type: String,
-      enum: ['pending', 'paid', 'overdue', 'cancelled'],
+      // 'review' = the parent sent proof and the teacher has not checked it yet
+      enum: ['pending', 'review', 'paid', 'overdue', 'cancelled'],
       default: 'pending',
       index: true,
     },

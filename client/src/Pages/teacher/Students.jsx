@@ -96,6 +96,16 @@ function StudentList() {
         const res = await api.post(`${API_ENDPOINTS.TEACHER.STUDENTS}/${s._id}/create-parent`, {});
         setCreds({ title: `Parent account for ${s.fullName}`, ...res.data.credentials });
         list.reload();
+      } else if (kind === 'recreateParent') {
+        if (!(await confirm({ title: `Recreate ${s.fullName}'s parent account?`, body: 'The current parent login stops working and a new email and password are created.', confirmLabel: 'Recreate' }))) return;
+        const res = await api.post(`${API_ENDPOINTS.TEACHER.STUDENTS}/${s._id}/recreate-parent`, {});
+        setCreds({ title: `New parent account for ${s.fullName}`, ...res.data.credentials });
+        list.reload();
+      } else if (kind === 'deleteParent') {
+        if (!(await confirm({ title: `Delete ${s.fullName}'s parent account?`, body: 'The parent can no longer sign in. You can create a new account afterwards.', confirmLabel: 'Delete parent' }))) return;
+        await api.del(`${API_ENDPOINTS.TEACHER.STUDENTS}/${s._id}/parent`);
+        toast('Parent account deleted');
+        list.reload();
       } else if (kind === 'chatParent') {
         navigate(`${base}/inbox/chat`);
       } else if (kind === 'reset') {
@@ -159,9 +169,13 @@ function StudentList() {
               <div className="mw">
                 <button type="button" className="ib sm" aria-label={`More actions for ${s.fullName}`} aria-haspopup="menu" aria-expanded={menu === s._id} onClick={() => setMenu(m => (m === s._id ? null : s._id))}><Ic as={MoreHorizontal} /></button>
                 <div className={`menu ${menu === s._id ? 'on' : ''}`} role="menu" hidden={menu !== s._id}>
-                  {s.hasParent
-                    ? <button type="button" role="menuitem" onClick={() => act('chatParent', s)}>Chat with parent</button>
-                    : <button type="button" role="menuitem" onClick={() => act('parent', s)}>Create parent account</button>}
+                  {s.hasParent ? (
+                    <>
+                      <button type="button" role="menuitem" onClick={() => act('chatParent', s)}>Chat with parent</button>
+                      <button type="button" role="menuitem" onClick={() => act('recreateParent', s)}>Recreate parent account</button>
+                      <button type="button" role="menuitem" className="dng" onClick={() => act('deleteParent', s)}>Delete parent account</button>
+                    </>
+                  ) : <button type="button" role="menuitem" onClick={() => act('parent', s)}>Create parent account</button>}
                   {!s.schoolType && <button type="button" role="menuitem" onClick={() => { setMenu(null); setClassifying(s); }}>Classify as Royal College</button>}
                   <button type="button" role="menuitem" onClick={() => act('reset', s)}>Reset password</button>
                   <button type="button" role="menuitem" className="dng" onClick={() => act('remove', s)}>Remove</button>

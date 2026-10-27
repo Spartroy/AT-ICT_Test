@@ -110,7 +110,6 @@ const getDashboardData = async (req, res) => {
                 studentId: studentUser.studentInfo?.studentId,
                 overallProgress: studentUser.studentInfo?.overallProgress || 0,
                 currentGrade: studentUser.studentInfo?.currentGrade || 'N/A',
-                targetGrade: studentUser.studentInfo?.targetGrade || 'A*',
                 _id: studentUser._id
               },
               relationship: 'guardian',
@@ -126,7 +125,6 @@ const getDashboardData = async (req, res) => {
             studentId: studentUser.studentInfo?.studentId,
             overallProgress: studentUser.studentInfo?.overallProgress || 0,
             currentGrade: studentUser.studentInfo?.currentGrade || 'N/A',
-            targetGrade: studentUser.studentInfo?.targetGrade || 'A*',
             _id: studentUser._id
           },
           relationship: 'guardian'
@@ -140,7 +138,6 @@ const getDashboardData = async (req, res) => {
               studentId: studentUser.studentInfo?.studentId,
               overallProgress: studentUser.studentInfo?.overallProgress || 0,
               currentGrade: studentUser.studentInfo?.currentGrade || 'N/A',
-              targetGrade: studentUser.studentInfo?.targetGrade || 'A*',
               _id: studentUser._id
             },
             relationship: 'guardian',

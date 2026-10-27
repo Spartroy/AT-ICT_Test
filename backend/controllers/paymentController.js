@@ -3,6 +3,7 @@ const Payment = require('../models/Payment');
 const User = require('../models/User');
 const Parent = require('../models/Parent');
 const crypto = require('crypto');
+const { notify, teacherIds } = require('../services/notifications');
 
 /**
  * Resolve the linked student's User _id for a parent account.
@@ -138,8 +139,11 @@ const updatePayment = async (req, res) => {
       if (req.body[field] !== undefined) payment[field] = req.body[field];
     });
 
-    if (req.body.status === 'paid' && !payment.paidDate) {
-      payment.paidDate = new Date();
+    if (req.body.status === 'paid') {
+      if (!payment.paidDate) payment.paidDate = new Date();
+      payment.confirmedBy = req.user.id;
+    } else if (req.body.status && req.body.status !== 'paid') {
+      payment.paidDate = undefined;
     }
 
     await payment.save();
@@ -147,6 +151,45 @@ const updatePayment = async (req, res) => {
   } catch (error) {
     console.error('updatePayment error:', error);
     res.status(500).json({ status: 'error', message: 'Failed to update payment' });
+  }
+};
+
+// ── Teacher: confirm or reject the proof a parent sent ───────────────────────
+// confirm -> paid (paid date = now). reject -> back to pending with a reason so the parent can send a new screenshot.
+const reviewPayment = async (req, res) => {
+  try {
+    const { decision } = req.body;
+    const reason = String(req.body.reason || '').trim().slice(0, 300);
+    if (!['confirm', 'reject'].includes(decision)) {
+      return res.status(400).json({ status: 'error', message: 'Choose confirm or reject' });
+    }
+    const payment = await Payment.findById(req.params.paymentId);
+    if (!payment) {
+      return res.status(404).json({ status: 'error', message: 'Payment not found' });
+    }
+    if (payment.status !== 'review') {
+      return res.status(400).json({ status: 'error', message: 'There is no proof waiting for review on this payment.' });
+    }
+
+    if (decision === 'confirm') {
+      payment.status = 'paid';
+      payment.paidDate = new Date();
+      payment.confirmedBy = req.user.id;
+      payment.lastRejection = undefined;
+    } else {
+      if (!reason) {
+        return res.status(400).json({ status: 'error', message: 'Tell the parent why the proof was not accepted.' });
+      }
+      payment.lastRejection = { reason, rejectedAt: new Date(), proofPath: payment.paymentProof?.path };
+      payment.paymentProof = undefined;
+      payment.status = payment.dueDate && payment.dueDate < new Date() ? 'overdue' : 'pending';
+      payment.paidDate = undefined;
+    }
+    await payment.save();
+    res.json({ status: 'success', data: { payment } });
+  } catch (error) {
+    console.error('reviewPayment error:', error);
+    res.status(500).json({ status: 'error', message: 'Failed to review payment' });
   }
 };
 
@@ -211,41 +254,12 @@ const getParentPayments = async (req, res) => {
   }
 };
 
-// ── Parent: mark a payment as paid (JSON — card placeholder only; InstaPay uses screenshot route) ──
+// ── Parent: card payments are not available. Nothing is marked paid without the teacher's check. ──
 const payPayment = async (req, res) => {
-  try {
-    const { paymentMethod } = req.body;
-    if (!['card', 'instapay'].includes(paymentMethod)) {
-      return res.status(400).json({ status: 'error', message: 'Invalid payment method' });
-    }
-    if (paymentMethod === 'instapay') {
-      return res.status(400).json({
-        status: 'error',
-        message: 'InstaPay requires uploading a screenshot. Use the submit button with proof attached.',
-      });
-    }
-
-    const childUserId = await getLinkedStudentUserId(req.user.id);
-    const childId = childUserId?.toString();
-
-    const payment = await Payment.findById(req.params.paymentId);
-    if (!payment) {
-      return res.status(404).json({ status: 'error', message: 'Payment not found' });
-    }
-    if (!childId || payment.student.toString() !== childId) {
-      return res.status(403).json({ status: 'error', message: 'Access denied' });
-    }
-
-    payment.status = 'paid';
-    payment.paidDate = new Date();
-    payment.paymentMethod = paymentMethod;
-    await payment.save();
-
-    res.json({ status: 'success', data: { payment } });
-  } catch (error) {
-    console.error('payPayment error:', error);
-    res.status(500).json({ status: 'error', message: 'Failed to process payment' });
-  }
+  res.status(400).json({
+    status: 'error',
+    message: 'Online card payment is not available. Pay with InstaPay and send the transfer screenshot; the teacher confirms it.',
+  });
 };
 
 // ── Parent: InstaPay — mark paid with screenshot proof ────────────────────────
@@ -287,18 +301,36 @@ const submitInstapayWithProof = async (req, res) => {
       cleanupFile();
       return res.status(400).json({ status: 'error', message: 'This payment is already marked paid.' });
     }
+    if (payment.status === 'review') {
+      cleanupFile();
+      return res.status(400).json({ status: 'error', message: 'Your proof is already with the teacher for review.' });
+    }
+    if (payment.status === 'cancelled') {
+      cleanupFile();
+      return res.status(400).json({ status: 'error', message: 'This payment was cancelled.' });
+    }
 
     const publicPath = `/uploads/payments/${req.file.filename}`;
 
-    payment.status = 'paid';
-    payment.paidDate = new Date();
+    // The screenshot goes to the teacher first: the payment is NOT paid until they confirm it.
+    payment.status = 'review';
     payment.paymentMethod = 'instapay';
+    payment.paidDate = undefined;
     payment.paymentProof = {
       path: publicPath,
       originalName: req.file.originalname,
       uploadedAt: new Date(),
     };
     await payment.save();
+
+    const student = await User.findById(payment.student).select('firstName lastName');
+    teacherIds().then(ids => notify(ids, {
+      type: 't_payment',
+      title: 'Payment proof to review',
+      body: `${student ? `${student.firstName} ${student.lastName}` : 'A parent'} sent proof for ${Number(payment.amount).toLocaleString()} ${payment.currency || 'EGP'}`,
+      url: '/teacher-dashboard/students',
+      urgent: false,
+    })).catch(() => {});
 
     res.json({ status: 'success', data: { payment } });
   } catch (error) {
@@ -312,6 +344,7 @@ module.exports = {
   createPayment,
   getStudentPayments,
   updatePayment,
+  reviewPayment,
   deletePayment,
   resetStudentPassword,
   getParentPayments,

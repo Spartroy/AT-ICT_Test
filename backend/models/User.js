@@ -413,17 +413,6 @@ const userSchema = new mongoose.Schema({
     },
 
     /**
-     * Target grade the student aims to achieve
-     * @type {String}
-     * @default 'A*'
-     */
-    targetGrade: {
-      type: String,
-      default: 'A*',
-      trim: true
-    },
-
-    /**
      * Overall academic progress percentage
      * @type {Number}
      * @min 0

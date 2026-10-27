@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LayoutGrid, ClipboardCheck, GraduationCap, Star, User, Mail, CalendarDays, Users, Eye, Plus, Key, CheckCircle2, X, Trophy } from 'lucide-react';
+import { LayoutGrid, ClipboardCheck, GraduationCap, Star, User, Mail, CalendarDays, Users, Eye, Plus, Key, CheckCircle2, X, Trophy, FileImage, Hourglass } from 'lucide-react';
 import useApi from '../../hooks/useApi';
 import { api } from '../../lib/api';
 import { API_ENDPOINTS } from '../../config/api';
 import { Empty, Ic, Loading, ErrorNote, Stat, fmtDate, initials } from '../../components/portal/kit';
+import { PLAN_LABEL, STATUS_META, effectiveStatus, proofUrl } from '../../lib/payments';
 import { Dialog, useConfirm, useToast } from '../../components/portal/PortalUI';
 import { useTeacher } from './TeacherPortal';
 import { apiError } from './modals/form';
@@ -16,7 +17,6 @@ const TABS = [
   { id: 'pay', label: 'Payments', icon: Star }
 ];
 const known = (v) => v !== null && v !== undefined && v !== '' && v !== 'N/A' && v !== 'Not assigned';
-const PLAN_LABEL = { monthly: 'Monthly', weekly: 'Weekly', per_session: 'Per session', package: 'Package' };
 
 /** Wide student modal: Summary / Assignments / Quizzes / Payments. */
 export default function StudentModal({ studentId, onClose, onCredentials }) {
@@ -100,7 +100,7 @@ function Summary({ d }) {
   const q = d.stats?.quizzes || {};
   const graded = (d.assignments || []).map(x => ({ x, e: (x.assignedTo || []).find(e => String(e.student?._id || e.student) === String(s._id)) })).filter(({ x, e }) => e?.status === 'graded' && x.maxScore);
   const avg = graded.length ? Math.round(graded.reduce((n, { x, e }) => n + e.score / x.maxScore, 0) / graded.length * 100) : 0;
-  const academic = [['Student ID', s.studentId], ['School type', s.schoolType === 'royal' ? 'Royal College' : known(s.schoolType) ? 'Center / other' : 'N/A'], [s.schoolType === 'royal' ? 'Class' : 'Year', s.schoolType === 'royal' ? s.royalClass : s.year], ['Session', s.session], ['School', s.school], ['Target grade', s.targetGrade]];
+  const academic = [['Student ID', s.studentId], ['School type', s.schoolType === 'royal' ? 'Royal College' : known(s.schoolType) ? 'Center / other' : 'N/A'], [s.schoolType === 'royal' ? 'Class' : 'Year', s.schoolType === 'royal' ? s.royalClass : s.year], ['Session', s.session], ['School', s.school]];
   return (
     <>
       <div className="g4" style={{ marginBottom: 14 }}>
@@ -162,6 +162,17 @@ function Payments({ student, onCredentials }) {
       pays.reload();
     } catch (err) { toast(apiError(err)); }
   };
+  const [rejecting, setRejecting] = useState(null); // payment id whose rejection reason is being typed
+  const [reason, setReason] = useState('');
+  const review = async (p, decision) => {
+    try {
+      await api.post(API_ENDPOINTS.TEACHER.PAYMENT_REVIEW(p._id), { decision, reason: reason.trim() });
+      toast(decision === 'confirm' ? 'Payment confirmed' : 'Proof sent back to the parent');
+      setRejecting(null);
+      setReason('');
+      pays.reload();
+    } catch (err) { toast(apiError(err)); }
+  };
   const remove = async (p) => {
     if (!(await confirm({ title: 'Delete this payment plan?', confirmLabel: 'Delete' }))) return;
     try {
@@ -210,16 +221,39 @@ function Payments({ student, onCredentials }) {
       )}
       {pays.loading && !pays.data && <Loading />}
       {pays.data && !pays.data.length && <Empty icon={Star}>No payment plans yet.</Empty>}
-      {(pays.data || []).map(p => (
-        <div className="trow" key={p._id}>
-          <div className="lmain">
-            <b>{p.description || 'Payment'} <span className="chip c-gy">{PLAN_LABEL[p.planType] || p.planType}</span> <span className={`chip ${p.status === 'paid' ? 'c-pr' : p.status === 'overdue' ? 'c-rd' : 'c-am'}`}>{p.status}</span></b>
-            <small><b className="tx pay-amt">{Number(p.amount || 0).toLocaleString()} {p.currency || 'EGP'}</b> {p.sessions ? `${p.perSessionRate} × ${p.sessions} sessions` : ''} · Due {fmtDate(p.dueDate, { day: 'numeric', month: 'numeric', year: 'numeric' })}</small>
+      {(pays.data || []).map(p => {
+        const status = effectiveStatus(p);
+        const waiting = status === 'review';
+        return (
+          <div className={`trow pay-trow ${waiting ? 'needs' : ''}`} key={p._id}>
+            <div className="lmain">
+              <b>{p.description || 'Payment'} <span className="chip c-gy">{PLAN_LABEL[p.planType] || p.planType}</span> <span className={`chip ${STATUS_META[status]?.chip || 'c-am'}`}>{waiting ? 'Needs your review' : STATUS_META[status]?.label || status}</span></b>
+              <small><b className="tx pay-amt">{Number(p.amount || 0).toLocaleString()} {p.currency || 'EGP'}</b> {p.sessions ? `${p.perSessionRate} × ${p.sessions} sessions` : ''} · Due {fmtDate(p.dueDate, { day: 'numeric', month: 'numeric', year: 'numeric' })}{status === 'paid' && p.paidDate ? ` · Paid ${fmtDate(p.paidDate, { day: 'numeric', month: 'numeric', year: 'numeric' })}` : ''}</small>
+              {waiting && p.paymentProof?.path && (
+                <a className="pay-proof-t" href={proofUrl(p.paymentProof.path)} target="_blank" rel="noreferrer">
+                  <img src={proofUrl(p.paymentProof.path)} alt="" loading="lazy" />
+                  <span><Ic as={FileImage} />View the transfer screenshot<small>Sent {fmtDate(p.paymentProof.uploadedAt, { day: 'numeric', month: 'short' })}. Check the amount and date before confirming.</small></span>
+                </a>
+              )}
+              {status !== 'review' && p.lastRejection?.reason && <small className="pay-rej"><Ic as={Hourglass} />Last proof rejected: {p.lastRejection.reason}</small>}
+              {rejecting === p._id && (
+                <div className="pay-reject">
+                  <input className="inp" value={reason} onChange={e => setReason(e.target.value)} placeholder="Why? e.g. amount does not match" maxLength={300} aria-label="Reason for rejecting the proof" autoFocus />
+                  <button type="button" className="btn p sm" disabled={!reason.trim()} onClick={() => review(p, 'reject')}>Send back</button>
+                  <button type="button" className="btn o sm" onClick={() => { setRejecting(null); setReason(''); }}>Cancel</button>
+                </div>
+              )}
+            </div>
+            {waiting ? (
+              <div className="pay-review-acts">
+                <button type="button" className="btn g sm" onClick={() => review(p, 'confirm')}><Ic as={CheckCircle2} />Confirm payment</button>
+                <button type="button" className="btn o sm dng" onClick={() => { setRejecting(p._id); setReason(''); }}><Ic as={X} />Reject proof</button>
+              </div>
+            ) : status !== 'paid' && <button type="button" className="btn g sm" onClick={() => markPaid(p)}><Ic as={CheckCircle2} />Mark paid</button>}
+            <button type="button" className="btn o sm dng" onClick={() => remove(p)}><Ic as={X} />Delete</button>
           </div>
-          {p.status !== 'paid' && <button type="button" className="btn g sm" onClick={() => markPaid(p)}><Ic as={CheckCircle2} />Mark paid</button>}
-          <button type="button" className="btn o sm dng" onClick={() => remove(p)}><Ic as={X} />Delete</button>
-        </div>
-      ))}
+        );
+      })}
     </>
   );
 }

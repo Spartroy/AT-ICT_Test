@@ -236,7 +236,6 @@ function AssignmentList({ onChange }) {
                     <Facts items={[
                       ['Type', a.type],
                       ['Section', a.section],
-                      ['Difficulty', a.difficulty],
                       ['Max score', a.maxScore],
                       ['Handed in', submitted ? `${fmtDateTime(sd.submissionDate)}${sd.isLate ? ' · late' : ''}` : '']
                     ]} />

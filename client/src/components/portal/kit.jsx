@@ -2,6 +2,7 @@ import React, { useEffect, useId, useLayoutEffect, useRef, useState } from 'reac
 import { ChevronDown, Search as SearchIcon, X, Info } from 'lucide-react';
 import logoFull from '../../assets/brand/logo-full-light.png';
 import logoMark from '../../assets/brand/logo-mark-light.png';
+import { useLang } from '../../i18n/context';
 
 /** Lucide icon with the portal's `.i` sizing. */
 export const Ic = ({ as: Icon, ...props }) => <Icon className="i" aria-hidden="true" {...props} />;
@@ -132,12 +133,13 @@ export function Accordion({ head, count, defaultOpen = false, open: openProp, on
 }
 
 export function SearchBox({ value, onChange, placeholder, label, className = '', style, inputRef }) {
+  const { t } = useLang();
   return (
     <div className={`search ${className}`} style={style}>
       <SearchIcon className="i" aria-hidden="true" />
       <input ref={inputRef} type="search" value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder} aria-label={label || placeholder} />
       {value && (
-        <button type="button" className="search-clear" aria-label="Clear search" onClick={() => onChange('')}><X className="i" aria-hidden="true" /></button>
+        <button type="button" className="search-clear" aria-label={t('Clear search')} onClick={() => onChange('')}><X className="i" aria-hidden="true" /></button>
       )}
     </div>
   );
@@ -185,14 +187,16 @@ export function BookLoader({ size = 'md', children }) {
 }
 
 export function Loading({ label = 'Loading…' }) {
-  return <div className="pt-loading" role="status"><BookLoader size="sm" />{label}</div>;
+  const { t } = useLang();
+  return <div className="pt-loading" role="status"><BookLoader size="sm" />{t(label)}</div>;
 }
 
 export function ErrorNote({ error, onRetry }) {
+  const { t } = useLang();
   return (
     <div className="pt-error" role="alert">
-      <span>{error?.message || 'Something went wrong.'}</span>
-      {onRetry && <button type="button" className="btn o sm" onClick={onRetry}>Try again</button>}
+      <span>{t(error?.message || 'Something went wrong.')}</span>
+      {onRetry && <button type="button" className="btn o sm" onClick={onRetry}>{t('Try again')}</button>}
     </div>
   );
 }

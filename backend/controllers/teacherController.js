@@ -7,6 +7,8 @@ const Announcement = require('../models/Announcement');
 const Message = require('../models/Message');
 const User = require('../models/User');
 const crypto = require('crypto');
+const DeviceSession = require('../models/DeviceSession');
+const { freeParentEmail } = require('../utils/parentAccount');
 const { calculateAssignmentPoints, calculateQuizPoints, awardPoints } = require('../utils/pointsHelper');
 
 // @desc    Get teacher dashboard stats
@@ -202,7 +204,6 @@ const getStudents = async (req, res) => {
       enrolledDate: student.studentInfo?.enrolledDate || student.createdAt,
       overallProgress: student.studentInfo?.overallProgress || 0,
       currentGrade: student.studentInfo?.currentGrade || 'N/A',
-      targetGrade: student.studentInfo?.targetGrade || 'A*',
       avatar: student.avatar,
       hasParent: studentIdToParent.has(String(student._id)),
       parentEmail: studentIdToParent.get(String(student._id)) || null
@@ -382,7 +383,6 @@ const getStudentDetails = async (req, res) => {
       otherSubjects: student.studentInfo?.otherSubjects || 'N/A',
       parentContactNumber: student.studentInfo?.parentContactNumber || 'N/A',
       currentGrade: student.studentInfo?.currentGrade || 'N/A',
-      targetGrade: student.studentInfo?.targetGrade || 'A*',
       overallProgress: student.studentInfo?.overallProgress || 0,
       registrationStatus: student.registrationStatus,
       isActive: student.isActive,
@@ -424,7 +424,6 @@ const updateStudent = async (req, res) => {
   try {
     const {
       currentGrade,
-      targetGrade,
       overallProgress,
       isActive,
       notes
@@ -442,9 +441,6 @@ const updateStudent = async (req, res) => {
     // Update studentInfo fields
     if (currentGrade !== undefined) {
       student.studentInfo.currentGrade = currentGrade;
-    }
-    if (targetGrade !== undefined) {
-      student.studentInfo.targetGrade = targetGrade;
     }
     if (overallProgress !== undefined) {
       student.studentInfo.overallProgress = overallProgress;
@@ -466,7 +462,6 @@ const updateStudent = async (req, res) => {
           lastName: student.lastName,
           email: student.email,
           currentGrade: student.studentInfo?.currentGrade,
-          targetGrade: student.studentInfo?.targetGrade,
           overallProgress: student.studentInfo?.overallProgress,
           isActive: student.isActive
         }
@@ -790,6 +785,86 @@ const addLegacyStudent = async (req, res) => {
   }
 };
 
+/** The parent user linked to a student, if any. */
+const findParentOf = (student) => User.findOne({ role: 'parent', 'parentInfo.children.studentId': student._id });
+
+const genParentPassword = () => {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()-_=+[]{}';
+  let pwd = '';
+  for (let i = 0; i < 16; i += 1) pwd += chars[crypto.randomInt(0, chars.length)];
+  // Ensure at least one of each class
+  if (!/[A-Z]/.test(pwd)) pwd = 'A' + pwd.slice(1);
+  if (!/[a-z]/.test(pwd)) pwd = pwd.slice(0, 1) + 'a' + pwd.slice(2);
+  if (!/\d/.test(pwd)) pwd = pwd.slice(0, 2) + '5' + pwd.slice(3);
+  if (!/[!@#$%^&*()\-_=+\[\]{}]/.test(pwd)) pwd = pwd.slice(0, 3) + '!' + pwd.slice(4);
+  return pwd;
+};
+
+/** Creates the parent user (plus the legacy Parent/Student links, best effort) and returns it with the plain password. */
+async function makeParentFor(student) {
+  const first = String(student.firstName || '').trim().split(/\s+/)[0] || 'Student';
+  const email = await freeParentEmail(first, async (e) => !!(await User.exists({ email: e.toLowerCase() })));
+  const rawPassword = genParentPassword();
+  const phone = String(student.studentInfo?.parentContactNumber || '').replace(/[\s\-\(\)]/g, '');
+
+  const parentUser = await User.create({
+    firstName: `${first}`,
+    lastName: 'Parent',
+    email,
+    password: rawPassword,
+    role: 'parent',
+    contactNumber: /^[\+]?[1-9][\d]{0,15}$/.test(phone) ? student.studentInfo.parentContactNumber : '1000000000',
+    parentInfo: { children: [{ studentId: student._id, relationship: 'guardian', isPrimary: true }] },
+    registrationStatus: 'approved',
+    isActive: true
+  });
+
+  try {
+    const studentDoc = await Student.findOne({ user: student._id });
+    if (studentDoc) {
+      const ParentModel = require('../models/Parent');
+      let parentDoc = await ParentModel.findOne({ user: parentUser._id });
+      if (!parentDoc) {
+        parentDoc = await ParentModel.create({
+          user: parentUser._id,
+          children: [{ student: studentDoc._id, relationship: 'guardian', isPrimary: true }],
+          contactNumber: parentUser.contactNumber || '0000000000',
+          isActive: true
+        });
+      }
+      studentDoc.parent = parentDoc._id;
+      await studentDoc.save();
+    }
+  } catch (linkErr) {
+    console.warn('Non-fatal: Legacy Parent/Student link setup failed:', linkErr.message);
+  }
+  return { parentUser, rawPassword };
+}
+
+/**
+ * Removes the parent's link to this student. A parent with no other children is deleted outright
+ * (account, legacy Parent document, sessions); one who also has other children just loses this link.
+ */
+async function dropParentOf(student, parent) {
+  const others = (parent.parentInfo?.children || []).filter(c => String(c.studentId) !== String(student._id));
+  const ParentModel = require('../models/Parent');
+  const studentDoc = await Student.findOne({ user: student._id });
+
+  if (others.length) {
+    parent.parentInfo.children = others;
+    await parent.save();
+    await ParentModel.updateOne({ user: parent._id }, { $pull: { children: { student: studentDoc?._id } } });
+  } else {
+    await ParentModel.deleteOne({ user: parent._id });
+    await DeviceSession.deleteMany({ userId: parent._id }).catch(() => {});
+    await parent.deleteOne();
+  }
+  if (studentDoc?.parent) {
+    studentDoc.parent = undefined;
+    await studentDoc.save();
+  }
+}
+
 module.exports = {
   getDashboardStats,
   getStudents,
@@ -804,19 +879,12 @@ module.exports = {
    */
   createParentAccount: async (req, res) => {
     try {
-      const studentId = req.params.id;
-      // Accept both empty and JSON bodies; no required fields in body
-
-      const student = await User.findById(studentId);
+      const student = await User.findById(req.params.id);
       if (!student || student.role !== 'student') {
         return res.status(404).json({ status: 'error', message: 'Student not found' });
       }
 
-      // Avoid duplicate parent for the same student
-      const existingParent = await User.findOne({
-        role: 'parent',
-        'parentInfo.children.studentId': student._id
-      });
+      const existingParent = await findParentOf(student);
       if (existingParent) {
         return res.status(409).json({
           status: 'error',
@@ -825,116 +893,13 @@ module.exports = {
         });
       }
 
-      // Format email as Last_FirstParent@atict.com
-      const formatName = (s) => (s || '').trim().replace(/\s+/g, ' ').split(' ').map(p => p.charAt(0).toUpperCase() + p.slice(1).toLowerCase()).join(' ');
-      const first = formatName(student.firstName).split(' ')[0] || 'Student';
-      const last = formatName(student.lastName).split(' ')[0] || 'Parent';
-      const desiredEmailDisplay = `${last}_${first}Parent@atict.com`;
-      const baseLocal = `${last}_${first}Parent`;
-      const domain = 'atict.com';
-
-      // Ensure unique email, try suffixes if needed
-      let emailToSave = `${baseLocal}@${domain}`;
-      let attempt = 0;
-      // Because schema lowercases, comparison should be lowercase
-      // Loop with reasonable cap
-      while (attempt < 5) {
-        const exists = await User.findOne({ email: emailToSave.toLowerCase() });
-        if (!exists) break;
-        attempt += 1;
-        emailToSave = `${baseLocal}${attempt}@${domain}`;
-      }
-
-      // Generate strong password (16 chars, mixed)
-      const genPassword = () => {
-        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()-_=+[]{}';
-        let pwd = '';
-        for (let i = 0; i < 16; i += 1) {
-          const idx = crypto.randomInt(0, chars.length);
-          pwd += chars[idx];
-        }
-        // Ensure at least one of each class
-        if (!/[A-Z]/.test(pwd)) pwd = 'A' + pwd.slice(1);
-        if (!/[a-z]/.test(pwd)) pwd = pwd.slice(0, 1) + 'a' + pwd.slice(2);
-        if (!/\d/.test(pwd)) pwd = pwd.slice(0, 2) + '5' + pwd.slice(3);
-        if (!/[!@#$%^&*()\-_=+\[\]{}]/.test(pwd)) pwd = pwd.slice(0, 3) + '!' + pwd.slice(4);
-        return pwd;
-      };
-      const rawPassword = genPassword();
-
-      // Create parent user (primary link via User.parentInfo)
-      const parentUser = await User.create({
-        firstName: last, // e.g., Tarek
-        lastName: `${first} Parent`, // e.g., Omar Parent
-        email: emailToSave,
-        password: rawPassword,
-        role: 'parent',
-        contactNumber: (student.studentInfo?.parentContactNumber && /^[\+]?[1-9][\d]{0,15}$/.test(String(student.studentInfo.parentContactNumber).replace(/[\s\-\(\)]/g, ''))
-          ? student.studentInfo.parentContactNumber
-          : '1000000000'),
-        parentInfo: {
-          children: [
-            {
-              studentId: student._id,
-              relationship: 'guardian',
-              isPrimary: true
-            }
-          ]
-        },
-        registrationStatus: 'approved',
-        isActive: true
-      });
-
-      // Secondary link for legacy Parent/Student models (best-effort)
-      try {
-        const studentDoc = await Student.findOne({ user: student._id });
-        if (studentDoc) {
-          // Create Parent document if not exists for this parent user
-          const ParentModel = require('../models/Parent');
-          let parentDoc = await ParentModel.findOne({ user: parentUser._id });
-          if (!parentDoc) {
-            parentDoc = await ParentModel.create({
-              user: parentUser._id,
-              children: [{ student: studentDoc._id, relationship: 'guardian', isPrimary: true }],
-              contactNumber: parentUser.contactNumber || '0000000000',
-              isActive: true
-            });
-          } else {
-            // Ensure child exists on parent doc
-            const exists = parentDoc.children.some(c => String(c.student) === String(studentDoc._id));
-            if (!exists) {
-              parentDoc.children.push({ student: studentDoc._id, relationship: 'guardian', isPrimary: true });
-              // make only one primary
-              parentDoc.children = parentDoc.children.map((c, idx) => ({ ...c.toObject?.() || c, isPrimary: idx === parentDoc.children.length - 1 }));
-              await parentDoc.save();
-            }
-          }
-          // Link back on student document
-          if (!studentDoc.parent) {
-            studentDoc.parent = parentDoc._id;
-            await studentDoc.save();
-          }
-        }
-      } catch (linkErr) {
-        console.warn('Non-fatal: Legacy Parent/Student link setup failed:', linkErr.message);
-      }
-
-      // Return credentials for display
+      const { parentUser, rawPassword } = await makeParentFor(student);
       return res.status(201).json({
         status: 'success',
         message: 'Parent account created',
         data: {
-          parent: {
-            id: parentUser._id,
-            firstName: parentUser.firstName,
-            lastName: parentUser.lastName,
-            email: parentUser.email,
-            savedEmail: parentUser.email
-          },
-          credentials: {
-            email: parentUser.email,
-            password: rawPassword
-          }
+          parent: { id: parentUser._id, firstName: parentUser.firstName, lastName: parentUser.lastName, email: parentUser.email, savedEmail: parentUser.email },
+          credentials: { email: parentUser.email, password: rawPassword }
         }
       });
     } catch (error) {
@@ -944,5 +909,53 @@ module.exports = {
       }
       return; // headers already sent
     }
+  },
+
+  /**
+   * Delete the parent account linked to a student (the student keeps everything else).
+   */
+  deleteParentAccount: async (req, res) => {
+    try {
+      const student = await User.findById(req.params.id);
+      if (!student || student.role !== 'student') {
+        return res.status(404).json({ status: 'error', message: 'Student not found' });
+      }
+      const parent = await findParentOf(student);
+      if (!parent) {
+        return res.status(404).json({ status: 'error', message: 'This student has no parent account' });
+      }
+      await dropParentOf(student, parent);
+      return res.status(200).json({ status: 'success', message: 'Parent account deleted' });
+    } catch (error) {
+      console.error('Delete parent account error:', error);
+      return res.status(500).json({ status: 'error', message: 'Server error deleting parent account' });
+    }
+  },
+
+  /**
+   * Delete the current parent account (if any) and create a fresh one with new credentials.
+   */
+  recreateParentAccount: async (req, res) => {
+    try {
+      const student = await User.findById(req.params.id);
+      if (!student || student.role !== 'student') {
+        return res.status(404).json({ status: 'error', message: 'Student not found' });
+      }
+      const parent = await findParentOf(student);
+      if (parent) await dropParentOf(student, parent);
+
+      const { parentUser, rawPassword } = await makeParentFor(student);
+      return res.status(201).json({
+        status: 'success',
+        message: 'Parent account recreated',
+        data: {
+          parent: { id: parentUser._id, firstName: parentUser.firstName, lastName: parentUser.lastName, email: parentUser.email, savedEmail: parentUser.email },
+          credentials: { email: parentUser.email, password: rawPassword }
+        }
+      });
+    } catch (error) {
+      console.error('Recreate parent account error:', error);
+      return res.status(500).json({ status: 'error', message: 'Server error recreating parent account' });
+    }
   }
-}; 
+};

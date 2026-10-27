@@ -77,11 +77,6 @@ const studentSchema = new mongoose.Schema({
     enum: ['F', 'E', 'D', 'C', 'B', 'A', 'A*'],
     default: null
   },
-  targetGrade: {
-    type: String,
-    enum: ['F', 'E', 'D', 'C', 'B', 'A', 'A*'],
-    default: 'A*'
-  },
   overallProgress: {
     type: Number,
     default: 0,

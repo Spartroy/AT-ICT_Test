@@ -38,6 +38,7 @@ export const API_ENDPOINTS = {
     STORY_BY_ID: (id) => `${API_BASE_URL}/api/teacher/stories/${id}`,
     STUDENT_PAYMENTS: (studentId) => `${API_BASE_URL}/api/teacher/students/${studentId}/payments`,
     PAYMENT: (paymentId) => `${API_BASE_URL}/api/teacher/payments/${paymentId}`,
+    PAYMENT_REVIEW: (paymentId) => `${API_BASE_URL}/api/teacher/payments/${paymentId}/review`,
     RESET_STUDENT_PASSWORD: (studentId) => `${API_BASE_URL}/api/teacher/students/${studentId}/reset-password`,
   },
   LEADERBOARD: {
