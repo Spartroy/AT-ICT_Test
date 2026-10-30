@@ -7,9 +7,9 @@ export const prefersReducedMotion = () =>
   typeof window.matchMedia !== 'function' || window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /**
- * Fires the burst sequence from `originRect` (the card). Returns a cancel function.
+ * Fires the burst sequence from `originRect` (the card); `scale` thins it out for small wins. Returns a cancel function.
  */
-export function fireConfetti(originRect) {
+export function fireConfetti(originRect, { scale = 1 } = {}) {
   if (prefersReducedMotion()) return () => {};
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext && canvas.getContext('2d');
@@ -28,7 +28,8 @@ export function fireConfetti(originRect) {
   document.body.appendChild(canvas);
 
   const particles = [];
-  const burst = (x, y, n, a0, a1, v0, v1) => {
+  const burst = (x, y, count, a0, a1, v0, v1) => {
+    const n = Math.max(1, Math.round(count * scale));
     for (let i = 0; i < n; i++) {
       const a = ((a0 + Math.random() * (a1 - a0)) * Math.PI) / 180;
       const v = v0 + Math.random() * (v1 - v0);

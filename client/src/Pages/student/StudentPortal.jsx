@@ -16,6 +16,8 @@ import Inbox from './Inbox';
 import Tour from '../../components/portal/Tour';
 import TourHelp from '../../components/portal/TourHelp';
 import PointsGuide from './PointsGuide';
+import PointsCelebration from './PointsCelebration';
+import { fireConfetti } from '../../components/auth/confetti';
 import { POINTS_EVENT } from './pointsEvents';
 import { useToast } from '../../components/portal/PortalUI';
 import { tourPlan } from './tourPlan';
@@ -174,6 +176,7 @@ export default function StudentPortal() {
           <Route path="*" element={<Navigate to={BASE} replace />} />
         </Routes>
         <PointsWatcher onEarned={dashboard.reload} />
+        {me._id && <PointsCelebration userId={me._id} />}
         <PointsGuide open={guideOpen} onClose={closeGuide} />
         <Tour open={tourOpen} steps={tourSteps} base={BASE} onClose={closeTour} forced={tourForced} />
         <LiveClassPopup scheduleHref={`${BASE}/schedule`} />
@@ -189,7 +192,10 @@ function PointsWatcher({ onEarned }) {
   useEffect(() => {
     const on = (e) => {
       const n = e.detail?.points || 0;
-      if (n > 0) toast(`+${n} point${n === 1 ? '' : 's'}`);
+      if (n > 0) {
+        toast(`+${n} point${n === 1 ? '' : 's'}`);
+        fireConfetti(undefined, { scale: Math.min(0.6, 0.2 + n / 100) });
+      }
       onEarned?.();
     };
     window.addEventListener(POINTS_EVENT, on);
