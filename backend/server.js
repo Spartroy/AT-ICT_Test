@@ -46,6 +46,7 @@ const registrationRoutes = require('./routes/registrationRoutes');
 const assignmentRoutes = require('./routes/assignmentRoutes');
 const quizRoutes = require('./routes/quizRoutes');
 const flashcardRoutes = require('./routes/flashcardRoutes');
+const studyGuideRoutes = require('./routes/studyGuideRoutes');
 const activityRoutes = require('./routes/activityRoutes');
 const settingsRoutes = require('./routes/settingsRoutes');
 const groupRoutes = require('./routes/groupRoutes');
@@ -362,6 +363,12 @@ app.use('/api/quizzes', quizRoutes);
  * Flashcard creation, study, and management
  */
 app.use('/api/flashcards', flashcardRoutes);
+
+/**
+ * Study Guide Routes
+ * The Labs revision guide: students read it, the teacher edits and publishes it
+ */
+app.use('/api/guide', studyGuideRoutes);
 
 /**
  * Activity Routes
