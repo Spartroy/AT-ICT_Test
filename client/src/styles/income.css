@@ -1,0 +1,83 @@
+/* Income dashboard (teacher portal) */
+.atp-teacher .inc-bar { display: flex; flex-wrap: wrap; gap: 8px 10px; align-items: center; margin-bottom: 16px; }
+.atp-teacher .inc-bar .chips { margin: 0; }
+.atp-teacher .inc-bar .sp { flex: 1; }
+.atp-teacher .inc-pick { width: auto; min-height: 40px; padding: 8px 12px; color-scheme: dark; }
+.atp-teacher .inc-title { margin: 0 0 10px; font-size: 0.78rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--fa); font-weight: 600; }
+.atp-teacher .inc-sub { margin-left: auto; font-size: 0.78rem; font-weight: 500; color: var(--mu); }
+.atp-teacher .inc-lead { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
+.atp-teacher .inc-none { color: var(--fa); font-size: 0.88rem; margin: 6px 0 0; }
+.atp-teacher .inc-big { font-family: var(--font-numeric); font-size: 2.2rem; margin: 4px 0 2px; }
+.atp-teacher .inc-foot { margin: 10px 0 0; font-size: 0.86rem; color: var(--mu); }
+.atp-teacher .inc-foot.bad { color: var(--dark-error); }
+.atp-teacher .inc-forecast small { display: block; margin-top: 12px; }
+.atp-teacher .stat b .ok { color: var(--ok); }
+.atp-teacher .stat b .bad { color: var(--dark-error); }
+.atp-teacher .stat b { font-size: clamp(1.15rem, 2vw, 1.6rem); }
+
+/* chart */
+.atp-teacher .inc-chart { margin: 0; }
+.atp-teacher .inc-legend { display: flex; gap: 16px; font-size: 0.78rem; color: var(--mu); margin: 0 0 6px; }
+.atp-teacher .inc-legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; }
+.atp-teacher .inc-legend i.in, .atp-teacher .inc-chart .bar.in { background: var(--ok); fill: var(--ok); }
+.atp-teacher .inc-legend i.ex, .atp-teacher .inc-chart .bar.ex { background: var(--cr); fill: var(--cr); }
+.atp-teacher .inc-legend i.pr { background: var(--bl); border-radius: 50%; }
+.atp-teacher .inc-chart svg { width: 100%; height: auto; display: block; overflow: visible; }
+.atp-teacher .inc-chart .grid { stroke: var(--bd); stroke-dasharray: 3 5; }
+.atp-teacher .inc-chart .zero { stroke: var(--bd2); }
+.atp-teacher .inc-chart .ax { fill: var(--fa); font-size: 11px; font-family: var(--font-body); }
+.atp-teacher .inc-chart .hl { fill: rgb(255 255 255 / 0.04); }
+.atp-teacher .inc-chart .col .bar { transition: opacity 0.2s; }
+.atp-teacher .inc-chart .col:hover .bar { opacity: 0.8; }
+.atp-teacher .inc-chart .pline { fill: none; stroke: var(--bl); stroke-width: 2; stroke-linejoin: round; }
+.atp-teacher .inc-chart .pdot { fill: var(--s1); stroke: var(--bl); stroke-width: 2; }
+.atp-teacher .inc-empty { text-align: center; font-size: 0.84rem; color: var(--fa); margin-top: -4px; }
+
+/* ranked bars */
+.atp-teacher .inc-bars { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.atp-teacher .inc-bars li { display: flex; gap: 12px; align-items: center; }
+.atp-teacher .inc-bars .rk { width: 22px; height: 22px; border-radius: 50%; background: var(--s3); color: var(--mu); display: grid; place-items: center; font-size: 0.72rem; font-weight: 700; flex: none; }
+.atp-teacher .inc-bars .bd { flex: 1; min-width: 0; }
+.atp-teacher .inc-bars .tx { display: flex; justify-content: space-between; gap: 10px; font-size: 0.88rem; margin-bottom: 5px; }
+.atp-teacher .inc-bars .tx b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.atp-teacher .inc-bars .tx span { color: var(--mu); white-space: nowrap; font-family: var(--font-numeric); }
+.atp-teacher .inc-bars .trk { height: 8px; border-radius: 99px; background: var(--s3); overflow: hidden; }
+.atp-teacher .inc-bars .trk i { display: block; height: 100%; border-radius: inherit; transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1); }
+.atp-teacher .inc-bars .trk i.in { background: var(--ok); }
+.atp-teacher .inc-bars .trk i.ex { background: var(--cr); }
+
+/* who owes */
+.atp-teacher .inc-owed { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.atp-teacher .inc-owed li { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 12px; background: var(--s2); flex-wrap: wrap; }
+.atp-teacher .inc-owed li > span:first-child { flex: 1; min-width: 140px; display: grid; }
+.atp-teacher .inc-owed small { color: var(--fa); }
+.atp-teacher .inc-owed .amt { font-family: var(--font-numeric); }
+
+/* entries */
+.atp-teacher .inc-list h3 { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.atp-teacher .inc-row { display: flex; align-items: center; gap: 12px; padding: 10px 4px; border-top: 1px solid var(--bd); }
+.atp-teacher .inc-ic { width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center; flex: none; }
+.atp-teacher .inc-ic.income { background: rgb(52 211 153 / 0.14); color: var(--ok); }
+.atp-teacher .inc-ic.expense { background: rgb(251 113 133 / 0.14); color: var(--dark-error); }
+.atp-teacher .inc-main { flex: 1; min-width: 0; display: grid; }
+.atp-teacher .inc-main small { color: var(--fa); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.atp-teacher .inc-amt { font-family: var(--font-numeric); white-space: nowrap; }
+.atp-teacher .inc-amt.income { color: var(--ok); }
+.atp-teacher .inc-amt.expense { color: var(--dark-error); }
+.atp-teacher .inc-recent { display: flex; gap: 6px; flex-wrap: wrap; margin: -4px 0 12px; }
+.atp-teacher .inc-recent .ch { min-height: 32px; padding: 4px 12px; }
+
+/* payment proofs */
+.atp-teacher .prf { display: grid; grid-template-columns: 150px 1fr; gap: 18px; align-items: start; }
+.atp-teacher .prf-img { width: 150px; height: 190px; border-radius: 14px; overflow: hidden; background: var(--s3); display: grid; place-items: center; border: 1px solid var(--bd); color: var(--fa); }
+.atp-teacher .prf-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s; }
+.atp-teacher .prf-img:hover img { transform: scale(1.05); }
+.atp-teacher .prf-top { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.atp-teacher .prf-top > div { flex: 1; min-width: 160px; display: grid; }
+.atp-teacher .prf-top small { color: var(--fa); }
+.atp-teacher .prf-amt { font-family: var(--font-numeric); font-size: 1.5rem; }
+.atp-teacher .prf-earlier { margin: 6px 0 0; font-size: 0.84rem; color: var(--dark-error); }
+.atp-teacher .prf-check { margin: 12px 0; padding: 10px 12px; border-radius: 12px; background: rgb(96 165 250 / 0.1); border: 1px solid rgb(96 165 250 / 0.3); font-size: 0.86rem; color: var(--mu); }
+.atp-teacher .prf-acts { display: flex; gap: 8px; flex-wrap: wrap; }
+@media (max-width: 640px) { .atp-teacher .prf { grid-template-columns: 1fr; } .atp-teacher .prf-img { width: 100%; height: 220px; } }
+.atp-teacher .g4 .stat > div { align-self: start; }

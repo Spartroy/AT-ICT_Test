@@ -164,3 +164,31 @@
 .atp-teacher .pay-reject { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 10px; }
 .atp-teacher .pay-reject .inp { flex: 1; min-width: 200px; }
 .atp-teacher .pay-review-acts { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* Grading: no internal scrolling. The pane grows with its content, the list stays put while you work. */
+.atp-teacher .sub-grid { height: auto; min-height: 0; align-items: start; }
+.atp-teacher .sub-pane { overflow: visible; }
+.atp-teacher .sp-body .prev { min-height: 150px; padding: 14px; }
+.atp-teacher .sp-body { align-items: start; }
+@media (min-width: 1181px) {
+  .atp-teacher .sub-list { position: sticky; top: 84px; max-height: calc(100vh - 110px); }
+}
+.atp-teacher .gr-line { display: flex; align-items: center; justify-content: space-between; gap: 10px 14px; flex-wrap: wrap; }
+.atp-teacher .gr-line .gq .ch.on { background: rgb(202 19 62 / 0.16); border-color: var(--cr); color: var(--white); }
+.atp-teacher .gr-comment-btn { justify-content: flex-start; gap: 8px; width: 100%; text-align: left; }
+.atp-teacher .gr-comment-btn small { color: var(--fa); font-weight: 400; margin-left: auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.atp-teacher .gr-comment { display: grid; gap: 8px; justify-items: end; animation: in 0.25s; }
+.atp-teacher .gr-comment .inp { justify-self: stretch; resize: vertical; }
+
+/* Teacher home: greeting hero with the number of enrolled students */
+.atp-teacher .hero { margin-bottom: 18px; }
+.atp-teacher .hero-count { width: 140px; height: 140px; border-radius: 50%; display: grid; place-content: center; justify-items: center; gap: 0; text-align: center; color: var(--white); background: radial-gradient(circle at 50% 35%, rgb(202 19 62 / 0.28), rgb(202 19 62 / 0.06) 70%); border: 12px solid transparent; box-shadow: inset 0 0 0 2px rgb(255 90 124 / 0.7), 0 0 40px -10px rgb(202 19 62 / 0.7); transition: transform 0.3s, box-shadow 0.3s; }
+.atp-teacher .hero-count b { font-family: var(--font-numeric); font-size: 2.6rem; line-height: 1; }
+.atp-teacher .hero-count small { margin-top: 4px; font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mu); }
+.atp-teacher .hero-count:hover { transform: scale(1.04); box-shadow: inset 0 0 0 2px var(--crimson-glow), 0 0 50px -6px rgb(202 19 62 / 0.9); }
+@media (max-width: 900px) { .atp-teacher .hero-count { justify-self: start; width: 110px; height: 110px; } .atp-teacher .hero-count b { font-size: 2rem; } }
+
+/* Student modal › Parent tab */
+.atp-teacher .par-tab .ir .ib { margin-left: 6px; }
+.atp-teacher .par-note { margin: 12px 0 0; font-size: 0.84rem; }
+.atp-teacher .par-acts { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }

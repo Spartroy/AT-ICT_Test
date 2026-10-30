@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Library, User, Users, ChevronLeft, ClipboardCheck, Paperclip, Download, Archive, CheckCircle2, FileText } from 'lucide-react';
+import { Library, User, Users, ChevronLeft, ClipboardCheck, Paperclip, Download, Archive, CheckCircle2, FileText, MessageSquarePlus } from 'lucide-react';
 import useApi from '../../../hooks/useApi';
 import { api, downloadFile } from '../../../lib/api';
 import { API_ENDPOINTS } from '../../../config/api';
@@ -204,6 +204,7 @@ function SubmissionPane({ row, onBack, onGraded, onNext }) {
   const max = row.assignment.maxScore;
   const [score, setScore] = useState(row.score ?? '');
   const [feedback, setFeedback] = useState(row.feedback || '');
+  const [commenting, setCommenting] = useState(false); // the comment box stays closed until asked for, to keep the panel short
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const scoreRef = useRef(null);
@@ -269,17 +270,29 @@ function SubmissionPane({ row, onBack, onGraded, onNext }) {
           </div>
           <form className="grade" onSubmit={e => { e.preventDefault(); save(); }}>
             <div className="gr-h"><b>Grade</b>{pct !== null && <span className="chip c-pr">{pct}%</span>}</div>
-            <div className="gr-i">
-              <input ref={scoreRef} className="inp" type="number" min="0" max={max} step="1" placeholder="Score" value={score} onChange={e => setScore(e.target.value)} aria-label={`Score out of ${max}`} aria-invalid={!!error} />
-              <span className="gmax">/ {max}</span>
+            <div className="gr-line">
+              <div className="gr-i">
+                <input ref={scoreRef} className="inp" type="number" min="0" max={max} step="1" placeholder="Score" value={score} onChange={e => setScore(e.target.value)} aria-label={`Score out of ${max}`} aria-invalid={!!error} />
+                <span className="gmax">/ {max}</span>
+              </div>
+              <div className="gq" role="group" aria-label="Quick scores">
+                {[100, 75, 50].map(p => {
+                  const v = Math.round((max * p) / 100);
+                  return <button key={p} type="button" className={`ch ${String(score) === String(v) ? 'on' : ''}`} onClick={() => setScore(v)} aria-label={`${p}% (${v})`}>{v}</button>;
+                })}
+              </div>
             </div>
-            <div className="gq" role="group" aria-label="Quick scores">
-              {[100, 75, 50].map(p => {
-                const v = Math.round((max * p) / 100);
-                return <button key={p} type="button" className="ch" onClick={() => setScore(v)} aria-label={`${p}% (${v})`}>{v}</button>;
-              })}
-            </div>
-            <textarea className="inp" rows={3} placeholder="Feedback for the student (optional)" value={feedback} onChange={e => setFeedback(e.target.value)} aria-label="Feedback" />
+            {commenting ? (
+              <div className="gr-comment open">
+                <textarea className="inp" rows={3} autoFocus placeholder="Comment for the student (optional)" value={feedback} onChange={e => setFeedback(e.target.value)} aria-label="Comment for the student" />
+                <button type="button" className="btn o sm" onClick={() => setCommenting(false)}>Done</button>
+              </div>
+            ) : (
+              <button type="button" className="btn o sm gr-comment-btn" onClick={() => setCommenting(true)}>
+                <Ic as={MessageSquarePlus} />{feedback.trim() ? 'Edit comment' : 'Add a comment'}
+                {feedback.trim() && <small>{feedback.trim().length > 28 ? `${feedback.trim().slice(0, 28)}…` : feedback.trim()}</small>}
+              </button>
+            )}
             {error && <p className="fld-err" role="alert">{error}</p>}
             <div className="gr-a">
               <button type="button" className="btn o" onClick={() => onNext(row)}>Skip</button>

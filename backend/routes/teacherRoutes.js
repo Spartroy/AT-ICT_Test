@@ -104,6 +104,16 @@ router.post('/stories', createStudentStory);
 router.put('/stories/:id', updateStudentStory);
 router.delete('/stories/:id', deleteStudentStory);
 
+// Income dashboard: money summary, payment proofs to review, manual income/expense entries, CSV export
+const income = require('../controllers/incomeController');
+router.get('/income/summary', income.summary);
+router.get('/income/proofs', income.proofs);
+router.get('/income/entries', income.listEntries);
+router.post('/income/entries', income.createEntry);
+router.put('/income/entries/:id', income.updateEntry);
+router.delete('/income/entries/:id', income.deleteEntry);
+router.get('/income/export', income.exportCsv);
+
 // Payment management
 router.get('/students/:studentId/payments', getStudentPayments);
 router.post('/students/:studentId/payments', createPayment);

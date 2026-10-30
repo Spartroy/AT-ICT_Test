@@ -59,8 +59,6 @@ function StudentList() {
   const { settings } = useTeacherSettings();
   const toast = useToast();
   const confirm = useConfirm();
-  const navigate = useNavigate();
-  const { base } = useTeacher();
   const [filters, setFilters] = useState({ search: '', session: '', year: '', status: '', schoolType: '', group: '' });
   const { groups } = useGroups();
   const [debounced, setDebounced] = useState(filters);
@@ -69,6 +67,7 @@ function StudentList() {
   const [viewing, setViewing] = useState(null);
   const [creds, setCreds] = useState(null);
   const [classifying, setClassifying] = useState(null);
+  const [editing, setEditing] = useState(null);
 
   useEffect(() => {
     const t = setTimeout(() => { setDebounced(filters); setLimit(PAGE); }, 300);
@@ -92,22 +91,12 @@ function StudentList() {
   const act = async (kind, s) => {
     setMenu(null);
     try {
-      if (kind === 'parent') {
-        const res = await api.post(`${API_ENDPOINTS.TEACHER.STUDENTS}/${s._id}/create-parent`, {});
-        setCreds({ title: `Parent account for ${s.fullName}`, ...res.data.credentials });
+      if (kind === 'toggle') {
+        const on = !s.isActive;
+        if (!on && !(await confirm({ title: `Deactivate ${s.fullName}?`, body: 'They can no longer sign in. Nothing is deleted and you can reactivate them any time.', confirmLabel: 'Deactivate' }))) return;
+        await api.put(`${API_ENDPOINTS.TEACHER.STUDENTS}/${s._id}`, { isActive: on });
+        toast(on ? `${s.fullName} reactivated` : `${s.fullName} deactivated`);
         list.reload();
-      } else if (kind === 'recreateParent') {
-        if (!(await confirm({ title: `Recreate ${s.fullName}'s parent account?`, body: 'The current parent login stops working and a new email and password are created.', confirmLabel: 'Recreate' }))) return;
-        const res = await api.post(`${API_ENDPOINTS.TEACHER.STUDENTS}/${s._id}/recreate-parent`, {});
-        setCreds({ title: `New parent account for ${s.fullName}`, ...res.data.credentials });
-        list.reload();
-      } else if (kind === 'deleteParent') {
-        if (!(await confirm({ title: `Delete ${s.fullName}'s parent account?`, body: 'The parent can no longer sign in. You can create a new account afterwards.', confirmLabel: 'Delete parent' }))) return;
-        await api.del(`${API_ENDPOINTS.TEACHER.STUDENTS}/${s._id}/parent`);
-        toast('Parent account deleted');
-        list.reload();
-      } else if (kind === 'chatParent') {
-        navigate(`${base}/inbox/chat`);
       } else if (kind === 'reset') {
         if (!(await confirm({ title: `Reset ${s.fullName}'s password?`, body: 'Their current password stops working immediately.', confirmLabel: 'Reset password' }))) return;
         const res = await api.post(API_ENDPOINTS.TEACHER.RESET_STUDENT_PASSWORD(s._id), {});
@@ -169,13 +158,8 @@ function StudentList() {
               <div className="mw">
                 <button type="button" className="ib sm" aria-label={`More actions for ${s.fullName}`} aria-haspopup="menu" aria-expanded={menu === s._id} onClick={() => setMenu(m => (m === s._id ? null : s._id))}><Ic as={MoreHorizontal} /></button>
                 <div className={`menu ${menu === s._id ? 'on' : ''}`} role="menu" hidden={menu !== s._id}>
-                  {s.hasParent ? (
-                    <>
-                      <button type="button" role="menuitem" onClick={() => act('chatParent', s)}>Chat with parent</button>
-                      <button type="button" role="menuitem" onClick={() => act('recreateParent', s)}>Recreate parent account</button>
-                      <button type="button" role="menuitem" className="dng" onClick={() => act('deleteParent', s)}>Delete parent account</button>
-                    </>
-                  ) : <button type="button" role="menuitem" onClick={() => act('parent', s)}>Create parent account</button>}
+                  <button type="button" role="menuitem" onClick={() => { setMenu(null); setEditing(s); }}>Change group / year / session</button>
+                  <button type="button" role="menuitem" onClick={() => act('toggle', s)}>{s.isActive ? 'Deactivate' : 'Reactivate'}</button>
                   {!s.schoolType && <button type="button" role="menuitem" onClick={() => { setMenu(null); setClassifying(s); }}>Classify as Royal College</button>}
                   <button type="button" role="menuitem" onClick={() => act('reset', s)}>Reset password</button>
                   <button type="button" role="menuitem" className="dng" onClick={() => act('remove', s)}>Remove</button>
@@ -188,7 +172,8 @@ function StudentList() {
           <div className="load-more"><button type="button" className="btn o sm" onClick={() => setLimit(l => l + PAGE)} disabled={list.loading}>{list.loading ? 'Loading…' : `Show more (${total - students.length} left)`}</button></div>
         )}
       </div>
-      <StudentModal studentId={viewing} onClose={() => setViewing(null)} onCredentials={setCreds} />
+      <StudentModal studentId={viewing} onClose={() => setViewing(null)} onCredentials={setCreds} onChanged={() => list.reload()} />
+      <EditPlacementDialog student={editing} groups={groups} sessions={settings?.examSessions || []} classes={settings?.royalClasses || []} onClose={() => setEditing(null)} onDone={() => { setEditing(null); list.reload(); }} />
       <CredentialsDialog creds={creds} onClose={() => setCreds(null)} />
       <ClassifyDialog student={classifying} classes={settings?.royalClasses || []} onClose={() => setClassifying(null)} onDone={() => { setClassifying(null); list.reload(); }} />
     </>
@@ -355,6 +340,73 @@ function RejectDialog({ reg, onClose, onDone }) {
       <form className="mbody" onSubmit={submit}>
         <label className="fld"><span>Reason (shared with the student)</span><textarea ref={ref} className="inp" rows={3} value={reason} onChange={e => setReason(e.target.value)} />{error && <span className="fld-err">{error}</span>}</label>
         <div className="mfoot"><button type="button" className="btn o" onClick={onClose}>Cancel</button><button className="btn p" disabled={busy}>{busy ? 'Rejecting…' : 'Reject'}</button></div>
+      </form>
+    </Dialog>
+  );
+}
+
+/** Change where a student sits: teaching group, and year + exam session (centre students) or class (Royal College). */
+function EditPlacementDialog({ student, groups, sessions, classes, onClose, onDone }) {
+  const toast = useToast();
+  const [v, setV] = useState({ group: '', year: '', session: '', royalClass: '' });
+  const [busy, setBusy] = useState(false);
+  useEffect(() => {
+    if (student) setV({ group: student.group || '', year: String(student.year ?? ''), session: known(student.session) ? student.session : '', royalClass: student.royalClass || '' });
+  }, [student]);
+  if (!student) return null;
+  const royal = student.schoolType === 'royal';
+  const set = (k) => (e) => setV(x => ({ ...x, [k]: e.target.value }));
+
+  const submit = async (e) => {
+    e.preventDefault();
+    const body = {};
+    if ((student.group || '') !== v.group) body.group = v.group || null;
+    if (royal) { if (v.royalClass && v.royalClass !== student.royalClass) body.royalClass = v.royalClass; }
+    else {
+      if (v.year && String(student.year) !== v.year) body.year = Number(v.year);
+      if (v.session && student.session !== v.session) body.session = v.session;
+    }
+    if (!Object.keys(body).length) { onClose(); return; }
+    setBusy(true);
+    try {
+      await api.put(`${API_ENDPOINTS.TEACHER.STUDENTS}/${student._id}`, body);
+      toast(`${student.fullName} updated`);
+      onDone();
+    } catch (err) {
+      toast(apiError(err));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <Dialog open onClose={onClose} size="sm" labelledBy="plc-title">
+      <DialogHeader id="plc-title" icon={Users} title="Change placement" sub={student.fullName} onClose={onClose} />
+      <form className="mbody" onSubmit={submit}>
+        {groups.length > 0 && (
+          <label className="fld"><span>Teaching group</span>
+            <select className="inp" value={v.group} onChange={set('group')}>
+              <option value="">No group</option>
+              {groups.map(g => <option key={g.code} value={g.code}>{g.name ? `${g.name} (${g.code})` : `Group ${g.code}`}</option>)}
+            </select>
+          </label>
+        )}
+        {royal ? (
+          <label className="fld"><span>Class</span>
+            <select className="inp" value={v.royalClass} onChange={set('royalClass')}>{classes.map(c => <option key={c} value={c}>Class {c}</option>)}</select>
+          </label>
+        ) : (
+          <div className="r2">
+            <label className="fld"><span>Year</span>
+              <select className="inp" value={v.year} onChange={set('year')}><option value="10">Year 10</option><option value="11">Year 11</option><option value="12">Year 12</option></select>
+            </label>
+            <label className="fld"><span>Exam session</span>
+              <select className="inp" value={v.session} onChange={set('session')}>{sessions.map(x => <option key={x.code} value={x.code}>{x.code}{x.open ? '' : ' (closed)'}</option>)}</select>
+            </label>
+          </div>
+        )}
+        {groups.length > 0 && <p className="sub">Moving into a group also gives the student that group's upcoming homework and quizzes.</p>}
+        <div className="mfoot"><button type="button" className="btn o" onClick={onClose}>Cancel</button><button className="btn p" disabled={busy}>{busy ? 'Saving…' : 'Save'}</button></div>
       </form>
     </Dialog>
   );

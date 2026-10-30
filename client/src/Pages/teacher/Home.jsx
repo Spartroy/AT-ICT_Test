@@ -1,10 +1,10 @@
 import React, { useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ChevronRight, Users, Megaphone, Trophy, LayoutGrid, AlertTriangle, Clock, ClipboardCheck, MessageSquare, CheckCircle2, UserPlus, FileText, GraduationCap, CreditCard, CalendarDays, Bell } from 'lucide-react';
+import { ChevronRight, Trophy, AlertTriangle, Megaphone, PlusCircle, Clock, ClipboardCheck, MessageSquare, CheckCircle2, UserPlus, FileText, GraduationCap, CreditCard, CalendarDays, Bell } from 'lucide-react';
 import useApi from '../../hooks/useApi';
 import { api } from '../../lib/api';
 import { API_ENDPOINTS } from '../../config/api';
-import { Accordion, Empty, Ic, Stat, initials, fmtDate, PageHead } from '../../components/portal/kit';
+import { Accordion, Empty, Ic, initials, fmtDate } from '../../components/portal/kit';
 import { useToast } from '../../components/portal/PortalUI';
 import LiveClassCard from '../../components/portal/LiveClassCard';
 import { useTeacher } from './TeacherPortal';
@@ -33,10 +33,12 @@ export default function Home() {
 
   const needs = (subs.data?.submissions || []).filter(s => s.status === 'needs');
   const late = needs.filter(s => s.late).length;
-  const graded = (subs.data?.submissions || []).filter(s => s.status === 'graded' && s.assignment.maxScore);
-  const avgScore = graded.length ? Math.round(graded.reduce((n, s) => n + s.score / s.assignment.maxScore, 0) / graded.length * 100) : 0;
   const pending = registrations.data?.registrations || [];
   const overview = dash.data?.overview || {};
+  const enrolled = overview.totalStudents;
+  const waiting = (counts.needsGrading || 0) + (counts.pendingRegs || 0) + (counts.unreadChats || 0);
+  const hour = new Date().getHours();
+  const greeting = hour < 5 ? 'Still up' : hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
 
   const groups = useMemo(() => ACTIVITY_GROUPS
     .map(g => ({ ...g, items: (activities.data?.activities || []).filter(a => a.type === g.type) }))
@@ -75,9 +77,25 @@ export default function Home() {
 
   return (
     <>
-      <PageHead title={<>Welcome back, <span className="hl">El Grande Maestro.</span></>}>
-        <p className="sub">{overview.totalStudents ?? '—'} students enrolled</p>
-      </PageHead>
+      <div className="hero">
+        <div>
+          <h1 className="big">{greeting}, <em>El Grande Maestro.</em></h1>
+          <p className="sub">
+            {waiting
+              ? <>{waiting} {waiting === 1 ? 'thing is' : 'things are'} waiting for you{counts.needsGrading ? <>, <b className="tx">{counts.needsGrading}</b> to grade</> : null}{late ? <> ({late} late)</> : null}.</>
+              : "You're all caught up. Nothing is waiting for you right now."}
+          </p>
+          <div className="acts">
+            <Link className="btn p" to={`${base}/work/submissions${counts.needsGrading ? '?status=needs' : ''}`}><Ic as={ClipboardCheck} />{counts.needsGrading ? `Grade ${counts.needsGrading} submission${counts.needsGrading === 1 ? '' : 's'}` : 'Open submissions'}</Link>
+            <button type="button" className="btn o" onClick={() => openModal('hw')}><Ic as={PlusCircle} />New homework</button>
+            <button type="button" className="btn o" onClick={() => openModal('announcement')}><Ic as={Megaphone} />Announce</button>
+          </div>
+        </div>
+        <Link className="hero-count" to={`${base}/students/all`} aria-label={`${enrolled ?? 0} students enrolled. Open students`}>
+          <b>{enrolled ?? '—'}</b>
+          <small>enrolled</small>
+        </Link>
+      </div>
 
       <LiveClassCard
         scheduleHref={`${base}/schedule/week`}
@@ -93,13 +111,6 @@ export default function Home() {
             <Ic as={ChevronRight} />
           </Link>
         ))}
-      </div>
-
-      <div className="g4">
-        <Stat icon={Users} label="Total students" value={overview.totalStudents ?? '—'} />
-        <Stat icon={Megaphone} label="Active announcements" value={overview.activeAnnouncements ?? '—'} />
-        <Stat icon={Trophy} label="Avg. score" value={`${avgScore}%`} />
-        <Stat icon={LayoutGrid} label="Avg. progress" value={`${Math.round(dash.data?.performance?.avgProgress || 0)}%`} />
       </div>
 
       <div className="g2h">

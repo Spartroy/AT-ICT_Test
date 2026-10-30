@@ -9,6 +9,7 @@ const User = require('../models/User');
 const crypto = require('crypto');
 const DeviceSession = require('../models/DeviceSession');
 const { freeParentEmail } = require('../utils/parentAccount');
+const groupsSvc = require('../services/groups');
 const { calculateAssignmentPoints, calculateQuizPoints, awardPoints } = require('../utils/pointsHelper');
 
 // @desc    Get teacher dashboard stats
@@ -333,6 +334,7 @@ const getStudentDetails = async (req, res) => {
 
       if (parent) {
         parentInfo = {
+          hasAccount: true,
           name: `${parent.firstName} ${parent.lastName}`,
           email: parent.email,
           phone: parent.contactNumber || student.studentInfo?.parentContactNumber || 'N/A'
@@ -340,6 +342,7 @@ const getStudentDetails = async (req, res) => {
       } else {
         // If no parent account exists, use info from student record
         parentInfo = {
+          hasAccount: false,
           name: 'Not set up',
           email: 'No parent account',
           phone: student.studentInfo?.parentContactNumber || 'N/A'
@@ -348,6 +351,7 @@ const getStudentDetails = async (req, res) => {
     } catch (parentError) {
       console.log('Error fetching parent info:', parentError.message);
       parentInfo = {
+        hasAccount: false,
         name: 'Not available',
         email: 'Not available',
         phone: student.studentInfo?.parentContactNumber || 'N/A'
@@ -426,7 +430,11 @@ const updateStudent = async (req, res) => {
       currentGrade,
       overallProgress,
       isActive,
-      notes
+      notes,
+      group,
+      year,
+      session,
+      royalClass
     } = req.body;
 
     const student = await User.findById(req.params.id);
@@ -450,7 +458,36 @@ const updateStudent = async (req, res) => {
       student.studentInfo.isActive = isActive;
     }
 
+    // Where the student sits: year / exam session (centre students), class (Royal College) and teaching group
+    const settings = (year !== undefined || session !== undefined || royalClass !== undefined) ? await AppSettings.getGlobal() : null;
+    if (year !== undefined) {
+      if (![10, 11, 12].includes(Number(year))) return res.status(400).json({ status: 'error', message: 'Year must be 10, 11 or 12' });
+      student.studentInfo.year = Number(year);
+    }
+    if (session !== undefined) {
+      const code = String(session).trim().toUpperCase();
+      if (!(settings.examSessions || []).some(x => String(x.code).toUpperCase() === code)) {
+        return res.status(400).json({ status: 'error', message: `Unknown exam session: ${code}` });
+      }
+      student.studentInfo.session = code;
+    }
+    if (royalClass !== undefined) {
+      if (!(settings.royalClasses || []).includes(royalClass)) return res.status(400).json({ status: 'error', message: `Unknown class: ${royalClass}` });
+      student.studentInfo.royalClass = royalClass;
+    }
+    let newGroup;
+    if (group !== undefined) {
+      newGroup = group ? String(group).trim().toUpperCase() : null;
+      if (newGroup) {
+        const config = await groupsSvc.getConfig();
+        if (!config.groups.some(g => g.code === newGroup)) return res.status(400).json({ status: 'error', message: `Unknown group: ${newGroup}` });
+      }
+      student.studentInfo.group = newGroup;
+    }
+
     await student.save();
+    // Moving into a group also hands the student that group's upcoming homework and quizzes
+    if (newGroup && student.isActive) await groupsSvc.addManyToGroupContent([student._id], newGroup);
 
     res.status(200).json({
       status: 'success',
@@ -462,6 +499,10 @@ const updateStudent = async (req, res) => {
           lastName: student.lastName,
           email: student.email,
           currentGrade: student.studentInfo?.currentGrade,
+          group: student.studentInfo?.group || null,
+          year: student.studentInfo?.year,
+          session: student.studentInfo?.session,
+          royalClass: student.studentInfo?.royalClass,
           overallProgress: student.studentInfo?.overallProgress,
           isActive: student.isActive
         }

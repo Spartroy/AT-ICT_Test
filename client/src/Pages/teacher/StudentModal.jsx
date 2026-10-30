@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LayoutGrid, ClipboardCheck, GraduationCap, Star, User, Mail, CalendarDays, Users, Eye, Plus, Key, CheckCircle2, X, Trophy, FileImage, Hourglass } from 'lucide-react';
+import { LayoutGrid, ClipboardCheck, GraduationCap, Star, User, Mail, CalendarDays, Users, Eye, Plus, Key, CheckCircle2, X, Trophy, FileImage, Hourglass, Phone, MessageSquare, RefreshCw, Trash2, UserPlus, Copy } from 'lucide-react';
 import useApi from '../../hooks/useApi';
 import { api } from '../../lib/api';
 import { API_ENDPOINTS } from '../../config/api';
@@ -12,15 +12,16 @@ import { apiError } from './modals/form';
 
 const TABS = [
   { id: 'sum', label: 'Summary', icon: LayoutGrid },
+  { id: 'parent', label: 'Parent', icon: Users },
   { id: 'asg', label: 'Assignments', icon: ClipboardCheck },
   { id: 'quiz', label: 'Quizzes', icon: GraduationCap },
   { id: 'pay', label: 'Payments', icon: Star }
 ];
 const known = (v) => v !== null && v !== undefined && v !== '' && v !== 'N/A' && v !== 'Not assigned';
 
-/** Wide student modal: Summary / Assignments / Quizzes / Payments. */
-export default function StudentModal({ studentId, onClose, onCredentials }) {
-  const [tab, setTab] = useState('sum');
+/** Wide student modal: Summary / Parent / Assignments / Quizzes / Payments. */
+export default function StudentModal({ studentId, onClose, onCredentials, onChanged, initialTab = 'sum' }) {
+  const [tab, setTab] = useState(initialTab);
   const detail = useApi(studentId ? `${API_ENDPOINTS.TEACHER.STUDENTS}/${studentId}` : null, b => b.data || {});
   const navigate = useNavigate();
   const { base } = useTeacher();
@@ -51,6 +52,7 @@ export default function StudentModal({ studentId, onClose, onCredentials }) {
         {detail.loading && !detail.data && <Loading />}
         {detail.error && <ErrorNote error={detail.error} onRetry={detail.reload} />}
         {s && tab === 'sum' && <Summary d={d} />}
+        {s && tab === 'parent' && <ParentTab student={s} info={d.parentInfo} onCredentials={onCredentials} onChanged={() => { detail.reload(); onChanged?.(); }} onClose={onClose} />}
         {s && tab === 'asg' && (
           <div className="tbl">
             {!d.assignments?.length && <Empty icon={ClipboardCheck}>No assignments.</Empty>}
@@ -91,6 +93,70 @@ export default function StudentModal({ studentId, onClose, onCredentials }) {
       </div>
       <div className="mfoot" style={{ padding: '0 24px 20px' }}><button type="button" className="btn o" onClick={onClose}>Close</button></div>
     </Dialog>
+  );
+}
+
+/** Parent account: see it, create it, delete it or recreate it with new credentials, and chat with the parent. */
+function ParentTab({ student, info, onCredentials, onChanged, onClose }) {
+  const toast = useToast();
+  const confirm = useConfirm();
+  const navigate = useNavigate();
+  const { base } = useTeacher();
+  const [busy, setBusy] = useState('');
+  const has = !!info?.hasAccount;
+  const url = `${API_ENDPOINTS.TEACHER.STUDENTS}/${student._id}`;
+  const name = `${student.firstName} ${student.lastName}`;
+
+  const run = async (kind, fn) => {
+    setBusy(kind);
+    try { await fn(); } catch (err) { toast(apiError(err)); } finally { setBusy(''); }
+  };
+  const create = () => run('create', async () => {
+    const res = await api.post(`${url}/create-parent`, {});
+    onCredentials?.({ title: `Parent account for ${name}`, ...res.data.credentials });
+    onChanged();
+  });
+  const recreate = () => run('recreate', async () => {
+    if (!(await confirm({ title: `Recreate ${name}'s parent account?`, body: 'The current parent login stops working and a new email and password are created.', confirmLabel: 'Recreate' }))) return;
+    const res = await api.post(`${url}/recreate-parent`, {});
+    onCredentials?.({ title: `New parent account for ${name}`, ...res.data.credentials });
+    onChanged();
+  });
+  const remove = () => run('delete', async () => {
+    if (!(await confirm({ title: `Delete ${name}'s parent account?`, body: 'The parent can no longer sign in. You can create a new account afterwards.', confirmLabel: 'Delete parent' }))) return;
+    await api.del(`${url}/parent`);
+    toast('Parent account deleted');
+    onChanged();
+  });
+  const copy = async () => {
+    try { await navigator.clipboard.writeText(info.email); toast('Email copied'); } catch { toast(info.email); }
+  };
+
+  return (
+    <div className="par-tab">
+      <div className="card">
+        <h3><Ic as={Users} />Parent account</h3>
+        {has ? (
+          <>
+            <p className="ir"><Ic as={Mail} /><span className="mono">{info.email}</span><button type="button" className="ib sm" aria-label="Copy the parent's email" onClick={copy}><Ic as={Copy} /></button></p>
+            <p className="ir"><Ic as={User} />{info.name}</p>
+            {known(info.phone) && <p className="ir"><Ic as={Phone} />{info.phone}</p>}
+            <p className="sub par-note">The password is only shown when the account is created. Use <b>Recreate</b> for a new email and password if the parent lost it.</p>
+            <div className="par-acts">
+              <button type="button" className="btn p sm" onClick={() => { onClose(); navigate(`${base}/inbox/chat`); }}><Ic as={MessageSquare} />Chat with parent</button>
+              <button type="button" className="btn o sm" disabled={!!busy} onClick={recreate}><Ic as={RefreshCw} />{busy === 'recreate' ? 'Recreating…' : 'Recreate account'}</button>
+              <button type="button" className="btn o sm dng" disabled={!!busy} onClick={remove}><Ic as={Trash2} />{busy === 'delete' ? 'Deleting…' : 'Delete account'}</button>
+            </div>
+          </>
+        ) : (
+          <>
+            <Empty icon={Users}>No parent account yet.</Empty>
+            {known(info?.phone) && <p className="ir"><Ic as={Phone} />Number on file: {info.phone}</p>}
+            <div className="par-acts"><button type="button" className="btn p sm" disabled={!!busy} onClick={create}><Ic as={UserPlus} />{busy === 'create' ? 'Creating…' : 'Create parent account'}</button></div>
+          </>
+        )}
+      </div>
+    </div>
   );
 }
 
