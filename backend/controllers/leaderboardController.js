@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const HallOfFameEntry = require('../models/HallOfFameEntry');
 const AppSettings = require('../models/AppSettings');
+const { buildStandings } = require('../services/standings');
 
 const { PRESET_HALL_OF_FAME, LEGACY_HALL_OF_FAME } = require('../data/hallOfFamePreset');
 
@@ -32,12 +33,15 @@ const seedHallOfFame = async () => {
   }
 };
 
-// @desc    Get top-3 students by currentSession points, filtered by session
-// @route   GET /api/leaderboard?session=NOV+25
+// @desc    Student standings by currentSession points, with rank and movement since yesterday
+//          ?view=session        every student of the session (?session=NOV+25 narrows it)
+//          ?view=group          the signed-in student's own group
+//          (no view)            the top 3, as before
+// @route   GET /api/leaderboard
 // @access  Private (student, teacher, parent)
 const getLeaderboard = async (req, res) => {
   try {
-    const { session } = req.query;
+    const { session, view } = req.query;
 
     const matchStage = {
       role: 'student',
@@ -49,28 +53,27 @@ const getLeaderboard = async (req, res) => {
       matchStage['studentInfo.session'] = session;
     }
 
-    const top3 = await User.find(matchStage)
-      .select('firstName lastName avatar studentInfo.points studentInfo.session')
-      .sort({ 'studentInfo.points.currentSession': -1 })
-      .limit(3)
+    if (view === 'group') {
+      const mine = req.user?.role === 'student' ? req.user.studentInfo?.group : null;
+      if (!mine) {
+        return res.status(200).json({ status: 'success', data: { leaderboard: [], session: session || 'all', view, count: 0 } });
+      }
+      matchStage['studentInfo.group'] = mine;
+    }
+
+    const students = await User.find(matchStage)
+      .select('firstName lastName avatar studentInfo.points studentInfo.session studentInfo.group')
       .lean();
 
-    const leaderboard = top3.map((student, idx) => ({
-      rank: idx + 1,
-      _id: student._id,
-      firstName: student.firstName,
-      lastName: student.lastName,
-      avatar: student.avatar || null,
-      points: student.studentInfo?.points?.currentSession || 0,
-      totalPoints: student.studentInfo?.points?.total || 0,
-      sessionLabel: student.studentInfo?.points?.sessionLabel || student.studentInfo?.session || ''
-    }));
+    const standings = buildStandings(students);
+    const leaderboard = view === 'session' || view === 'group' ? standings : standings.slice(0, 3);
 
     res.status(200).json({
       status: 'success',
       data: {
         leaderboard,
         session: session || 'all',
+        view: view || 'top3',
         count: leaderboard.length
       }
     });

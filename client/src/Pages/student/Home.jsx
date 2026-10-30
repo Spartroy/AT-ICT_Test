@@ -1,6 +1,6 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ClipboardCheck, GraduationCap, Trophy, Clock, Inbox as InboxIcon, CalendarDays, Megaphone, RefreshCw, Video } from 'lucide-react';
+import { ClipboardCheck, GraduationCap, Trophy, Clock, Inbox as InboxIcon, CalendarDays, Megaphone, RefreshCw, Video, Crown, ChevronUp, ChevronDown, Minus, Star } from 'lucide-react';
 import { useStudent } from './StudentPortal';
 import GroupChip from '../../components/portal/GroupChip';
 import useApi from '../../hooks/useApi';
@@ -8,13 +8,45 @@ import { API_ENDPOINTS } from '../../config/api';
 import { Ic, Ring, Stat, Empty, initials, fmtDate } from '../../components/portal/kit';
 import WeekGrid from '../../components/portal/WeekGrid';
 import { startsIn, useLiveActions, useLiveFeed } from '../../components/portal/LiveFeed';
+import { VIEWS, moveInfo, rowTier, myRow } from './standings';
 import { weekFromSchedule, typeChip, shortTime, sessionsAhead } from './scheduleUtils';
 
 const pct = (a, b) => (b ? Math.round((a / b) * 100) : 0);
-const MEDALS = ['a1', 'a2', 'a3'];
+
+function Standings({ rows, loading, meId, empty }) {
+  if (!rows.length) return <Empty icon={Trophy}>{loading ? 'Loading standings…' : empty}</Empty>;
+  return (
+    <div className="fb" role="table" aria-label="Standings">
+      <div className="fb-h" role="row"><span>#</span><span>Student</span><span>Pts</span></div>
+      {rows.map(l => {
+        const mine = String(l._id) === String(meId);
+        const { tier, crown } = rowTier(l.rank);
+        const m = moveInfo(l.movement);
+        return (
+          <div className={`fb-r ${tier} ${mine ? 'me2' : ''}`} role="row" key={l._id}>
+            <span className="fb-rk"><i>{l.rank}</i>
+              <em className={`fb-mv ${m.dir}`} title={m.dir === 'same' ? 'No change' : `${m.dir === 'up' ? 'Up' : 'Down'} ${m.n} since yesterday`}>
+                {m.dir === 'up' ? <ChevronUp aria-label="Moved up" /> : m.dir === 'down' ? <ChevronDown aria-label="Moved down" /> : <Minus aria-label="No change" />}
+                {m.n || ''}
+              </em>
+            </span>
+            <span className="fb-nm">
+              <span className="av" aria-hidden="true">{initials(`${l.firstName} ${l.lastName}`)}</span>
+              <b className={mine ? 'lb-me' : ''}>{l.firstName} {l.lastName}{mine ? ' (you)' : ''}</b>
+              {crown && <Crown className="fb-crown" aria-label="Number one" />}
+            </span>
+            <span className="pt">{l.points}</span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
 
 export default function Home() {
-  const { base, me, stats, student, leaderboard, group, openPointsGuide } = useStudent();
+  const { base, me, stats, student, group, openPointsGuide } = useStudent();
+  const [view, setView] = useState('session');
+  const standings = useApi(`${API_ENDPOINTS.LEADERBOARD.BASE}?view=${view}`, b => b.data?.leaderboard || []);
   const assignments = useApi(API_ENDPOINTS.STUDENT.ASSIGNMENTS, b => b.data?.assignments || []);
   const schedule = useApi(API_ENDPOINTS.STUDENT.SCHEDULE, b => b.data || {});
   const announcements = useApi(API_ENDPOINTS.ANNOUNCEMENTS.BASE, b => b.data?.announcements || []);
@@ -22,11 +54,11 @@ export default function Home() {
   const progress = student?.studentInfo?.overallProgress || 0;
   const a = stats?.assignments || {};
   const q = stats?.quizzes || {};
-  const ann = stats?.announcements || {};
   const pending = a.pendingAssignments || 0;
 
-  const graded = (assignments.data || []).filter(x => x.studentData?.status === 'graded' && x.maxScore);
-  const avg = graded.length ? Math.round(graded.reduce((s, x) => s + (x.studentData.score || 0) / x.maxScore, 0) / graded.length * 100) : 0;
+  const points = student?.studentInfo?.points?.currentSession || 0;
+  const sessionLabel = student?.studentInfo?.points?.sessionLabel || '';
+  const mineRow = myRow(standings.data, me._id);
 
   const week = useMemo(() => weekFromSchedule(schedule.data?.schedule), [schedule.data]);
   const todayIdx = (new Date().getDay() + 6) % 7;
@@ -59,6 +91,17 @@ export default function Home() {
         <Ring p={progress} color="var(--crimson-glow)" size={140} fs="1.7rem" w={12} label={`Term plan ${progress}% complete`} />
       </div>
 
+      <div className="card">
+        <h3><Ic as={InboxIcon} />Latest announcement<Link className="lk" to={`${base}/inbox`}>View all →</Link></h3>
+        {latest ? (
+          <Link className="ann" style={{ margin: 0 }} to={`${base}/inbox/announcements?open=${latest._id}`}>
+            <h4>{latest.title} <span className="chip c-th">{latest.type}</span></h4>
+            <p className="clamp2">{latest.content}</p>
+            <div className="m"><span>{fmtDate(latest.createdAt)}</span><span>{latest.createdBy ? `${latest.createdBy.firstName} ${latest.createdBy.lastName}` : ''}</span></div>
+          </Link>
+        ) : <Empty icon={Megaphone}>No announcements yet.</Empty>}
+      </div>
+
       <div className="g4">
         <Stat icon={ClipboardCheck} label="Assignments" value={`${a.completedAssignments || 0}/${a.totalAssignments || 0}`}
           note={pending ? <span className="bad">{pending} pending</span> : <span className="ok">All done ✓</span>}
@@ -66,12 +109,9 @@ export default function Home() {
         <Stat icon={GraduationCap} label="Quizzes" value={`${q.completedQuizzes || 0}/${q.totalQuizzes || 0}`}
           note={q.totalQuizzes ? (q.pendingQuizzes ? <span className="bad">{q.pendingQuizzes} to take</span> : <span className="ok">All done ✓</span>) : <span className="faint">None yet</span>}
           ring={<Ring p={pct(q.completedQuizzes, q.totalQuizzes)} color="var(--ink-300)" size={72} fs=".95rem" w={6} />} />
-        <Stat icon={Megaphone} label="Announcements" value={`${(ann.totalAnnouncements || 0) - (ann.unreadAnnouncements || 0)}/${ann.totalAnnouncements || 0}`}
-          note={ann.unreadAnnouncements ? <span className="bad">{ann.unreadAnnouncements} unread</span> : <span className="ok">All read ✓</span>}
-          ring={<Ring p={pct((ann.totalAnnouncements || 0) - (ann.unreadAnnouncements || 0), ann.totalAnnouncements)} color="var(--phase-3)" size={72} fs=".95rem" w={6} />} />
-        <Stat icon={Trophy} label="Avg. score" value={`${avg}%`}
-          note={<span className={graded.length ? 'ok' : 'faint'}>{graded.length ? `${graded.length} graded` : 'Nothing graded yet'}</span>}
-          ring={<Ring p={avg} color="var(--dark-warn)" size={72} fs=".95rem" w={6} />} />
+        <Stat icon={Star} label="Points" value={points}
+          note={<span className={points ? 'ok' : 'faint'}>{sessionLabel ? `${sessionLabel} session` : points ? 'This session' : 'Earn your first points'}</span>}
+          ring={<Ring p={pct(points, Math.max(points, ...(standings.data || []).map(l => l.points || 0), 1))} color="var(--dark-warn)" size={72} fs=".95rem" w={6} label="Points compared with the top student" />} />
       </div>
 
       <div className="card">
@@ -115,31 +155,14 @@ export default function Home() {
           ))}
         </div>
         <div className="card">
-          <h3><Ic as={Trophy} />Leaderboard<button type="button" className="lk" onClick={openPointsGuide}>How points work</button><button type="button" className="lk" aria-label="Refresh leaderboard" onClick={leaderboard.reload}><Ic as={RefreshCw} /></button></h3>
-          {!(leaderboard.data || []).length && <Empty icon={Trophy}>Complete assignments to earn points.</Empty>}
-          {(leaderboard.data || []).map((l, i) => {
-            const mine = String(l._id) === String(me._id);
-            return (
-              <div className={`lb ${mine ? 'me2' : ''}`} key={l._id}>
-                <i>0{i + 1}</i>
-                <span className={`av ${MEDALS[i] || ''}`} aria-hidden="true">{initials(`${l.firstName} ${l.lastName}`)}</span>
-                <b className={mine ? 'lb-me' : ''}>{l.firstName} {l.lastName}{mine ? ' (you)' : ''}</b>
-                <span className="pt">{l.points}</span>
-              </div>
-            );
-          })}
+          <h3><Ic as={Trophy} />Leaderboard<button type="button" className="lk" onClick={openPointsGuide}>How points work</button><button type="button" className="lk" aria-label="Refresh leaderboard" onClick={standings.reload}><Ic as={RefreshCw} /></button></h3>
+          <div className="seg fb-tabs" role="tablist" aria-label="Leaderboard view">
+            {VIEWS.map(v => <button key={v.id} type="button" role="tab" aria-selected={view === v.id} className={view === v.id ? 'on' : ''} onClick={() => setView(v.id)}>{v.label}</button>)}
+          </div>
+          <Standings rows={standings.data || []} loading={standings.loading} meId={me._id}
+            empty={view === 'group' ? 'You are not in a group yet.' : 'Complete assignments to earn points.'} />
+          {mineRow && <p className="faint fb-you">You are #{mineRow.rank} with {mineRow.points} pts.</p>}
         </div>
-      </div>
-
-      <div className="card">
-        <h3><Ic as={InboxIcon} />Latest announcement<Link className="lk" to={`${base}/inbox`}>View all →</Link></h3>
-        {latest ? (
-          <Link className="ann" style={{ margin: 0 }} to={`${base}/inbox/announcements?open=${latest._id}`}>
-            <h4>{latest.title} <span className="chip c-th">{latest.type}</span></h4>
-            <p className="clamp2">{latest.content}</p>
-            <div className="m"><span>{fmtDate(latest.createdAt)}</span><span>{latest.createdBy ? `${latest.createdBy.firstName} ${latest.createdBy.lastName}` : ''}</span></div>
-          </Link>
-        ) : <Empty icon={Megaphone}>No announcements yet.</Empty>}
       </div>
     </>
   );

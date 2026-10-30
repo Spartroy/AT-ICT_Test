@@ -1,8 +1,6 @@
 const User = require('../models/User');
 const groupsSvc = require('../services/groups');
 const { notify, teacherIds } = require('../services/notifications');
-const Assignment = require('../models/Assignment');
-const Quiz = require('../models/Quiz');
 const Activity = require('../models/Activity');
 const { validationResult } = require('express-validator');
 const { createActivityFromEvent } = require('./activityController');
@@ -398,62 +396,13 @@ const approveRegistration = async (req, res) => {
     await user.save();
 
     // New students join the smallest teaching group (when groups exist and auto-assign is on).
-    let groupCode = null;
     try {
-      groupCode = user.role === 'student' ? await groupsSvc.autoAssignNewStudent(user._id) : null;
+      if (user.role === 'student') await groupsSvc.autoAssignNewStudent(user._id);
     } catch (groupError) {
       console.error('Error auto-assigning the new student to a group:', groupError);
     }
-    // Work made for a particular group only goes to that group's students.
-    const forThisStudent = (doc) => !doc.groups?.length || (groupCode && doc.groups.includes(groupCode));
-
-    // Automatically assign existing assignments and quizzes to the newly approved student
-    try {
-      // Get all active assignments
-      const assignments = await Assignment.find({ isActive: true });
-      
-      // Get all active quizzes
-      const quizzes = await Quiz.find({ isActive: true });
-      
-      // Assign existing assignments to the new student
-      for (const assignment of assignments.filter(forThisStudent)) {
-        // Check if student is not already assigned to this assignment
-        const isAlreadyAssigned = assignment.assignedTo.some(
-          a => a.student.toString() === user._id.toString()
-        );
-        
-        if (!isAlreadyAssigned) {
-          assignment.assignedTo.push({
-            student: user._id,
-            assignedDate: new Date(),
-            status: 'assigned'
-          });
-          await assignment.save();
-        }
-      }
-      
-      // Assign existing quizzes to the new student
-      for (const quiz of quizzes.filter(forThisStudent)) {
-        // Check if student is not already assigned to this quiz
-        const isAlreadyAssigned = quiz.assignedTo.some(
-          a => a.student.toString() === user._id.toString()
-        );
-        
-        if (!isAlreadyAssigned) {
-          quiz.assignedTo.push({
-            student: user._id,
-            assignedDate: new Date(),
-            status: 'assigned'
-          });
-          await quiz.save();
-        }
-      }
-      
-      console.log(`📚 Assigned ${assignments.length} assignments and ${quizzes.length} quizzes to newly approved student ${user.email}`);
-    } catch (assignmentError) {
-      console.error('Error assigning existing assignments/quizzes to new student:', assignmentError);
-      // Don't fail the approval process if assignment assignment fails
-    }
+    // A new student is not back-filled with homework or quizzes that were set before they joined: they only
+    // receive work that is assigned to them (their group, or picked by name) from now on.
 
     // Update activity metadata so the feed knows this registration is no longer pending
     await Activity.updateOne(

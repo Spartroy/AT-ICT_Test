@@ -296,3 +296,29 @@
   .atp-student .fc-decks .deck-face small { display: none; }
   .atp-student .fc-decks .deck:hover .deck-pile i, .atp-student .fc-decks .deck.open .deck-pile i { transform: translate(calc((var(--i) - (var(--n) - 1) / 2) * 7px), calc(var(--i) * -6px)) rotate(calc((var(--i) - (var(--n) - 1) / 2) * 3deg)); }
 }
+
+/* Football-style standings (student Home leaderboard) */
+.atp-student .fb-tabs { margin: 4px 0 12px; }
+.atp-student .fb { display: grid; gap: 4px; max-height: 460px; overflow-y: auto; }
+.atp-student .fb-h, .atp-student .fb-r { display: grid; grid-template-columns: 64px 1fr auto; align-items: center; gap: 10px; padding: 8px 12px; }
+.atp-student .fb-h { font-size: .72rem; letter-spacing: .06em; text-transform: uppercase; color: var(--fa); }
+.atp-student .fb-r { border-radius: 12px; font-size: .9rem; border-left: 3px solid transparent; }
+.atp-student .fb-r.rest { padding-block: 6px; font-size: .84rem; }
+.atp-student .fb-r.gold, .atp-student .fb-r.silver, .atp-student .fb-r.bronze { padding-block: 12px; font-weight: 600; background: rgb(255 255 255 / 0.05); }
+.atp-student .fb-r.gold { border-left-color: #f5c542; background: rgb(245 197 66 / 0.14); }
+.atp-student .fb-r.silver { border-left-color: #c3c8d4; }
+.atp-student .fb-r.bronze { border-left-color: #cd7f32; }
+.atp-student .fb-r.me2 { outline: 1.5px solid var(--dark-accent-text); outline-offset: -1.5px; }
+.atp-student .fb-rk { display: flex; align-items: center; gap: 6px; }
+.atp-student .fb-rk i { font-style: normal; font-family: var(--font-numeric); width: 20px; }
+.atp-student .fb-mv { display: inline-flex; align-items: center; font-style: normal; font-size: .72rem; font-family: var(--font-numeric); }
+.atp-student .fb-mv svg { width: 16px; height: 16px; }
+.atp-student .fb-mv.up { color: #2fbf71; }
+.atp-student .fb-mv.down { color: #e5484d; }
+.atp-student .fb-mv.same { color: var(--fa); }
+.atp-student .fb-nm { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.atp-student .fb-nm b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.atp-student .fb-nm .av { flex: none; }
+.atp-student .fb-crown { width: 18px; height: 18px; color: #f5c542; flex: none; }
+.atp-student .fb .pt { font-family: var(--font-numeric); color: var(--am); }
+.atp-student .fb-you { margin: 10px 0 0; font-size: .82rem; }
