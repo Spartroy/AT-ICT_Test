@@ -5,6 +5,7 @@ import useApi from '../../hooks/useApi';
 import { API_ENDPOINTS } from '../../config/api';
 import { Empty, ErrorNote, Ic, Loading, fmtDate } from '../../components/portal/kit';
 import { GuideCtx } from './GuideBlocks';
+import GuideScreen from './GuideScreen';
 import ChapterView from './GuideChapter';
 import GuideNav from './GuideNav';
 import { chapterTag, plainText } from './guideLogic';
@@ -16,7 +17,7 @@ export const scrollToSection = (id) => {
   document.getElementById(id === 'quiz' ? 'sg-quiz' : `sec-${id}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 };
 
-/** Learn › Labs › the revision study guide, as students read it. */
+/** Learn › Labs › the revision study guide, as students read it: full screen over the portal. */
 export default function StudyGuideReader({ onBack }) {
   const guide = useApi(API_ENDPOINTS.GUIDE.BASE, (b) => b.data);
   const [params, setParams] = useSearchParams();
@@ -39,23 +40,20 @@ export default function StudyGuideReader({ onBack }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.get('ch')]);
 
-  if (guide.loading && !guide.data) return <Loading label="Opening the study guide…" />;
-  if (guide.error) return <ErrorNote error={guide.error} onRetry={guide.reload} />;
-  if (!chapters.length) return <Empty>The study guide is empty right now.</Empty>;
+  const screen = (children, actions) => (
+    <GuideScreen title="Complete IGCSE ICT Revision" backLabel="Back to Labs" onClose={onBack} actions={actions}>{children}</GuideScreen>
+  );
+  if (guide.loading && !guide.data) return screen(<Loading label="Opening the study guide…" />);
+  if (guide.error) return screen(<ErrorNote error={guide.error} onRetry={guide.reload} />);
+  if (!chapters.length) return screen(<Empty>The study guide is empty right now.</Empty>);
 
   const ch = chapters[current];
   const prev = chapters[current - 1];
   const next = chapters[current + 1];
 
-  return (
-    <div className="sg" ref={top}>
-      <div className="sg-bar">
-        {onBack && <button type="button" className="btn o sm" onClick={onBack}><Ic as={ArrowLeft} />Labs</button>}
-        <div className="sg-bar-t">
-          <b>Complete IGCSE ICT Revision</b>
-          {guide.data.publishedAt && <small>Updated {fmtDate(guide.data.publishedAt, { day: 'numeric', month: 'short', year: 'numeric' })}</small>}
-        </div>
-      </div>
+  const updated = guide.data.publishedAt && <small className="sg-updated">Updated {fmtDate(guide.data.publishedAt, { day: 'numeric', month: 'short', year: 'numeric' })}</small>;
+  return screen(
+    <div ref={top}>
       <div className="sg-layout">
         <GuideNav chapters={chapters} current={current} onSelect={select} onSection={scrollToSection} />
         <main className="sg-paper">
@@ -68,6 +66,7 @@ export default function StudyGuideReader({ onBack }) {
           </div>
         </main>
       </div>
-    </div>
+    </div>,
+    updated
   );
 }

@@ -1,3 +1,4 @@
+/* eslint-disable testing-library/no-container, testing-library/no-node-access */
 import React from 'react';
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import { PortalUIProvider } from '../../components/portal/PortalUI';

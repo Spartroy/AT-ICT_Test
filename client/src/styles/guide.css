@@ -365,3 +365,41 @@
   .sg-paper { box-shadow: none; padding: 0; }
   .sg-try-body[hidden] { display: block; }
 }
+
+/* ---------- full-screen shell (reader and editor open over the portal like the notes viewer) ---------- */
+/* Below the portal's dialogs (80) and toasts (90) so confirm boxes and pickers show above the guide. */
+.atp .sg-screen { position: fixed; inset: 0; z-index: 70; display: flex; flex-direction: column; background: radial-gradient(1000px 500px at 50% -10%, rgb(var(--crimson-rgb) / 0.18), transparent 60%), var(--ink-950); animation: sg-screen-in 0.3s cubic-bezier(0.22, 1, 0.36, 1); }
+@keyframes sg-screen-in { from { opacity: 0; transform: scale(0.985); } }
+.atp .sg-screen:focus { outline: none; }
+.atp .sg-screen-top { display: flex; align-items: center; gap: 14px; padding: 12px clamp(12px, 2vw, 24px); border-bottom: 1px solid var(--bd); background: rgb(0 0 0 / 0.3); backdrop-filter: blur(10px); }
+.atp .sg-screen-title { flex: 1; min-width: 0; margin: 0; font-size: 1rem; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.atp .sg-screen-acts { display: flex; gap: 8px; align-items: center; min-width: 64px; justify-content: flex-end; }
+.atp .sg-updated { color: var(--mu); font-size: 0.78rem; white-space: nowrap; }
+.atp .sg-screen-body { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: clamp(12px, 2vw, 24px); }
+.atp .sg-screen-inner { max-width: 1400px; margin: 0 auto; }
+/* Sticky pieces now stick to the top of the full-screen scroller, not the page. */
+.atp .sg-screen .sg-nav { top: 0; max-height: calc(100vh - 130px); }
+.atp .sg-screen .sg-ebar { top: 0; }
+.atp .sg-screen .sg-sec, .atp .sg-screen .sg-quiz { scroll-margin-top: 80px; }
+@media (max-width: 960px) {
+  .atp .sg-screen .sg-nav { top: 0; z-index: 12; }
+  .atp .sg-screen .sg-ebar { top: 0; }
+}
+@media (max-width: 640px) {
+  .atp .sg-screen-title { display: none; }
+  .atp .sg-screen-acts { margin-left: auto; }
+  .atp .sg-screen-body { padding: 10px; }
+}
+@media (prefers-reduced-motion: reduce) { .atp .sg-screen { animation: none; } }
+
+/* Library › Study guide card */
+.atp .sg-manage { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; padding: 20px 22px; }
+.atp .sg-manage-ic { flex: none; width: 52px; height: 52px; border-radius: 16px; display: grid; place-items: center; background: rgb(var(--crimson-rgb) / 0.15); color: var(--crimson-glow); font-size: 1.4rem; }
+.atp .sg-manage-t { flex: 1 1 320px; min-width: 0; display: grid; gap: 4px; }
+.atp .sg-manage-t h3 { margin: 0; font-size: 1.1rem; }
+
+/* In the editor the tools bar is sticky too, so the contents list sits below it. */
+.atp .sg-screen .sg-editor .sg-nav, .atp .sg-screen.sg-editor-screen .sg-nav { top: 84px; max-height: calc(100vh - 168px); }
+@media (max-width: 960px) {
+  .atp .sg-screen .sg-editor .sg-nav { position: static; max-height: none; }
+}

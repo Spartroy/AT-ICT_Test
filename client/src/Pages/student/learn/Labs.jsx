@@ -22,7 +22,6 @@ export default function Labs() {
   const setLab = (id) => setParams(id ? { lab: id } : {}, { replace: false });
 
   if (lab === 'flashcards') return <Flashcards onBack={() => setLab(null)} />;
-  if (lab === 'guide') return <StudyGuideReader onBack={() => setLab(null)} />;
   return (
     <>
       <div className="lab-banner" role="note">
@@ -42,6 +41,7 @@ export default function Labs() {
           </button>
         ))}
       </div>
+      {lab === 'guide' && <StudyGuideReader onBack={() => setLab(null)} />}
       {open && <ResourceViewer kind="web" src={open.src} title={open.title} backLabel="Back to Labs" onClose={() => setOpen(null)} />}
     </>
   );

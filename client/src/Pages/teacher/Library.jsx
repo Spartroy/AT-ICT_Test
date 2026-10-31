@@ -11,7 +11,7 @@ import { useTeacher } from './TeacherPortal';
 import { announceChange, apiError, useTeacherChange } from './modals/form';
 import { programLabel } from './curriculum';
 import SamplesManager from './SamplesManager';
-import StudyGuideEditor from '../guide/StudyGuideEditor';
+import StudyGuideManager from '../guide/StudyGuideManager';
 import { buildTree, inPath, highlight, sortByPath } from './libraryTree';
 
 const TYPE_LABEL = { theory: 'Theory', practical: 'Practical', other: 'Revision' };
@@ -110,7 +110,7 @@ export default function Library() {
         )}
       />
       <Seg tabs={TABS.map(t => ({ id: t.id, label: t.label, icon: t.icon }))} value={tab} onChange={id => navigate(`${base}/library/${id}`)} label="Library sections" />
-      {tab === 'site' ? <SiteContent /> : tab === 'guide' ? <StudyGuideEditor /> : tab === 'samples' ? <SamplesManager /> : <LibraryList key={tab} config={current} />}
+      {tab === 'site' ? <SiteContent /> : tab === 'guide' ? <StudyGuideManager /> : tab === 'samples' ? <SamplesManager /> : <LibraryList key={tab} config={current} />}
     </>
   );
 }

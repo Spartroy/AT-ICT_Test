@@ -9,6 +9,7 @@ import { apiError } from '../teacher/modals/form';
 import { GuideCtx } from './GuideBlocks';
 import ChapterView from './GuideChapter';
 import GuideNav from './GuideNav';
+import GuideScreen from './GuideScreen';
 import { scrollToSection } from './StudyGuideReader';
 import { BLOCK_KINDS, insertAt, moveItem, newBlock, newSection, removeAt, setIn } from './guideLogic';
 
@@ -68,8 +69,8 @@ function BlockPicker({ onPick, onClose }) {
   );
 }
 
-/** Library › Study guide: the teacher edits the revision guide that students read in Labs. */
-export default function StudyGuideEditor() {
+/** Library › Study guide: the teacher edits the revision guide that students read in Labs. Opens full screen. */
+export default function StudyGuideEditor({ onClose }) {
   const toast = useToast();
   const confirm = useConfirm();
   const loaded = useApi(API_ENDPOINTS.GUIDE.EDIT, (b) => b.data);
@@ -146,8 +147,25 @@ export default function StudyGuideEditor() {
     pickBlock: (list, at) => setPicker({ list, at })
   }), [preview, edit, toast]);
 
-  if (loaded.loading && !doc) return <Loading label="Opening the guide editor…" />;
-  if (loaded.error) return <ErrorNote error={loaded.error} onRetry={loaded.reload} />;
+  // Leaving saves anything still waiting for the autosave, so closing never loses an edit.
+  const requestClose = async () => {
+    if (doc && doc !== saved.current) {
+      try {
+        await api.put(API_ENDPOINTS.GUIDE.DRAFT, { content: doc });
+        saved.current = doc;
+      } catch (err) {
+        toast(`${apiError(err)} Your latest edits were not saved.`);
+        return;
+      }
+    }
+    onClose();
+  };
+  const screen = (children) => (
+    <GuideScreen title="Study guide editor" backLabel="Library" onClose={requestClose} escCloses={false} editor>{children}</GuideScreen>
+  );
+
+  if (loaded.loading && !doc) return screen(<Loading label="Opening the guide editor…" />);
+  if (loaded.error) return screen(<ErrorNote error={loaded.error} onRetry={loaded.reload} />);
   if (!doc) return null;
 
   const chapters = doc.chapters;
@@ -216,8 +234,8 @@ export default function StudyGuideEditor() {
   const keepSelection = (e) => e.preventDefault();
   const format = (command) => document.execCommand(command, false);
 
-  return (
-    <div className="sg sg-editor">
+  return screen(
+    <>
       <div className="sg-ebar">
         <div className="sg-ebar-l">
           <span className={`sg-status ${status}`} role="status">{STATUS[status]}</span>
@@ -257,6 +275,6 @@ export default function StudyGuideEditor() {
         </main>
       </div>
       {picker && <BlockPicker onPick={addBlock} onClose={() => setPicker(null)} />}
-    </div>
+    </>
   );
 }
