@@ -15,8 +15,8 @@ function PermissionGrid({ value, onChange, disabled }) {
     <div className="tbl">
       {AREAS.map(a => (
         <div className="trow" key={a.id}>
-          <div className="lmain"><b>{a.label}</b><small>{a.blurb}</small></div>
-          <select className="inp sel-s" aria-label={`${a.label} access`} disabled={disabled} value={value[a.id] || 'none'} onChange={e => onChange({ ...value, [a.id]: e.target.value })}>
+          <div className="lmain" style={{ flex: '1 1 0', minWidth: 90 }}><b>{a.label}</b><small style={{ whiteSpace: 'normal' }}>{a.blurb}</small></div>
+          <select className="inp sel-s" style={{ flex: '0 0 130px', width: 130 }} aria-label={`${a.label} access`} disabled={disabled} value={value[a.id] || 'none'} onChange={e => onChange({ ...value, [a.id]: e.target.value })}>
             {LEVELS.map(l => <option key={l} value={l}>{levelLabel(l)}</option>)}
           </select>
         </div>
