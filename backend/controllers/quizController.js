@@ -1,4 +1,5 @@
-const Quiz = require('../models/Quiz');
+const Quiz = require('../models/Quiz');
+const { addMinutes } = require('../utils/quizTime');
 const User = require('../models/User');
 const groups = require('../services/groups');
 const { validationResult } = require('express-validator');
@@ -37,19 +38,11 @@ const createQuiz = async (req, res) => {
       selectedStudents
     } = req.body;
 
-    // Calculate end time based on start time + duration
-    const startDateTime = new Date(`${startDate}T${startTime}`);
-    const endDateTime = new Date(startDateTime.getTime() + (parseInt(duration) * 60 * 1000));
-    const endTime = endDateTime.toTimeString().slice(0, 5); // Format as HH:MM
-    
-    console.log('⏰ Time calculations:', {
-      startDate,
-      startTime,
-      duration,
-      calculatedEndTime: endTime,
-      startDateTime: startDateTime.toISOString(),
-      endDateTime: endDateTime.toISOString()
-    });
+    // End time is the start time plus the duration, as "HH:MM"
+    const endTime = addMinutes(startTime, duration);
+    if (!endTime) {
+      return res.status(400).json({ status: 'error', message: 'Enter a valid start time and duration' });
+    }
 
     // Handle file attachments
     let attachments = [];

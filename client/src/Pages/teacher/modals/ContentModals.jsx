@@ -52,7 +52,7 @@ export function QuizModal({ open, onClose }) {
     f.setErrors(e);
     if (Object.keys(e).length) return;
     save(f, () => api.post(API_ENDPOINTS.QUIZZES, {
-      title: v.title.trim(), type: v.section, section: v.section, startDate: new Date(`${v.date}T00:00`).toISOString(), startTime: v.time,
+      title: v.title.trim(), type: v.section, section: v.section, startDate: v.date, startTime: v.time,
       duration: Number(v.duration), maxScore: Number(v.maxScore), difficulty: v.difficulty, instructions: v.instructions.trim() || undefined,
       ...audienceBody(v.audience)
     }), { toast, okMsg: 'Quiz created', kind: 'quiz', onClose });
