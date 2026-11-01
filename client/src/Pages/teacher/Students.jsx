@@ -22,13 +22,16 @@ const yearOrClass = (r) => (r.schoolType === 'royal' || known(r.royalClass) ? (k
 export default function Students() {
   const { tab } = useParams();
   const navigate = useNavigate();
-  const { base, counts } = useTeacher();
-  if (!['all', 'groups', 'registrations', 'leads'].includes(tab)) return <Navigate to={`${base}/students/all`} replace />;
+  const { base, counts, assistant } = useTeacher();
+  // Assistants never see registrations or leads (contact details live there)
+  const allowed = assistant ? ['all', 'groups'] : ['all', 'groups', 'registrations', 'leads'];
+  if (!allowed.includes(tab)) return <Navigate to={`${base}/students/all`} replace />;
+  const tabs = [{ id: 'all', label: 'All students', icon: Users }, { id: 'groups', label: 'Groups', icon: Layers }, { id: 'registrations', label: 'Registrations', icon: Bell, count: counts.pendingRegs || '' }, { id: 'leads', label: 'Leads', icon: Gift }];
   return (
     <>
       <PageHead title="Students" />
       <Seg
-        tabs={[{ id: 'all', label: 'All students', icon: Users }, { id: 'groups', label: 'Groups', icon: Layers }, { id: 'registrations', label: 'Registrations', icon: Bell, count: counts.pendingRegs || '' }, { id: 'leads', label: 'Leads', icon: Gift }]}
+        tabs={tabs.filter(t => allowed.includes(t.id))}
         value={tab}
         onChange={id => navigate(`${base}/students/${id}`)}
         label="Student sections"
@@ -57,6 +60,7 @@ export function CredentialsDialog({ creds, onClose }) {
 
 function StudentList() {
   const { settings } = useTeacherSettings();
+  const { assistant } = useTeacher();
   const toast = useToast();
   const confirm = useConfirm();
   const [filters, setFilters] = useState({ search: '', session: '', year: '', status: '', schoolType: '', group: '' });
@@ -155,7 +159,7 @@ function StudentList() {
             <span className="en-c">{fmtDate(s.enrolledDate, { day: 'numeric', month: 'numeric', year: 'numeric' })}</span>
             <div className="sr-a">
               <button type="button" className="btn o sm" onClick={() => setViewing(s._id)}><Ic as={Eye} />View</button>
-              <div className="mw">
+              {!assistant && <div className="mw">
                 <button type="button" className="ib sm" aria-label={`More actions for ${s.fullName}`} aria-haspopup="menu" aria-expanded={menu === s._id} onClick={() => setMenu(m => (m === s._id ? null : s._id))}><Ic as={MoreHorizontal} /></button>
                 <div className={`menu ${menu === s._id ? 'on' : ''}`} role="menu" hidden={menu !== s._id}>
                   <button type="button" role="menuitem" onClick={() => { setMenu(null); setEditing(s); }}>Change group / year / session</button>
@@ -164,7 +168,7 @@ function StudentList() {
                   <button type="button" role="menuitem" onClick={() => act('reset', s)}>Reset password</button>
                   <button type="button" role="menuitem" className="dng" onClick={() => act('remove', s)}>Remove</button>
                 </div>
-              </div>
+              </div>}
             </div>
           </div>
         ))}

@@ -60,6 +60,7 @@ const ProtectedRoute = ({ children, allowedRoles = [] }) => {
         if (user.role === 'student') redirectPath = '/student-dashboard';
         else if (user.role === 'teacher') redirectPath = '/teacher-dashboard';
         else if (user.role === 'parent') redirectPath = '/parent-dashboard';
+        else if (user.role === 'assistant') redirectPath = '/assistant-dashboard';
 
         return <Navigate to={redirectPath} replace />;
     }

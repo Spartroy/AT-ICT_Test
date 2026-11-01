@@ -15,20 +15,22 @@ const AUDIENCE = { all: 'Everyone', students: 'Students', parents: 'Parents', sp
 export default function Inbox() {
   const { tab } = useParams();
   const navigate = useNavigate();
-  const { base, counts, openModal } = useTeacher();
-  if (!['announcements', 'chat', 'sessions'].includes(tab)) return <Navigate to={`${base}/inbox/announcements`} replace />;
+  const { base, counts, openModal, assistant, can } = useTeacher();
+  // Student device sessions are the teacher's alone
+  const allowed = assistant ? ['announcements', 'chat'] : ['announcements', 'chat', 'sessions'];
+  if (!allowed.includes(tab)) return <Navigate to={`${base}/inbox/announcements`} replace />;
   return (
     <>
       <PageHead
         title="Inbox"
-        actions={tab === 'announcements' && <button type="button" className="btn p" onClick={() => openModal('announcement')}><Ic as={Plus} />Create announcement</button>}
+        actions={tab === 'announcements' && can('inbox', 'edit') && <button type="button" className="btn p" onClick={() => openModal('announcement')}><Ic as={Plus} />Create announcement</button>}
       />
       <Seg
         tabs={[
           { id: 'announcements', label: 'Announcements', icon: Megaphone },
           { id: 'chat', label: 'Chat', icon: MessageSquare, count: counts.unreadChats || '' },
           { id: 'sessions', label: 'Sessions', icon: Wifi }
-        ]}
+        ].filter(t => allowed.includes(t.id))}
         value={tab}
         onChange={id => navigate(`${base}/inbox/${id}`)}
         label="Inbox sections"

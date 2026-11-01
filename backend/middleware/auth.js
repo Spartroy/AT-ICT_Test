@@ -1,6 +1,8 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const DeviceSession = require('../models/DeviceSession');
+const { applyAssistantAccess } = require('./assistantGate');
+const { can } = require('../config/assistantAccess');
 
 // Protect routes - verify JWT token
 const protect = async (req, res, next) => {
@@ -72,6 +74,11 @@ const protect = async (req, res, next) => {
       // Add user and session to request object
       req.user = user;
       req.session = session;
+
+      // Assistants are checked against their per-area permissions, then run as the teacher they help
+      if (user.role === 'assistant' && !(await applyAssistantAccess(req, res, user))) {
+        return undefined;
+      }
       next();
 
     } catch (error) {
@@ -110,6 +117,34 @@ const authorize = (...roles) => {
 
     next();
   };
+};
+
+// Per-permission check: teachers always pass; assistants need at least `level` on `area`.
+// (protect already applies the same rules per route for assistants; this is for routes that want to be explicit.)
+const requirePermission = (area, level = 'view') => {
+  return (req, res, next) => {
+    if (!req.user) {
+      return res.status(401).json({ status: 'error', message: 'Not authenticated' });
+    }
+
+    if (req.assistant) {
+      const permissions = req.assistant.assistantInfo && req.assistant.assistantInfo.permissions;
+      if (!can(permissions, area, level)) {
+        return res.status(403).json({ status: 'error', message: `You need ${level} access to ${area} for this` });
+      }
+      return next();
+    }
+
+    if (req.user.role === 'teacher' || req.user.role === 'admin') {
+      return next();
+    }
+
+    return res.status(403).json({ status: 'error', message: `User role '${req.user.role}' is not authorized to access this route` });
+  };
+};
+
+const assistantOnly = (req, res, next) => {
+  return authorize('assistant')(req, res, next);
 };
 
 // Check if user owns the resource (for student/parent data access)
@@ -182,6 +217,8 @@ const studentOrParent = (req, res, next) => {
 module.exports = {
   protect,
   authorize,
+  requirePermission,
+  assistantOnly,
   checkOwnership,
   teacherOnly,
   studentOnly,

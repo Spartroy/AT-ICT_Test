@@ -120,8 +120,8 @@ const userSchema = new mongoose.Schema({
   role: {
     type: String,
     enum: {
-      values: ['student', 'teacher', 'parent'],
-      message: 'Role must be either student, teacher, or parent'
+      values: ['student', 'teacher', 'parent', 'assistant'],
+      message: 'Role must be either student, teacher, parent, or assistant'
     },
     required: [true, 'User role is required']
   },
@@ -137,7 +137,8 @@ const userSchema = new mongoose.Schema({
    */
   contactNumber: {
     type: String,
-    required: [true, 'Contact number is required'],
+    // Assistants are staff accounts created by the teacher and have no contact number on file
+    required: [function() { return this.role !== 'assistant'; }, 'Contact number is required'],
     trim: true,
     validate: {
       validator: function(phone) {
@@ -593,6 +594,27 @@ const userSchema = new mongoose.Schema({
   },
   
   // ===================================================================
+  // ASSISTANT-SPECIFIC INFORMATION
+  // ===================================================================
+
+  /**
+   * Assistant-specific data. Only populated for users with role 'assistant'.
+   * An assistant acts on behalf of `teacher`, limited to the areas granted in `permissions`
+   * (see config/assistantAccess.js).
+   * @type {Object}
+   */
+  assistantInfo: {
+    teacher: { type: mongoose.Schema.ObjectId, ref: 'User' },
+    permissions: {
+      students: { type: String, enum: ['none', 'view', 'edit'], default: 'view' },
+      work: { type: String, enum: ['none', 'view', 'edit'], default: 'none' },
+      library: { type: String, enum: ['none', 'view', 'edit'], default: 'none' },
+      schedule: { type: String, enum: ['none', 'view', 'edit'], default: 'none' },
+      inbox: { type: String, enum: ['none', 'view', 'edit'], default: 'none' }
+    }
+  },
+
+  // ===================================================================
   // PARENT-SPECIFIC INFORMATION
   // ===================================================================
   
@@ -990,6 +1012,8 @@ userSchema.methods.createDeviceSession = async function(sessionData) {
   let maxSessions;
   if (this.role === 'teacher') {
     maxSessions = 999; // Unlimited for teachers (practical limit)
+  } else if (this.role === 'assistant') {
+    maxSessions = 3;
   } else {
     maxSessions = 1; // Only one session for students and parents
   }
@@ -1118,6 +1142,8 @@ userSchema.methods.getRoleData = function() {
       return this.teacherInfo || {};
     case 'parent':
       return this.parentInfo || {};
+    case 'assistant':
+      return this.assistantInfo || {};
     default:
       return {};
   }
@@ -1245,7 +1271,9 @@ userSchema.virtual('dashboardUrl').get(function() {
       return '/teacher-dashboard';
     case 'parent': 
       return '/parent-dashboard';
-    default: 
+    case 'assistant':
+      return '/assistant-dashboard';
+    default:
       return '/';
   }
 });

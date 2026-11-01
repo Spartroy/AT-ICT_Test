@@ -24,8 +24,10 @@ export default function StudentModal({ studentId, onClose, onCredentials, onChan
   const [tab, setTab] = useState(initialTab);
   const detail = useApi(studentId ? `${API_ENDPOINTS.TEACHER.STUDENTS}/${studentId}` : null, b => b.data || {});
   const navigate = useNavigate();
-  const { base } = useTeacher();
+  const { base, assistant } = useTeacher();
   if (!studentId) return null;
+  // Assistants don't get the parent account or payments tabs
+  const tabs = assistant ? TABS.filter(t => t.id !== 'parent' && t.id !== 'pay') : TABS;
   const d = detail.data || {};
   const s = d.student;
   const myEntry = (item) => (item.assignedTo || []).find(e => String(e.student?._id || e.student) === String(studentId)) || {};
@@ -42,7 +44,7 @@ export default function StudentModal({ studentId, onClose, onCredentials, onChan
         <button type="button" className="ib x" aria-label="Close" onClick={onClose}><Ic as={X} /></button>
       </div>
       <div className="mtabs" role="tablist" aria-label="Student sections">
-        {TABS.map(t => (
+        {tabs.map(t => (
           <button key={t.id} type="button" role="tab" aria-selected={tab === t.id} className={tab === t.id ? 'on' : ''} onClick={() => setTab(t.id)}>
             <Ic as={t.icon} />{t.label}{t.id === 'asg' && d.assignments ? ` (${d.assignments.length})` : t.id === 'quiz' && d.quizzes ? ` (${d.quizzes.length})` : ''}
           </button>

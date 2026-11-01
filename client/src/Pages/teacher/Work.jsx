@@ -16,19 +16,19 @@ const TABS = ['submissions', 'assignments', 'quizzes'];
 export default function Work() {
   const { tab } = useParams();
   const navigate = useNavigate();
-  const { base, counts, openModal } = useTeacher();
+  const { base, counts, openModal, can } = useTeacher();
   if (!TABS.includes(tab)) return <Navigate to={`${base}/work/submissions`} replace />;
 
   return (
     <>
       <PageHead
         title="Work"
-        actions={
+        actions={can('work', 'edit') && (
           <>
             <button type="button" className="btn o" onClick={() => openModal('quiz')}><Ic as={GraduationCap} />Create quiz</button>
             <button type="button" className="btn p" onClick={() => openModal('hw')}><Ic as={Plus} />Create H.W</button>
           </>
-        }
+        )}
       />
       <Seg
         tabs={[

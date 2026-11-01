@@ -63,6 +63,14 @@ function App() {
                 }
               />
               <Route
+                path="/assistant-dashboard/*"
+                element={
+                  <ProtectedRoute allowedRoles={['assistant']}>
+                    <TeacherPortal assistant />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
                 path="/student-dashboard/*"
                 element={
                   <ProtectedRoute allowedRoles={['student']}>

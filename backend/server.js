@@ -50,6 +50,7 @@ const studyGuideRoutes = require('./routes/studyGuideRoutes');
 const activityRoutes = require('./routes/activityRoutes');
 const settingsRoutes = require('./routes/settingsRoutes');
 const groupRoutes = require('./routes/groupRoutes');
+const assistantRoutes = require('./routes/assistantRoutes');
 const pastPaperRoutes = require('./routes/pastPaperRoutes');
 const sessionRoutes = require('./routes/sessionRoutes');
 const teacherSessionRoutes = require('./routes/teacherSessionRoutes');
@@ -302,6 +303,8 @@ app.use('/api/student', studentRoutes);
  */
 app.use('/api/teacher/settings', settingsRoutes.teacherRouter);
 app.use('/api/teacher/groups', groupRoutes);
+app.use('/api/teacher/assistants', assistantRoutes.teacherRouter);
+app.use('/api/assistant', assistantRoutes.selfRouter);
 app.use('/api/teacher/pastpapers', pastPaperRoutes.teacherRouter);
 app.use('/api/teacher/live', liveRoutes.teacherRouter);
 app.use('/api/teacher/samples', sampleRoutes.teacherRouter);

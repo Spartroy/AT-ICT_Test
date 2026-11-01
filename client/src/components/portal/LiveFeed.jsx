@@ -15,19 +15,20 @@ const Ctx = createContext(null);
  * One shared copy of the live-class list for a portal (popup, dashboard card and schedule all read it).
  * Student: the classes that are live or about to start. Teacher: every class (live, upcoming, past).
  */
-export function LiveFeedProvider({ role, children }) {
+export function LiveFeedProvider({ role, disabled = false, children }) {
   const teacher = role === 'teacher';
-  const [state, setState] = useState({ sessions: [], loading: true, error: null });
+  const [state, setState] = useState({ sessions: [], loading: !disabled, error: null });
   const [now, setNow] = useState(() => new Date());
 
   const load = useCallback(async () => {
+    if (disabled) return; // e.g. an assistant without Schedule access: nothing to fetch
     try {
       const res = await api.get(teacher ? API_ENDPOINTS.TEACHER_LIVE : API_ENDPOINTS.LIVE.CURRENT);
       setState({ sessions: res.data?.sessions || [], loading: false, error: null });
     } catch (error) {
       setState(s => ({ ...s, loading: false, error: s.sessions.length ? null : error })); // keep what we have when offline
     }
-  }, [teacher]);
+  }, [teacher, disabled]);
 
   useEffect(() => {
     load();
