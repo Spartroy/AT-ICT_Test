@@ -11,6 +11,7 @@ import Home from './Home';
 import Students from './Students';
 import Work from './Work';
 import Library from './Library';
+import StudentPreview from './StudentPreview';
 import Schedule from './Schedule';
 import Income from './Income';
 import Inbox from './Inbox';
@@ -27,7 +28,7 @@ const TeacherContext = createContext(null);
 export const useTeacher = () => useContext(TeacherContext);
 
 const BASE = '/teacher-dashboard';
-const TITLES = { '': 'Home', students: 'Students', work: 'Work', library: 'Library', schedule: 'Schedule', income: 'Income', inbox: 'Inbox', settings: 'Settings', account: 'My account' };
+const TITLES = { '': 'Home', students: 'Students', work: 'Work', library: 'Library', preview: 'Preview', schedule: 'Schedule', income: 'Income', inbox: 'Inbox', settings: 'Settings', account: 'My account' };
 /** Which permission area each global dialog needs (null = the teacher only). */
 const MODAL_AREA = { hw: 'work', quiz: 'work', announcement: 'inbox', video: 'library', note: 'library', material: 'library', flashcard: 'library', schedule: 'schedule', assign: 'schedule', live: 'schedule', attendance: 'schedule', sample: null };
 const NAV_ICONS ={ students: Users, work: ClipboardCheck, library: LibraryIcon, schedule: CalendarDays, inbox: InboxIcon };
@@ -129,6 +130,8 @@ export default function TeacherPortal({ assistant = false }) {
           {can('work') && <Route path="work/:tab" element={<Work />} />}
           {can('library') && <Route path="library" element={<Navigate to="videos" replace />} />}
           {can('library') && <Route path="library/:tab" element={<Library />} />}
+          {can('library') && <Route path="preview" element={<Navigate to="materials" replace />} />}
+          {can('library') && <Route path="preview/:tab" element={<StudentPreview />} />}
           {can('schedule') && <Route path="schedule" element={<Navigate to="list" replace />} />}
           {can('schedule') && <Route path="schedule/:tab" element={<Schedule />} />}
           {!assistant && <Route path="income" element={<Navigate to="overview" replace />} />}

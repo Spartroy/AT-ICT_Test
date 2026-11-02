@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { Check, ClipboardCheck, FilePenLine, LayoutList, Library } from 'lucide-react';
 import useApi from '../../../hooks/useApi';
-import { API_ENDPOINTS } from '../../../config/api';
+import { pastPaperOfFocus, useFocusTarget, useLearnEndpoints } from '../../../lib/learnPreview';
 import { Empty, ErrorNote, Loading, Seg } from '../../../components/portal/kit';
 import logoCircle from '../../../assets/brand/logo-circle.png';
 import BookOverlay, { SPINE } from './BookOverlay';
@@ -42,8 +42,11 @@ function PaperBook({ code, variant, title, icon: Icon, onOpen, hidden }) {
  * and MS book on the shelf, and (papers 2 and 3) its source files in a front-view box on a shelf hung underneath.
  */
 export default function PastPapers() {
-  const papers = useApi(API_ENDPOINTS.PASTPAPERS, b => b.data?.papers || []);
-  const [paper, setPaper] = useState(1);
+  const endpoints = useLearnEndpoints();
+  const papers = useApi(endpoints.pastPapers, b => b.data?.papers || []);
+  // A Library row's "View" opens that paper's tab.
+  const focus = useFocusTarget();
+  const [paper, setPaper] = useState(() => pastPaperOfFocus(focus) || 1);
   const [open, setOpen] = useState(null);
   const progress = usePastPaperProgress();
   // Phones start on the compact list (no endless shelves); a student's own choice is remembered.

@@ -1,6 +1,6 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import useApi from '../../../hooks/useApi';
-import { API_ENDPOINTS } from '../../../config/api';
+import { useFocusTarget, useLearnEndpoints } from '../../../lib/learnPreview';
 import { ErrorNote, Loading, Seg } from '../../../components/portal/kit';
 import { Download } from 'lucide-react';
 import ResourceViewer from '../../../components/portal/viewer/ResourceViewer';
@@ -24,11 +24,25 @@ export const kindOf = (m) => m.kind === 'revsheet' || m.kind === 'source' ? m.ki
 
 /** Materials: brand bookshelf. Books, revision sheets and boxes of source files stand on the same shelf. */
 export default function Bookshelf() {
-  const materials = useApi(API_ENDPOINTS.STUDENT.MATERIALS, b => b.data?.allMaterials || []);
+  const endpoints = useLearnEndpoints();
+  const focus = useFocusTarget();
+  const materials = useApi(endpoints.materials, b => b.data?.allMaterials || []);
   const [cat, setCat] = useState('theory');
   const [open, setOpen] = useState(null);
   const [sheet, setSheet] = useState(null);
   const { toast } = usePortalUI();
+
+  // A Library row's "View" opens that material: books and rev sheets straight away, source boxes on their shelf.
+  const focused = useRef(null);
+  useEffect(() => {
+    if (!focus || !materials.data || focused.current === focus) return;
+    focused.current = focus;
+    const m = materials.data.find(x => x._id === focus);
+    if (!m) return;
+    setCat(m.type);
+    if (kindOf(m) === 'revsheet') setSheet(m);
+    else if (kindOf(m) === 'book') setOpen({ m, spine: null, style: SPINE });
+  }, [focus, materials.data]);
 
   // Straight download when the link allows it, otherwise the link opens in a new tab.
   const downloadSource = (link) => {

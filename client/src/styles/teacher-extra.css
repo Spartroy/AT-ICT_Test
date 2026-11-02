@@ -192,3 +192,9 @@
 .atp-teacher .par-tab .ir .ib { margin-left: 6px; }
 .atp-teacher .par-note { margin: 12px 0 0; font-size: 0.84rem; }
 .atp-teacher .par-acts { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
+
+/* Library › Preview as student: a bar that stays visible while the student pages are shown read-only. */
+.atp-teacher .pv-bar { position: sticky; top: 0; z-index: 5; display: flex; align-items: center; justify-content: space-between; gap: 8px 14px; flex-wrap: wrap; margin-bottom: 14px; padding: 10px 14px; border-radius: 12px; background: rgb(202 19 62 / 0.14); border: 1px solid var(--cr); color: var(--white); }
+.atp-teacher .pv-bar-l { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 0.9rem; }
+.atp-teacher .pv-bar-l span { color: var(--mu); }
+.atp-teacher .pv-bar .btn { text-decoration: none; }

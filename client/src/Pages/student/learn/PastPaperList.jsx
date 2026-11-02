@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Check, ClipboardCheck, FilePenLine, PackageOpen } from 'lucide-react';
 import { Ic, Seg } from '../../../components/portal/kit';
 import { useToast } from '../../../components/portal/PortalUI';
+import { PREVIEW, PREVIEW_NOTE } from '../../../lib/learnPreview';
 import logoCircle from '../../../assets/brand/logo-circle.png';
 import { useSourceDownload } from './SourceBox';
 import { SESSION_LABEL, paperKey, resolveSelection, variantColor, yearStats } from './pastPaperLogic';
@@ -71,7 +72,8 @@ export default function PastPaperList({ years, paper, done, onToggle, onOpen }) 
 
   const toggle = async (v, on) => {
     const ok = await onToggle(paperKey(v), on);
-    if (!ok) toast("Couldn't save. Try again.");
+    if (ok === PREVIEW) toast(PREVIEW_NOTE);
+    else if (!ok) toast("Couldn't save. Try again.");
   };
 
   if (!group) return null;

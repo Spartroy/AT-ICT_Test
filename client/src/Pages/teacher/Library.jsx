@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
-import { Play, Library as LibIcon, NotebookText, Folder, LayoutGrid, Star, Plus, Search, Pencil, Trash2, Link2, Trophy, MessageSquare, Download, ClipboardList, Gift } from 'lucide-react';
+import { Eye, Play, Library as LibIcon, NotebookText, Folder, LayoutGrid, Star, Plus, Search, Pencil, Trash2, Link2, Trophy, MessageSquare, Download, ClipboardList, Gift } from 'lucide-react';
 import useApi from '../../hooks/useApi';
 import useMediaQuery from '../../hooks/useMediaQuery';
 import { api, downloadFile } from '../../lib/api';
@@ -13,6 +13,7 @@ import { programLabel } from './curriculum';
 import SamplesManager from './SamplesManager';
 import StudyGuideManager from '../guide/StudyGuideManager';
 import { buildTree, inPath, highlight, sortByPath } from './libraryTree';
+import { previewPath } from './previewLinks';
 
 const TYPE_LABEL = { theory: 'Theory', practical: 'Practical', other: 'Revision' };
 const KIND_LABEL = { book: 'Book', revsheet: 'Rev sheet', source: 'Source file' };
@@ -102,10 +103,11 @@ export default function Library() {
     <>
       <PageHead
         title="Library"
-        actions={current.add && (
+        actions={(
           <>
-            {tab === 'flashcards' && <button type="button" className="btn o" onClick={importChapters} disabled={importing}><Ic as={Download} />{importing ? 'Importing…' : 'Import chapter flashcards'}</button>}
-            <button type="button" className="btn p" onClick={() => openModal(current.add, current.addProps)}><Ic as={Plus} />Add {addLabel}</button>
+            <button type="button" className="btn o" onClick={() => navigate(`${base}${previewPath(tab)}`)}><Ic as={Eye} />Preview as student</button>
+            {current.add && tab === 'flashcards' && <button type="button" className="btn o" onClick={importChapters} disabled={importing}><Ic as={Download} />{importing ? 'Importing…' : 'Import chapter flashcards'}</button>}
+            {current.add && <button type="button" className="btn p" onClick={() => openModal(current.add, current.addProps)}><Ic as={Plus} />Add {addLabel}</button>}
           </>
         )}
       />
@@ -116,7 +118,8 @@ export default function Library() {
 }
 
 function LibraryList({ config }) {
-  const { openModal } = useTeacher();
+  const { base, openModal } = useTeacher();
+  const navigate = useNavigate();
   const toast = useToast();
   const confirm = useConfirm();
   const wide = useMediaQuery('(min-width: 901px)');
@@ -181,6 +184,7 @@ function LibraryList({ config }) {
                 <button type="button" className="ib sm" aria-label={`Download ${it.title}`} onClick={() => downloadFile(`${API_ENDPOINTS.TEACHER.MATERIALS}/${it.id}/download`, it.raw.fileName).catch(() => toast("Couldn't download"))}><Ic as={Download} /></button>
               )}
               <div className="lact">
+                <button type="button" className="ib sm" aria-label={`View ${it.title} as a student`} title="View as a student" onClick={() => navigate(`${base}${previewPath(config.id, it.id)}`)}><Ic as={Eye} /></button>
                 <button type="button" className="ib sm" aria-label={`Edit ${it.title}`} onClick={() => edit(it)}><Ic as={Pencil} /></button>
                 <button type="button" className="ib sm dng" aria-label={`Delete ${it.title}`} onClick={() => remove(it)}><Ic as={Trash2} /></button>
               </div>

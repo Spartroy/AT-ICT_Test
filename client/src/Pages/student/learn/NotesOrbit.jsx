@@ -1,7 +1,7 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { BookOpen, BookX, CheckCircle2, RotateCcw } from 'lucide-react';
 import useApi from '../../../hooks/useApi';
-import { API_ENDPOINTS } from '../../../config/api';
+import { PREVIEW, PREVIEW_NOTE, useFocusTarget, useLearnEndpoints } from '../../../lib/learnPreview';
 import { Empty, ErrorNote, Ic, Loading, Seg } from '../../../components/portal/kit';
 import { useToast } from '../../../components/portal/PortalUI';
 import { useReducedMotion } from '../../../hooks/useMediaQuery';
@@ -14,7 +14,9 @@ const HUB_LEN = 2 * Math.PI * HUB_R;
 
 /** Interactive notes: each phase is a hub with its chapters orbiting it. */
 export default function NotesOrbit() {
-  const notes = useApi(API_ENDPOINTS.STUDENT.NOTES, b => {
+  const endpoints = useLearnEndpoints();
+  const focus = useFocusTarget();
+  const notes = useApi(endpoints.notes, b => {
     const g = b.data?.notes || {};
     return [1, 2, 3].map(p => [...(g[`phase${p}`] || [])].sort((a, c) => (a.chapter ?? 99) - (c.chapter ?? 99) || (a.order ?? 0) - (c.order ?? 0)));
   });
@@ -25,6 +27,19 @@ export default function NotesOrbit() {
   const [selId, setSelId] = useState(null);
   const [readyPhase, setReadyPhase] = useState(-1);
   const [reading, setReading] = useState(null);
+
+  // A Library row's "View" opens that chapter's notes.
+  const focused = useRef(null);
+  useEffect(() => {
+    if (!focus || !notes.data || focused.current === focus) return;
+    focused.current = focus;
+    const p = notes.data.findIndex(list => list.some(n => n._id === focus));
+    if (p === -1) return;
+    const n = notes.data[p].find(x => x._id === focus);
+    setPhase(p);
+    setSelId(n._id);
+    if (n.linkUrl) setReading(n);
+  }, [focus, notes.data]);
 
   const items = useMemo(() => notes.data?.[phase] || [], [notes.data, phase]);
   const read = progress.notes;
@@ -68,6 +83,7 @@ export default function NotesOrbit() {
   const toggleReadOf = async (n) => {
     const was = read.has(n._id);
     const ok = await progress.setDone('note', n._id, !was);
+    if (ok === PREVIEW) return toast(PREVIEW_NOTE);
     toast(ok ? (was ? 'Marked as unread' : 'Marked as read') : "Couldn't save. Try again.");
   };
 

@@ -67,6 +67,8 @@ const RULES = [
   // Library: videos, notes, materials, flashcards, study guide, past papers
   { re: /^\/teacher\/(materials|videos|notes|pastpapers)(\/|$)/, area: 'library', level: 'auto' },
   { re: /^\/(flashcards|guide)(\/|$)/, area: 'library', level: 'auto' },
+  // "Preview as student" in the teacher portal is read-only
+  { re: /^\/teacher\/preview(\/|$)/, methods: READ, area: 'library', level: 'view' },
 
   // Schedule, live classes and attendance
   { re: /^\/teacher\/(schedule|schedules|live)(\/|$)/, area: 'schedule', level: 'auto' },

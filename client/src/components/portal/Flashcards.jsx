@@ -4,6 +4,7 @@ import { Dialog, DialogHeader, useToast } from './PortalUI';
 import { Ic } from './kit';
 import { api } from '../../lib/api';
 import { API_ENDPOINTS } from '../../config/api';
+import { useLearnPreview } from '../../lib/learnPreview';
 
 const blankCard = () => ({ front: '', back: '' });
 
@@ -92,6 +93,7 @@ export function StackFormDialog({ open, onClose, onSaved, stack }) {
 
 /** Flip-card study dialog with previous / next. Records a study on open. */
 export function StudyDialog({ stack, onClose }) {
+  const preview = useLearnPreview();
   const [i, setI] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [dir, setDir] = useState(1);
@@ -100,8 +102,8 @@ export function StudyDialog({ stack, onClose }) {
     setI(0);
     setFlipped(false);
     setDir(1);
-    if (!stack.synthetic) api.post(`${API_ENDPOINTS.FLASHCARDS}/${stack._id}/study`).catch(() => {});
-  }, [stack]);
+    if (!stack.synthetic && !preview) api.post(`${API_ENDPOINTS.FLASHCARDS}/${stack._id}/study`).catch(() => {});
+  }, [stack, preview]);
 
   const count = stack?.cards?.length || 0;
   const go = (d) => {

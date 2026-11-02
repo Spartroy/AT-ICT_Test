@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { API_ENDPOINTS } from '../../../config/api';
+import { useLearnEndpoints } from '../../../lib/learnPreview';
 import { downloadFile } from '../../../lib/api';
 import { usePortalUI } from '../../../components/portal/PortalUI';
 import { directDownload, startDownload } from '../../../lib/directDownload';
@@ -8,13 +8,14 @@ import logoCircle from '../../../assets/brand/logo-circle.png';
 /** Downloads a source-file material: uploaded file, direct-download link, or a link opened in a new tab. */
 export function useSourceDownload(m) {
   const { toast } = usePortalUI();
+  const materialsUrl = useLearnEndpoints().materials;
   const [busy, setBusy] = useState(false);
 
   const go = async () => {
     if (m.fileName) {
       setBusy(true);
       try {
-        await downloadFile(`${API_ENDPOINTS.STUDENT.MATERIALS}/${m._id}/download`, m.fileName);
+        await downloadFile(`${materialsUrl}/${m._id}/download`, m.fileName);
       } catch {
         toast("Couldn't download these files. Please try again.");
       } finally {

@@ -316,6 +316,39 @@ const getMaterials = async (req, res) => {
   }
 };
 
+// Videos grouped by type and category, the shape the student Learn page reads (also used by the teacher preview).
+const organizeVideos = (videos) => {
+  const organizedVideos = {
+    theory: { phase1: [], phase2: [], phase3: [] },
+    practical: {
+      word: { guides: [], tasks: [] },
+      powerpoint: { guides: [], tasks: [] },
+      access: { guides: [], tasks: [] },
+      excel: { guides: [], tasks: [] },
+      sharepoint: { guides: [], tasks: [] }
+    },
+    other: []
+  };
+
+  videos.forEach(video => {
+    if (video.type === 'theory') {
+      const phaseKey = `phase${video.phase}`;
+      if (organizedVideos.theory[phaseKey]) {
+        organizedVideos.theory[phaseKey].push(video);
+      }
+    } else if (video.type === 'practical') {
+      const programKey = video.program;
+      const contentKey = video.contentType === 'guide' ? 'guides' : 'tasks';
+      if (organizedVideos.practical[programKey] && organizedVideos.practical[programKey][contentKey]) {
+        organizedVideos.practical[programKey][contentKey].push(video);
+      }
+    } else if (video.type === 'other') {
+      organizedVideos.other.push(video);
+    }
+  });
+  return organizedVideos;
+};
+
 // @desc    Get videos
 // @route   GET /api/student/videos
 // @access  Private (Student)
@@ -333,40 +366,10 @@ const getVideos = async (req, res) => {
     const videos = await Video.getAccessibleVideos(student._id, student.studentInfo?.year || 10);
     const progress = await Video.getStudentProgress(student._id);
 
-    // Organize videos by type and category
-    const organizedVideos = {
-      theory: { phase1: [], phase2: [], phase3: [] },
-      practical: {
-        word: { guides: [], tasks: [] },
-        powerpoint: { guides: [], tasks: [] },
-        access: { guides: [], tasks: [] },
-        excel: { guides: [], tasks: [] },
-        sharepoint: { guides: [], tasks: [] }
-      },
-      other: []
-    };
-
-    videos.forEach(video => {
-      if (video.type === 'theory') {
-        const phaseKey = `phase${video.phase}`;
-        if (organizedVideos.theory[phaseKey]) {
-          organizedVideos.theory[phaseKey].push(video);
-        }
-      } else if (video.type === 'practical') {
-        const programKey = video.program;
-        const contentKey = video.contentType === 'guide' ? 'guides' : 'tasks';
-        if (organizedVideos.practical[programKey] && organizedVideos.practical[programKey][contentKey]) {
-          organizedVideos.practical[programKey][contentKey].push(video);
-        }
-      } else if (video.type === 'other') {
-        organizedVideos.other.push(video);
-      }
-    });
-
     res.status(200).json({
       status: 'success',
       data: {
-        videos: organizedVideos,
+        videos: organizeVideos(videos),
         progress
       }
     });
@@ -798,6 +801,7 @@ module.exports = {
   getQuizzes,
   getMaterials,
   getVideos,
+  organizeVideos,
   submitAssignment,
   updateSubmission,
   submitQuiz,

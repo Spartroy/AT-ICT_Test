@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowLeft, Layers, LayoutGrid, Play, Plus } from 'lucide-react';
 import useApi from '../../../hooks/useApi';
 import { API_ENDPOINTS } from '../../../config/api';
@@ -6,6 +6,7 @@ import { Empty, ErrorNote, Ic, Loading } from '../../../components/portal/kit';
 import { PHASE_COLORS } from './mapLogic';
 import { combinedStack, countCards, groupStacks } from './flashcardLogic';
 import { StackFormDialog, StudyDialog } from '../../../components/portal/Flashcards';
+import { useFocusTarget, useLearnPreview } from '../../../lib/learnPreview';
 
 /** A pile of cards. Hover or focus fans the cards out; `open` keeps them fanned. */
 function Deck({ color, layers = 4, open = false, small = false, onClick, label, children, style, ...rest }) {
@@ -30,7 +31,18 @@ export default function Flashcards({ onBack }) {
   const [creating, setCreating] = useState(false);
   const [studying, setStudying] = useState(null);
   const [openKey, setOpenKey] = useState(null);
+  const preview = useLearnPreview();
+  const focus = useFocusTarget();
   const groups = useMemo(() => groupStacks(stacks.data || []), [stacks.data]);
+
+  // A Library row's "View" studies that stack.
+  const focused = useRef(null);
+  useEffect(() => {
+    if (!focus || !stacks.data || focused.current === focus) return;
+    focused.current = focus;
+    const stack = stacks.data.find(s => s._id === focus);
+    if (stack) setStudying(stack);
+  }, [focus, stacks.data]);
 
   // The first deck starts open so there is something to tap straight away.
   useEffect(() => {
@@ -50,7 +62,7 @@ export default function Flashcards({ onBack }) {
           {onBack && <button type="button" className="btn o sm" onClick={onBack}><Ic as={ArrowLeft} />Labs</button>}
           <p className="sub">Pick a phase, then a chapter. Flip the cards to test yourself.</p>
         </div>
-        <button type="button" className="btn p sm" onClick={() => setCreating(true)}><Ic as={Plus} />Create stack</button>
+        {!preview && <button type="button" className="btn p sm" onClick={() => setCreating(true)}><Ic as={Plus} />Create stack</button>}
       </div>
 
       {groups.length ? (

@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Download } from 'lucide-react';
-import { API_ENDPOINTS } from '../../../config/api';
+import { useLearnEndpoints } from '../../../lib/learnPreview';
 import { downloadFile } from '../../../lib/api';
 import { Ic } from '../../../components/portal/kit';
 import { usePortalUI } from '../../../components/portal/PortalUI';
@@ -152,7 +152,8 @@ export default function BookOverlay({ m, spine, style, catLabel, onClosed }) {
     };
   }, [close]);
 
-  const downloadUrl = `${API_ENDPOINTS.STUDENT.MATERIALS}/${m._id}/download`;
+  const materialsUrl = useLearnEndpoints().materials;
+  const downloadUrl = `${materialsUrl}/${m._id}/download`;
 
   const download = async () => {
     setBusy(true);

@@ -1,7 +1,7 @@
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Play, FileText, Presentation, Database, Table, Share2, Star, CheckCircle2, X, RotateCcw, PlayCircle, Check } from 'lucide-react';
 import useApi from '../../../hooks/useApi';
-import { API_ENDPOINTS } from '../../../config/api';
+import { PREVIEW, PREVIEW_NOTE, useFocusTarget, useLearnEndpoints } from '../../../lib/learnPreview';
 import { Accordion, Empty, ErrorNote, Ic, Loading, Seg } from '../../../components/portal/kit';
 import { Dialog, useToast } from '../../../components/portal/PortalUI';
 import useProgress from './useProgress';
@@ -19,7 +19,9 @@ const SECTIONS = [
 
 /** Videos: Duolingo-style serpentine maps per phase / program / revisions. */
 export default function VideoMaps() {
-  const videos = useApi(API_ENDPOINTS.STUDENT.VIDEOS, b => buildVideoGroups(b.data?.videos));
+  const endpoints = useLearnEndpoints();
+  const focus = useFocusTarget();
+  const videos = useApi(endpoints.videos, b => buildVideoGroups(b.data?.videos));
   const progress = useProgress();
   const [section, setSection] = useState('theory');
   const [openMap, setOpenMap] = useState({});
@@ -41,6 +43,22 @@ export default function VideoMaps() {
 
   const groups = useMemo(() => videos.data?.[section] || [], [videos.data, section]);
 
+  // A Library row's "View" opens its lesson in the player.
+  const focused = useRef(null);
+  useEffect(() => {
+    if (!focus || !videos.data || focused.current === focus) return;
+    focused.current = focus;
+    for (const sec of SECTIONS) {
+      const secGroups = videos.data[sec.id] || [];
+      const gi = secGroups.findIndex(g => g.items.some(i => i.id === focus));
+      if (gi === -1) continue;
+      setSection(sec.id);
+      setOpenMap(m => ({ ...m, [sec.id]: { [gi]: true } }));
+      setPlaying({ ...secGroups[gi].items.find(i => i.id === focus), group: secGroups[gi] });
+      return;
+    }
+  }, [focus, videos.data]);
+
   // Default: open the first group in each section that still has unfinished lessons.
   useEffect(() => {
     if (!videos.data || progress.loading || openMap[section]) return;
@@ -55,6 +73,7 @@ export default function VideoMaps() {
 
   const mark = async (item, done) => {
     const ok = await progress.setDone('video', item.id, done);
+    if (ok === PREVIEW) return toast(PREVIEW_NOTE);
     toast(ok ? (done ? 'Marked as done' : 'Marked as not done') : "Couldn't save your progress. Try again.");
   };
 

@@ -36,6 +36,7 @@ const errorHandler = require('./middleware/errorHandler');
 // Route Imports
 const authRoutes = require('./routes/authRoutes');
 const studentRoutes = require('./routes/studentRoutes');
+const previewRoutes = require('./routes/previewRoutes');
 const teacherRoutes = require('./routes/teacherRoutes');
 const parentRoutes = require('./routes/parentRoutes');
 const announcementRoutes = require('./routes/announcementRoutes');
@@ -306,6 +307,7 @@ app.use('/api/teacher/groups', groupRoutes);
 app.use('/api/teacher/assistants', assistantRoutes.teacherRouter);
 app.use('/api/assistant', assistantRoutes.selfRouter);
 app.use('/api/teacher/pastpapers', pastPaperRoutes.teacherRouter);
+app.use('/api/teacher/preview', previewRoutes);
 app.use('/api/teacher/live', liveRoutes.teacherRouter);
 app.use('/api/teacher/samples', sampleRoutes.teacherRouter);
 app.use('/api/teacher', teacherRoutes);
