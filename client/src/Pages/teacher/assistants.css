@@ -1,0 +1,44 @@
+/* Assistants page: access grid with an icon per section and feature, and a none / view / edit control. */
+
+.atp .as-grid { display: grid; gap: 10px; }
+.atp .as-group { border: 1px solid var(--bd); border-radius: 16px; background: var(--s1); overflow: hidden; }
+.atp .as-gh { display: flex; align-items: center; gap: 12px; padding: 12px 14px; background: var(--s2); flex-wrap: wrap; }
+.atp .as-gh .as-ic { background: var(--cr); color: var(--white); }
+.atp .as-gh .as-t { flex: 1 1 160px; min-width: 0; }
+.atp .as-gh .as-t b { display: block; font-size: 0.98rem; }
+.atp .as-gh .as-t small { display: block; color: var(--fa); font-size: 0.78rem; }
+.atp .as-gh .as-all { display: flex; align-items: center; gap: 8px; color: var(--fa); font-size: 0.74rem; }
+.atp .as-row { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-top: 1px solid var(--bd); flex-wrap: wrap; }
+.atp .as-row .as-t { flex: 1 1 150px; min-width: 0; }
+.atp .as-row .as-t b { display: block; font-size: 0.92rem; }
+.atp .as-row .as-t small { display: block; color: var(--fa); font-size: 0.76rem; line-height: 1.35; }
+.atp .as-ic { flex: none; width: 36px; height: 36px; border-radius: 11px; display: grid; place-items: center; background: var(--s3); color: var(--mu); }
+.atp .as-row.edit .as-ic { background: rgb(var(--crimson-rgb) / 0.14); color: var(--cr); }
+.atp .as-row.view .as-ic { background: rgb(var(--gold-rgb) / 0.16); color: var(--am); }
+
+/* none | view | edit */
+.atp .as-lv { display: inline-flex; max-width: 100%; border: 1px solid var(--bd2); border-radius: 12px; overflow: hidden; background: var(--s1); flex: none; }
+.atp .as-lv button { display: inline-flex; align-items: center; gap: 6px; padding: 7px 11px; font-size: 0.78rem; font-weight: 600; color: var(--mu); border-inline-start: 1px solid var(--bd); transition: background 0.2s, color 0.2s; }
+.atp .as-lv button:first-child { border-inline-start: 0; }
+.atp .as-lv button:hover:not(:disabled) { background: var(--s2); color: var(--tx); }
+.atp .as-lv button:disabled { opacity: 0.55; cursor: default; }
+.atp .as-lv button.on.none { background: var(--s3); color: var(--tx); }
+.atp .as-lv button.on.view { background: rgb(var(--gold-rgb) / 0.2); color: var(--am); }
+.atp .as-lv button.on.edit { background: var(--cr); color: var(--white); }
+.atp .as-lv.sm button { padding: 5px 9px; font-size: 0.72rem; }
+@media (max-width: 520px) { .atp .as-lv button span { display: none; } .atp .as-lv button { padding: 8px 12px; } }
+
+/* assistant cards */
+.atp .as-card { display: grid; gap: 14px; }
+.atp .as-top { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.atp .as-top .av { width: 48px; height: 48px; font-size: 0.95rem; }
+.atp .as-top .as-t { flex: 1 1 200px; min-width: 0; }
+.atp .as-top .as-t b { font-size: 1.05rem; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.atp .as-top .as-t small { display: block; color: var(--fa); font-size: 0.8rem; }
+.atp .as-sum { display: flex; flex-wrap: wrap; gap: 6px; }
+.atp .as-sum .chip { display: inline-flex; align-items: center; gap: 6px; }
+.atp .as-sum .chip svg { width: 13px; height: 13px; }
+.atp .as-acts { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.atp .as-task-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 8px; margin-bottom: 14px; }
+.atp .as-task-form .btn { justify-content: center; }

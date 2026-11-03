@@ -4,6 +4,7 @@ import { Ic, PageHead } from '../../components/portal/kit';
 import ChangePasswordDialog from '../../components/portal/ChangePasswordDialog';
 import { useTeacher } from '../teacher/TeacherPortal';
 import { GROUPS, levelLabel } from './access';
+import { FEATURE_ICONS, GROUP_ICONS } from './featureIcons';
 
 const chipFor = (level) => (level === 'edit' ? 'c-pr' : level === 'view' ? 'c-am' : 'c-gy');
 
@@ -27,9 +28,10 @@ export function AssistantAccount() {
         <div className="tbl">
           {GROUPS.map(g => (
             <React.Fragment key={g.id}>
-              <small className="lbl" style={{ padding: '10px 8px 2px' }}>{g.label}</small>
+              <small className="lbl" style={{ padding: '10px 8px 2px', display: 'flex', alignItems: 'center', gap: 6 }}><Ic as={GROUP_ICONS[g.id]} />{g.label}</small>
               {g.features.map(f => (
                 <div className="trow" key={f.id}>
+                  <Ic as={FEATURE_ICONS[f.id]} style={{ flex: 'none', color: 'var(--mu)' }} />
                   <div className="lmain" style={{ flex: '1 1 0', minWidth: 90 }}><b>{f.label}</b><small style={{ whiteSpace: 'normal' }}>{f.blurb}</small></div>
                   <span className={`chip ${chipFor(permissions[f.id])}`}>{levelLabel(permissions[f.id] || 'none')}</span>
                 </div>

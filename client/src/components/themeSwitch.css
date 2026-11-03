@@ -1,0 +1,18 @@
+/* Loading screen shown while switching between dark and light mode. Colours are set inline (the theme being switched to). */
+.theme-switch {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: grid;
+  place-items: center;
+  opacity: 0;
+  transition: opacity 0.24s ease;
+  font-family: var(--font-body);
+  pointer-events: all;
+}
+.theme-switch.on { opacity: 1; }
+.theme-switch .bkl-label { color: inherit; opacity: 0.8; font-size: 0.9rem; font-weight: 600; letter-spacing: 0.02em; }
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-switch { transition: none; }
+}

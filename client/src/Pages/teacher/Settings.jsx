@@ -1,6 +1,6 @@
 import React from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { BellRing, CalendarDays, Globe, Key, UserCog, Zap } from 'lucide-react';
+import { BellRing, CalendarDays, Globe, Key, Zap } from 'lucide-react';
 import useTeacherSettings from '../../hooks/useTeacherSettings';
 import { ErrorNote, Loading, PageHead, Seg } from '../../components/portal/kit';
 import WebsiteSettings from './WebsiteSettings';
@@ -8,7 +8,6 @@ import RegistrationSettings from './RegistrationSettings';
 import NotificationSettings from './NotificationSettings';
 import QuickActionsSettings from './QuickActionsSettings';
 import AccountSettings from './AccountSettings';
-import AssistantsSettings from './AssistantsSettings';
 
 export { labelFromCode } from './RegistrationSettings';
 
@@ -17,7 +16,6 @@ const TABS = [
   { id: 'notifications', label: 'Notifications', icon: BellRing, blurb: 'What is sent to students and to you, and when.' },
   { id: 'quick-actions', label: 'Quick actions', icon: Zap, blurb: 'The buttons in the + menu on every page.' },
   { id: 'website', label: 'Website', icon: Globe, blurb: 'What visitors see on the public site. No developer needed.' },
-  { id: 'assistants', label: 'Assistants', icon: UserCog, blurb: 'Staff who help you. Choose what each assistant can see or change.' },
   { id: 'account', label: 'Account', icon: Key, blurb: 'Your password and the leaderboard season.' }
 ];
 
@@ -42,7 +40,6 @@ export default function Settings() {
       {panel('notifications', <NotificationSettings settings={settings} save={save} reload={reload} />)}
       {panel('quick-actions', <QuickActionsSettings settings={settings} save={save} />)}
       {panel('website', <WebsiteSettings />)}
-      {tab === 'assistants' && panel('assistants', <AssistantsSettings />)}
       {panel('account', <AccountSettings settings={settings} />)}
     </>
   );

@@ -1,6 +1,6 @@
 import React, { createContext, useCallback, useContext, useMemo, useState } from 'react';
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
-import { Home as HomeIcon, Users, ClipboardCheck, Library as LibraryIcon, CalendarDays, Inbox as InboxIcon, Wallet } from 'lucide-react';
+import { Home as HomeIcon, Users, ClipboardCheck, Library as LibraryIcon, CalendarDays, Inbox as InboxIcon, Wallet, UserCog } from 'lucide-react';
 import PortalShell from '../../components/portal/PortalShell';
 import Seo from '../../components/Seo';
 import useApi from '../../hooks/useApi';
@@ -15,6 +15,7 @@ import StudentPreview from './StudentPreview';
 import Schedule from './Schedule';
 import Income from './Income';
 import Inbox from './Inbox';
+import Assistants from './Assistants';
 import Settings from './Settings';
 import QuickActions from './QuickActions';
 import NotificationBell from '../../components/portal/NotificationBell';
@@ -29,7 +30,7 @@ const TeacherContext = createContext(null);
 export const useTeacher = () => useContext(TeacherContext);
 
 const BASE = '/teacher-dashboard';
-const TITLES = { '': 'Home', students: 'Students', work: 'Work', library: 'Library', preview: 'Preview', schedule: 'Schedule', income: 'Income', inbox: 'Inbox', settings: 'Settings', account: 'My account' };
+const TITLES = { '': 'Home', students: 'Students', work: 'Work', library: 'Library', preview: 'Preview', schedule: 'Schedule', income: 'Income', inbox: 'Inbox', assistants: 'Assistants', settings: 'Settings', account: 'My account' };
 /** Which permission area each global dialog needs (null = the teacher only). */
 const MODAL_AREA = { hw: 'homework', quiz: 'quizzes', announcement: 'announcements', video: 'videos', note: 'notes', material: 'materials', flashcard: 'flashcards', schedule: 'classSchedule', assign: 'classSchedule', live: 'live', attendance: 'live', sample: null };
 const NAV_ICONS ={ students: Users, work: ClipboardCheck, library: LibraryIcon, schedule: CalendarDays, inbox: InboxIcon };
@@ -95,7 +96,8 @@ export default function TeacherPortal({ assistant = false }) {
     { to: `${BASE}/library`, label: 'Library', icon: LibraryIcon },
     { to: `${BASE}/schedule`, label: 'Schedule', icon: CalendarDays },
     { to: `${BASE}/income`, label: 'Income', icon: Wallet, badge: proofsWaiting },
-    { to: `${BASE}/inbox`, label: 'Inbox', icon: InboxIcon, badge: unreadChats }
+    { to: `${BASE}/inbox`, label: 'Inbox', icon: InboxIcon, badge: unreadChats },
+    { to: `${BASE}/assistants`, label: 'Assistants', icon: UserCog }
   ];
 
   const ctx = useMemo(() => ({
@@ -139,6 +141,8 @@ export default function TeacherPortal({ assistant = false }) {
           {!assistant && <Route path="income/:tab" element={<Income />} />}
           {can('inbox') && <Route path="inbox" element={<Navigate to="announcements" replace />} />}
           {can('inbox') && <Route path="inbox/:tab" element={<Inbox />} />}
+          {!assistant && <Route path="assistants" element={<Navigate to="people" replace />} />}
+          {!assistant && <Route path="assistants/:tab" element={<Assistants />} />}
           {assistant ? <Route path="account" element={<AssistantAccount />} /> : <Route path="settings" element={<Settings />} />}
           <Route path="*" element={<Navigate to={base} replace />} />
         </Routes>
