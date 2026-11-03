@@ -37,12 +37,13 @@ describe('queueCards', () => {
   it('always has tasks, and adds a card only for areas the assistant has', () => {
     const ids = (permissions) => queueCards({ permissions, base }).map(c => c.id);
     expect(ids({})).toEqual(['tasks']);
-    expect(ids({ work: 'view', inbox: 'edit' })).toEqual(['tasks', 'grading', 'chat']);
-    expect(ids({ schedule: 'view', students: 'edit' })).toEqual(['tasks', 'classes']);
+    expect(ids({ submissions: 'view', chat: 'edit' })).toEqual(['tasks', 'grading', 'chat']);
+    expect(ids({ live: 'view', groups: 'edit' })).toEqual(['tasks', 'classes']);
+    expect(ids({ homework: 'edit', classSchedule: 'edit' })).toEqual(['tasks']); // no queue for tabs without a to-do count
   });
 
   it('carries the counts and links into the right page', () => {
-    const cards = queueCards({ permissions: { work: 'view' }, base, needsGrading: 4, lateCount: 1 });
+    const cards = queueCards({ permissions: { submissions: 'view' }, base, needsGrading: 4, lateCount: 1 });
     expect(cards[1]).toMatchObject({ n: 4, sub: '1 late', to: `${base}/work/submissions?status=needs` });
   });
 });

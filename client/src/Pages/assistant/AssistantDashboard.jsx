@@ -54,7 +54,7 @@ export default function AssistantDashboard() {
   const { base, me, assistant, can, counts, chats, openModal } = useTeacher();
   const permissions = assistant?.permissions || {};
   const feed = useLiveFeed();
-  const subs = useApi(can('work') ? '/api/teacher/submissions?status=needs&limit=6' : null, b => b.data || {});
+  const subs = useApi(can('submissions') ? '/api/teacher/submissions?status=needs&limit=6' : null, b => b.data || {});
   const activity = useApi('/api/assistant/activity', b => b.data?.entries || []);
   const tasks = useApi('/api/assistant/tasks', b => b.data?.tasks || []);
   useTeacherChange(['assignment', 'quiz', 'schedule'], () => { subs.reload(); });
@@ -97,7 +97,7 @@ export default function AssistantDashboard() {
         <div className="col-stack">
           <Tasks />
 
-          {can('work') && (
+          {can('submissions') && (
             <div className="card">
               <h3><Ic as={ClipboardCheck} />To grade<span className="chip c-rd" style={{ marginLeft: 6 }}>{counts.needsGrading || 0}</span></h3>
               {subs.data && !needs.length && <Empty icon={CheckCircle2}>Nothing waiting to be graded.</Empty>}
@@ -114,7 +114,7 @@ export default function AssistantDashboard() {
         </div>
 
         <div className="col-stack">
-          {can('schedule') && (
+          {can('live') && (
             <div className="card">
               <h3><Ic as={Video} />Classes today</h3>
               {!today.length && <Empty icon={Clock}>No classes today.</Empty>}
@@ -124,13 +124,13 @@ export default function AssistantDashboard() {
                     <b>{s.title}</b>
                     <small>{s.status === 'live' ? 'Live now' : clock(s.startsAt)} · {s.durationMin} min</small>
                   </div>
-                  {can('schedule', 'edit') && <button type="button" className="btn o sm" onClick={() => openModal('attendance', { session: s })}><Ic as={ClipboardCheck} />Attendance</button>}
+                  {can('live', 'edit') && <button type="button" className="btn o sm" onClick={() => openModal('attendance', { session: s })}><Ic as={ClipboardCheck} />Attendance</button>}
                 </div>
               ))}
             </div>
           )}
 
-          {can('inbox') && (
+          {can('chat') && (
             <div className="card">
               <h3><Ic as={MessageSquare} />Waiting for a reply<span className="chip c-am" style={{ marginLeft: 6 }}>{unread.length}</span></h3>
               {!unread.length && <Empty icon={CheckCircle2}>No unread messages.</Empty>}

@@ -3,7 +3,7 @@ import { Key, ShieldCheck } from 'lucide-react';
 import { Ic, PageHead } from '../../components/portal/kit';
 import ChangePasswordDialog from '../../components/portal/ChangePasswordDialog';
 import { useTeacher } from '../teacher/TeacherPortal';
-import { AREAS, levelLabel } from './access';
+import { GROUPS, levelLabel } from './access';
 
 const chipFor = (level) => (level === 'edit' ? 'c-pr' : level === 'view' ? 'c-am' : 'c-gy');
 
@@ -25,11 +25,16 @@ export function AssistantAccount() {
         <h3 id="as-access"><Ic as={ShieldCheck} />Your access</h3>
         <p className="sub set-note">Set by the teacher. Contact details, payments and settings are never available to assistants.</p>
         <div className="tbl">
-          {AREAS.map(a => (
-            <div className="trow" key={a.id}>
-              <div className="lmain"><b>{a.label}</b><small>{a.blurb}</small></div>
-              <span className={`chip ${chipFor(permissions[a.id])}`}>{levelLabel(permissions[a.id] || 'none')}</span>
-            </div>
+          {GROUPS.map(g => (
+            <React.Fragment key={g.id}>
+              <small className="lbl" style={{ padding: '10px 8px 2px' }}>{g.label}</small>
+              {g.features.map(f => (
+                <div className="trow" key={f.id}>
+                  <div className="lmain" style={{ flex: '1 1 0', minWidth: 90 }}><b>{f.label}</b><small style={{ whiteSpace: 'normal' }}>{f.blurb}</small></div>
+                  <span className={`chip ${chipFor(permissions[f.id])}`}>{levelLabel(permissions[f.id] || 'none')}</span>
+                </div>
+              ))}
+            </React.Fragment>
           ))}
         </div>
       </section>

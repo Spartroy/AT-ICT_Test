@@ -4,23 +4,37 @@ import useApi from '../../hooks/useApi';
 import { api } from '../../lib/api';
 import { Empty, ErrorNote, Ic, Loading, fmtDateTime } from '../../components/portal/kit';
 import { useConfirm, useToast } from '../../components/portal/PortalUI';
-import { AREAS, DEFAULT_PERMISSIONS, LEVELS, levelLabel } from '../assistant/access';
+import { DEFAULT_PERMISSIONS, GROUPS, LEVELS, levelLabel } from '../assistant/access';
 import { dueInfo, sortTasks } from '../assistant/dashboardLogic';
 import { FormDialog, Fld, apiError } from './modals/form';
 
 const BASE = '/api/teacher/assistants';
 
-/** One select per area: No access / View only / Can edit. */
+const SELECT_STYLE = { flex: '0 0 160px', width: 160 };
+
+/** Every portal section with one none / view / edit select per feature, and a "set all" select per section. */
 function PermissionGrid({ value, onChange, disabled }) {
+  const setAll = (group, level) => onChange({ ...value, ...Object.fromEntries(group.features.map(f => [f.id, level])) });
   return (
     <div className="tbl">
-      {AREAS.map(a => (
-        <div className="trow" key={a.id}>
-          <div className="lmain" style={{ flex: '1 1 0', minWidth: 90 }}><b>{a.label}</b><small style={{ whiteSpace: 'normal' }}>{a.blurb}</small></div>
-          <select className="inp sel-s" style={{ flex: '0 0 130px', width: 130 }} aria-label={`${a.label} access`} disabled={disabled} value={value[a.id] || 'none'} onChange={e => onChange({ ...value, [a.id]: e.target.value })}>
-            {LEVELS.map(l => <option key={l} value={l}>{levelLabel(l)}</option>)}
-          </select>
-        </div>
+      {GROUPS.map(g => (
+        <React.Fragment key={g.id}>
+          <div className="trow" style={{ marginTop: 8, background: 'var(--s2)' }}>
+            <div className="lmain" style={{ flex: '1 1 0', minWidth: 90 }}><b>{g.label}</b><small style={{ whiteSpace: 'normal' }}>{g.blurb}</small></div>
+            <select className="inp sel-s" style={SELECT_STYLE} aria-label={`Set all ${g.label} access`} disabled={disabled} value="" onChange={e => e.target.value && setAll(g, e.target.value)}>
+              <option value="">Set all…</option>
+              {LEVELS.map(l => <option key={l} value={l}>{levelLabel(l)}</option>)}
+            </select>
+          </div>
+          {g.features.map(f => (
+            <div className="trow" key={f.id} style={{ paddingLeft: 20 }}>
+              <div className="lmain" style={{ flex: '1 1 0', minWidth: 90 }}><b>{f.label}</b><small style={{ whiteSpace: 'normal' }}>{f.blurb}</small></div>
+              <select className="inp sel-s" style={SELECT_STYLE} aria-label={`${f.label} access`} disabled={disabled} value={value[f.id] || 'none'} onChange={e => onChange({ ...value, [f.id]: e.target.value })}>
+                {LEVELS.map(l => <option key={l} value={l}>{levelLabel(l)}</option>)}
+              </select>
+            </div>
+          ))}
+        </React.Fragment>
       ))}
     </div>
   );

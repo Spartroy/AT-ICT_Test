@@ -39,9 +39,9 @@ export const dueInfo = (task, now = new Date()) => {
  */
 export const queueCards = ({ permissions, base, needsGrading = 0, lateCount = 0, unreadChats = 0, liveToday = 0, openTasks = 0 }) => {
   const cards = [{ id: 'tasks', n: openTasks, title: 'Tasks from the teacher', sub: openTasks ? 'Tick them off as you go' : 'Nothing assigned', to: `${base}#tasks` }];
-  if (hasLevel(permissions, 'work')) cards.push({ id: 'grading', n: needsGrading, title: 'To grade', sub: lateCount ? `${lateCount} late` : 'All on time', to: `${base}/work/submissions?status=needs` });
-  if (hasLevel(permissions, 'inbox')) cards.push({ id: 'chat', n: unreadChats, title: 'Unread messages', sub: 'Students waiting for a reply', to: `${base}/inbox/chat` });
-  if (hasLevel(permissions, 'schedule')) cards.push({ id: 'classes', n: liveToday, title: 'Classes today', sub: 'Attendance to mark', to: `${base}/schedule/week` });
+  if (hasLevel(permissions, 'submissions')) cards.push({ id: 'grading', n: needsGrading, title: 'To grade', sub: lateCount ? `${lateCount} late` : 'All on time', to: `${base}/work/submissions?status=needs` });
+  if (hasLevel(permissions, 'chat')) cards.push({ id: 'chat', n: unreadChats, title: 'Unread messages', sub: 'Students waiting for a reply', to: `${base}/inbox/chat` });
+  if (hasLevel(permissions, 'live')) cards.push({ id: 'classes', n: liveToday, title: 'Classes today', sub: 'Attendance to mark', to: `${base}/schedule/week` });
   return cards;
 };
 

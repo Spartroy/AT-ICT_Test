@@ -1,45 +1,66 @@
 /**
  * @fileoverview Assistant access rules
  * @description What an assistant (a staff user who helps the teacher) may reach. Pure functions, no database:
- * - AREAS / LEVELS: the permissions the teacher grants per assistant (none | view | edit per area).
- * - requirementFor(method, path): which area and level a request needs. Default deny: a request that matches
+ * - GROUPS / FEATURES / LEVELS: the permissions the teacher grants per assistant. Each feature (a tab or tool in
+ *   the portal) is none | view | edit; a group is a portal section and is open when any of its features is.
+ * - requirementFor(method, path): which feature and level a request needs. Default deny: a request that matches
  *   no rule is refused, so a new endpoint is invisible to assistants until it is listed here.
  * - stripHidden(): removes contact details, payments and credentials from any response before it is sent.
  */
 
-const AREAS = ['students', 'work', 'library', 'schedule', 'inbox'];
+/** Portal sections and the features inside them, in nav order. */
+const GROUPS = [
+  { id: 'students', label: 'Students', features: ['studentList', 'groups'] },
+  { id: 'work', label: 'Work', features: ['submissions', 'homework', 'quizzes'] },
+  { id: 'library', label: 'Library', features: ['videos', 'notes', 'materials', 'pastPapers', 'flashcards', 'guide'] },
+  { id: 'schedule', label: 'Schedule', features: ['classSchedule', 'live'] },
+  { id: 'inbox', label: 'Inbox', features: ['announcements', 'chat'] }
+];
+const FEATURES = GROUPS.flatMap(g => g.features);
 const LEVELS = ['none', 'view', 'edit'];
 const RANK = { none: 0, view: 1, edit: 2 };
 
-/** New assistants start read-only on students and nothing else. */
-const DEFAULT_PERMISSIONS = Object.freeze({ students: 'view', work: 'none', library: 'none', schedule: 'none', inbox: 'none' });
+/** New assistants start able to look at the student list and nothing else. */
+const DEFAULT_PERMISSIONS = Object.freeze(Object.fromEntries(FEATURES.map(f => [f, f === 'studentList' ? 'view' : 'none'])));
 
-/** Coerces untrusted input into a complete { area: level } object. Unknown areas/levels are dropped. */
+const groupOf = (id) => GROUPS.find(g => g.id === id);
+
+/**
+ * Coerces untrusted input into a complete { feature: level } object. Unknown keys/levels are dropped.
+ * A section key from the older, coarser format ("work": "edit") applies to every feature in that section
+ * that is not set on its own.
+ */
 const normalizePermissions = (input, base = DEFAULT_PERMISSIONS) => {
+  const src = input && typeof input === 'object' ? input : {};
   const out = {};
-  AREAS.forEach(area => {
-    const level = input && typeof input === 'object' ? input[area] : undefined;
-    out[area] = LEVELS.includes(level) ? level : (LEVELS.includes(base[area]) ? base[area] : 'none');
-  });
+  GROUPS.forEach(g => g.features.forEach(f => {
+    const level = [src[f], src[g.id]].find(l => LEVELS.includes(l));
+    out[f] = level || (LEVELS.includes(base[f]) ? base[f] : 'none');
+  }));
   return out;
 };
 
-/** True when `permissions[area]` is at least `level`. */
-const can = (permissions, area, level = 'view') => {
-  const have = RANK[permissions && permissions[area]] || 0;
-  return have >= (RANK[level] || 0) && have > 0;
+/** True when `permissions[feature]` is at least `level`. A section id means "any feature in it". */
+const can = (permissions, feature, level = 'view') => {
+  const keys = groupOf(feature) ? groupOf(feature).features : [feature];
+  const need = RANK[level] || 0;
+  return keys.some(k => {
+    const have = RANK[permissions && permissions[k]] || 0;
+    return have > 0 && have >= need;
+  });
 };
 
 const READ = ['GET', 'HEAD'];
+const WRITE = ['POST', 'PUT', 'PATCH', 'DELETE'];
 
 /**
  * First match wins. `area: null` is an explicit deny (it shadows a broader allow below it).
  * `area: 'self'` is the assistant's own account (no permission needed, no impersonation of the teacher).
- * `level: 'auto'` means view for reads and edit for anything that writes.
+ * Otherwise `area` is a feature id. `level: 'auto'` means view for reads and edit for anything that writes.
  */
 const RULES = [
   // Read-only app options (exam sessions, classes, groups) that the student filters need. Changing them stays with the teacher.
-  { re: /^\/teacher\/settings$/, methods: READ, area: 'students', level: 'view' },
+  { re: /^\/teacher\/settings$/, methods: READ, area: 'studentList', level: 'view' },
 
   // Never reachable, whatever the permissions: money, contact/account management, registrations, site settings.
   { re: /^\/teacher\/(income|payments|settings|samples|assistants|sessions|hall-of-fame|stories|legacy-students|reset-session-points)(\/|$)/, area: null },
@@ -53,30 +74,39 @@ const RULES = [
   { re: /^\/notifications(\/|$)/, area: 'self' },
   { re: /^\/sessions(\/|$)/, area: 'self' },
 
-  // Students: read the roster, progress and leaderboard; editing means organising groups. Profile edits stay with the teacher.
-  { re: /^\/teacher\/students(\/[^/]+)?$/, methods: READ, area: 'students', level: 'view' },
-  { re: /^\/teacher\/dashboard$/, methods: READ, area: 'students', level: 'view' },
-  { re: /^\/leaderboard$/, methods: READ, area: 'students', level: 'view' },
-  { re: /^\/teacher\/activities(\/|$)/, area: 'students', level: 'view' },
-  { re: /^\/teacher\/groups(\/|$)/, area: 'students', level: 'auto' },
+  // Students: read the roster, progress and leaderboard; groups can be organised. Profile edits stay with the teacher.
+  { re: /^\/teacher\/students(\/[^/]+)?$/, methods: READ, area: 'studentList', level: 'view' },
+  { re: /^\/teacher\/dashboard$/, methods: READ, area: 'studentList', level: 'view' },
+  { re: /^\/leaderboard$/, methods: READ, area: 'studentList', level: 'view' },
+  { re: /^\/teacher\/activities(\/|$)/, area: 'studentList', level: 'view' },
+  { re: /^\/teacher\/groups(\/|$)/, area: 'groups', level: 'auto' },
 
-  // Work: submissions, homework, quizzes and grading
-  { re: /^\/teacher\/submissions(\/|$)/, methods: READ, area: 'work', level: 'view' },
-  { re: /^\/teacher\/(assignments|quizzes)(\/|$)/, area: 'work', level: 'auto' },
-  { re: /^\/(assignments|quizzes)(\/|$)/, area: 'work', level: 'auto' },
+  // Work: grading a student's homework or quiz is submissions; setting homework and quizzes are their own features
+  { re: /^\/teacher\/submissions(\/|$)/, methods: READ, area: 'submissions', level: 'view' },
+  { re: /^\/teacher\/(assignments|quizzes)\/[^/]+\/students\/[^/]+$/, methods: WRITE, area: 'submissions', level: 'edit' },
+  { re: /^\/(teacher\/)?assignments(\/|$)/, area: 'homework', level: 'auto' },
+  { re: /^\/(teacher\/)?quizzes(\/|$)/, area: 'quizzes', level: 'auto' },
 
-  // Library: videos, notes, materials, flashcards, study guide, past papers
-  { re: /^\/teacher\/(materials|videos|notes|pastpapers)(\/|$)/, area: 'library', level: 'auto' },
-  { re: /^\/(flashcards|guide)(\/|$)/, area: 'library', level: 'auto' },
-  // "Preview as student" in the teacher portal is read-only
-  { re: /^\/teacher\/preview(\/|$)/, methods: READ, area: 'library', level: 'view' },
+  // Library
+  { re: /^\/teacher\/videos(\/|$)/, area: 'videos', level: 'auto' },
+  { re: /^\/teacher\/notes(\/|$)/, area: 'notes', level: 'auto' },
+  { re: /^\/teacher\/materials(\/|$)/, area: 'materials', level: 'auto' },
+  { re: /^\/teacher\/pastpapers(\/|$)/, area: 'pastPapers', level: 'auto' },
+  { re: /^\/flashcards(\/|$)/, area: 'flashcards', level: 'auto' },
+  { re: /^\/guide(\/|$)/, area: 'guide', level: 'auto' },
+  // "Preview as student" in the teacher portal is read-only, and follows the feature it previews
+  { re: /^\/teacher\/preview\/videos$/, methods: READ, area: 'videos', level: 'view' },
+  { re: /^\/teacher\/preview\/notes$/, methods: READ, area: 'notes', level: 'view' },
+  { re: /^\/teacher\/preview\/materials(\/|$)/, methods: READ, area: 'materials', level: 'view' },
 
   // Schedule, live classes and attendance
-  { re: /^\/teacher\/(schedule|schedules|live)(\/|$)/, area: 'schedule', level: 'auto' },
-  { re: /^\/schedule(\/|$)/, area: 'schedule', level: 'auto' },
+  { re: /^\/teacher\/live(\/|$)/, area: 'live', level: 'auto' },
+  { re: /^\/teacher\/(schedule|schedules)(\/|$)/, area: 'classSchedule', level: 'auto' },
+  { re: /^\/schedule(\/|$)/, area: 'classSchedule', level: 'auto' },
 
-  // Inbox: messages and announcements. Replies are writes, so they need edit.
-  { re: /^\/(chat|announcements)(\/|$)/, area: 'inbox', level: 'auto' }
+  // Inbox: replies are writes, so they need edit
+  { re: /^\/chat(\/|$)/, area: 'chat', level: 'auto' },
+  { re: /^\/announcements(\/|$)/, area: 'announcements', level: 'auto' }
 ];
 
 /** Strips the /api prefix and the query string: '/api/teacher/students?x=1' -> '/teacher/students'. */
@@ -86,8 +116,8 @@ const apiPath = (url) => {
 };
 
 /**
- * What a request needs. Returns { area, level } (area may be 'self'), or null when the request is not allowed
- * for assistants at all.
+ * What a request needs. Returns { area, level } (area is a feature id, or 'self'), or null when the request is
+ * not allowed for assistants at all.
  */
 const requirementFor = (method, url) => {
   const verb = String(method || 'GET').toUpperCase();
@@ -127,4 +157,4 @@ const stripHidden = (value) => {
   return walk(plain);
 };
 
-module.exports = { AREAS, LEVELS, DEFAULT_PERMISSIONS, normalizePermissions, can, requirementFor, apiPath, stripHidden, HIDDEN_KEYS };
+module.exports = { GROUPS, FEATURES, LEVELS, DEFAULT_PERMISSIONS, normalizePermissions, can, requirementFor, apiPath, stripHidden, HIDDEN_KEYS };

@@ -38,8 +38,9 @@ describe('teacher preview routes', () => {
   });
 
   it('lets assistants with library view reach it, GET only', () => {
-    expect(requirementFor('GET', '/api/teacher/preview/videos')).toEqual({ area: 'library', level: 'view' });
-    expect(requirementFor('GET', '/api/teacher/preview/materials/abc/download')).toEqual({ area: 'library', level: 'view' });
+    expect(requirementFor('GET', '/api/teacher/preview/videos')).toEqual({ area: 'videos', level: 'view' });
+    expect(requirementFor('GET', '/api/teacher/preview/materials/abc/download')).toEqual({ area: 'materials', level: 'view' });
+    expect(requirementFor('GET', '/api/teacher/preview/notes')).toEqual({ area: 'notes', level: 'view' });
     expect(requirementFor('POST', '/api/teacher/preview/videos')).toBeNull();
   });
 });

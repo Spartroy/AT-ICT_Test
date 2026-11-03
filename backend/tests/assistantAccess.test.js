@@ -1,11 +1,11 @@
-const { AREAS, DEFAULT_PERMISSIONS, normalizePermissions, can, requirementFor, apiPath, stripHidden } = require('../config/assistantAccess');
+const { FEATURES, GROUPS, DEFAULT_PERMISSIONS, normalizePermissions, can, requirementFor, apiPath, stripHidden } = require('../config/assistantAccess');
 
 describe('normalizePermissions', () => {
   it('fills every area, drops unknown areas and invalid levels', () => {
-    const p = normalizePermissions({ work: 'edit', library: 'admin', payments: 'edit' });
-    expect(Object.keys(p).sort()).toEqual([...AREAS].sort());
-    expect(p.work).toBe('edit');
-    expect(p.library).toBe('none');
+    const p = normalizePermissions({ homework: 'edit', videos: 'admin', payments: 'edit' });
+    expect(Object.keys(p).sort()).toEqual([...FEATURES].sort());
+    expect(p.homework).toBe('edit');
+    expect(p.videos).toBe('none');
     expect(p.payments).toBeUndefined();
   });
 
@@ -15,17 +15,23 @@ describe('normalizePermissions', () => {
   });
 
   it('keeps the current level for an area the update does not mention', () => {
-    expect(normalizePermissions({ work: 'view' }, { students: 'edit', work: 'none' }).students).toBe('edit');
+    expect(normalizePermissions({ homework: 'view' }, { groups: 'edit', homework: 'none' }).groups).toBe('edit');
   });
 });
 
 describe('can', () => {
   it('compares levels: none < view < edit', () => {
-    expect(can({ work: 'edit' }, 'work', 'view')).toBe(true);
-    expect(can({ work: 'view' }, 'work', 'edit')).toBe(false);
-    expect(can({ work: 'none' }, 'work', 'view')).toBe(false);
-    expect(can({}, 'work', 'view')).toBe(false);
-    expect(can(undefined, 'work')).toBe(false);
+    expect(can({ homework: 'edit' }, 'homework', 'view')).toBe(true);
+    expect(can({ homework: 'view' }, 'homework', 'edit')).toBe(false);
+    expect(can({ homework: 'none' }, 'homework', 'view')).toBe(false);
+    expect(can({}, 'homework', 'view')).toBe(false);
+    expect(can(undefined, 'homework')).toBe(false);
+  });
+
+  it('treats a section id as any feature in it', () => {
+    expect(can({ quizzes: 'view' }, 'work', 'view')).toBe(true);
+    expect(can({ quizzes: 'view' }, 'work', 'edit')).toBe(false);
+    expect(can({ quizzes: 'view' }, 'library', 'view')).toBe(false);
   });
 });
 
@@ -40,18 +46,34 @@ describe('requirementFor', () => {
   const need = (m, u) => requirementFor(m, u);
 
   it('maps reads to view and writes to edit in the right area', () => {
-    expect(need('GET', '/api/teacher/submissions?status=needs')).toEqual({ area: 'work', level: 'view' });
-    expect(need('PUT', '/api/teacher/assignments/a1/students/s1')).toEqual({ area: 'work', level: 'edit' });
-    expect(need('GET', '/api/teacher/videos')).toEqual({ area: 'library', level: 'view' });
-    expect(need('POST', '/api/teacher/notes')).toEqual({ area: 'library', level: 'edit' });
-    expect(need('GET', '/api/teacher/schedule/weekly-overview')).toEqual({ area: 'schedule', level: 'view' });
-    expect(need('POST', '/api/teacher/live/s1/attendance')).toEqual({ area: 'schedule', level: 'edit' });
-    expect(need('GET', '/api/chat/conversations')).toEqual({ area: 'inbox', level: 'view' });
-    expect(need('POST', '/api/chat/send')).toEqual({ area: 'inbox', level: 'edit' });
-    expect(need('POST', '/api/announcements')).toEqual({ area: 'inbox', level: 'edit' });
-    expect(need('GET', '/api/teacher/students')).toEqual({ area: 'students', level: 'view' });
-    expect(need('PUT', '/api/teacher/groups/assign')).toEqual({ area: 'students', level: 'edit' });
-    expect(need('GET', '/api/teacher/settings')).toEqual({ area: 'students', level: 'view' });
+    expect(need('GET', '/api/teacher/submissions?status=needs')).toEqual({ area: 'submissions', level: 'view' });
+    expect(need('PUT', '/api/teacher/assignments/a1/students/s1')).toEqual({ area: 'submissions', level: 'edit' });
+    expect(need('PUT', '/api/teacher/quizzes/q1/students/s1')).toEqual({ area: 'submissions', level: 'edit' });
+    expect(need('POST', '/api/assignments')).toEqual({ area: 'homework', level: 'edit' });
+    expect(need('GET', '/api/quizzes')).toEqual({ area: 'quizzes', level: 'view' });
+    expect(need('GET', '/api/teacher/videos')).toEqual({ area: 'videos', level: 'view' });
+    expect(need('POST', '/api/teacher/notes')).toEqual({ area: 'notes', level: 'edit' });
+    expect(need('PUT', '/api/teacher/materials/m1')).toEqual({ area: 'materials', level: 'edit' });
+    expect(need('GET', '/api/flashcards')).toEqual({ area: 'flashcards', level: 'view' });
+    expect(need('PUT', '/api/guide/draft')).toEqual({ area: 'guide', level: 'edit' });
+    expect(need('GET', '/api/teacher/schedule/weekly-overview')).toEqual({ area: 'classSchedule', level: 'view' });
+    expect(need('POST', '/api/teacher/live/s1/attendance')).toEqual({ area: 'live', level: 'edit' });
+    expect(need('GET', '/api/chat/conversations')).toEqual({ area: 'chat', level: 'view' });
+    expect(need('POST', '/api/chat/send')).toEqual({ area: 'chat', level: 'edit' });
+    expect(need('POST', '/api/announcements')).toEqual({ area: 'announcements', level: 'edit' });
+    expect(need('GET', '/api/teacher/students')).toEqual({ area: 'studentList', level: 'view' });
+    expect(need('PUT', '/api/teacher/groups/assign')).toEqual({ area: 'groups', level: 'edit' });
+    expect(need('GET', '/api/teacher/settings')).toEqual({ area: 'studentList', level: 'view' });
+  });
+
+  it('never lets a feature id collide with a section id (a section id means "any feature in it")', () => {
+    const sections = GROUPS.map(g => g.id);
+    expect(FEATURES.filter(f => sections.includes(f))).toEqual([]);
+  });
+
+  it('does not let live-class access open the schedule endpoints', () => {
+    expect(can({ live: 'edit' }, requirementFor('GET', '/api/teacher/schedule/schedules').area)).toBe(false);
+    expect(can({ classSchedule: 'edit' }, requirementFor('POST', '/api/teacher/live/s1/attendance').area)).toBe(false);
   });
 
   it('treats the assistant account endpoints as self', () => {

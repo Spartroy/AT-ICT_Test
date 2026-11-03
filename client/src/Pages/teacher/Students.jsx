@@ -22,10 +22,10 @@ const yearOrClass = (r) => (r.schoolType === 'royal' || known(r.royalClass) ? (k
 export default function Students() {
   const { tab } = useParams();
   const navigate = useNavigate();
-  const { base, counts, assistant } = useTeacher();
-  // Assistants never see registrations or leads (contact details live there)
-  const allowed = assistant ? ['all', 'groups'] : ['all', 'groups', 'registrations', 'leads'];
-  if (!allowed.includes(tab)) return <Navigate to={`${base}/students/all`} replace />;
+  const { base, counts, assistant, can } = useTeacher();
+  // Assistants never see registrations or leads (contact details live there); the other tabs are their own features
+  const allowed = [['all', 'studentList'], ['groups', 'groups'], ['registrations', null], ['leads', null]].filter(([, feature]) => (feature ? can(feature) : !assistant)).map(([id]) => id);
+  if (!allowed.includes(tab)) return <Navigate to={`${base}/students/${allowed[0] || 'all'}`} replace />;
   const tabs = [{ id: 'all', label: 'All students', icon: Users }, { id: 'groups', label: 'Groups', icon: Layers }, { id: 'registrations', label: 'Registrations', icon: Bell, count: counts.pendingRegs || '' }, { id: 'leads', label: 'Leads', icon: Gift }];
   return (
     <>

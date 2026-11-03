@@ -31,7 +31,7 @@ export const useTeacher = () => useContext(TeacherContext);
 const BASE = '/teacher-dashboard';
 const TITLES = { '': 'Home', students: 'Students', work: 'Work', library: 'Library', preview: 'Preview', schedule: 'Schedule', income: 'Income', inbox: 'Inbox', settings: 'Settings', account: 'My account' };
 /** Which permission area each global dialog needs (null = the teacher only). */
-const MODAL_AREA = { hw: 'work', quiz: 'work', announcement: 'inbox', video: 'library', note: 'library', material: 'library', flashcard: 'library', schedule: 'schedule', assign: 'schedule', live: 'schedule', attendance: 'schedule', sample: null };
+const MODAL_AREA = { hw: 'homework', quiz: 'quizzes', announcement: 'announcements', video: 'videos', note: 'notes', material: 'materials', flashcard: 'flashcards', schedule: 'classSchedule', assign: 'classSchedule', live: 'live', attendance: 'live', sample: null };
 const NAV_ICONS ={ students: Users, work: ClipboardCheck, library: LibraryIcon, schedule: CalendarDays, inbox: InboxIcon };
 
 const storedUser = () => {
@@ -60,9 +60,9 @@ export default function TeacherPortal({ assistant = false }) {
   const can = useCallback((area, level = 'view') => !assistant || hasLevel(permissions, area, level), [assistant, permissions]);
 
   const regs = useApi(assistant ? null : `${API_ENDPOINTS.REGISTRATION.PENDING}?limit=50`, b => b.data || {});
-  const subs = useApi(can('work') ? '/api/teacher/submissions?status=needs&limit=1' : null, b => b.data?.counts || {});
+  const subs = useApi(can('submissions') ? '/api/teacher/submissions?status=needs&limit=1' : null, b => b.data?.counts || {});
   const proofs = useApi(assistant ? null : '/api/teacher/income/proofs', b => b.data?.proofs || []);
-  const chats = useApi(can('inbox') ? `${API_ENDPOINTS.CHAT.BASE}/teacher/students` : null, b => b.data?.students || []);
+  const chats = useApi(can('chat') ? `${API_ENDPOINTS.CHAT.BASE}/teacher/students` : null, b => b.data?.students || []);
   const [modal, setModal] = useState(null);
 
   const pendingRegs = regs.data?.pagination?.total ?? regs.data?.registrations?.length ?? 0;
@@ -122,7 +122,7 @@ export default function TeacherPortal({ assistant = false }) {
         meTo={assistant ? `${base}/account` : `${base}/settings`}
         bellSlot={<NotificationBell />}
       >
-        <LiveFeedProvider role="teacher" disabled={!can('schedule')}>
+        <LiveFeedProvider role="teacher" disabled={!can('live')}>
         <Routes>
           <Route index element={assistant ? <AssistantDashboard /> : <Home />} />
           {can('students') && <Route path="students" element={<Navigate to="all" replace />} />}
@@ -133,8 +133,8 @@ export default function TeacherPortal({ assistant = false }) {
           {can('library') && <Route path="library/:tab" element={<Library />} />}
           {can('library') && <Route path="preview" element={<Navigate to="materials" replace />} />}
           {can('library') && <Route path="preview/:tab" element={<StudentPreview />} />}
-          {can('schedule') && <Route path="schedule" element={<Navigate to="list" replace />} />}
-          {can('schedule') && <Route path="schedule/:tab" element={<Schedule />} />}
+          {can('classSchedule') && <Route path="schedule" element={<Navigate to="list" replace />} />}
+          {can('classSchedule') && <Route path="schedule/:tab" element={<Schedule />} />}
           {!assistant && <Route path="income" element={<Navigate to="overview" replace />} />}
           {!assistant && <Route path="income/:tab" element={<Income />} />}
           {can('inbox') && <Route path="inbox" element={<Navigate to="announcements" replace />} />}
@@ -142,7 +142,7 @@ export default function TeacherPortal({ assistant = false }) {
           {assistant ? <Route path="account" element={<AssistantAccount />} /> : <Route path="settings" element={<Settings />} />}
           <Route path="*" element={<Navigate to={base} replace />} />
         </Routes>
-        {can('schedule') && <LiveClassPopup hideAt={base} scheduleHref={`${base}/schedule/week`} onAttendance={(session) => openModal('attendance', { session })} />}
+        {can('live') && <LiveClassPopup hideAt={base} scheduleHref={`${base}/schedule/week`} onAttendance={(session) => openModal('attendance', { session })} />}
         </LiveFeedProvider>
         {!assistant && <QuickActions />}
         <TeacherModals modal={modal} onClose={() => setModal(null)} />

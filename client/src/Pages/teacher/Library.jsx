@@ -75,14 +75,19 @@ const TABS = [
   { id: 'site', label: 'Website content', icon: Star, add: null }
 ];
 
+const ASSISTANT_TAB_FEATURE = { videos: 'videos', notes: 'notes', materials: 'materials', pastpapers: 'pastPapers', flashcards: 'flashcards', guide: 'guide' };
+
 export default function Library() {
   const { tab } = useParams();
   const navigate = useNavigate();
-  const { base, openModal } = useTeacher();
+  const { base, openModal, assistant, can } = useTeacher();
   const toast = useToast();
   const [importing, setImporting] = useState(false);
-  const current = TABS.find(t => t.id === tab);
-  if (!current) return <Navigate to={`${base}/library/videos`} replace />;
+  // Assistants only get the tabs the teacher granted; site content and samples are the teacher's alone
+  const tabs = TABS.filter(t => !assistant || (ASSISTANT_TAB_FEATURE[t.id] && can(ASSISTANT_TAB_FEATURE[t.id])));
+  const current = tabs.find(t => t.id === tab);
+  const canEdit = !assistant || can(ASSISTANT_TAB_FEATURE[tab], 'edit');
+  if (!current) return <Navigate to={`${base}/library/${tabs[0]?.id || 'videos'}`} replace />;
   const addLabel = { videos: 'video', notes: 'note', materials: 'material', pastpapers: 'past papers', flashcards: 'stack', samples: 'sample' }[tab];
 
   // Adds the 13 revision stacks built from the study guide (already imported ones are skipped).
@@ -106,19 +111,20 @@ export default function Library() {
         actions={(
           <>
             <button type="button" className="btn o" onClick={() => navigate(`${base}${previewPath(tab)}`)}><Ic as={Eye} />Preview as student</button>
-            {current.add && tab === 'flashcards' && <button type="button" className="btn o" onClick={importChapters} disabled={importing}><Ic as={Download} />{importing ? 'Importing…' : 'Import chapter flashcards'}</button>}
-            {current.add && <button type="button" className="btn p" onClick={() => openModal(current.add, current.addProps)}><Ic as={Plus} />Add {addLabel}</button>}
+            {current.add && canEdit && tab === 'flashcards' && <button type="button" className="btn o" onClick={importChapters} disabled={importing}><Ic as={Download} />{importing ? 'Importing…' : 'Import chapter flashcards'}</button>}
+            {current.add && canEdit && <button type="button" className="btn p" onClick={() => openModal(current.add, current.addProps)}><Ic as={Plus} />Add {addLabel}</button>}
           </>
         )}
       />
-      <Seg tabs={TABS.map(t => ({ id: t.id, label: t.label, icon: t.icon }))} value={tab} onChange={id => navigate(`${base}/library/${id}`)} label="Library sections" />
+      <Seg tabs={tabs.map(t => ({ id: t.id, label: t.label, icon: t.icon }))} value={tab} onChange={id => navigate(`${base}/library/${id}`)} label="Library sections" />
       {tab === 'site' ? <SiteContent /> : tab === 'guide' ? <StudyGuideManager /> : tab === 'samples' ? <SamplesManager /> : <LibraryList key={tab} config={current} />}
     </>
   );
 }
 
 function LibraryList({ config }) {
-  const { base, openModal } = useTeacher();
+  const { base, openModal, assistant, can } = useTeacher();
+  const canEdit = !assistant || can(ASSISTANT_TAB_FEATURE[config.id], 'edit');
   const navigate = useNavigate();
   const toast = useToast();
   const confirm = useConfirm();
@@ -185,8 +191,8 @@ function LibraryList({ config }) {
               )}
               <div className="lact">
                 <button type="button" className="ib sm" aria-label={`View ${it.title} as a student`} title="View as a student" onClick={() => navigate(`${base}${previewPath(config.id, it.id)}`)}><Ic as={Eye} /></button>
-                <button type="button" className="ib sm" aria-label={`Edit ${it.title}`} onClick={() => edit(it)}><Ic as={Pencil} /></button>
-                <button type="button" className="ib sm dng" aria-label={`Delete ${it.title}`} onClick={() => remove(it)}><Ic as={Trash2} /></button>
+                {canEdit && <button type="button" className="ib sm" aria-label={`Edit ${it.title}`} onClick={() => edit(it)}><Ic as={Pencil} /></button>}
+                {canEdit && <button type="button" className="ib sm dng" aria-label={`Delete ${it.title}`} onClick={() => remove(it)}><Ic as={Trash2} /></button>}
               </div>
             </div>
           ))}

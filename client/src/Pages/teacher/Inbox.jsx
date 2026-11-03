@@ -16,14 +16,14 @@ export default function Inbox() {
   const { tab } = useParams();
   const navigate = useNavigate();
   const { base, counts, openModal, assistant, can } = useTeacher();
-  // Student device sessions are the teacher's alone
-  const allowed = assistant ? ['announcements', 'chat'] : ['announcements', 'chat', 'sessions'];
-  if (!allowed.includes(tab)) return <Navigate to={`${base}/inbox/announcements`} replace />;
+  // Announcements and chat are separate features for assistants; student device sessions are the teacher's alone
+  const allowed = [['announcements', 'announcements'], ['chat', 'chat'], ['sessions', null]].filter(([id, feature]) => (feature ? can(feature) : !assistant)).map(([id]) => id);
+  if (!allowed.includes(tab)) return <Navigate to={`${base}/inbox/${allowed[0] || 'announcements'}`} replace />;
   return (
     <>
       <PageHead
         title="Inbox"
-        actions={tab === 'announcements' && can('inbox', 'edit') && <button type="button" className="btn p" onClick={() => openModal('announcement')}><Ic as={Plus} />Create announcement</button>}
+        actions={tab === 'announcements' && can('announcements', 'edit') && <button type="button" className="btn p" onClick={() => openModal('announcement')}><Ic as={Plus} />Create announcement</button>}
       />
       <Seg
         tabs={[

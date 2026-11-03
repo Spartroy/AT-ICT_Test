@@ -9,6 +9,7 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const DeviceSession = require('./DeviceSession');
+const { FEATURES, LEVELS, DEFAULT_PERMISSIONS } = require('../config/assistantAccess');
 
 // ===================================================================
 // USER SCHEMA DEFINITION
@@ -605,13 +606,11 @@ const userSchema = new mongoose.Schema({
    */
   assistantInfo: {
     teacher: { type: mongoose.Schema.ObjectId, ref: 'User' },
-    permissions: {
-      students: { type: String, enum: ['none', 'view', 'edit'], default: 'view' },
-      work: { type: String, enum: ['none', 'view', 'edit'], default: 'none' },
-      library: { type: String, enum: ['none', 'view', 'edit'], default: 'none' },
-      schedule: { type: String, enum: ['none', 'view', 'edit'], default: 'none' },
-      inbox: { type: String, enum: ['none', 'view', 'edit'], default: 'none' }
-    }
+    // One none | view | edit level per feature (see FEATURES in config/assistantAccess.js)
+    permissions: Object.fromEntries(FEATURES.map(feature => [
+      feature,
+      { type: String, enum: LEVELS, default: DEFAULT_PERMISSIONS[feature] }
+    ]))
   },
 
   // ===================================================================

@@ -1,41 +1,50 @@
-import { ASSISTANT_BASE, DEFAULT_PERMISSIONS, assistantNavItems, hasLevel, hasNoAccess, levelLabel, normalizePermissions, visibleAreas } from './access';
+import { ASSISTANT_BASE, DEFAULT_PERMISSIONS, FEATURES, assistantNavItems, firstTab, hasLevel, hasNoAccess, levelLabel, normalizePermissions, visibleAreas } from './access';
 
 describe('hasLevel', () => {
-  it('orders none < view < edit', () => {
-    expect(hasLevel({ work: 'edit' }, 'work', 'view')).toBe(true);
-    expect(hasLevel({ work: 'edit' }, 'work', 'edit')).toBe(true);
-    expect(hasLevel({ work: 'view' }, 'work', 'edit')).toBe(false);
-    expect(hasLevel({ work: 'none' }, 'work', 'view')).toBe(false);
+  it('orders none < view < edit for a feature', () => {
+    expect(hasLevel({ homework: 'edit' }, 'homework', 'view')).toBe(true);
+    expect(hasLevel({ homework: 'edit' }, 'homework', 'edit')).toBe(true);
+    expect(hasLevel({ homework: 'view' }, 'homework', 'edit')).toBe(false);
+    expect(hasLevel({ homework: 'none' }, 'homework', 'view')).toBe(false);
+  });
+
+  it('treats a section as open when any feature in it is', () => {
+    expect(hasLevel({ quizzes: 'view' }, 'work')).toBe(true);
+    expect(hasLevel({ quizzes: 'view' }, 'work', 'edit')).toBe(false);
+    expect(hasLevel({ quizzes: 'view' }, 'library')).toBe(false);
   });
 
   it('treats missing permissions as no access', () => {
-    expect(hasLevel(undefined, 'work')).toBe(false);
+    expect(hasLevel(undefined, 'homework')).toBe(false);
     expect(hasLevel({}, 'work')).toBe(false);
   });
 });
 
 describe('normalizePermissions', () => {
-  it('returns every area and ignores bad values', () => {
-    expect(normalizePermissions({ work: 'edit', library: 'root', students: 'view' })).toEqual({
-      students: 'view', work: 'edit', library: 'none', schedule: 'none', inbox: 'none'
-    });
-    expect(normalizePermissions(null)).toEqual({ students: 'none', work: 'none', library: 'none', schedule: 'none', inbox: 'none' });
+  it('returns every feature and ignores bad values', () => {
+    const p = normalizePermissions({ homework: 'edit', videos: 'root', studentList: 'view', payments: 'edit' });
+    expect(Object.keys(p).sort()).toEqual(FEATURES.map(f => f.id).sort());
+    expect(p).toMatchObject({ homework: 'edit', videos: 'none', studentList: 'view', quizzes: 'none' });
+    expect(p.payments).toBeUndefined();
+  });
+
+  it('lets an older section-wide level fill in features not set on their own', () => {
+    expect(normalizePermissions({ work: 'view', quizzes: 'edit' })).toMatchObject({ submissions: 'view', homework: 'view', quizzes: 'edit' });
   });
 });
 
 describe('assistantNavItems', () => {
-  it('always starts with Home and only lists areas with view access', () => {
-    const items = assistantNavItems({ students: 'view', work: 'edit', library: 'none', schedule: 'none', inbox: 'view' });
+  it('always starts with Home and only lists sections with something viewable', () => {
+    const items = assistantNavItems({ studentList: 'view', quizzes: 'edit', chat: 'view', videos: 'none' });
     expect(items.map(i => i.label)).toEqual(['Home', 'Students', 'Work', 'Inbox']);
     expect(items[0]).toMatchObject({ to: ASSISTANT_BASE, end: true });
     expect(items[2].to).toBe(`${ASSISTANT_BASE}/work`);
   });
 
   it('never offers Income or Settings, whatever the permissions', () => {
-    const all = { students: 'edit', work: 'edit', library: 'edit', schedule: 'edit', inbox: 'edit', income: 'edit', settings: 'edit' };
-    const labels = assistantNavItems(all).map(i => i.label);
-    expect(labels).not.toContain('Income');
-    expect(labels).not.toContain('Settings');
+    const all = Object.fromEntries(FEATURES.map(f => [f.id, 'edit']));
+    const labels = assistantNavItems({ ...all, income: 'edit', settings: 'edit' }).map(i => i.label);
+    expect(labels).toEqual(['Home', 'Students', 'Work', 'Library', 'Schedule', 'Inbox']);
   });
 
   it('shows just Home when nothing is granted', () => {
@@ -45,9 +54,18 @@ describe('assistantNavItems', () => {
   });
 });
 
+describe('firstTab', () => {
+  const tabs = [['submissions', 'submissions'], ['assignments', 'homework'], ['quizzes', 'quizzes']];
+  it('picks the first tab the assistant may open', () => {
+    expect(firstTab({ homework: 'view', quizzes: 'view' }, tabs)).toBe('assignments');
+    expect(firstTab({ quizzes: 'edit' }, tabs)).toBe('quizzes');
+    expect(firstTab({}, tabs)).toBeNull();
+  });
+});
+
 describe('visibleAreas and levelLabel', () => {
-  it('lists granted areas in nav order', () => {
-    expect(visibleAreas({ inbox: 'view', students: 'edit' }).map(a => a.id)).toEqual(['students', 'inbox']);
+  it('lists granted sections in nav order', () => {
+    expect(visibleAreas({ chat: 'view', groups: 'edit' }).map(a => a.id)).toEqual(['students', 'inbox']);
   });
 
   it('labels levels for chips', () => {

@@ -29,7 +29,7 @@ afterEach(() => { localStorage.clear(); mockGet.mockReset(); });
 
 describe('assistant portal', () => {
   it('shows only the areas the teacher granted, and never Income or Settings', async () => {
-    withPermissions({ students: 'view', work: 'edit', library: 'none', schedule: 'none', inbox: 'none' });
+    withPermissions({ studentList: 'view', homework: 'edit' });
     renderPortal();
     const nav = within((await screen.findAllByRole('navigation', { name: 'Main' }))[0]);
     expect(nav.getByText('Home')).toBeInTheDocument();
@@ -40,13 +40,13 @@ describe('assistant portal', () => {
   });
 
   it('tells an assistant with no access to ask the teacher', async () => {
-    withPermissions({ students: 'none', work: 'none', library: 'none', schedule: 'none', inbox: 'none' });
+    withPermissions({});
     renderPortal();
     expect(await screen.findByText(/has not given you access/i)).toBeInTheDocument();
   });
 
   it('does not ask the server for registrations or income', async () => {
-    withPermissions({ students: 'view', work: 'none', library: 'none', schedule: 'none', inbox: 'none' });
+    withPermissions({ studentList: 'view' });
     renderPortal();
     await screen.findAllByText('Students');
     const urls = mockGet.mock.calls.map(c => c[0]);

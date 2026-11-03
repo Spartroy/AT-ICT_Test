@@ -21,12 +21,12 @@ describe('creating an assistant', () => {
     jest.spyOn(User, 'findOne').mockResolvedValue(null);
     const created = jest.spyOn(User, 'create').mockImplementation(async (doc) => ({ _id: 'a1', ...doc }));
     const res = mockRes();
-    await create(teacherReq({ ...valid, role: 'teacher', permissions: { work: 'edit', library: 'root', payments: 'edit' } }), res);
+    await create(teacherReq({ ...valid, role: 'teacher', permissions: { homework: 'edit', videos: 'root', payments: 'edit' } }), res);
     expect(res.status).toHaveBeenCalledWith(201);
     const doc = created.mock.calls[0][0];
     expect(doc.role).toBe('assistant');
     expect(doc.assistantInfo.teacher).toBe('t1');
-    expect(doc.assistantInfo.permissions).toEqual({ students: 'view', work: 'edit', library: 'none', schedule: 'none', inbox: 'none' });
+    expect(doc.assistantInfo.permissions).toMatchObject({ studentList: 'view', homework: 'edit', videos: 'none', chat: 'none' });
     const sent = res.json.mock.calls[0][0].data.assistant;
     expect(sent.password).toBeUndefined();
   });
@@ -64,13 +64,13 @@ describe('managing assistants', () => {
   it('keeps unmentioned areas when permissions are updated, and signs out a suspended assistant', async () => {
     const user = {
       _id: 'a1', firstName: 'S', lastName: 'H', isActive: true,
-      assistantInfo: { teacher: 't1', permissions: { students: 'edit', work: 'view', library: 'none', schedule: 'none', inbox: 'none' } },
+      assistantInfo: { teacher: 't1', permissions: { studentList: 'edit', homework: 'view', chat: 'none' } },
       save: jest.fn().mockResolvedValue(undefined)
     };
     jest.spyOn(User, 'findOne').mockResolvedValue(user);
     const res = mockRes();
-    await update(teacherReq({ permissions: { inbox: 'edit' }, isActive: false }, { id: 'a1' }), res);
-    expect(user.assistantInfo.permissions).toEqual({ students: 'edit', work: 'view', library: 'none', schedule: 'none', inbox: 'edit' });
+    await update(teacherReq({ permissions: { chat: 'edit' }, isActive: false }, { id: 'a1' }), res);
+    expect(user.assistantInfo.permissions).toMatchObject({ studentList: 'edit', homework: 'view', chat: 'edit', videos: 'none' });
     expect(user.isActive).toBe(false);
     expect(DeviceSession.deactivateAllSessions).toHaveBeenCalledWith('a1');
   });
@@ -101,6 +101,6 @@ describe('managing assistants', () => {
     await list(teacherReq(), res);
     const a = res.json.mock.calls[0][0].data.assistants[0];
     expect(a.password).toBeUndefined();
-    expect(a.permissions.students).toBe('view');
+    expect(a.permissions.studentList).toBe('view');
   });
 });

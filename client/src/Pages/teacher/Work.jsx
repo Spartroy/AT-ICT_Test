@@ -12,21 +12,24 @@ import { lessonLabel } from './curriculum';
 import Submissions from './work/Submissions';
 
 const TABS = ['submissions', 'assignments', 'quizzes'];
+const TAB_FEATURE = { submissions: 'submissions', assignments: 'homework', quizzes: 'quizzes' };
 
 export default function Work() {
   const { tab } = useParams();
   const navigate = useNavigate();
   const { base, counts, openModal, can } = useTeacher();
-  if (!TABS.includes(tab)) return <Navigate to={`${base}/work/submissions`} replace />;
+  // Each tab is its own feature for assistants
+  const allowed = TABS.filter(t => can(TAB_FEATURE[t]));
+  if (!allowed.includes(tab)) return <Navigate to={`${base}/work/${allowed[0] || 'submissions'}`} replace />;
 
   return (
     <>
       <PageHead
         title="Work"
-        actions={can('work', 'edit') && (
+        actions={(
           <>
-            <button type="button" className="btn o" onClick={() => openModal('quiz')}><Ic as={GraduationCap} />Create quiz</button>
-            <button type="button" className="btn p" onClick={() => openModal('hw')}><Ic as={Plus} />Create H.W</button>
+            {can('quizzes', 'edit') && <button type="button" className="btn o" onClick={() => openModal('quiz')}><Ic as={GraduationCap} />Create quiz</button>}
+            {can('homework', 'edit') && <button type="button" className="btn p" onClick={() => openModal('hw')}><Ic as={Plus} />Create H.W</button>}
           </>
         )}
       />
@@ -35,7 +38,7 @@ export default function Work() {
           { id: 'submissions', label: 'Submissions', icon: Download, count: counts.needsGrading || '' },
           { id: 'assignments', label: 'Assignments', icon: ClipboardCheck },
           { id: 'quizzes', label: 'Quizzes', icon: GraduationCap }
-        ]}
+        ].filter(t => allowed.includes(t.id))}
         value={tab}
         onChange={id => navigate(`${base}/work/${id}`)}
         label="Work sections"

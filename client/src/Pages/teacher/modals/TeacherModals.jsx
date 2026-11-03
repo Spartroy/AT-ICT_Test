@@ -9,6 +9,7 @@ import { StackFormDialog } from '../../../components/portal/Flashcards';
 import { announceChange } from './form';
 import { Dialog, DialogHeader } from '../../../components/portal/PortalUI';
 import { ShieldCheck } from 'lucide-react';
+import { FEATURES } from '../../assistant/access';
 
 /** Shown when an assistant without edit access opens an editing dialog. */
 function ViewOnlyDialog({ open, onClose, area }) {
@@ -17,7 +18,7 @@ function ViewOnlyDialog({ open, onClose, area }) {
     <Dialog open onClose={onClose} size="sm" labelledBy="vo-title">
       <DialogHeader id="vo-title" icon={ShieldCheck} title="View-only access" sub="Ask the teacher for edit access" onClose={onClose} />
       <div className="mbody">
-        <p>{area ? `You can look at ${area}, but not change it.` : 'This is only available to the teacher.'}</p>
+        <p>{area ? `You can look at ${(FEATURES.find(f => f.id === area)?.label || area).toLowerCase()}, but not change it.` : 'This is only available to the teacher.'}</p>
         <div className="mfoot"><button type="button" className="btn p" onClick={onClose}>OK</button></div>
       </div>
     </Dialog>
