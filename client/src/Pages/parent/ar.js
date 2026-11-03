@@ -19,6 +19,8 @@ const ar = {
   Announcements: 'الإعلانات',
   Notifications: 'الإشعارات',
   'Log out': 'تسجيل الخروج',
+  'Switch to light mode': 'التبديل إلى الوضع الفاتح',
+  'Switch to dark mode': 'التبديل إلى الوضع الداكن',
   settings: 'الإعدادات',
   new: 'جديد',
   'change password': 'تغيير كلمة المرور',

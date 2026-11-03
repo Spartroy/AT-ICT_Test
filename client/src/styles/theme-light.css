@@ -1,0 +1,142 @@
+/* Light mode ("clean white + crimson").
+   Dark is the default and lives in tokens.css and the portal styles. This file only runs when
+   <html data-theme="light"> is set (src/utils/theme.js), re-pointing the colour tokens and fixing the few
+   rules that hard-code a dark colour. Crimson, status colours and text on crimson stay as they are. */
+
+html[data-theme="light"] {
+  /* Dark UI surfaces (auth modal, dialogs, portals) */
+  --dark-modal: #FFFFFF;
+  --dark-card: #FFFFFF;
+  --dark-input: #F4F5F8;
+  --dark-raised: #F7F8FA;
+  --dark-track: #E6E8EE;
+  --dark-border: #E2E4EA;
+  --dark-border-soft: #E8EAEF;
+  --dark-border-strong: #CED1DA;
+  --dark-border-hover: #A9ADB8;
+  --dark-text: #18181B;
+  --dark-text-soft: #3F3F46;
+  --dark-text-muted: #52525B;
+  --dark-text-faint: #71717A;
+  --dark-label: #18181B;
+  --dark-accent-text: #B51137;
+  --dark-error: #DC2626;
+  --dark-error-rgb: 220 38 38;
+  --dark-selected-from: #FDE8EC;
+  --dark-selected-to: #FFFFFF;
+  --dark-ok: #0F9F6E;
+  --dark-warn: #B45309;
+  --dark-good: #4D7C0F;
+
+  /* Portal surfaces */
+  --p-bg: #F3F4F7;
+  --p-s1: #FFFFFF;
+  --p-s2: #F1F2F5;
+  --p-s3: #E7E9EE;
+  --p-bd2: #CED1DA;
+  --p-tx: #18181B;
+  --p-side-start: #FFFFFF;
+  --p-side-end: #F7F8FA;
+  --shadow-popover: 0 24px 60px rgba(24, 24, 27, 0.18);
+  --crimson-bright: #CA133E;
+  color-scheme: light;
+}
+
+html[data-theme="light"] .atp {
+  --bg: #F3F4F7;
+  --s1: #FFFFFF;
+  --s2: #F1F2F5;
+  --s3: #E7E9EE;
+  --bd: #E2E4EA;
+  --bd2: #CED1DA;
+  --tx: #18181B;
+  --mu: #52525B;
+  --fa: #71717A;
+  --ok: #0F9F6E;
+  --am: #B45309;
+  --bl: #2563EB;
+  --vi: #7C3AED;
+}
+
+/* Text that was "white" because the page was dark. (Text on crimson keeps its white.) */
+html[data-theme="light"] .atp .ib:hover,
+html[data-theme="light"] .atp .card h3 .lk:hover,
+html[data-theme="light"] .atp .btn.o,
+html[data-theme="light"] .atp .seg button:not(.on):hover,
+html[data-theme="light"] .atp .ch.on,
+html[data-theme="light"] .atp .search input,
+html[data-theme="light"] .atp .inp,
+html[data-theme="light"] .atp .st-cur .nl,
+html[data-theme="light"] .atp-teacher .lk:hover,
+html[data-theme="light"] .atp-teacher .inp,
+html[data-theme="light"] .atp-teacher .tcount b,
+html[data-theme="light"] .atp-teacher mark,
+html[data-theme="light"] .atp-teacher .tn:hover,
+html[data-theme="light"] .atp-teacher .tn.l0,
+html[data-theme="light"] .atp-teacher .mtabs button.on,
+html[data-theme="light"] .atp-teacher .btn.o,
+html[data-theme="light"] .atp-teacher .seg2 button.on,
+html[data-theme="light"] .atp-teacher .qf-c,
+html[data-theme="light"] .atp-teacher .qf-l,
+html[data-theme="light"] .atp-teacher .pkb,
+html[data-theme="light"] .atp-teacher .sp-d b,
+html[data-theme="light"] .atp .lv-row.live .lv-main b {
+  color: var(--tx);
+}
+html[data-theme="light"] .atp .tn.on { color: var(--white); }
+
+/* Counters and chips drawn as translucent white on a dark page */
+html[data-theme="light"] .atp .seg em,
+html[data-theme="light"] .atp-teacher .tn em,
+html[data-theme="light"] .atp .lv-no,
+html[data-theme="light"] .atp-student .fb-r.gold,
+html[data-theme="light"] .atp-student .fb-r.silver,
+html[data-theme="light"] .atp-student .fb-r.bronze { background: rgba(24, 24, 27, 0.07); }
+html[data-theme="light"] .atp .seg button.on em,
+html[data-theme="light"] .atp-student .seg-slide button.on em { background: rgba(255, 255, 255, 0.28); }
+html[data-theme="light"] .atp-teacher .btn.o:hover,
+html[data-theme="light"] .atp .wev-t:hover { background: rgba(24, 24, 27, 0.05); }
+html[data-theme="light"] .atp-teacher .inc-chart .hl { fill: rgba(24, 24, 27, 0.05); }
+html[data-theme="light"] .atp-student .pg-xp { background: rgba(24, 24, 27, 0.1); }
+
+/* Dark-gradient cards and panels */
+html[data-theme="light"] .atp-teacher .attc.hot { background: linear-gradient(135deg, #FDE8EC, #FFFFFF); }
+html[data-theme="light"] .atp .lvp { background: #FFFFFF; box-shadow: 0 24px 60px rgba(24, 24, 27, 0.2); }
+html[data-theme="light"] .atp .lvp.live { background: linear-gradient(160deg, #FDE8EC, #FFFFFF 55%); }
+html[data-theme="light"] .atp-teacher .prev { background: repeating-linear-gradient(135deg, #F1F2F5 0 14px, #ECEDF1 14px 28px); }
+html[data-theme="light"] .atp-student .ostage { background: radial-gradient(circle at 50% 50%, #FDE8EC, var(--p-s1) 70%); }
+html[data-theme="light"] .atp-student .orb > circle { fill: #FFFFFF; }
+html[data-theme="light"] .atp-student .orbring { stroke: rgba(24, 24, 27, 0.14); }
+html[data-theme="light"] .atp-student .hub .hr { stroke: rgba(24, 24, 27, 0.14); }
+
+/* Toast and flash-card faces were white on dark; flip them to dark on light */
+html[data-theme="light"] .atp .toast { background: #18181B; color: #FFFFFF; box-shadow: 0 20px 50px rgba(24, 24, 27, 0.3); }
+
+/* Softer shadows and overlays */
+html[data-theme="light"] .atp .card { box-shadow: 0 1px 2px rgba(24, 24, 27, 0.04); }
+html[data-theme="light"] .atp .nv.on { box-shadow: 0 12px 30px -10px rgba(202, 19, 62, 0.45); }
+html[data-theme="light"] .atp .pt-layer { color: var(--tx); }
+
+/* Scrollbars follow the theme */
+html[data-theme="light"] * { scrollbar-color: #C4C7D0 transparent; }
+
+html[data-theme="light"] .atp .mod { background: rgba(24, 24, 27, 0.45); }
+
+/* The wordmark is white, so it sits on a dark tile */
+html[data-theme="light"] .atp .lg { background: #111113; border-radius: 12px; padding: 7px 12px; box-sizing: content-box; }
+html[data-theme="light"] .atp .lg.m { padding: 6px 10px; }
+html[data-theme="light"] .atp .brand { padding-left: 4px; }
+
+/* Hero banners stay a dark crimson panel, with the original light text inside */
+html[data-theme="light"] .atp .hero {
+  --tx: #F4F4F5;
+  --mu: #C9C9CE;
+  --fa: #A3A3AB;
+  --bd: #34343A;
+  --bd2: #4A4A52;
+  --s1: rgba(255, 255, 255, 0.08);
+  --s2: rgba(255, 255, 255, 0.12);
+  color: #F4F4F5;
+}
+html[data-theme="light"] .atp .hero .btn.o { color: #F4F4F5; }
+html[data-theme="light"] .atp .hero .btn.o:hover { background: rgba(255, 255, 255, 0.1); }

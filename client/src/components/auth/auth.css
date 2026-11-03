@@ -29,6 +29,8 @@
   z-index: 4;
 }
 .auth-close:hover { border-color: var(--crimson-500); }
+.auth-theme { right: 64px; }
+.auth-theme svg { width: 18px; height: 18px; }
 
 .auth-tabs {
   display: grid;

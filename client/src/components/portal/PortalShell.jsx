@@ -3,6 +3,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { Bell, LogOut } from 'lucide-react';
 import { PortalUIProvider } from './PortalUI';
 import ChangePasswordDialog from './ChangePasswordDialog';
+import ThemeToggle from '../ThemeToggle';
 import { LogoTile, initials } from './kit';
 import { clearAuth } from '../../utils/auth';
 import { API_ENDPOINTS } from '../../config/api';
@@ -76,6 +77,7 @@ export default function PortalShell({ variant, nav, user, tagline, aside, bell, 
                   {bell.dot && <span className="dot" />}
                 </button>
               ))}
+              <ThemeToggle label={[t('Switch to light mode'), t('Switch to dark mode')]} />
               <button type="button" className="ib" aria-label={t('Log out')} onClick={logout}>
                 <LogOut className="i" aria-hidden="true" />
               </button>

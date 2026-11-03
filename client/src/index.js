@@ -5,7 +5,12 @@ import './styles/fonts.css';
 import './styles/tokens.css';
 import './styles/numerals.css';
 import './index.css';
+import './styles/theme-light.css';
+import { initTheme } from './utils/theme';
 import App from './App';
+
+// Set data-theme before the first render so the page never flashes the wrong colours.
+initTheme();
 
 const rootElement = document.getElementById('root');
 
