@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { History, Key, Plus, Trash2, UserCog } from 'lucide-react';
+import { History, Key, ListChecks, Plus, Trash2, UserCog } from 'lucide-react';
 import useApi from '../../hooks/useApi';
 import { api } from '../../lib/api';
 import { Empty, ErrorNote, Ic, Loading, fmtDateTime } from '../../components/portal/kit';
 import { useConfirm, useToast } from '../../components/portal/PortalUI';
 import { AREAS, DEFAULT_PERMISSIONS, LEVELS, levelLabel } from '../assistant/access';
+import { dueInfo, sortTasks } from '../assistant/dashboardLogic';
 import { FormDialog, Fld, apiError } from './modals/form';
 
 const BASE = '/api/teacher/assistants';
@@ -126,6 +127,66 @@ function AssistantCard({ a, onChanged, onReset }) {
   );
 }
 
+/** To-dos for assistants: shown on their dashboard, ticked off by them. */
+function TasksPanel({ assistants }) {
+  const toast = useToast();
+  const tasks = useApi(`${BASE}/tasks`, b => b.data?.tasks || []);
+  const blank = { title: '', note: '', dueDate: '', assignee: '' };
+  const [form, setForm] = useState(blank);
+  const [busy, setBusy] = useState(false);
+  const set = (k) => (e) => setForm(f => ({ ...f, [k]: e.target.value }));
+
+  const run = async (fn) => {
+    setBusy(true);
+    try {
+      await fn();
+      tasks.reload();
+    } catch (err) {
+      toast(apiError(err));
+    } finally {
+      setBusy(false);
+    }
+  };
+  const add = (e) => {
+    e.preventDefault();
+    run(async () => {
+      await api.post(`${BASE}/tasks`, { ...form, dueDate: form.dueDate || null, assignee: form.assignee || null });
+      setForm(blank);
+    });
+  };
+  const status = (t) => (t.done ? `done${t.doneByName ? ` by ${t.doneByName}` : ''}` : dueInfo(t).label);
+
+  return (
+    <section className="card set-card" aria-labelledby="as-tasks">
+      <h3 id="as-tasks"><Ic as={ListChecks} />Tasks for assistants</h3>
+      <p className="sub set-note">Leave a to-do for everyone or one assistant. It shows on their dashboard and you can see who ticked it off.</p>
+      <form onSubmit={add} className="inl" style={{ flexWrap: 'wrap', gap: 8, marginBottom: 12 }}>
+        <input className="inp" style={{ flex: '2 1 200px' }} placeholder="What needs doing?" aria-label="Task title" value={form.title} onChange={set('title')} maxLength={140} />
+        <input className="inp" style={{ flex: '2 1 200px' }} placeholder="Note (optional)" aria-label="Task note" value={form.note} onChange={set('note')} maxLength={1000} />
+        <input className="inp" style={{ flex: '0 1 150px' }} type="date" aria-label="Due date" value={form.dueDate} onChange={set('dueDate')} />
+        <select className="inp" style={{ flex: '0 1 170px' }} aria-label="Assign to" value={form.assignee} onChange={set('assignee')}>
+          <option value="">Any assistant</option>
+          {assistants.map(a => <option key={a._id} value={a._id}>{a.firstName} {a.lastName}</option>)}
+        </select>
+        <button className="btn p sm" disabled={busy || !form.title.trim()}><Ic as={Plus} />Add task</button>
+      </form>
+      {tasks.data && !tasks.data.length && <Empty icon={ListChecks}>No tasks yet.</Empty>}
+      <div className="tbl">
+        {sortTasks(tasks.data || []).map(t => (
+          <div className="trow" key={t._id}>
+            <div className="lmain" style={{ flex: '1 1 0', minWidth: 90 }}>
+              <b style={{ textDecoration: t.done ? 'line-through' : 'none' }}>{t.title}</b>
+              <small style={{ whiteSpace: 'normal' }}>{t.assigneeName || 'Any assistant'} · {status(t)}</small>
+            </div>
+            <button type="button" className="btn o sm" disabled={busy} onClick={() => run(() => api.put(`${BASE}/tasks/${t._id}`, { done: !t.done }))}>{t.done ? 'Reopen' : 'Mark done'}</button>
+            <button type="button" className="ib sm dng" disabled={busy} aria-label={`Delete ${t.title}`} onClick={() => run(() => api.del(`${BASE}/tasks/${t._id}`))}><Ic as={Trash2} /></button>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 const describe = (e) => `${e.method} ${e.path}`;
 
 function ActivityLog() {
@@ -167,6 +228,7 @@ export default function AssistantsSettings() {
       {list.error && <ErrorNote error={list.error} onRetry={list.reload} />}
       {list.data && !list.data.length && <Empty icon={UserCog}>No assistants yet.</Empty>}
       {(list.data || []).map(a => <AssistantCard key={`${a._id}-${JSON.stringify(a.permissions)}-${a.isActive}`} a={a} onChanged={list.reload} onReset={setResetting} />)}
+      <TasksPanel assistants={list.data || []} />
       <ActivityLog />
       <CreateDialog open={creating} onClose={() => setCreating(false)} onDone={() => { setCreating(false); list.reload(); }} />
       <ResetDialog assistant={resetting} onClose={() => setResetting(null)} onDone={() => { setResetting(null); list.reload(); }} />

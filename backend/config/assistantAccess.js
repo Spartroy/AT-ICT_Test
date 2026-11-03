@@ -48,7 +48,8 @@ const RULES = [
 
   // The assistant's own account
   { re: /^\/auth\/(me|logout|change-password)$/, area: 'self' },
-  { re: /^\/assistant\/me$/, area: 'self' },
+  { re: /^\/assistant\/(me|tasks|activity)$/, area: 'self' },
+  { re: /^\/assistant\/tasks\/[^/]+\/done$/, methods: ['PUT'], area: 'self' },
   { re: /^\/notifications(\/|$)/, area: 'self' },
   { re: /^\/sessions(\/|$)/, area: 'self' },
 

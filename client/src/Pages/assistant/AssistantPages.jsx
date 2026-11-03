@@ -1,37 +1,11 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
 import { Key, ShieldCheck } from 'lucide-react';
-import { Empty, Ic, PageHead } from '../../components/portal/kit';
+import { Ic, PageHead } from '../../components/portal/kit';
 import ChangePasswordDialog from '../../components/portal/ChangePasswordDialog';
 import { useTeacher } from '../teacher/TeacherPortal';
-import { AREAS, hasNoAccess, levelLabel } from './access';
+import { AREAS, levelLabel } from './access';
 
 const chipFor = (level) => (level === 'edit' ? 'c-pr' : level === 'view' ? 'c-am' : 'c-gy');
-
-/** Assistant home: what this assistant can open, with the level the teacher granted. */
-export function AssistantHome() {
-  const { base, me, assistant } = useTeacher();
-  const permissions = assistant?.permissions || {};
-  return (
-    <>
-      <PageHead title={`Welcome, ${me.firstName || 'assistant'}`}>
-        <p className="sub">You help the teacher with the areas below. Anything not listed is not available to you.</p>
-      </PageHead>
-      {hasNoAccess(permissions) ? (
-        <Empty icon={ShieldCheck}>The teacher has not given you access to anything yet. Ask them to open Settings → Assistants.</Empty>
-      ) : (
-        <div className="tbl">
-          {AREAS.filter(a => permissions[a.id] && permissions[a.id] !== 'none').map(a => (
-            <div className="trow" key={a.id}>
-              <div className="lmain"><b><Link to={`${base}/${a.path}`}>{a.label}</Link></b><small>{a.blurb}</small></div>
-              <span className={`chip ${chipFor(permissions[a.id])}`}>{levelLabel(permissions[a.id])}</span>
-            </div>
-          ))}
-        </div>
-      )}
-    </>
-  );
-}
 
 /** Assistant account: name, password and a read-only list of the access they have. */
 export function AssistantAccount() {

@@ -22,7 +22,8 @@ import TeacherModals from './modals/TeacherModals';
 import LiveClassPopup from '../../components/portal/LiveClassPopup';
 import { LiveFeedProvider } from '../../components/portal/LiveFeed';
 import { ASSISTANT_BASE, assistantNavItems, hasLevel, normalizePermissions } from '../assistant/access';
-import { AssistantAccount, AssistantHome } from '../assistant/AssistantPages';
+import { AssistantAccount } from '../assistant/AssistantPages';
+import AssistantDashboard from '../assistant/AssistantDashboard';
 
 const TeacherContext = createContext(null);
 export const useTeacher = () => useContext(TeacherContext);
@@ -123,7 +124,7 @@ export default function TeacherPortal({ assistant = false }) {
       >
         <LiveFeedProvider role="teacher" disabled={!can('schedule')}>
         <Routes>
-          <Route index element={assistant ? <AssistantHome /> : <Home />} />
+          <Route index element={assistant ? <AssistantDashboard /> : <Home />} />
           {can('students') && <Route path="students" element={<Navigate to="all" replace />} />}
           {can('students') && <Route path="students/:tab" element={<Students />} />}
           {can('work') && <Route path="work" element={<Navigate to="submissions" replace />} />}
