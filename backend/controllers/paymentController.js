@@ -9,7 +9,13 @@ const { notify, teacherIds } = require('../services/notifications');
  * Resolve the linked student's User _id for a parent account.
  * Matches logic in parentController.getDashboardData (Parent model + User.parentInfo.children).
  */
-async function getLinkedStudentUserId(parentUserId) {
+async function getLinkedStudentUserId(parentUserId, preferredId) {
+  // A parent with several children picks one with ?childId; it must be one of their own
+  if (preferredId) {
+    const own = await User.findById(parentUserId).select('parentInfo').lean();
+    const link = own?.parentInfo?.children?.find((c) => String(c.studentId) === String(preferredId));
+    return link ? link.studentId : null;
+  }
   const parentDoc = await Parent.findOne({ user: parentUserId }).populate({
     path: 'children.student',
     select: 'user',
@@ -233,7 +239,7 @@ const resetStudentPassword = async (req, res) => {
 // ── Parent: get all payments for their child ─────────────────────────────────
 const getParentPayments = async (req, res) => {
   try {
-    const childId = await getLinkedStudentUserId(req.user.id);
+    const childId = await getLinkedStudentUserId(req.user.id, req.query?.childId);
 
     if (!childId) {
       return res.status(200).json({
@@ -285,7 +291,7 @@ const submitInstapayWithProof = async (req, res) => {
       });
     }
 
-    const childUserId = await getLinkedStudentUserId(req.user.id);
+    const childUserId = await getLinkedStudentUserId(req.user.id, req.query?.childId);
     const childId = childUserId?.toString();
 
     const payment = await Payment.findById(req.params.paymentId);

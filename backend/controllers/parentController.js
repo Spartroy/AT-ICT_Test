@@ -10,7 +10,11 @@ const Message = require('../models/Message');
 // @access  Private (Parent)
 const getDashboardData = async (req, res) => {
   try {
-    // First try the Parent model (legacy)
+    // Parent accounts linked on the user record (one parent can follow several students) take priority
+    const linkedUser = await User.findById(req.user.id).select('parentInfo role');
+    const hasUserLinks = linkedUser?.role === 'parent' && (linkedUser.parentInfo?.children?.length || 0) > 0;
+
+    // Otherwise try the Parent model (legacy)
     const parent = await Parent.findOne({ user: req.user.id })
       .populate('user', 'firstName lastName email')
       .populate({
@@ -21,7 +25,7 @@ const getDashboardData = async (req, res) => {
         }
       });
 
-    if (parent && (parent.children?.length || 0) > 0) {
+    if (!hasUserLinks && parent && (parent.children?.length || 0) > 0) {
       const primaryChild = parent.getPrimaryChild() || parent.children[0];
       const student = primaryChild.student;
       const studentUserId = student?.user?._id || student?.user;
@@ -74,7 +78,13 @@ const getDashboardData = async (req, res) => {
       return res.status(404).json({ status: 'error', message: 'Parent profile not found' });
     }
 
-    const childLink = parentUser.parentInfo?.children?.find(c => c.isPrimary) || parentUser.parentInfo?.children?.[0];
+    const links = parentUser.parentInfo?.children || [];
+    // ?childId picks which student to show; it must be one of this parent's own children
+    const chosen = req.query.childId ? links.find(c => String(c.studentId) === String(req.query.childId)) : null;
+    if (req.query.childId && !chosen) {
+      return res.status(403).json({ status: 'error', message: 'Unauthorized access to child data' });
+    }
+    const childLink = chosen || links.find(c => c.isPrimary) || links[0];
     if (!childLink) {
       return res.status(404).json({ status: 'error', message: 'No children found for this parent' });
     }
@@ -96,54 +106,32 @@ const getDashboardData = async (req, res) => {
       { $group: { _id: null, totalQuizzes: { $sum: 1 }, completedQuizzes: { $sum: { $cond: [{ $in: ['$assignedTo.status', ['submitted', 'graded']] }, 1, 0] } }, avgScore: { $avg: '$assignedTo.score' } } }
     ]);
 
+    const summarize = (u, link) => ({
+      student: {
+        user: { firstName: u.firstName, lastName: u.lastName, email: u.email },
+        year: u.studentInfo?.year,
+        session: u.studentInfo?.session,
+        studentId: u.studentInfo?.studentId,
+        overallProgress: u.studentInfo?.overallProgress || 0,
+        currentGrade: u.studentInfo?.currentGrade || 'N/A',
+        _id: u._id
+      },
+      relationship: link.relationship || 'guardian',
+      isPrimary: !!link.isPrimary
+    });
+    const kids = await User.find({ _id: { $in: links.map(c => c.studentId) } }).select('firstName lastName email studentInfo');
+    const summaries = links.map(l => ({ l, u: kids.find(k => String(k._id) === String(l.studentId)) })).filter(x => x.u).map(({ l, u }) => summarize(u, l));
+    const current = summarize(studentUser, childLink);
+
     return res.status(200).json({
       status: 'success',
       data: {
         parent: {
           user: { firstName: parentUser.firstName, lastName: parentUser.lastName, email: parentUser.email },
-          children: [
-            {
-              student: {
-                user: { firstName: studentUser.firstName, lastName: studentUser.lastName, email: studentUser.email },
-                year: studentUser.studentInfo?.year,
-                session: studentUser.studentInfo?.session,
-                studentId: studentUser.studentInfo?.studentId,
-                overallProgress: studentUser.studentInfo?.overallProgress || 0,
-                currentGrade: studentUser.studentInfo?.currentGrade || 'N/A',
-                _id: studentUser._id
-              },
-              relationship: 'guardian',
-              isPrimary: true
-            }
-          ]
+          children: summaries
         },
-        primaryChild: {
-          student: {
-            user: { firstName: studentUser.firstName, lastName: studentUser.lastName, email: studentUser.email },
-            year: studentUser.studentInfo?.year,
-            session: studentUser.studentInfo?.session,
-            studentId: studentUser.studentInfo?.studentId,
-            overallProgress: studentUser.studentInfo?.overallProgress || 0,
-            currentGrade: studentUser.studentInfo?.currentGrade || 'N/A',
-            _id: studentUser._id
-          },
-          relationship: 'guardian'
-        },
-        allChildren: [
-          {
-            student: {
-              user: { firstName: studentUser.firstName, lastName: studentUser.lastName, email: studentUser.email },
-              year: studentUser.studentInfo?.year,
-              session: studentUser.studentInfo?.session,
-              studentId: studentUser.studentInfo?.studentId,
-              overallProgress: studentUser.studentInfo?.overallProgress || 0,
-              currentGrade: studentUser.studentInfo?.currentGrade || 'N/A',
-              _id: studentUser._id
-            },
-            relationship: 'guardian',
-            isPrimary: true
-          }
-        ],
+        primaryChild: { student: current.student, relationship: current.relationship },
+        allChildren: summaries,
         stats: {
           assignments: assignmentStats[0] || { totalAssignments: 0, completedAssignments: 0, avgScore: 0 },
           quizzes: quizStats[0] || { totalQuizzes: 0, completedQuizzes: 0, avgScore: 0 }

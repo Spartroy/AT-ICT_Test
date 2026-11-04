@@ -8,7 +8,7 @@
 
 const User = require('../models/User');
 const AssistantAudit = require('../models/AssistantAudit');
-const { can, requirementFor, apiPath, stripHidden } = require('../config/assistantAccess');
+const { can, requirementFor, apiPath, stripHidden, PARENT_NUMBER_KEYS } = require('../config/assistantAccess');
 
 const WRITES = (method) => !['GET', 'HEAD', 'OPTIONS'].includes(String(method).toUpperCase());
 
@@ -73,7 +73,13 @@ const applyAssistantAccess = async (req, res, assistant) => {
 
   // Hidden fields never leave the server
   const send = res.json.bind(res);
-  res.json = (body) => send(stripHidden(body));
+  const showParentNumbers = can(permissions, 'parentNumbers', 'view');
+  res.json = (body) => send(stripHidden(body, showParentNumbers ? PARENT_NUMBER_KEYS : []));
+
+  // Reads are not logged, except looking at parent phone numbers
+  if (showParentNumbers && !WRITES(req.method) && /^\/teacher\/students\/?$/.test(apiPath(req.originalUrl)) && req.query && req.query.withParents === 'true') {
+    record(req, { assistant, teacher, area: 'parentNumbers', level: 'view', status: 200, allowed: true });
+  }
 
   if (WRITES(req.method)) {
     res.on('finish', () => record(req, { assistant, teacher, area: need.area, level: need.level, status: res.statusCode, allowed: res.statusCode < 400 }));

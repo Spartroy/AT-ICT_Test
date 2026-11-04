@@ -7,6 +7,7 @@ import tutorPhoto from '../../assets/PP.jpg';
 import videoThumbnail from '../../assets/video-thumbnail.png';
 import SiteLayout, { SI, useReveal } from './SiteLayout';
 import Method from './Method';
+import Lore, { useLoreTaps } from './Lore';
 import { HallSection } from './HallOfFame';
 import { useSite } from './SiteSettings';
 import { SAMPLE_FILTERS, PLANS, PERKS, CONTACT } from './siteContent';
@@ -47,6 +48,7 @@ export default function Website({ children }) {
     <SiteLayout home>
       <Seo title="IGCSE ICT Mastery" description="Interactive notes, live sessions and personalised mentoring for IGCSE ICT students. Built to take you from zero to A*." path="/" />
       <Sections />
+      <Lore />
       {children}
     </SiteLayout>
   );
@@ -144,6 +146,7 @@ function Hero() {
 }
 
 function Tutor() {
+  const onLoreTap = useLoreTaps();
   return (
     <section id="about" className="sec tint" aria-labelledby="tutor-title">
       <div className="wrap tutor-g">
@@ -155,7 +158,7 @@ function Tutor() {
           <ul className="checks">
             {['Software engineer & IGCSE expert', '5+ years teaching experience', "Former IGCSE student — I've been there"].map(t => <li key={t}><SI name="cc" />{t}</li>)}
           </ul>
-          <div className="tags"><span>Simple</span><span>Engaging</span><span>Actually fun</span></div>
+          <div className="tags"><span className="lore-tap" onClick={onLoreTap}>Simple</span><span>Engaging</span><span>Actually fun</span></div>
           <blockquote className="quote" style={{ marginBottom: 0 }}>
             “I won't just teach you ICT concepts — I'll show you how to think like a tech expert, solve problems confidently, and ace your exams with strategies that actually work in the real world.”
             <cite>Eng. Ahmad Tamer Ali · Your ICT success partner</cite>

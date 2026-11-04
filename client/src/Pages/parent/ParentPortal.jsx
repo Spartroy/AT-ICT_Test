@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { Home as HomeIcon, ClipboardCheck, GraduationCap, CreditCard, Inbox as InboxIcon, Trophy, CheckCircle2, Clock, LayoutGrid } from 'lucide-react';
 import PortalShell from '../../components/portal/PortalShell';
@@ -38,10 +38,17 @@ function ParentApp() {
   const { t } = useLang();
   const location = useLocation();
   const me = storedUser();
-  const dash = useApi(API_ENDPOINTS.PARENT.DASHBOARD, b => b.data || {});
+  // A parent with several children picks which one to look at; the choice is remembered on this device
+  const [childId, setChildId] = useState(() => { try { return localStorage.getItem('atict:parent:child') || ''; } catch { return ''; } });
+  const pick = (id) => { setChildId(id); try { localStorage.setItem('atict:parent:child', id); } catch { /* storage unavailable */ } };
+  const withChild = (url, id) => (id ? `${url}${url.includes('?') ? '&' : '?'}childId=${encodeURIComponent(id)}` : url);
+  const dash = useApi(withChild(API_ENDPOINTS.PARENT.DASHBOARD, childId), b => b.data || {});
+  const children = dash.data?.allChildren || [];
   const child = dash.data?.primaryChild?.student;
   const progress = useApi(child?._id ? `${API_ENDPOINTS.PARENT.BASE}/child/${child._id}/progress` : null, b => b.data || {});
-  const payments = useApi(API_ENDPOINTS.PARENT.PAYMENTS, b => b.data?.payments || []);
+  const payments = useApi(withChild(API_ENDPOINTS.PARENT.PAYMENTS, child?._id), b => b.data?.payments || []);
+  // A remembered child that is no longer linked is forgotten so the default child shows
+  useEffect(() => { if (childId && dash.error) pick(''); }, [childId, dash.error]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const section = location.pathname.replace(BASE, '').split('/')[1] || '';
   const childName = child ? `${child.user?.firstName || ''} ${child.user?.lastName || ''}`.trim() : '';
@@ -60,6 +67,14 @@ function ParentApp() {
   else if (!child) body = <div className="card"><Empty icon={LayoutGrid}>{t('No student is linked to this account yet. Ask the teacher to link your child.')}</Empty></div>;
   else {
     body = (
+      <>
+        {children.length > 1 && (
+          <div className="fbar" style={{ marginBottom: 12 }}>
+            <select className="inp sel-s" value={child._id} onChange={e => pick(e.target.value)} aria-label={t('Choose a child')}>
+              {children.map(c => <option key={c.student._id} value={c.student._id}>{`${c.student.user?.firstName || ''} ${c.student.user?.lastName || ''}`.trim()}</option>)}
+            </select>
+          </div>
+        )}
       <Routes>
         <Route index element={<ParentHome child={child} childName={childName} stats={dash.data?.stats} progress={progress} payments={payments} />} />
         <Route path="homework" element={<WorkList kind="assignments" progress={progress} />} />
@@ -68,6 +83,7 @@ function ParentApp() {
         <Route path="inbox" element={<><PageHead title={t('Announcements')} /><AnnouncementFeed /></>} />
         <Route path="*" element={<Navigate to={BASE} replace />} />
       </Routes>
+      </>
     );
   }
 

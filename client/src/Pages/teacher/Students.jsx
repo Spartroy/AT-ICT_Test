@@ -12,6 +12,7 @@ import { apiError, useTeacherChange } from './modals/form';
 import StudentModal from './StudentModal';
 import LeadsPanel from './LeadsPanel';
 import GroupsPanel from './groups/GroupsPanel';
+import ParentNumbersPanel from './ParentNumbersPanel';
 import GroupChip from '../../components/portal/GroupChip';
 import useGroups from '../../hooks/useGroups';
 
@@ -24,9 +25,9 @@ export default function Students() {
   const navigate = useNavigate();
   const { base, counts, assistant, can } = useTeacher();
   // Assistants never see registrations or leads (contact details live there); the other tabs are their own features
-  const allowed = [['all', 'studentList'], ['groups', 'groups'], ['registrations', null], ['leads', null]].filter(([, feature]) => (feature ? can(feature) : !assistant)).map(([id]) => id);
+  const allowed = [['all', 'studentList'], ['groups', 'groups'], ['parents', 'parentNumbers'], ['registrations', null], ['leads', null]].filter(([, feature]) => (feature ? can(feature) : !assistant)).map(([id]) => id);
   if (!allowed.includes(tab)) return <Navigate to={`${base}/students/${allowed[0] || 'all'}`} replace />;
-  const tabs = [{ id: 'all', label: 'All students', icon: Users }, { id: 'groups', label: 'Groups', icon: Layers }, { id: 'registrations', label: 'Registrations', icon: Bell, count: counts.pendingRegs || '' }, { id: 'leads', label: 'Leads', icon: Gift }];
+  const tabs = [{ id: 'all', label: 'All students', icon: Users }, { id: 'groups', label: 'Groups', icon: Layers }, { id: 'parents', label: 'Parent numbers', icon: Phone }, { id: 'registrations', label: 'Registrations', icon: Bell, count: counts.pendingRegs || '' }, { id: 'leads', label: 'Leads', icon: Gift }];
   return (
     <>
       <PageHead title="Students" />
@@ -36,7 +37,7 @@ export default function Students() {
         onChange={id => navigate(`${base}/students/${id}`)}
         label="Student sections"
       />
-      {tab === 'all' ? <StudentList /> : tab === 'groups' ? <GroupsPanel /> : tab === 'leads' ? <LeadsPanel /> : <Registrations />}
+      {tab === 'all' ? <StudentList /> : tab === 'groups' ? <GroupsPanel /> : tab === 'parents' ? <ParentNumbersPanel /> : tab === 'leads' ? <LeadsPanel /> : <Registrations />}
     </>
   );
 }

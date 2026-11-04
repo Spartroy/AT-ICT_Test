@@ -115,7 +115,8 @@ function ParentTab({ student, info, onCredentials, onChanged, onClose }) {
   };
   const create = () => run('create', async () => {
     const res = await api.post(`${url}/create-parent`, {});
-    onCredentials?.({ title: `Parent account for ${name}`, ...res.data.credentials });
+    if (res.data?.linked) toast(`${name} is now linked to ${res.data.parent.email}`);
+    else onCredentials?.({ title: `Parent account for ${name}`, ...res.data.credentials });
     onChanged();
   });
   const recreate = () => run('recreate', async () => {
@@ -130,6 +131,7 @@ function ParentTab({ student, info, onCredentials, onChanged, onClose }) {
     toast('Parent account deleted');
     onChanged();
   });
+  const [picking, setPicking] = useState(false);
   const copy = async () => {
     try { await navigator.clipboard.writeText(info.email); toast('Email copied'); } catch { toast(info.email); }
   };
@@ -143,6 +145,7 @@ function ParentTab({ student, info, onCredentials, onChanged, onClose }) {
             <p className="ir"><Ic as={Mail} /><span className="mono">{info.email}</span><button type="button" className="ib sm" aria-label="Copy the parent's email" onClick={copy}><Ic as={Copy} /></button></p>
             <p className="ir"><Ic as={User} />{info.name}</p>
             {known(info.phone) && <p className="ir"><Ic as={Phone} />{info.phone}</p>}
+            {info.otherChildren?.length > 0 && <p className="ir"><Ic as={Users} />Also parent of {info.otherChildren.map(c => c.name).join(', ')}</p>}
             <p className="sub par-note">The password is only shown when the account is created. Use <b>Recreate</b> for a new email and password if the parent lost it.</p>
             <div className="par-acts">
               <button type="button" className="btn p sm" onClick={() => { onClose(); navigate(`${base}/inbox/chat`); }}><Ic as={MessageSquare} />Chat with parent</button>
@@ -154,11 +157,45 @@ function ParentTab({ student, info, onCredentials, onChanged, onClose }) {
           <>
             <Empty icon={Users}>No parent account yet.</Empty>
             {known(info?.phone) && <p className="ir"><Ic as={Phone} />Number on file: {info.phone}</p>}
-            <div className="par-acts"><button type="button" className="btn p sm" disabled={!!busy} onClick={create}><Ic as={UserPlus} />{busy === 'create' ? 'Creating…' : 'Create parent account'}</button></div>
+            {info?.siblings?.length > 0 && <p className="sub par-note">Shares a parent number with {info.siblings.map(c => c.name).join(', ')}. If they already have a parent account, creating one here links this student to it instead of making a second login.</p>}
+            <div className="par-acts">
+              <button type="button" className="btn p sm" disabled={!!busy} onClick={create}><Ic as={UserPlus} />{busy === 'create' ? 'Creating…' : 'Create parent account'}</button>
+              <button type="button" className="btn o sm" disabled={!!busy} onClick={() => setPicking(true)}><Ic as={Users} />Link to existing parent</button>
+            </div>
           </>
         )}
       </div>
+      <ParentPicker open={picking} onClose={() => setPicking(false)} studentName={name} onPick={(p) => run('link', async () => {
+        await api.post(`${url}/link-parent`, { parentId: p._id });
+        toast(`${name} is now linked to ${p.email}`);
+        setPicking(false);
+        onChanged();
+      })} />
     </div>
+  );
+}
+
+/** Search parent accounts by email and pick one, so one parent can follow several students. */
+function ParentPicker({ open, onClose, studentName, onPick }) {
+  const [q, setQ] = useState('');
+  const found = useApi(open ? `${API_ENDPOINTS.TEACHER.PARENTS}?search=${encodeURIComponent(q.trim())}` : null, b => b.data?.parents || []);
+  if (!open) return null;
+  return (
+    <Dialog open onClose={onClose} size="sm" labelledBy="pp-title">
+      <div className="mh"><span className="mi"><Users className="i" aria-hidden="true" /></span><div><h3 id="pp-title">Link {studentName} to a parent</h3><p className="sub">Search by the parent's email.</p></div><button type="button" className="ib x" aria-label="Close" onClick={onClose}><X className="i" aria-hidden="true" /></button></div>
+      <div className="mbody">
+        <input className="inp" type="search" value={q} onChange={e => setQ(e.target.value)} placeholder="Parent email…" aria-label="Parent email" autoFocus />
+        {found.loading && !found.data && <Loading />}
+        {found.error && <ErrorNote error={found.error} onRetry={found.reload} />}
+        {found.data && !found.data.length && <Empty icon={Users}>No parent accounts found.</Empty>}
+        {(found.data || []).map(p => (
+          <div className="trow" key={p._id}>
+            <div className="lmain"><b className="mono">{p.email}</b><small>{p.children.length ? `Parent of ${p.children.map(c => c.name).join(', ')}` : 'No students linked'}</small></div>
+            <button type="button" className="btn p sm" onClick={() => onPick(p)}>Link</button>
+          </div>
+        ))}
+      </div>
+    </Dialog>
   );
 }
 

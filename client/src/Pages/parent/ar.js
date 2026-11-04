@@ -37,6 +37,7 @@ const ar = {
   'Saving…': 'جارٍ الحفظ…',
   'Failed to fetch': 'تعذّر الاتصال بالخادم',
   'Your session has expired': 'انتهت صلاحية جلستك',
+  'Choose a child': 'اختر الابن',
   'No student is linked to this account yet. Ask the teacher to link your child.': 'لا يوجد طالب مرتبط بهذا الحساب بعد. اطلب من المعلم ربط ابنك بالحساب.',
 
   // Home

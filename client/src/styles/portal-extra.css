@@ -438,3 +438,12 @@
   .atp .pay-amount { text-align: start; width: 100%; }
   .atp .pay-btns .btn { flex: 1 1 100%; justify-content: center; }
 }
+
+/* Parent numbers table */
+.pn-table { width: 100%; border-collapse: collapse; min-width: 560px; }
+.pn-table th, .pn-table td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line, rgba(128, 128, 128, .2)); vertical-align: middle; }
+.pn-table thead th { font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; opacity: .7; }
+.pn-table tbody th { font-weight: 600; }
+.pn-sib { font-weight: 400; opacity: .7; }
+.pn-act { white-space: nowrap; text-align: right; }
+.pn-act .ib { display: inline-flex; margin-left: 4px; }

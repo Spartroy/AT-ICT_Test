@@ -10,7 +10,7 @@
 
 /** Portal sections and the features inside them, in nav order. */
 const GROUPS = [
-  { id: 'students', label: 'Students', features: ['studentList', 'groups'] },
+  { id: 'students', label: 'Students', features: ['studentList', 'groups', 'parentNumbers'] },
   { id: 'work', label: 'Work', features: ['submissions', 'homework', 'quizzes'] },
   { id: 'library', label: 'Library', features: ['videos', 'notes', 'materials', 'pastPapers', 'flashcards', 'guide'] },
   { id: 'schedule', label: 'Schedule', features: ['classSchedule', 'live'] },
@@ -64,7 +64,8 @@ const RULES = [
 
   // Never reachable, whatever the permissions: money, contact/account management, registrations, site settings.
   { re: /^\/teacher\/(income|payments|settings|samples|assistants|sessions|hall-of-fame|stories|legacy-students|reset-session-points)(\/|$)/, area: null },
-  { re: /^\/teacher\/students\/[^/]+\/(payments|reset-password|create-parent|parent|recreate-parent)(\/|$)/, area: null },
+  { re: /^\/teacher\/students\/[^/]+\/(payments|reset-password|create-parent|parent|recreate-parent|link-parent)(\/|$)/, area: null },
+  { re: /^\/teacher\/parents(\/|$)/, area: null },
   { re: /^\/(registration|parent|student)(\/|$)/, area: null },
 
   // The assistant's own account
@@ -80,6 +81,8 @@ const RULES = [
   { re: /^\/leaderboard$/, methods: READ, area: 'studentList', level: 'view' },
   { re: /^\/teacher\/activities(\/|$)/, area: 'studentList', level: 'view' },
   { re: /^\/teacher\/groups(\/|$)/, area: 'groups', level: 'auto' },
+  // Message templates for contacting parents: readable by assistants who may see parent numbers; only the teacher edits them
+  { re: /^\/teacher\/message-templates$/, methods: READ, area: 'parentNumbers', level: 'view' },
 
   // Work: grading a student's homework or quiz is submissions; setting homework and quizzes are their own features
   { re: /^\/teacher\/submissions(\/|$)/, methods: READ, area: 'submissions', level: 'view' },
@@ -135,20 +138,27 @@ const requirementFor = (method, url) => {
 /** Keys (lower-cased) that never leave the server for an assistant, at any depth. */
 const HIDDEN_KEYS = new Set([
   'email', 'contactnumber', 'alternativenumber', 'phone', 'phonenumber', 'whatsapp', 'address',
-  'parentcontactnumber', 'parentphone', 'parentemail', 'parentinfo', 'emergencycontact',
+  'parentcontactnumber', 'parentnumber', 'parentphone', 'parentemail', 'parentinfo', 'emergencycontact',
   'payments', 'payment', 'paymentproof', 'paymentproofs', 'paymentstatus', 'fees', 'fee', 'balance', 'income', 'ledger',
   'password', 'resetpasswordtoken', 'resetpasswordexpire', 'emailverificationtoken', 'emailverificationexpire', 'token'
 ]);
 
-/** Deep copy of `value` without the hidden keys. Safe on mongoose documents (goes through toJSON). */
-const stripHidden = (value) => {
+/** Keys an assistant may see once the teacher grants the 'parentNumbers' feature. Nothing else is unlocked. */
+const PARENT_NUMBER_KEYS = ['parentcontactnumber', 'parentnumber'];
+
+/**
+ * Deep copy of `value` without the hidden keys. Safe on mongoose documents (goes through toJSON).
+ * `allow` lists lower-cased hidden keys to keep (used for the parent numbers an assistant was granted).
+ */
+const stripHidden = (value, allow = []) => {
   const plain = typeof value === 'object' && value !== null ? JSON.parse(JSON.stringify(value)) : value;
   const walk = (node) => {
     if (Array.isArray(node)) return node.map(walk);
     if (node && typeof node === 'object') {
       const out = {};
       Object.keys(node).forEach(key => {
-        if (!HIDDEN_KEYS.has(key.toLowerCase())) out[key] = walk(node[key]);
+        const k = key.toLowerCase();
+        if (!HIDDEN_KEYS.has(k) || allow.includes(k)) out[key] = walk(node[key]);
       });
       return out;
     }
@@ -157,4 +167,4 @@ const stripHidden = (value) => {
   return walk(plain);
 };
 
-module.exports = { GROUPS, FEATURES, LEVELS, DEFAULT_PERMISSIONS, normalizePermissions, can, requirementFor, apiPath, stripHidden, HIDDEN_KEYS };
+module.exports = { GROUPS, FEATURES, LEVELS, DEFAULT_PERMISSIONS, normalizePermissions, can, requirementFor, apiPath, stripHidden, HIDDEN_KEYS, PARENT_NUMBER_KEYS };

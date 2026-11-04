@@ -1,4 +1,4 @@
-import { BookOpen, CalendarDays, ClipboardCheck, ClipboardList, FileText, Folder, GraduationCap, Inbox, Layers, LayoutGrid, Library, Megaphone, MessageSquare, NotebookText, Play, Users, Video } from 'lucide-react';
+import { BookOpen, CalendarDays, ClipboardCheck, ClipboardList, FileText, Folder, GraduationCap, Inbox, Layers, LayoutGrid, Library, Megaphone, MessageSquare, NotebookText, Phone, Play, Users, Video } from 'lucide-react';
 
 /** One icon per portal section and per feature, so access settings read at a glance. */
 export const GROUP_ICONS = {
@@ -12,6 +12,7 @@ export const GROUP_ICONS = {
 export const FEATURE_ICONS = {
   studentList: Users,
   groups: Layers,
+  parentNumbers: Phone,
   submissions: ClipboardCheck,
   homework: FileText,
   quizzes: GraduationCap,

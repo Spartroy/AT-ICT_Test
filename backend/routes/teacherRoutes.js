@@ -8,6 +8,8 @@ const {
   createParentAccount,
   deleteParentAccount,
   recreateParentAccount,
+  linkParentAccount,
+  listParents,
   deleteStudent,
   addLegacyStudent
 } = require('../controllers/teacherController');
@@ -48,6 +50,13 @@ const {
   gradeQuiz
 } = require('../controllers/quizController');
 
+const {
+  listTemplates,
+  createTemplate,
+  updateTemplate,
+  deleteTemplate
+} = require('../controllers/messageTemplateController');
+
 const router = express.Router();
 
 // All routes require teacher authentication
@@ -67,6 +76,14 @@ router.post('/students/:id/create-parent', createParentAccount);
 // Delete a student's parent account, or delete it and create a fresh one
 router.delete('/students/:id/parent', deleteParentAccount);
 router.post('/students/:id/recreate-parent', recreateParentAccount);
+// One parent for several students: search parent accounts, link a student to one
+router.get('/parents', listParents);
+router.post('/students/:id/link-parent', linkParentAccount);
+// Message templates for contacting parents
+router.get('/message-templates', listTemplates);
+router.post('/message-templates', createTemplate);
+router.put('/message-templates/:id', updateTemplate);
+router.delete('/message-templates/:id', deleteTemplate);
 // Add legacy student
 router.post('/legacy-students', addLegacyStudent);
 

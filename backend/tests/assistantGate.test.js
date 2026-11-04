@@ -80,6 +80,31 @@ describe('applyAssistantAccess', () => {
     expect(send).toHaveBeenCalledWith({ data: { students: [{ firstName: 'A' }] } });
   });
 
+  it('hides parent numbers unless the teacher granted parentNumbers', async () => {
+    const row = { firstName: 'A', email: 'a@x.com', parentNumber: '01012345678', parentContactNumber: '01012345678' };
+    const without = mockRes();
+    const sendWithout = without.json;
+    await applyAssistantAccess(req('GET', '/api/teacher/students'), without, assistantWith({ studentList: 'view' }));
+    without.json({ data: { students: [row] } });
+    expect(sendWithout).toHaveBeenCalledWith({ data: { students: [{ firstName: 'A' }] } });
+
+    const granted = mockRes();
+    const sendGranted = granted.json;
+    await applyAssistantAccess(req('GET', '/api/teacher/students'), granted, assistantWith({ studentList: 'view', parentNumbers: 'view' }));
+    granted.json({ data: { students: [row] } });
+    // The parent numbers come through; the student's own email stays hidden
+    expect(sendGranted).toHaveBeenCalledWith({ data: { students: [{ firstName: 'A', parentNumber: '01012345678', parentContactNumber: '01012345678' }] } });
+  });
+
+  it('logs a read of parent numbers, but not an ordinary student list', async () => {
+    await applyAssistantAccess(req('GET', '/api/teacher/students?limit=20'), mockRes(), assistantWith({ studentList: 'view', parentNumbers: 'view' }));
+    expect(AssistantAudit.create).not.toHaveBeenCalled();
+    const r = req('GET', '/api/teacher/students?withParents=true');
+    r.query = { withParents: 'true' };
+    await applyAssistantAccess(r, mockRes(), assistantWith({ studentList: 'view', parentNumbers: 'view' }));
+    expect(AssistantAudit.create).toHaveBeenCalledWith(expect.objectContaining({ area: 'parentNumbers', allowed: true, method: 'GET' }));
+  });
+
   it('logs successful writes once the response finishes', async () => {
     const r = req('POST', '/api/chat/send');
     const res = mockRes();

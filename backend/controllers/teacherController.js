@@ -9,6 +9,7 @@ const User = require('../models/User');
 const crypto = require('crypto');
 const DeviceSession = require('../models/DeviceSession');
 const { freeParentEmail } = require('../utils/parentAccount');
+const { normalizePhone, isUsablePhone, escapeRegex } = require('../utils/phone');
 const groupsSvc = require('../services/groups');
 const { calculateAssignmentPoints, calculateQuizPoints, awardPoints } = require('../utils/pointsHelper');
 
@@ -108,7 +109,8 @@ const getStudents = async (req, res) => {
 
     // Support for fetching all students without pagination (for dropdowns, selectors, etc.)
     const page = all === 'true' ? 1 : parseInt(req.query.page) || 1;
-    const limit = all === 'true' ? 10000 : parseInt(req.query.limit) || 10; // High limit when all=true
+    // Capped so one request can't pull the whole collection
+    const limit = Math.min(all === 'true' ? 2000 : parseInt(req.query.limit) || 10, all === 'true' ? 2000 : 500);
     const skip = (page - 1) * limit;
 
     let query = {
@@ -136,12 +138,13 @@ const getStudents = async (req, res) => {
     // Build search conditions
     let searchConditions = [];
     if (search) {
+      const rx = { $regex: escapeRegex(String(search).slice(0, 100)), $options: 'i' };
       searchConditions.push(
-        { firstName: { $regex: search, $options: 'i' } },
-        { lastName: { $regex: search, $options: 'i' } },
-        { email: { $regex: search, $options: 'i' } },
-        { 'studentInfo.studentId': { $regex: search, $options: 'i' } },
-        { 'studentInfo.school': { $regex: search, $options: 'i' } }
+        { firstName: rx },
+        { lastName: rx },
+        { email: rx },
+        { 'studentInfo.studentId': rx },
+        { 'studentInfo.school': rx }
       );
     }
 
@@ -174,13 +177,22 @@ const getStudents = async (req, res) => {
       'parentInfo.children.studentId': { $in: studentIds }
     }).select('email parentInfo.children.studentId');
     const studentIdToParent = new Map();
+    const childCount = new Map(); // parent email -> number of linked students
     parents.forEach(p => {
+      childCount.set(p.email, (p.parentInfo?.children || []).length);
       (p.parentInfo?.children || []).forEach(ch => {
         const sid = String(ch.studentId);
         if (!studentIdToParent.has(sid)) {
           studentIdToParent.set(sid, p.email);
         }
       });
+    });
+
+    // Students on this page that share a parent number are siblings of one parent
+    const byNumber = new Map();
+    students.forEach(st => {
+      const n = isUsablePhone(st.studentInfo?.parentContactNumber) ? normalizePhone(st.studentInfo.parentContactNumber) : '';
+      if (n) byNumber.set(n, [...(byNumber.get(n) || []), `${st.firstName} ${st.lastName}`]);
     });
 
     // Transform data for frontend
@@ -207,7 +219,11 @@ const getStudents = async (req, res) => {
       currentGrade: student.studentInfo?.currentGrade || 'N/A',
       avatar: student.avatar,
       hasParent: studentIdToParent.has(String(student._id)),
-      parentEmail: studentIdToParent.get(String(student._id)) || null
+      parentEmail: studentIdToParent.get(String(student._id)) || null,
+      parentChildren: childCount.get(studentIdToParent.get(String(student._id))) || 0,
+      // Hidden from assistants unless the teacher grants 'parentNumbers'
+      parentNumber: student.studentInfo?.parentContactNumber || '',
+      siblings: (byNumber.get(normalizePhone(student.studentInfo?.parentContactNumber)) || []).filter(n => n !== `${student.firstName} ${student.lastName}`)
     }));
 
     res.status(200).json({
@@ -330,14 +346,18 @@ const getStudentDetails = async (req, res) => {
       const parent = await User.findOne({
         role: 'parent',
         'parentInfo.children.studentId': student._id
-      }).select('firstName lastName email contactNumber');
+      }).select('firstName lastName email contactNumber parentInfo.children.studentId');
 
       if (parent) {
+        const kids = await childrenOf(parent);
         parentInfo = {
           hasAccount: true,
           name: `${parent.firstName} ${parent.lastName}`,
           email: parent.email,
-          phone: parent.contactNumber || student.studentInfo?.parentContactNumber || 'N/A'
+          phone: parent.contactNumber || student.studentInfo?.parentContactNumber || 'N/A',
+          // Every student this parent follows, this one included
+          children: kids,
+          otherChildren: kids.filter(k => String(k._id) !== String(student._id))
         };
       } else {
         // If no parent account exists, use info from student record
@@ -345,7 +365,11 @@ const getStudentDetails = async (req, res) => {
           hasAccount: false,
           name: 'Not set up',
           email: 'No parent account',
-          phone: student.studentInfo?.parentContactNumber || 'N/A'
+          phone: student.studentInfo?.parentContactNumber || 'N/A',
+          children: [],
+          otherChildren: [],
+          // Students with the same parent number whose parent account could be shared
+          siblings: (await studentsSharingParentNumber(student)).map(x => ({ _id: x._id, name: `${x.firstName} ${x.lastName}` }))
         };
       }
     } catch (parentError) {
@@ -841,6 +865,54 @@ const genParentPassword = () => {
   return pwd;
 };
 
+/** Other students whose parent number is the same person's (brothers and sisters share one). */
+async function studentsSharingParentNumber(student) {
+  const mine = student.studentInfo?.parentContactNumber;
+  if (!isUsablePhone(mine)) return [];
+  const want = normalizePhone(mine);
+  const others = await User.find({ role: 'student', _id: { $ne: student._id }, 'studentInfo.parentContactNumber': { $exists: true, $ne: '' } })
+    .select('firstName lastName studentInfo.parentContactNumber').lean();
+  return others.filter(o => normalizePhone(o.studentInfo?.parentContactNumber) === want);
+}
+
+/** The existing parent account of a sibling (same parent number), if there is one. */
+async function parentOfSibling(student) {
+  const sibs = await studentsSharingParentNumber(student);
+  if (!sibs.length) return null;
+  return User.findOne({ role: 'parent', 'parentInfo.children.studentId': { $in: sibs.map(x => x._id) } });
+}
+
+/** Adds `student` to an existing parent account (User link plus the legacy Parent/Student documents, best effort). */
+async function linkStudentToParent(student, parentUser) {
+  const already = (parentUser.parentInfo?.children || []).some(c => String(c.studentId) === String(student._id));
+  if (!already) {
+    parentUser.parentInfo.children.push({ studentId: student._id, relationship: 'guardian', isPrimary: !(parentUser.parentInfo.children || []).length });
+    await parentUser.save();
+  }
+  try {
+    const studentDoc = await Student.findOne({ user: student._id });
+    const ParentModel = require('../models/Parent');
+    const parentDoc = await ParentModel.findOne({ user: parentUser._id });
+    if (studentDoc && parentDoc) {
+      if (!parentDoc.children.some(c => String(c.student) === String(studentDoc._id))) {
+        parentDoc.children.push({ student: studentDoc._id, relationship: 'guardian', isPrimary: false });
+        await parentDoc.save();
+      }
+      studentDoc.parent = parentDoc._id;
+      await studentDoc.save();
+    }
+  } catch (linkErr) {
+    console.warn('Non-fatal: Legacy Parent/Student link setup failed:', linkErr.message);
+  }
+  return parentUser;
+}
+
+const childrenOf = async (parentUser) => {
+  const ids = (parentUser.parentInfo?.children || []).map(c => c.studentId);
+  const kids = await User.find({ _id: { $in: ids } }).select('firstName lastName').lean();
+  return kids.map(k => ({ _id: k._id, name: `${k.firstName} ${k.lastName}` }));
+};
+
 /** Creates the parent user (plus the legacy Parent/Student links, best effort) and returns it with the plain password. */
 async function makeParentFor(student) {
   const first = String(student.firstName || '').trim().split(/\s+/)[0] || 'Student';
@@ -934,6 +1006,17 @@ module.exports = {
         });
       }
 
+      // A sibling already has a parent account for this number: link to it instead of making a second login
+      const sibParent = req.body?.forceNew ? null : await parentOfSibling(student);
+      if (sibParent) {
+        await linkStudentToParent(student, sibParent);
+        return res.status(200).json({
+          status: 'success',
+          message: 'Linked to the existing parent account',
+          data: { linked: true, parent: { id: sibParent._id, email: sibParent.email, children: await childrenOf(sibParent) } }
+        });
+      }
+
       const { parentUser, rawPassword } = await makeParentFor(student);
       return res.status(201).json({
         status: 'success',
@@ -949,6 +1032,49 @@ module.exports = {
         return res.status(500).json({ status: 'error', message: 'Server error creating parent account' });
       }
       return; // headers already sent
+    }
+  },
+
+  /**
+   * Link a student to an existing parent account, so one parent can follow several children.
+   */
+  linkParentAccount: async (req, res) => {
+    try {
+      const student = await User.findById(req.params.id);
+      if (!student || student.role !== 'student') {
+        return res.status(404).json({ status: 'error', message: 'Student not found' });
+      }
+      if (!mongoose.isValidObjectId(req.body?.parentId)) {
+        return res.status(400).json({ status: 'error', message: 'Choose a parent account to link' });
+      }
+      const parent = await User.findOne({ _id: req.body.parentId, role: 'parent' });
+      if (!parent) return res.status(404).json({ status: 'error', message: 'Parent account not found' });
+      if (await findParentOf(student)) {
+        return res.status(409).json({ status: 'error', message: 'This student already has a parent account. Delete it first to link a different one.' });
+      }
+      await linkStudentToParent(student, parent);
+      return res.status(200).json({ status: 'success', message: 'Linked', data: { parent: { id: parent._id, email: parent.email, children: await childrenOf(parent) } } });
+    } catch (error) {
+      console.error('Link parent account error:', error);
+      return res.status(500).json({ status: 'error', message: 'Server error linking parent account' });
+    }
+  },
+
+  /**
+   * Search parent accounts (for linking a student to one). Returns their children's names.
+   */
+  listParents: async (req, res) => {
+    try {
+      const q = { role: 'parent', isActive: true };
+      const search = String(req.query.search || '').trim().slice(0, 100);
+      if (search) q.email = { $regex: escapeRegex(search), $options: 'i' };
+      const parents = await User.find(q).select('email parentInfo.children.studentId').sort({ createdAt: -1 }).limit(20);
+      const out = [];
+      for (const p of parents) out.push({ _id: p._id, email: p.email, children: await childrenOf(p) });
+      return res.status(200).json({ status: 'success', data: { parents: out } });
+    } catch (error) {
+      console.error('List parents error:', error);
+      return res.status(500).json({ status: 'error', message: 'Server error retrieving parents' });
     }
   },
 

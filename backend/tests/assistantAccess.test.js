@@ -137,3 +137,27 @@ describe('stripHidden', () => {
     expect(stripHidden(null)).toBeNull();
   });
 });
+
+describe('parent numbers', () => {
+  const need = (m, u) => requirementFor(m, u);
+  it('is a separate, off-by-default permission in the Students section', () => {
+    expect(GROUPS.find(g => g.id === 'students').features).toContain('parentNumbers');
+    expect(DEFAULT_PERMISSIONS.parentNumbers).toBe('none');
+  });
+
+  it('keeps parent accounts and linking closed to assistants', () => {
+    expect(need('GET', '/api/teacher/parents')).toBeNull();
+    expect(need('POST', '/api/teacher/students/s1/link-parent')).toBeNull();
+    expect(need('POST', '/api/teacher/message-templates')).toBeNull();
+  });
+
+  it('lets assistants read message templates under parentNumbers', () => {
+    expect(need('GET', '/api/teacher/message-templates')).toEqual({ area: 'parentNumbers', level: 'view' });
+  });
+
+  it('stripHidden keeps only the parent number keys it is told to allow', () => {
+    const row = { name: 'A', email: 'e', contactNumber: '1', parentNumber: '2', parentContactNumber: '3' };
+    expect(stripHidden(row)).toEqual({ name: 'A' });
+    expect(stripHidden(row, ['parentnumber', 'parentcontactnumber'])).toEqual({ name: 'A', parentNumber: '2', parentContactNumber: '3' });
+  });
+});

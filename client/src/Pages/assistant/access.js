@@ -13,10 +13,11 @@ const RANK = { none: 0, view: 1, edit: 2 };
 
 export const GROUPS = [
   {
-    id: 'students', label: 'Students', path: 'students', blurb: 'No contact details, whatever you choose.',
+    id: 'students', label: 'Students', path: 'students', blurb: 'Student emails and phone numbers stay hidden. Parent numbers are a separate permission.',
     features: [
       { id: 'studentList', label: 'All students', blurb: 'Student list, progress and leaderboard.' },
-      { id: 'groups', label: 'Groups', blurb: 'See and organise teaching groups.' }
+      { id: 'groups', label: 'Groups', blurb: 'See and organise teaching groups.' },
+      { id: 'parentNumbers', label: 'Parent numbers', blurb: 'See each student’s parent phone number and message parents. Needs All students.' }
     ]
   },
   {

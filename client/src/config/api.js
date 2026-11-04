@@ -23,6 +23,8 @@ export const API_ENDPOINTS = {
   TEACHER: {
     DASHBOARD: `${API_BASE_URL}/api/teacher/dashboard`,
     STUDENTS: `${API_BASE_URL}/api/teacher/students`,
+    PARENTS: `${API_BASE_URL}/api/teacher/parents`,
+    MESSAGE_TEMPLATES: `${API_BASE_URL}/api/teacher/message-templates`,
     MATERIALS: `${API_BASE_URL}/api/teacher/materials`,
     SCHEDULE: `${API_BASE_URL}/api/teacher/schedule`,
     SCHEDULES: `${API_BASE_URL}/api/teacher/schedules`,
