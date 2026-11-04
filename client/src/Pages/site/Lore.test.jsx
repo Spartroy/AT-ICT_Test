@@ -45,4 +45,26 @@ describe('Lore easter egg', () => {
     fireEvent.click(screen.getByLabelText('Close lore'));
     expect(screen.queryByRole('dialog')).toBeNull();
   });
+
+  it('lays the story out as chapters on a scroll, ending with the seal', () => {
+    render(<Lore />);
+    type('311220');
+    expect(screen.getByRole('heading', { name: /the origin story/i })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /the first student/i })).toBeInTheDocument();
+    expect(screen.getByText(/Chapter II/)).toBeInTheDocument();
+    expect(document.querySelector('.lore-seal')).toBeInTheDocument();
+    // Without IntersectionObserver (jsdom) every line is shown straight away
+    expect(document.querySelectorAll('.lore-ink:not(.in)').length).toBe(0);
+  });
+
+  it('lets the visitor mute the sound and remembers it', () => {
+    localStorage.removeItem('atict:lore:muted');
+    render(<Lore />);
+    type('311220');
+    fireEvent.click(screen.getByRole('button', { name: /turn sound off/i }));
+    expect(localStorage.getItem('atict:lore:muted')).toBe('1');
+    expect(screen.getByRole('button', { name: /turn sound on/i })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /turn sound on/i }));
+    expect(localStorage.getItem('atict:lore:muted')).toBe('0');
+  });
 });
