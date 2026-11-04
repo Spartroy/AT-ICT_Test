@@ -51,7 +51,7 @@ describe('Lore easter egg', () => {
     type('311220');
     expect(screen.getByRole('heading', { name: /the origin story/i })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: /the first student/i })).toBeInTheDocument();
-    expect(screen.getByText(/Chapter II/)).toBeInTheDocument();
+    expect(screen.getByText('Chapter II')).toBeInTheDocument();
     expect(document.querySelector('.lore-seal')).toBeInTheDocument();
     // Without IntersectionObserver (jsdom) every line is shown straight away
     expect(document.querySelectorAll('.lore-ink:not(.in)').length).toBe(0);

@@ -11,6 +11,9 @@ const CODE = '311220';
 export const OPEN_LORE_PROMPT = 'atict:lore-prompt';
 
 
+/** Shown for chapters that are not written yet. */
+const PLACEHOLDER = [<>The ink is still drying on this chapter. Check back soon.</>];
+
 /** The scroll's chapters. Add a chapter here and it appears on the scroll. */
 const CHAPTERS = [
   {
@@ -33,7 +36,17 @@ const CHAPTERS = [
       <>I’ll never forget our last session before her exam. She looked at me, smiling, and said, <i>"Thanks for everything"</i> Such a simple sentence, yet it meant everything. All the effort, the hours of preparation, and the moments of frustration had led to this: a student who once struggled was now confident and ready.</>,
       <>When the session ended, I walked away with a mix of pride and gratitude. I realized this wasn’t just about teaching ICT—it was about changing lives, starting with hers. And in that moment, I knew AT-ICT was no longer just an idea. It had truly begun.</>
     ]
-  }
+  },
+  // Placeholders: replace `paras` with the real story, and delete PLACEHOLDER from a chapter once it is written.
+  ...[
+    ['notes', 'The Notes Take Shape', 'Chapter III'],
+    ['mentor', 'The Mentor', 'Chapter IV'],
+    ['doubt', 'The Doubt', 'Chapter V'],
+    ['growth', 'The Growth', 'Chapter VI'],
+    ['results', 'First Great Results', 'Chapter VII'],
+    ['platform', 'The Platform', 'Chapter VIII'],
+    ['promise', 'The Promise', 'Chapter IX']
+  ].map(([id, title, num]) => ({ id, title, num, paras: PLACEHOLDER }))
 ];
 
 const typing = (el) => !!el && (el.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(el.tagName));
