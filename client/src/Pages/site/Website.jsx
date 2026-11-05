@@ -102,8 +102,8 @@ function Hero() {
       <div className="wrap">
         <div className="hero-g">
           <div>
-            <span className="badge"><SI name="award" />92% average across students. An A*? It’s our standard.</span>
-            <h1 id="hero-title">Struggling with <span className="hl">ICT</span>? Let’s fix that — <span className="hl">fast.</span></h1>
+            <span className="badge"><SI name="award" />92% average across students.an A*? It's Our standard.</span>
+            <h1 id="hero-title">Struggling with <span className="hl">ICT</span> ? Let's fix that — <span className="hl">fast.</span></h1>
             <p className="lead">The only ICT tutoring course built on interactive sessions. No boring sessions. No memorizing.</p>
             <div className="ctas">
               <a className="btn btn-p" href="#samples"><SI name="play" />Watch a free lesson</a>
@@ -112,7 +112,6 @@ function Hero() {
             <div className="trust">
               {['Scoring A*','Interactive Learning', '24/7 support'].map(t => <span key={t}><SI name="cc" />{t}</span>)}
             </div>
-            <p className="also">Also free: <a href="/study-guide.html">complete IGCSE ICT revision</a> · <a href="/ict-mindmap.html">the ICT mindmap</a></p>
           </div>
           <div className="vid">
             {playing ? (
@@ -131,6 +130,8 @@ function Hero() {
                 </button>
               </>
             )}
+            <a className="float a" href="/study-guide.html"><em>NEW FOR STUDENTS</em><b>Complete IGCSE ICT Revision</b><span>Every chapter in one place.</span></a>
+            <a className="float b" href="/ict-mindmap.html"><em>VISUAL REVISION</em><b>ICT Mindmap</b><span>The whole syllabus at a glance.</span></a>
           </div>
         </div>
         <div className="stats">
