@@ -128,6 +128,12 @@ function SiteChrome({ home = false, children }) {
   const burgerRef = useRef(null);
   const menuRef = useRef(null);
 
+  // The WhatsApp hint shows for a few seconds, then gets out of the way instead of sitting on the text
+  useEffect(() => {
+    const t = setTimeout(() => setWaTip(false), 7000);
+    return () => clearTimeout(t);
+  }, []);
+
   useEffect(() => {
     let frame;
     const onScroll = () => {

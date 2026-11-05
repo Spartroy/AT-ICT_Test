@@ -215,3 +215,69 @@ html.site-html { scroll-behavior: smooth; scroll-padding-top: 90px; }
   .lore-paper { transition: none; } .lore-body { transition: none; opacity: 1; }
   .lore-ink { transition: none; opacity: 1; filter: none; transform: none; } .lore-seal { transition: none; }
 }
+
+/* ---------------------------------------------------------------------------------------------
+   Polish pass: contrast, a plain nav, and less "template" decoration.
+   --------------------------------------------------------------------------------------------- */
+
+/* 1. Light mode re-points the --dark-* text tokens to dark greys for portal surfaces, but the public site's
+      hero, samples, results, contact and footer stay dark. Keep their text tokens light inside those sections. */
+html[data-theme="light"] .site :is(.dark, .deep) {
+  --dark-text: #FFFFFF;
+  --dark-text-soft: #D1D1D6;
+  --dark-text-muted: #A3A3AB;
+  --dark-text-faint: #8A8A93;
+  --dark-label: #FFFFFF;
+  --dark-accent-text: #FF7D98;
+  --dark-border: #3a3a40;
+  --dark-border-strong: #55555d;
+  --crimson-bright: #F2365F;
+  color-scheme: dark;
+}
+
+/* 2. Navigation: a plain solid bar (the frosted white glass turned muddy grey over the dark hero) */
+.site .nav { top: 0; }
+.site .nav-in,
+.site .nav.stuck .nav-in {
+  width: 100%; margin: 0; max-width: none; padding: 8px max(14px, calc((100% - 1200px) / 2));
+  border-radius: 0; background: var(--white); backdrop-filter: none; -webkit-backdrop-filter: none;
+  border: 0; border-bottom: 1px solid var(--ink-100, #e7e7ea); box-shadow: none;
+}
+.site .nav.stuck .nav-in { box-shadow: 0 1px 12px rgb(0 0 0 / 0.08); }
+.site .links a { color: var(--ink-700); }
+.site .nav-cta .btn-o { border-color: var(--ink-200, #d4d4d8); color: var(--ink-900); }
+.site .nav-cta .btn-o:hover { background: var(--ink-900); color: var(--white); border-color: var(--ink-900); }
+.site .burger { color: var(--ink-900); }
+
+/* 3. Less template: plain section labels instead of pills, no glowing buttons, no floating chips */
+.site .eyebrow,
+.site .dark .eyebrow,
+.site .deep .eyebrow {
+  background: none; border: 0; padding: 0; border-radius: 0; gap: 10px; letter-spacing: .16em;
+}
+.site .eyebrow::before { content: ''; width: 22px; height: 2px; background: currentColor; opacity: .7; }
+.site .badge {
+  background: none; border-radius: 0; padding: 0 0 0 14px; border-left: 3px solid var(--crimson-500);
+  font-weight: 500; letter-spacing: 0; color: var(--dark-text-soft);
+}
+.site .badge .i { display: none; }
+.site .btn { border-radius: 8px; transition: background-color .2s, color .2s, border-color .2s; }
+.site .btn-p { box-shadow: none; }
+.site .btn-p:hover, .site .btn-w:hover { transform: none; }
+.site .dark { background: var(--ink-900); }
+.site .vid, .site .vid-thumb { box-shadow: none; }
+.site .play { box-shadow: none; }
+.site .hero .also { margin: 18px 0 0; font-size: .92rem; color: var(--dark-text-muted); }
+.site .hero .also a { color: var(--dark-text-soft); text-decoration: underline; text-underline-offset: 3px; }
+.site .hero .also a:hover { color: var(--white); }
+.site .hero .trust span { color: var(--dark-text-muted); }
+
+/* 4. Phones: one set of Log in / Join now (the bottom bar), and nothing hidden behind it */
+@media (max-width: 900px) {
+  .site .nav-cta .btn-p { display: none; }
+  .site footer { padding-bottom: 96px; }
+}
+.site .final { background: var(--crimson-500); }
+.site .tags { display: flex; flex-wrap: wrap; gap: 0; }
+.site .tags span { background: none; border: 0; border-radius: 0; padding: 0; font-weight: 700; color: var(--crimson-500); }
+.site .tags span + span::before { content: '·'; margin: 0 12px; color: var(--ink-300, #a1a1aa); font-weight: 400; }
