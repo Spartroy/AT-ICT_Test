@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
-import { Home as HomeIcon, ClipboardCheck, GraduationCap, CreditCard, Inbox as InboxIcon, Trophy, CheckCircle2, Clock, LayoutGrid } from 'lucide-react';
+import { Home as HomeIcon, ClipboardCheck, GraduationCap, CreditCard, Inbox as InboxIcon, Trophy, CheckCircle2, Clock, LayoutGrid, FileBarChart } from 'lucide-react';
 import PortalShell from '../../components/portal/PortalShell';
 import AnnouncementFeed from '../../components/portal/AnnouncementFeed';
 import { Empty, ErrorNote, Ic, Loading, PageHead, Ring, Stat } from '../../components/portal/kit';
@@ -12,10 +12,11 @@ import { useLang } from '../../i18n/context';
 import { effectiveStatus } from '../../lib/payments';
 import '../../styles/i18n.css';
 import Payments from './Payments';
+import ReportsView from '../../components/reports/ReportsView';
 import ar from './ar';
 
 const BASE = '/parent-dashboard';
-const TITLES = { '': 'Home', homework: 'Homework', quizzes: 'Quizzes', payments: 'Payments', inbox: 'Inbox' };
+const TITLES = { '': 'Home', homework: 'Homework', quizzes: 'Quizzes', reports: 'Weekly reports', payments: 'Payments', inbox: 'Inbox' };
 const DICTIONARIES = { ar };
 const DONE = ['submitted', 'graded'];
 const STATUS = { assigned: 'Not submitted', in_progress: 'In progress', submitted: 'Awaiting grade', graded: 'Graded', late: 'Late' };
@@ -57,6 +58,7 @@ function ParentApp() {
     { to: BASE, end: true, label: 'Home', icon: HomeIcon },
     { to: `${BASE}/homework`, label: 'Homework', icon: ClipboardCheck },
     { to: `${BASE}/quizzes`, label: 'Quizzes', icon: GraduationCap },
+    { to: `${BASE}/reports`, label: 'Weekly reports', icon: FileBarChart },
     { to: `${BASE}/payments`, label: 'Payments', icon: CreditCard, badge: due },
     { to: `${BASE}/inbox`, label: 'Inbox', icon: InboxIcon }
   ];
@@ -79,6 +81,7 @@ function ParentApp() {
         <Route index element={<ParentHome child={child} childName={childName} stats={dash.data?.stats} progress={progress} payments={payments} />} />
         <Route path="homework" element={<WorkList kind="assignments" progress={progress} />} />
         <Route path="quizzes" element={<WorkList kind="quizzes" progress={progress} />} />
+        <Route path="reports" element={<ParentReports child={child} childName={childName} />} />
         <Route path="payments" element={<Payments payments={payments} />} />
         <Route path="inbox" element={<><PageHead title={t('Announcements')} /><AnnouncementFeed /></>} />
         <Route path="*" element={<Navigate to={BASE} replace />} />
@@ -100,6 +103,17 @@ function ParentApp() {
       >
         {body}
       </PortalShell>
+    </>
+  );
+}
+
+function ParentReports({ child, childName }) {
+  const { t, lang } = useLang();
+  const state = useApi(child?._id ? `${API_ENDPOINTS.PARENT.BASE}/child/${child._id}/weekly-reports` : null, b => b.data || {});
+  return (
+    <>
+      <PageHead title={t('Weekly reports')} />
+      <ReportsView state={state} name={childName} t={t} locale={lang === 'ar' ? 'ar-EG' : 'en-GB'} />
     </>
   );
 }

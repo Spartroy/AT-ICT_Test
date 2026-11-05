@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
-import { Download, ClipboardCheck, GraduationCap, Plus, ChevronRight, Trash2, X, Paperclip, CheckCircle2 } from 'lucide-react';
+import { Download, ClipboardCheck, GraduationCap, FileBarChart, Plus, ChevronRight, Trash2, X, Paperclip, CheckCircle2 } from 'lucide-react';
 import useApi from '../../hooks/useApi';
 import { api, downloadFile } from '../../lib/api';
 import { API_ENDPOINTS } from '../../config/api';
@@ -10,9 +10,11 @@ import { useTeacher } from './TeacherPortal';
 import { useTeacherChange, apiError } from './modals/form';
 import { lessonLabel } from './curriculum';
 import Submissions from './work/Submissions';
+import Reports from './work/Reports';
+import '../../components/reports/reports.css';
 
-const TABS = ['submissions', 'assignments', 'quizzes'];
-const TAB_FEATURE = { submissions: 'submissions', assignments: 'homework', quizzes: 'quizzes' };
+const TABS = ['submissions', 'assignments', 'quizzes', 'reports'];
+const TAB_FEATURE = { submissions: 'submissions', assignments: 'homework', quizzes: 'quizzes', reports: 'submissions' };
 
 export default function Work() {
   const { tab } = useParams();
@@ -37,7 +39,8 @@ export default function Work() {
         tabs={[
           { id: 'submissions', label: 'Submissions', icon: Download, count: counts.needsGrading || '' },
           { id: 'assignments', label: 'Assignments', icon: ClipboardCheck },
-          { id: 'quizzes', label: 'Quizzes', icon: GraduationCap }
+          { id: 'quizzes', label: 'Quizzes', icon: GraduationCap },
+          { id: 'reports', label: 'Weekly reports', icon: FileBarChart }
         ].filter(t => allowed.includes(t.id))}
         value={tab}
         onChange={id => navigate(`${base}/work/${id}`)}
@@ -46,6 +49,7 @@ export default function Work() {
       {tab === 'submissions' && <Submissions />}
       {tab === 'assignments' && <AssignmentTable />}
       {tab === 'quizzes' && <QuizTable />}
+      {tab === 'reports' && <Reports />}
     </>
   );
 }

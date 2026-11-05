@@ -58,6 +58,7 @@ const teacherSessionRoutes = require('./routes/teacherSessionRoutes');
 const leaderboardRoutes = require('./routes/leaderboardRoutes');
 const liveRoutes = require('./routes/liveRoutes');
 const sampleRoutes = require('./routes/sampleRoutes');
+const reportRoutes = require('./routes/reportRoutes');
 
 // ===================================================================
 // SERVER INITIALIZATION
@@ -310,6 +311,7 @@ app.use('/api/teacher/pastpapers', pastPaperRoutes.teacherRouter);
 app.use('/api/teacher/preview', previewRoutes);
 app.use('/api/teacher/live', liveRoutes.teacherRouter);
 app.use('/api/teacher/samples', sampleRoutes.teacherRouter);
+app.use('/api/teacher/reports', reportRoutes);
 app.use('/api/teacher', teacherRoutes);
 
 /**

@@ -23,6 +23,9 @@ router.get('/child/:childId/progress', getChildProgress);
 // Child reports routes
 router.get('/child/:childId/reports', getChildReports);
 
+// Published weekly performance reports
+router.get('/child/:childId/weekly-reports', require('../controllers/reportController').forChild);
+
 // Placeholder routes for parent portal
 router.get('/children', (req, res) => {
   res.json({

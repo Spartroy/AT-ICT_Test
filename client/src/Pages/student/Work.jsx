@@ -1,12 +1,13 @@
 import React, { useEffect, useId, useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
-import { ClipboardCheck, GraduationCap, CheckCircle2, XCircle, RefreshCw, ChevronDown, Clock, Play, Upload, Paperclip, FileText, Pencil, RotateCcw, X } from 'lucide-react';
+import { ClipboardCheck, GraduationCap, FileBarChart, CheckCircle2, XCircle, RefreshCw, ChevronDown, Clock, Play, Upload, Paperclip, FileText, Pencil, RotateCcw, X } from 'lucide-react';
 import useApi from '../../hooks/useApi';
 import { api } from '../../lib/api';
 import { API_ENDPOINTS } from '../../config/api';
 import { Empty, ErrorNote, Ic, Loading, PageHead, Seg, fmtDateTime } from '../../components/portal/kit';
 import { useToast } from '../../components/portal/PortalUI';
 import { useStudent } from './StudentPortal';
+import ReportsView from '../../components/reports/ReportsView';
 
 const DONE = ['submitted', 'graded'];
 const STATUS_LABEL = { assigned: 'Not submitted', in_progress: 'In progress', submitted: 'Submitted', graded: 'Graded', late: 'Late' };
@@ -35,7 +36,8 @@ function Instructions({ text }) {
 
 const TABS = [
   { id: 'assignments', label: 'Assignments', icon: ClipboardCheck },
-  { id: 'quizzes', label: 'Quizzes', icon: GraduationCap }
+  { id: 'quizzes', label: 'Quizzes', icon: GraduationCap },
+  { id: 'reports', label: 'Weekly reports', icon: FileBarChart }
 ];
 
 export default function Work() {
@@ -47,9 +49,18 @@ export default function Work() {
     <>
       <PageHead title="Your work" />
       <Seg tabs={TABS} value={tab} onChange={id => navigate(`${base}/work/${id}`)} label="Work sections" slide />
-      {tab === 'assignments' ? <AssignmentList onChange={dashboard.reload} /> : <QuizList onChange={dashboard.reload} />}
+      {tab === 'assignments' && <AssignmentList onChange={dashboard.reload} />}
+      {tab === 'quizzes' && <QuizList onChange={dashboard.reload} />}
+      {tab === 'reports' && <MyReports />}
     </>
   );
+}
+
+/** The student's published weekly reports. */
+function MyReports() {
+  const me = (() => { try { return JSON.parse(localStorage.getItem('user')) || {}; } catch { return {}; } })();
+  const state = useApi('/api/student/reports', b => b.data || {});
+  return <ReportsView state={state} name={[me.firstName, me.lastName].filter(Boolean).join(' ')} />;
 }
 
 function Summary({ done, pending, onRefresh, loading }) {

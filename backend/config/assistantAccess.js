@@ -86,6 +86,8 @@ const RULES = [
 
   // Work: grading a student's homework or quiz is submissions; setting homework and quizzes are their own features
   { re: /^\/teacher\/submissions(\/|$)/, methods: READ, area: 'submissions', level: 'view' },
+  // Weekly performance reports are filled in by whoever may grade submissions
+  { re: /^\/teacher\/reports(\/|$)/, area: 'submissions', level: 'auto' },
   { re: /^\/teacher\/(assignments|quizzes)\/[^/]+\/students\/[^/]+$/, methods: WRITE, area: 'submissions', level: 'edit' },
   { re: /^\/(teacher\/)?assignments(\/|$)/, area: 'homework', level: 'auto' },
   { re: /^\/(teacher\/)?quizzes(\/|$)/, area: 'quizzes', level: 'auto' },

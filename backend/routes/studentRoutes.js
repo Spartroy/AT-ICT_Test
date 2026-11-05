@@ -197,6 +197,7 @@ const studentOnly = (req, res, next) => {
   }
   next();
 };
+router.get('/reports', protect, studentOnly, require('../controllers/reportController').mine);
 router.get('/progress', protect, studentOnly, getProgress);
 router.put('/progress/:kind/:itemId', protect, studentOnly, setProgress);
 router.get('/points', protect, studentOnly, getPoints);
