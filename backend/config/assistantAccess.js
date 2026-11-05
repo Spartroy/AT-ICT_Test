@@ -63,7 +63,7 @@ const RULES = [
   { re: /^\/teacher\/settings$/, methods: READ, area: 'studentList', level: 'view' },
 
   // Never reachable, whatever the permissions: money, contact/account management, registrations, site settings.
-  { re: /^\/teacher\/(income|payments|settings|samples|assistants|sessions|hall-of-fame|stories|legacy-students|reset-session-points)(\/|$)/, area: null },
+  { re: /^\/teacher\/(income|payments|settings|samples|assistants|sessions|hall-of-fame|stories|legacy-students|reset-session-points|deleted-students)(\/|$)/, area: null },
   { re: /^\/teacher\/students\/[^/]+\/(payments|reset-password|create-parent|parent|recreate-parent|link-parent)(\/|$)/, area: null },
   { re: /^\/teacher\/parents(\/|$)/, area: null },
   { re: /^\/(registration|parent|student)(\/|$)/, area: null },

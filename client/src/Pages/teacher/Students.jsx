@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Navigate, useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { Users, Bell, Gift, Layers, Eye, MoreHorizontal, CheckCircle2, XCircle, GraduationCap, MapPin, Clock, Phone, User, Mail, Copy } from 'lucide-react';
+import { Users, Bell, Gift, Layers, Eye, MoreHorizontal, CheckCircle2, XCircle, GraduationCap, MapPin, Clock, Phone, User, Mail, Copy, Trash2 } from 'lucide-react';
 import useApi from '../../hooks/useApi';
 import { api } from '../../lib/api';
 import { API_ENDPOINTS } from '../../config/api';
@@ -13,6 +13,7 @@ import StudentModal from './StudentModal';
 import LeadsPanel from './LeadsPanel';
 import GroupsPanel from './groups/GroupsPanel';
 import ParentNumbersPanel from './ParentNumbersPanel';
+import DeletedPanel from './DeletedPanel';
 import GroupChip from '../../components/portal/GroupChip';
 import useGroups from '../../hooks/useGroups';
 
@@ -25,9 +26,9 @@ export default function Students() {
   const navigate = useNavigate();
   const { base, counts, assistant, can } = useTeacher();
   // Assistants never see registrations or leads (contact details live there); the other tabs are their own features
-  const allowed = [['all', 'studentList'], ['groups', 'groups'], ['parents', 'parentNumbers'], ['registrations', null], ['leads', null]].filter(([, feature]) => (feature ? can(feature) : !assistant)).map(([id]) => id);
+  const allowed = [['all', 'studentList'], ['groups', 'groups'], ['parents', 'parentNumbers'], ['registrations', null], ['leads', null], ['deleted', null]].filter(([, feature]) => (feature ? can(feature) : !assistant)).map(([id]) => id);
   if (!allowed.includes(tab)) return <Navigate to={`${base}/students/${allowed[0] || 'all'}`} replace />;
-  const tabs = [{ id: 'all', label: 'All students', icon: Users }, { id: 'groups', label: 'Groups', icon: Layers }, { id: 'parents', label: 'Parent numbers', icon: Phone }, { id: 'registrations', label: 'Registrations', icon: Bell, count: counts.pendingRegs || '' }, { id: 'leads', label: 'Leads', icon: Gift }];
+  const tabs = [{ id: 'all', label: 'All students', icon: Users }, { id: 'groups', label: 'Groups', icon: Layers }, { id: 'parents', label: 'Parent numbers', icon: Phone }, { id: 'registrations', label: 'Registrations', icon: Bell, count: counts.pendingRegs || '' }, { id: 'leads', label: 'Leads', icon: Gift }, { id: 'deleted', label: 'Deleted', icon: Trash2 }];
   return (
     <>
       <PageHead title="Students" />
@@ -37,7 +38,7 @@ export default function Students() {
         onChange={id => navigate(`${base}/students/${id}`)}
         label="Student sections"
       />
-      {tab === 'all' ? <StudentList /> : tab === 'groups' ? <GroupsPanel /> : tab === 'parents' ? <ParentNumbersPanel /> : tab === 'leads' ? <LeadsPanel /> : <Registrations />}
+      {tab === 'all' ? <StudentList /> : tab === 'groups' ? <GroupsPanel /> : tab === 'parents' ? <ParentNumbersPanel /> : tab === 'leads' ? <LeadsPanel /> : tab === 'deleted' ? <DeletedPanel /> : <Registrations />}
     </>
   );
 }
@@ -107,9 +108,9 @@ function StudentList() {
         const res = await api.post(API_ENDPOINTS.TEACHER.RESET_STUDENT_PASSWORD(s._id), {});
         setCreds({ title: `Temporary password for ${s.fullName}`, email: s.email, password: res.data.tempPassword });
       } else if (kind === 'remove') {
-        if (!(await confirm({ title: `Remove ${s.fullName}?`, body: 'This deletes the student account.', confirmLabel: 'Remove' }))) return;
+        if (!(await confirm({ title: `Remove ${s.fullName}?`, body: 'The account is removed from the student list. You can bring them back from the Deleted tab.', confirmLabel: 'Remove' }))) return;
         await api.del(`${API_ENDPOINTS.TEACHER.STUDENTS}/${s._id}`);
-        toast('Student removed');
+        toast('Student removed. You can restore them from the Deleted tab.');
         list.reload();
       }
     } catch (err) {

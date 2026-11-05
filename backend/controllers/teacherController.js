@@ -9,6 +9,7 @@ const User = require('../models/User');
 const crypto = require('crypto');
 const DeviceSession = require('../models/DeviceSession');
 const { freeParentEmail } = require('../utils/parentAccount');
+const { archiveStudent } = require('../services/deletedStudents');
 const { normalizePhone, isUsablePhone, escapeRegex } = require('../utils/phone');
 const groupsSvc = require('../services/groups');
 const { calculateAssignmentPoints, calculateQuizPoints, awardPoints } = require('../utils/pointsHelper');
@@ -731,6 +732,9 @@ const deleteStudent = async (req, res) => {
       });
     }
 
+    // Keep a copy first so the teacher can bring the student back. If the copy fails, nothing is deleted.
+    await archiveStudent(student, req.user._id);
+
     // Delete related data
     await Promise.all([
       // Delete assignments where student is assigned
@@ -762,7 +766,7 @@ const deleteStudent = async (req, res) => {
 
     res.status(200).json({
       status: 'success',
-      message: 'Student removed successfully'
+      message: 'Student removed. You can restore them from the Deleted tab.'
     });
   } catch (error) {
     console.error('Delete student error:', error);

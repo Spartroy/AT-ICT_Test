@@ -57,6 +57,12 @@ const {
   deleteTemplate
 } = require('../controllers/messageTemplateController');
 
+const {
+  listDeleted,
+  restoreDeleted,
+  purgeDeleted
+} = require('../controllers/deletedStudentController');
+
 const router = express.Router();
 
 // All routes require teacher authentication
@@ -79,6 +85,10 @@ router.post('/students/:id/recreate-parent', recreateParentAccount);
 // One parent for several students: search parent accounts, link a student to one
 router.get('/parents', listParents);
 router.post('/students/:id/link-parent', linkParentAccount);
+// Deleted students: list, restore, or forget for good
+router.get('/deleted-students', listDeleted);
+router.post('/deleted-students/:id/restore', restoreDeleted);
+router.delete('/deleted-students/:id', purgeDeleted);
 // Message templates for contacting parents
 router.get('/message-templates', listTemplates);
 router.post('/message-templates', createTemplate);

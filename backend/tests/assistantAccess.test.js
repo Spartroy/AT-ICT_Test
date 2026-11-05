@@ -147,6 +147,8 @@ describe('parent numbers', () => {
 
   it('keeps parent accounts and linking closed to assistants', () => {
     expect(need('GET', '/api/teacher/parents')).toBeNull();
+    expect(need('GET', '/api/teacher/deleted-students')).toBeNull();
+    expect(need('POST', '/api/teacher/deleted-students/x/restore')).toBeNull();
     expect(need('POST', '/api/teacher/students/s1/link-parent')).toBeNull();
     expect(need('POST', '/api/teacher/message-templates')).toBeNull();
   });
