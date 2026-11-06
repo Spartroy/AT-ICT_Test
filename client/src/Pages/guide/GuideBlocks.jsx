@@ -1,8 +1,9 @@
 import React, { createContext, forwardRef, useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { AlertTriangle, ArrowDown, ArrowUp, ChevronDown, Lightbulb, Pencil, Play, Plus, Trash2, X } from 'lucide-react';
+import { AlertTriangle, ChevronDown, GripVertical, Lightbulb, Pencil, Play, Plus, RotateCcw, Trash2, X } from 'lucide-react';
 import { Dialog, DialogHeader } from '../../components/portal/PortalUI';
 import { ACTIVITY_TAGS, cleanHtml, isActivity, kindOf } from './guideLogic';
 import { applyOverrides, collectTexts, loadDemos, watchOverrides } from './activityText';
+import { beginDrag, sortAttrs } from './sortable';
 import '../../styles/guide.css';
 
 /**
@@ -61,14 +62,31 @@ export function T({ v, path, as: Tag = 'span', className = '', ph }) {
 
 // ---------- editing controls ----------
 
-/** Move up / down / remove for item `i` of the list at `list`. Draws nothing for students. */
-export function ItemBar({ list, i, n, className = '' }) {
-  const { editing, move, remove } = useGuide();
+/** Drag handle for item `i` of the list at `list`. Arrow keys move it too, for keyboard users. */
+export function Grip({ list, i, label = 'Drag to reorder' }) {
+  const { move } = useGuide();
+  return (
+    <button
+      type="button"
+      className="sg-grip"
+      title={`${label} (or use the up and down arrow keys)`}
+      aria-label={label}
+      onPointerDown={(e) => beginDrag(e, list, i, move)}
+      onKeyDown={(e) => {
+        if (e.key === 'ArrowUp') { e.preventDefault(); move(list, i, i - 1); }
+        if (e.key === 'ArrowDown') { e.preventDefault(); move(list, i, i + 1); }
+      }}
+    ><Icon as={GripVertical} /></button>
+  );
+}
+
+/** Drag handle and remove button for item `i` of the list at `list`. Draws nothing for students. */
+export function ItemBar({ list, i, className = '' }) {
+  const { editing, remove } = useGuide();
   if (!editing) return null;
   return (
     <span className={`sg-ib ${className}`} role="group" aria-label="Item controls">
-      <button type="button" title="Move earlier" aria-label="Move earlier" disabled={i === 0} onClick={() => move(list, i, i - 1)}><Icon as={ArrowUp} /></button>
-      <button type="button" title="Move later" aria-label="Move later" disabled={i === n - 1} onClick={() => move(list, i, i + 1)}><Icon as={ArrowDown} /></button>
+      <Grip list={list} i={i} />
       <button type="button" className="x" title="Remove" aria-label="Remove" onClick={() => remove(list, i)}><Icon as={X} /></button>
     </span>
   );
@@ -107,11 +125,11 @@ function Flow({ b, path }) {
       <BlockTitle b={b} path={path} />
       <ol className="sg-flow">
         {b.steps.map((s, i) => (
-          <li key={i} className="sg-li">
+          <li key={i} className="sg-li" {...sortAttrs(list, i)}>
             <span className="sg-step-n">{i + 1}</span>
             <T as="b" className="sg-step-h" v={s[0]} path={[...list, i, 0]} ph="Step" />
             <T as="span" className="sg-step-d" v={s[1]} path={[...list, i, 1]} ph="What happens" />
-            <ItemBar list={list} i={i} n={b.steps.length} />
+            <ItemBar list={list} i={i} />
           </li>
         ))}
       </ol>
@@ -129,18 +147,18 @@ function Tree({ b, path }) {
         {b.kids.map((k, i) => {
           const leaves = [...list, i, 1];
           return (
-            <div key={i} className="sg-tree-kid sg-li">
+            <div key={i} className="sg-tree-kid sg-li" {...sortAttrs(list, i)}>
               <T as="h4" v={k[0]} path={[...list, i, 0]} ph="Branch" />
               <ul>
                 {k[1].map((x, j) => (
-                  <li key={j} className="sg-li">
+                  <li key={j} className="sg-li" {...sortAttrs(leaves, j)}>
                     <T v={x} path={[...leaves, j]} ph="Point" />
-                    <ItemBar list={leaves} i={j} n={k[1].length} />
+                    <ItemBar list={leaves} i={j} />
                   </li>
                 ))}
               </ul>
               <AddItem list={leaves} at={k[1].length} make={() => 'New point'} label="point" />
-              <ItemBar list={list} i={i} n={b.kids.length} className="sg-ib-corner" />
+              <ItemBar list={list} i={i} className="sg-ib-corner" />
             </div>
           );
         })}
@@ -157,10 +175,10 @@ function Cards({ b, path }) {
       <BlockTitle b={b} path={path} />
       <div className="sg-cards">
         {b.items.map((it, i) => (
-          <div key={i} className="sg-card sg-li">
+          <div key={i} className="sg-card sg-li" {...sortAttrs(list, i)}>
             <T as="h4" v={it[0]} path={[...list, i, 0]} ph="Heading" />
             <T as="p" v={it[1]} path={[...list, i, 1]} ph="Detail" />
-            <ItemBar list={list} i={i} n={b.items.length} className="sg-ib-corner" />
+            <ItemBar list={list} i={i} className="sg-ib-corner" />
           </div>
         ))}
       </div>
@@ -176,10 +194,10 @@ function Parts({ b, path }) {
       <BlockTitle b={b} path={path} />
       <dl className="sg-parts">
         {b.items.map((it, i) => (
-          <div key={i} className="sg-part sg-li">
+          <div key={i} className="sg-part sg-li" {...sortAttrs(list, i)}>
             <T as="dt" v={it[0]} path={[...list, i, 0]} ph="Part" />
             <T as="dd" v={it[1]} path={[...list, i, 1]} ph="What it is" />
-            <ItemBar list={list} i={i} n={b.items.length} className="sg-ib-corner" />
+            <ItemBar list={list} i={i} className="sg-ib-corner" />
           </div>
         ))}
       </dl>
@@ -215,14 +233,14 @@ function Meter({ b, path }) {
       <BlockTitle b={b} path={path} />
       <div className="sg-meter">
         {b.items.map((m, i) => (
-          <div key={i} className="sg-meter-row sg-li">
+          <div key={i} className="sg-meter-row sg-li" {...sortAttrs(list, i)}>
             <T as="span" className="sg-meter-n" v={m[0]} path={[...list, i, 0]} ph="Item" />
             <span className="sg-meter-bar" aria-hidden="true"><i style={{ width: `${Math.max(Number(m[1]) || 0, 4)}%` }} /></span>
             <T as="span" className="sg-meter-l" v={m[2]} path={[...list, i, 2]} ph="Label" />
             {editing && (
               <input type="range" min="0" max="100" className="sg-range" aria-label={`${m[0]} bar length`} value={Number(m[1]) || 0} onChange={(e) => set([...list, i, 1], Number(e.target.value), `m${path.join('.')}${i}`)} />
             )}
-            <ItemBar list={list} i={i} n={b.items.length} />
+            <ItemBar list={list} i={i} />
           </div>
         ))}
       </div>
@@ -255,11 +273,11 @@ function Table({ b, path }) {
           {b.rows.map((row, r) => (
             <React.Fragment key={r}>
               {row.map((cell, c) => (
-                <div key={c} className={`sg-td ${r % 2 ? 'alt' : ''} ${c === 0 ? 'first' : ''}`} role="cell">
+                <div key={c} className={`sg-td ${r % 2 ? 'alt' : ''} ${c === 0 ? 'first' : ''}`} role="cell" {...sortAttrs(rows, r)}>
                   <T v={cell} path={[...rows, r, c]} ph="Cell" />
                 </div>
               ))}
-              {editing && <div className={`sg-td sg-td-bar ${r % 2 ? 'alt' : ''}`}><ItemBar list={rows} i={r} n={b.rows.length} /></div>}
+              {editing && <div className={`sg-td sg-td-bar ${r % 2 ? 'alt' : ''}`} {...sortAttrs(rows, r)}><ItemBar list={rows} i={r} /></div>}
             </React.Fragment>
           ))}
         </div>
@@ -290,7 +308,7 @@ function Tabs({ b, path }) {
           const cons = t.c || [];
           const extras = t.x || [];
           return (
-            <div key={i} className="sg-panel sg-li">
+            <div key={i} className="sg-panel sg-li" {...sortAttrs(list, i)}>
               <T as="h4" v={t.n} path={[...at, 'n']} ph="Name" />
               {(t.d || editing) && <T as="div" className="sg-panel-d" v={t.d} path={[...at, 'd']} ph="Description" />}
               {(t.u || editing) && (
@@ -313,7 +331,7 @@ function Tabs({ b, path }) {
                   <T as="b" v={t.pl || 'Advantages'} path={[...at, 'pl']} />
                   <ul>
                     {pros.map((x, j) => (
-                      <li key={j} className="sg-li"><T v={x} path={[...at, 'p', j]} ph="Point" /><ItemBar list={[...at, 'p']} i={j} n={pros.length} /></li>
+                      <li key={j} className="sg-li" {...sortAttrs([...at, 'p'], j)}><T v={x} path={[...at, 'p', j]} ph="Point" /><ItemBar list={[...at, 'p']} i={j} /></li>
                     ))}
                   </ul>
                   <AddItem list={[...at, 'p']} at={pros.length} make={() => 'New point'} label="point" />
@@ -323,14 +341,14 @@ function Tabs({ b, path }) {
                     <T as="b" v={t.cl || 'Disadvantages'} path={[...at, 'cl']} />
                     <ul>
                       {cons.map((x, j) => (
-                        <li key={j} className="sg-li"><T v={x} path={[...at, 'c', j]} ph="Point" /><ItemBar list={[...at, 'c']} i={j} n={cons.length} /></li>
+                        <li key={j} className="sg-li" {...sortAttrs([...at, 'c'], j)}><T v={x} path={[...at, 'c', j]} ph="Point" /><ItemBar list={[...at, 'c']} i={j} /></li>
                       ))}
                     </ul>
                     <AddItem list={[...at, 'c']} at={cons.length} make={() => 'New point'} label="point" />
                   </div>
                 )}
               </div>
-              <ItemBar list={list} i={i} n={b.tabs.length} className="sg-ib-corner" />
+              <ItemBar list={list} i={i} className="sg-ib-corner" />
             </div>
           );
         })}
@@ -446,29 +464,51 @@ function TryIt({ b, path }) {
   );
 }
 
-/** Lists the words visible inside an activity so each can be reworded. */
+/** Lists the words visible inside an activity so each can be reworded: original on the left, your wording on the right. */
 function ActivityWording({ host, value, onClose, onSave }) {
   const [texts] = useState(() => (host.current?.shadowRoot ? collectTexts(host.current.shadowRoot) : []));
   const [draft, setDraft] = useState(() => Object.fromEntries(texts.map(t => [t, value[t] ?? t])));
+  const isChanged = (t) => (draft[t] ?? t).trim() !== t;
+  const changed = texts.filter(isChanged).length;
   const save = () => {
     const out = {};
     texts.forEach((t) => { const next = (draft[t] || '').trim(); if (next && next !== t) out[t] = next; });
     onSave(out);
   };
   return (
-    <Dialog open size="lg" onClose={onClose} labelledBy="wording-title">
-      <DialogHeader id="wording-title" icon={Pencil} title="Edit the wording" sub="Change any label, caption or step in this activity. Only the words you see on screen are listed. Step through the activity to reveal more." onClose={onClose} />
-      <div className="mbody sg-wording">
-        {texts.length === 0 && <p className="sg-muted">Nothing to edit yet. Open the activity and press its buttons, then try again.</p>}
-        {texts.map((t) => (
-          <label key={t} className="sg-w-row">
-            <span className="sg-w-orig">{t}</span>
-            <textarea className="inp" rows={t.length > 60 ? 3 : 1} value={draft[t] ?? ''} onChange={(e) => setDraft(d => ({ ...d, [t]: e.target.value }))} />
-          </label>
-        ))}
+    <Dialog open size="wide" className="sg-wd" onClose={onClose} labelledBy="wording-title">
+      <DialogHeader id="wording-title" icon={Pencil} title="Edit the wording" sub="Change any label, caption or step shown in this activity. Step through the activity to reveal more of its text." onClose={onClose} />
+      <div className="sg-wd-body">
+        {texts.length === 0 && (
+          <div className="sg-wd-empty">
+            <b>Nothing to edit yet</b>
+            <p>Open the activity and press its buttons so more text appears, then come back here.</p>
+          </div>
+        )}
+        {texts.length > 0 && (
+          <>
+            <div className="sg-wd-cols" aria-hidden="true"><span>Original</span><span>Your wording</span></div>
+            {texts.map((t) => (
+              <div key={t} className={`sg-wd-row ${isChanged(t) ? 'changed' : ''}`}>
+                <p className="sg-wd-orig">{t}</p>
+                <textarea
+                  className="inp"
+                  rows={Math.min(6, Math.max(1, Math.ceil(t.length / 44)))}
+                  value={draft[t] ?? ''}
+                  aria-label={`Wording for “${t}”`}
+                  onChange={(e) => setDraft(d => ({ ...d, [t]: e.target.value }))}
+                />
+                {isChanged(t) && (
+                  <button type="button" className="sg-wd-undo" title="Put the original back" aria-label="Put the original wording back" onClick={() => setDraft(d => ({ ...d, [t]: t }))}><Icon as={RotateCcw} /></button>
+                )}
+              </div>
+            ))}
+          </>
+        )}
       </div>
-      <div className="mfoot">
-        <button type="button" className="btn o" onClick={() => onSave({})}>Restore original wording</button>
+      <div className="sg-wd-foot">
+        <span className="sg-wd-count">{changed ? `${changed} changed` : 'No changes yet'}</span>
+        <button type="button" className="btn o" onClick={() => onSave({})}>Restore all original</button>
         <button type="button" className="btn o" onClick={onClose}>Cancel</button>
         <button type="button" className="btn p" onClick={save} disabled={!texts.length}>Save wording</button>
       </div>
@@ -480,18 +520,17 @@ function ActivityWording({ host, value, onClose, onSave }) {
 
 const VIEWS = { def: Def, flow: Flow, tree: Tree, cards: Cards, parts: Parts, chips: Chips, meter: Meter, table: Table, tabs: Tabs, hint: Hint, mis: Mistake, qc: QuickCheck };
 
-export function BlockView({ b, path, index, count }) {
+export function BlockView({ b, path, index }) {
   const ctx = useGuide();
   const View = isActivity(b.t) ? TryIt : VIEWS[b.t];
   if (!View) return null;
   const list = path.slice(0, -1);
   return (
-    <article className={`sg-block sg-b-${isActivity(b.t) ? 'try' : b.t}`} data-id={b.id}>
+    <article className={`sg-block sg-b-${isActivity(b.t) ? 'try' : b.t}`} data-id={b.id} {...sortAttrs(list, index)}>
       {ctx.editing && (
         <div className="sg-bbar" role="group" aria-label={`${kindOf(b.t)?.label || b.t} block controls`}>
           <span className="sg-bbar-k">{kindOf(b.t)?.label || b.t}</span>
-          <button type="button" title="Move up" aria-label="Move block up" disabled={index === 0} onClick={() => ctx.move(list, index, index - 1)}><Icon as={ArrowUp} /></button>
-          <button type="button" title="Move down" aria-label="Move block down" disabled={index === count - 1} onClick={() => ctx.move(list, index, index + 1)}><Icon as={ArrowDown} /></button>
+          <Grip list={list} i={index} label="Drag to move this block" />
           <button type="button" className="x" title="Delete this block" aria-label="Delete this block" onClick={() => ctx.remove(list, index)}><Icon as={Trash2} /></button>
         </div>
       )}

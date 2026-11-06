@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { ArrowDown, ArrowUp, Check, Plus, RotateCcw, Trash2, X } from 'lucide-react';
+import { Check, Plus, RotateCcw, Trash2, X } from 'lucide-react';
 import { useConfirm } from '../../components/portal/PortalUI';
-import { BlockView, AddItem, ItemBar, T, useGuide } from './GuideBlocks';
+import { BlockView, AddItem, Grip, ItemBar, T, useGuide } from './GuideBlocks';
+import { sortAttrs } from './sortable';
 import { cleanHtml, newQuestion, plainText, scoreQuiz, sectionNum, verdict } from './guideLogic';
 
 const Icon = ({ as: I }) => <I className="sg-i" aria-hidden="true" />;
@@ -9,7 +10,7 @@ const LETTERS = 'ABCDEFGH';
 
 // ---------- sections ----------
 
-function SectionView({ sec, path, index, count }) {
+function SectionView({ sec, path, index }) {
   const ctx = useGuide();
   const confirm = useConfirm();
   const blocksPath = [...path, 'blocks'];
@@ -21,14 +22,13 @@ function SectionView({ sec, path, index, count }) {
   };
 
   return (
-    <section id={`sec-${sec.id}`} className="sg-sec" data-sec={sec.id}>
+    <section id={`sec-${sec.id}`} className="sg-sec" data-sec={sec.id} {...sortAttrs(list, index)}>
       <header className="sg-sec-h">
         <T as="span" className="sg-num" v={sectionNum(sec)} path={[...path, 'num']} ph="1.1" />
         <T as="h2" v={sec.title} path={[...path, 'title']} ph="Section title" />
         {ctx.editing && (
           <span className="sg-ib sg-ib-inline" role="group" aria-label="Section controls">
-            <button type="button" title="Move section up" aria-label="Move section up" disabled={index === 0} onClick={() => ctx.move(list, index, index - 1)}><Icon as={ArrowUp} /></button>
-            <button type="button" title="Move section down" aria-label="Move section down" disabled={index === count - 1} onClick={() => ctx.move(list, index, index + 1)}><Icon as={ArrowDown} /></button>
+            <Grip list={list} i={index} label="Drag to move this section" />
             <button type="button" className="x" title="Delete section" aria-label="Delete section" onClick={removeSection}><Icon as={Trash2} /></button>
           </span>
         )}
@@ -37,7 +37,7 @@ function SectionView({ sec, path, index, count }) {
         {ctx.editing && <InsertPoint list={blocksPath} at={0} />}
         {sec.blocks.map((b, bi) => (
           <React.Fragment key={b.id}>
-            <BlockView b={b} path={[...blocksPath, bi]} index={bi} count={sec.blocks.length} />
+            <BlockView b={b} path={[...blocksPath, bi]} index={bi} />
             {ctx.editing && <InsertPoint list={blocksPath} at={bi + 1} />}
           </React.Fragment>
         ))}
@@ -140,7 +140,7 @@ function QuizEditor({ ch, path }) {
       {ch.quiz.map((q, qi) => {
         const at = [...list, qi];
         return (
-          <div key={q.id} className="sg-qe sg-li">
+          <div key={q.id} className="sg-qe sg-li" {...sortAttrs(list, qi)}>
             <div className="sg-qe-top">
               <b>Question {qi + 1}</b>
               <label className="sg-qe-sec">Section
@@ -149,7 +149,7 @@ function QuizEditor({ ch, path }) {
                   {sections.map(s => <option key={s} value={s}>{s}</option>)}
                 </select>
               </label>
-              <ItemBar list={list} i={qi} n={ch.quiz.length} />
+              <ItemBar list={list} i={qi} />
             </div>
             <T as="p" className="sg-q-t" v={q.t} path={[...at, 't']} ph="Question" />
             <div className="sg-opts">
@@ -188,7 +188,7 @@ export default function ChapterView({ ch, ci }) {
         <h1><T v={ch.title} path={[...path, 'title']} ph="Chapter title" /> <em><T v={ch.hl} path={[...path, 'hl']} ph="Highlight" /></em></h1>
         <T as="p" className="sg-lede" v={ch.blurb} path={[...path, 'blurb']} ph="One sentence on what this chapter covers" />
       </header>
-      {ch.secs.map((s, si) => <SectionView key={s.id} sec={s} path={[...secsPath, si]} index={si} count={ch.secs.length} />)}
+      {ch.secs.map((s, si) => <SectionView key={s.id} sec={s} path={[...secsPath, si]} index={si} />)}
       {ctx.editing && (
         <button type="button" className="sg-add sg-add-big" onClick={() => ctx.addSection(ci)}><Icon as={Plus} />Add a section to this chapter</button>
       )}

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Bold, Eye, EyeOff, Italic, MoreHorizontal, Plus, Redo2, Send, Undo2 } from 'lucide-react';
+import { AlertTriangle, BarChart3, BookOpen, Bold, Columns3, Eye, EyeOff, HelpCircle, Italic, LayoutGrid, Lightbulb, ListOrdered, MoreHorizontal, Network, Palette, Play, Plus, Puzzle, Redo2, Search, Send, Table2, Tags, Type, Underline, Undo2 } from 'lucide-react';
 import useApi from '../../hooks/useApi';
 import { api } from '../../lib/api';
 import { API_ENDPOINTS } from '../../config/api';
@@ -11,7 +11,7 @@ import ChapterView from './GuideChapter';
 import GuideNav from './GuideNav';
 import GuideScreen from './GuideScreen';
 import { scrollToSection } from './StudyGuideReader';
-import { BLOCK_KINDS, insertAt, moveItem, newBlock, newSection, removeAt, setIn } from './guideLogic';
+import { AUTO_COLOR, BLOCK_KINDS, TEXT_COLORS, TEXT_SIZES, insertAt, isActivity, moveItem, newBlock, newSection, removeAt, setIn } from './guideLogic';
 
 const HISTORY_LIMIT = 80;
 const AUTOSAVE_MS = 1200;
@@ -44,28 +44,68 @@ const STATUS = {
   error: 'Could not save. Retrying on your next change.'
 };
 
-/** Picks the kind of block to add. */
+const KIND_ICONS = {
+  def: BookOpen, cards: LayoutGrid, flow: ListOrdered, tree: Network, table: Table2, tabs: Columns3, parts: Puzzle,
+  chips: Tags, meter: BarChart3, hint: Lightbulb, mis: AlertTriangle, qc: HelpCircle
+};
+const GROUP_INFO = {
+  Notes: 'Explain and organise the content',
+  'Exam help': 'Tips, mistakes and quick questions',
+  'Practical activities': 'Interactive demos students can try'
+};
+
+/** Picks the kind of block to add: grouped, searchable tiles with an icon each. */
 function BlockPicker({ onPick, onClose }) {
+  const [q, setQ] = useState('');
   const groups = ['Notes', 'Exam help', 'Practical activities'];
+  const needle = q.trim().toLowerCase();
+  const match = (k) => !needle || `${k.label} ${k.hint}`.toLowerCase().includes(needle);
+  const shown = groups.map(g => ({ g, kinds: BLOCK_KINDS.filter(k => k.group === g && match(k)) })).filter(x => x.kinds.length);
   return (
-    <Dialog open size="lg" onClose={onClose} labelledBy="picker-title">
+    <Dialog open size="wide" className="sg-pk" onClose={onClose} labelledBy="picker-title">
       <DialogHeader id="picker-title" icon={Plus} title="Add a block" sub="Pick what to add. It starts with sample text you can click and change." onClose={onClose} />
-      <div className="mbody sg-picker">
-        {groups.map(g => (
-          <div key={g} className="sg-picker-group">
-            <h4>{g}</h4>
-            <div className="sg-picker-grid">
-              {BLOCK_KINDS.filter(k => k.group === g).map(k => (
-                <button key={k.t} type="button" onClick={() => onPick(k.t)}>
-                  <b>{k.label}</b>
-                  <span>{k.hint}</span>
+      <div className="sg-pk-search">
+        <Ic as={Search} />
+        <input type="search" className="inp" value={q} onChange={e => setQ(e.target.value)} placeholder="Search blocks: table, tip, quiz…" aria-label="Search blocks" autoFocus />
+      </div>
+      <div className="sg-pk-body">
+        {shown.length === 0 && <p className="sg-pk-none">No block matches “{q}”.</p>}
+        {shown.map(({ g, kinds }) => (
+          <section key={g} className="sg-pk-group" aria-label={g}>
+            <header><h4>{g}</h4><span>{GROUP_INFO[g]}</span></header>
+            <div className="sg-pk-grid">
+              {kinds.map(k => (
+                <button key={k.t} type="button" className={`sg-pk-tile ${isActivity(k.t) ? 'act' : ''}`} onClick={() => onPick(k.t)}>
+                  <span className="sg-pk-ic"><Ic as={KIND_ICONS[k.t] || Play} /></span>
+                  <span className="sg-pk-tx"><b>{k.label}</b><small>{k.hint}</small></span>
                 </button>
               ))}
             </div>
-          </div>
+          </section>
         ))}
       </div>
     </Dialog>
+  );
+}
+
+/** Small popover button for the formatting toolbar. Keeps the text selection while it is used. */
+function ToolMenu({ icon, label, disabled, children }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+  useEffect(() => {
+    if (!open) return undefined;
+    const away = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    const esc = (e) => { if (e.key === 'Escape') setOpen(false); };
+    document.addEventListener('mousedown', away);
+    document.addEventListener('keydown', esc);
+    return () => { document.removeEventListener('mousedown', away); document.removeEventListener('keydown', esc); };
+  }, [open]);
+  return (
+    <span className="sg-menu" ref={ref}>
+      <button type="button" title={label} aria-label={label} aria-expanded={open} disabled={disabled}
+        onMouseDown={(e) => e.preventDefault()} onClick={() => setOpen(o => !o)}><Ic as={icon} /></button>
+      {open && <div className="sg-menu-pop" role="menu" onMouseDown={(e) => e.preventDefault()} onClick={() => setOpen(false)}>{children}</div>}
+    </span>
   );
 }
 
@@ -232,7 +272,7 @@ export default function StudyGuideEditor({ onClose }) {
 
   // Keeps the text selection when the toolbar buttons are pressed.
   const keepSelection = (e) => e.preventDefault();
-  const format = (command) => document.execCommand(command, false);
+  const format = (command, value) => document.execCommand(command, false, value);
 
   return screen(
     <>
@@ -250,6 +290,21 @@ export default function StudyGuideEditor({ onClose }) {
             <span className="sep" />
             <button type="button" title="Bold the selected text (Ctrl+B)" aria-label="Bold" disabled={preview} onMouseDown={keepSelection} onClick={() => format('bold')}><Ic as={Bold} /></button>
             <button type="button" title="Italic the selected text (Ctrl+I)" aria-label="Italic" disabled={preview} onMouseDown={keepSelection} onClick={() => format('italic')}><Ic as={Italic} /></button>
+            <button type="button" title="Underline the selected text (Ctrl+U)" aria-label="Underline" disabled={preview} onMouseDown={keepSelection} onClick={() => format('underline')}><Ic as={Underline} /></button>
+            <ToolMenu icon={Type} label="Text size" disabled={preview}>
+              {TEXT_SIZES.map(sz => (
+                <button key={sz.id} type="button" role="menuitem" className={`sg-size sg-size-${sz.id}`} onClick={() => format('fontSize', sz.size)}>{sz.label}</button>
+              ))}
+            </ToolMenu>
+            <ToolMenu icon={Palette} label="Text colour" disabled={preview}>
+              <div className="sg-swatches">
+                <button type="button" role="menuitem" className="sg-swatch auto" title="Automatic: crimson when bold, normal text otherwise" aria-label="Automatic colour" onClick={() => format('foreColor', AUTO_COLOR)}>A</button>
+                {TEXT_COLORS.map(c => (
+                  <button key={c.id} type="button" role="menuitem" className="sg-swatch" style={{ background: c.hex }} title={c.label} aria-label={c.label} onClick={() => format('foreColor', c.hex)} />
+                ))}
+              </div>
+              <small className="sg-swatch-hint">Bold text is crimson unless you pick another colour.</small>
+            </ToolMenu>
           </div>
           <button type="button" className="btn o sm" onClick={() => setPreview(p => !p)} aria-pressed={preview}>
             <Ic as={preview ? EyeOff : Eye} />{preview ? 'Back to editing' : 'Preview as student'}
@@ -264,7 +319,7 @@ export default function StudyGuideEditor({ onClose }) {
           <button type="button" className="btn p sm" onClick={publish} disabled={busy || !unpublished}><Ic as={Send} />Publish</button>
         </div>
       </div>
-      {!preview && <p className="sg-help">Click any text to change it, then press Enter. Use the small arrows and cross beside an item to reorder or remove it. Everything saves as a draft until you press Publish.</p>}
+      {!preview && <p className="sg-help">Click any text to change it, then press Enter. Select words to make them bold, underlined, bigger or a different colour. Drag the grip beside any item, card or block to reorder it, and use the cross to remove it. Everything saves as a draft until you press Publish.</p>}
 
       <div className="sg-layout">
         <GuideNav chapters={chapters} current={ci} onSelect={setChapter} onSection={scrollToSection} />

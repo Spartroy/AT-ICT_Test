@@ -76,3 +76,16 @@ describe('new content', () => {
     expect(s.blocks).toHaveLength(1);
   });
 });
+
+describe('cleanHtml formatting', () => {
+  test('keeps underline and colour/size spans', () => {
+    expect(cleanHtml('<u>a</u><span class="c-blue s-lg">b</span>')).toBe('<u>a</u><span class="c-blue s-lg">b</span>');
+  });
+  test('turns the browser font tag into the same spans and drops the automatic colour', () => {
+    expect(cleanHtml('<font color="#059669" size="6">a</font>')).toBe('<span class="c-green s-xl">a</span>');
+    expect(cleanHtml('<b><font color="#000001">a</font></b>')).toBe('<b>a</b>');
+  });
+  test('drops unknown classes and inline styles', () => {
+    expect(cleanHtml('<span class="x" style="position:fixed">a</span>')).toBe('a');
+  });
+});

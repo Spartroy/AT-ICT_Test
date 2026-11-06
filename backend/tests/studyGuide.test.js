@@ -49,3 +49,15 @@ describe('study guide validator', () => {
     expect(sanitizeGuide({ chapters: [] }).error).toBeDefined();
   });
 });
+
+describe('cleanString formatting', () => {
+  it('keeps underline and the colour and size spans, turns browser <font> into spans', () => {
+    expect(cleanString('<u>a</u> <span class="c-blue s-lg">b</span>')).toBe('<u>a</u> <span class="c-blue s-lg">b</span>');
+    expect(cleanString('<font color="#1d4ed8" size="5">b</font>')).toBe('<span class="c-blue s-lg">b</span>');
+    expect(cleanString('<font color="#000001">auto</font> <span style="color: rgb(5, 150, 105)">g</span>')).toBe('auto <span class="c-green">g</span>');
+  });
+  it('drops unknown classes, styles and scripts', () => {
+    expect(cleanString('<span class="evil" style="position:fixed">x</span><span class="c-red">y</span>')).toBe('xy');
+    expect(cleanString('<span class="c-ink" onclick="x()">z</span>')).toBe('<span class="c-ink">z</span>');
+  });
+});
