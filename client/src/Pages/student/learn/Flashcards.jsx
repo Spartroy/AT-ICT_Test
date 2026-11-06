@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { ArrowLeft, Layers, LayoutGrid, Play, Plus } from 'lucide-react';
+import { ArrowLeft, ChevronRight, Layers, LayoutGrid, Play, Plus } from 'lucide-react';
 import useApi from '../../../hooks/useApi';
 import { API_ENDPOINTS } from '../../../config/api';
 import { Empty, ErrorNote, Ic, Loading } from '../../../components/portal/kit';
@@ -8,23 +8,10 @@ import { combinedStack, countCards, groupStacks } from './flashcardLogic';
 import { StackFormDialog, StudyDialog } from '../../../components/portal/Flashcards';
 import { useFocusTarget, useLearnPreview } from '../../../lib/learnPreview';
 
-/** A pile of cards. Hover or focus fans the cards out; `open` keeps them fanned. */
-function Deck({ color, layers = 4, open = false, small = false, onClick, label, children, style, ...rest }) {
-  return (
-    <button type="button" className={`deck ${open ? 'open' : ''} ${small ? 'sm' : ''}`} style={{ '--pc': color, ...style }} onClick={onClick} aria-label={label} {...rest}>
-      <span className="deck-pile" aria-hidden="true">
-        {Array.from({ length: layers }, (_, i) => <i key={i} style={{ '--i': layers - 1 - i, '--n': layers }} />)}
-      </span>
-      <span className="deck-face">{children}</span>
-    </button>
-  );
-}
-
 const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
 
 /**
- * Flashcards: one deck per phase. Tap a phase and its chapters open as smaller decks below it.
- * Study a chapter, or the whole phase as one pile. Students can also create their own stacks.
+ * Flashcards: pick a phase (tabs), then a chapter (list). Study one chapter or the whole phase. Students can also create their own stacks.
  */
 export default function Flashcards({ onBack }) {
   const stacks = useApi(API_ENDPOINTS.FLASHCARDS, b => b.data || []);
@@ -67,50 +54,53 @@ export default function Flashcards({ onBack }) {
 
       {groups.length ? (
         <>
-          <div className="fc-decks" role="group" aria-label="Flashcard phases">
+          <div className="fct" role="tablist" aria-label="Flashcard phases">
             {groups.map(g => (
-              <Deck
+              <button
                 key={g.key}
-                color={colorOf(g)}
-                open={g.key === openKey}
-                aria-pressed={g.key === openKey}
-                label={`${g.label}, ${plural(countCards(g.stacks), 'card')} in ${plural(g.stacks.length, 'stack')}`}
+                type="button"
+                role="tab"
+                aria-selected={g.key === openKey}
+                className={`fct-tab ${g.key === openKey ? 'on' : ''}`}
+                style={{ '--pc': colorOf(g) }}
                 onClick={() => setOpenKey(g.key)}
               >
-                <b className="deck-title">{g.label}</b>
-                <small>{g.sub || 'Your own and shared stacks'}</small>
-                <em>{plural(g.stacks.length, 'stack')} · {plural(countCards(g.stacks), 'card')}</em>
-              </Deck>
+                <span className="fct-dot" aria-hidden="true" />
+                <b>{g.label}</b>
+                <small>{plural(countCards(g.stacks), 'card')}</small>
+              </button>
             ))}
           </div>
 
           {current && (
-            <section className="fc-open" key={current.key} style={{ '--pc': colorOf(current) }} aria-label={`${current.label} stacks`}>
-              <div className="fc-open-head">
-                <h3>{current.label}{current.sub && <small>{current.sub}</small>}</h3>
+            <section className="fcp" key={current.key} role="tabpanel" style={{ '--pc': colorOf(current) }} aria-label={`${current.label} stacks`}>
+              <header className="fcp-head">
+                <div>
+                  <h3>{current.label}</h3>
+                  <p className="sub">{[current.sub, `${plural(current.stacks.length, 'stack')} · ${plural(countCards(current.stacks), 'card')}`].filter(Boolean).join(' · ')}</p>
+                </div>
                 {countCards(current.stacks) > 0 && (
-                  <button type="button" className="btn o sm" onClick={() => setStudying(combinedStack(current))}>
-                    <Ic as={Play} />Study all {countCards(current.stacks)} cards
+                  <button type="button" className="btn p sm" onClick={() => setStudying(combinedStack(current))}>
+                    <Ic as={Play} />Study all
                   </button>
                 )}
-              </div>
-              <div className="fc-chapters">
-                {current.stacks.map(({ stack, number, name }, i) => (
-                  <Deck
-                    key={stack._id}
-                    small
-                    layers={Math.min(3, Math.max(1, stack.cards?.length || 1))}
-                    color={colorOf(current)}
-                    onClick={() => setStudying(stack)}
-                    label={`${number ? `Chapter ${number}, ` : ''}${name}, ${plural(stack.cards?.length || 0, 'card')}`}
-                    style={{ '--pc': colorOf(current), '--d': `${i * 0.05}s` }}
-                  >
-                    <span className="deck-no">{number ?? <Ic as={LayoutGrid} />}</span>
-                    <b>{name}</b>
-                    <em>{plural(stack.cards?.length || 0, 'card')}</em>
-                  </Deck>
+              </header>
+              <ul className="fcl">
+                {current.stacks.map(({ stack, number, name }) => (
+                  <li key={stack._id}>
+                    <button
+                      type="button"
+                      className="fcl-row"
+                      onClick={() => setStudying(stack)}
+                      aria-label={`${number ? `Chapter ${number}, ` : ''}${name}, ${plural(stack.cards?.length || 0, 'card')}`}
+                    >
+                      <span className="fcl-no">{number ?? <Ic as={LayoutGrid} />}</span>
+                      <span className="fcl-name"><b>{name}</b><small>{plural(stack.cards?.length || 0, 'card')}</small></span>
+                      <Ic as={ChevronRight} />
+                    </button>
+                  </li>
                 ))}
-              </div>
+              </ul>
             </section>
           )}
         </>

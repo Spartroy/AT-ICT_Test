@@ -130,18 +130,18 @@ export function StudyDialog({ stack, onClose }) {
     <Dialog open onClose={onClose} labelledBy="study-title">
       <button type="button" className="ib x" aria-label="Close" onClick={onClose}><Ic as={X} /></button>
       <h3 id="study-title" className="node-title" style={{ marginTop: 0 }}>{stack.title}</h3>
- <p className="sub">{cards.length} card{cards.length === 1 ? '' : 's'} · By {stack.creatorName || 'AT-ICT'}</p>
+ <p className="sub fc-by">{cards.length} card{cards.length === 1 ? '' : 's'} · By {stack.creatorName || 'AT-ICT'}</p>
       {card ? (
         <>
           <div className="fc-prog" role="progressbar" aria-valuemin={1} aria-valuemax={cards.length} aria-valuenow={i + 1} aria-label="Cards studied"><i style={{ width: `${((i + 1) / cards.length) * 100}%` }} /></div>
-          <div className={`fc-pile ${cards.length - i > 2 ? 'deep' : cards.length - i > 1 ? 'mid' : 'last'}`}>
-          <div className={`fcard ${flipped ? 'fl' : ''} slide-${dir > 0 ? 'next' : 'prev'}`} key={i}>
-            <div role="button" tabIndex={0} aria-label={flipped ? 'Answer. Press to show the question' : 'Question. Press to show the answer'}
-              onClick={() => setFlipped(f => !f)} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setFlipped(f => !f); } }}>
-              <div className="f fr" aria-hidden={flipped}><span>{card.from && <em className="fc-from">{card.from}</em>}{card.front}<small>Click to flip</small></span></div>
-              <div className="f bk" aria-hidden={!flipped}><span>{card.back}</span></div>
+          <div className="fc-stage">
+            <div className={`fcard ${flipped ? 'fl' : ''} slide-${dir > 0 ? 'next' : 'prev'}`} key={i}>
+              <div className="fcard-in" role="button" tabIndex={0} aria-label={flipped ? 'Answer. Press to show the question' : 'Question. Press to show the answer'}
+                onClick={() => setFlipped(f => !f)} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setFlipped(f => !f); } }}>
+                <div className="f fr" aria-hidden={flipped}><span>{card.from && <em className="fc-from">{card.from}</em>}{card.front}<small>Tap to flip</small></span></div>
+                <div className="f bk" aria-hidden={!flipped}><span>{card.back}</span></div>
+              </div>
             </div>
-          </div>
           </div>
           <div className="fc-nav">
             <button type="button" className="btn o sm" onClick={() => go(-1)} disabled={i === 0}><Ic as={ChevronLeft} />Previous</button>

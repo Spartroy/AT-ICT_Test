@@ -223,78 +223,62 @@
 
 .atp-student .card h3 .lk + .lk { margin-left: 12px; }
 
-/* Flashcards: a deck per phase, chapters open as smaller decks */
+/* Flashcards: phase tabs, then a calm list of chapters */
 .atp-student .fc-head-l { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; min-width: 0; }
-.atp-student .fc-decks { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 34px 40px; padding: 22px 18px 8px; margin-bottom: 8px; }
-.atp-student .deck { --pc: var(--crimson-500); position: relative; display: block; width: 100%; min-height: 170px; padding: 0; text-align: start; perspective: 900px; transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1); }
-.atp-student .deck-pile { position: absolute; inset: 0; pointer-events: none; }
-.atp-student .deck-pile i {
-  position: absolute; inset: 0; border-radius: 20px; background: linear-gradient(160deg, color-mix(in srgb, var(--pc) 22%, #1c1c20), #17171a);
-  border: 1px solid color-mix(in srgb, var(--pc) 55%, transparent); box-shadow: 0 10px 22px -12px rgb(0 0 0 / 0.8);
-  transform-origin: 50% 100%;
-  transform: translate(calc(var(--i) * 5px), calc(var(--i) * -7px)) rotate(calc(var(--i) * 0.8deg));
-  transition: transform 0.5s cubic-bezier(0.34, 1.4, 0.64, 1);
-}
-.atp-student .deck-face {
-  position: relative; z-index: 1; display: grid; align-content: end; gap: 4px; min-height: 170px; padding: 20px 20px 18px; border-radius: 20px;
-  background: linear-gradient(160deg, color-mix(in srgb, var(--pc) 32%, #202026), #19191d 70%);
-  border: 1px solid var(--pc); box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.08), 0 14px 30px -14px rgb(0 0 0 / 0.9);
-  transition: transform 0.45s cubic-bezier(0.34, 1.4, 0.64, 1), box-shadow 0.3s;
-}
-.atp-student .deck-face::before { content: ""; position: absolute; top: 16px; inset-inline-end: 18px; width: 34px; height: 34px; border-radius: 50%; background: var(--pc); opacity: 0.9; box-shadow: 0 0 22px -2px var(--pc); }
-.atp-student .deck-title { font-family: var(--font-display); font-size: 1.5rem; letter-spacing: -0.01em; color: var(--white); }
-.atp-student .deck-face small { color: var(--mu); font-size: 0.8rem; }
-.atp-student .deck-face em { font-style: normal; margin-top: 6px; font-size: 0.78rem; font-weight: 700; color: var(--pc); }
-/* Fan the pile out on hover / focus / when open */
-.atp-student .deck:hover .deck-pile i, .atp-student .deck:focus-visible .deck-pile i, .atp-student .deck.open .deck-pile i {
-  transform: translate(calc((var(--i) - (var(--n) - 1) / 2) * 12px), calc(var(--i) * -8px)) rotate(calc((var(--i) - (var(--n) - 1) / 2) * 5deg));
-}
-.atp-student .deck:hover .deck-face, .atp-student .deck:focus-visible .deck-face { transform: translateY(5px); }
-.atp-student .deck.open .deck-face { box-shadow: 0 0 0 2px var(--pc), 0 18px 36px -14px var(--pc); }
-.atp-student .deck:focus-visible { outline: 3px solid var(--white); outline-offset: 6px; border-radius: 22px; }
-.atp-student .deck:active .deck-face { transform: translateY(8px) scale(0.99); }
+.atp-student .fct { display: flex; gap: 8px; overflow-x: auto; padding: 4px 2px 10px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+.atp-student .fct::-webkit-scrollbar { display: none; }
+.atp-student .fct-tab { --pc: var(--cr); flex: 1 1 0; min-width: 132px; display: grid; grid-template-columns: auto 1fr; column-gap: 10px; align-items: center; text-align: start; padding: 12px 16px; border-radius: 16px; background: var(--s1); border: 1px solid var(--bd); color: var(--tx); transition: border-color .2s, background .2s; }
+.atp-student .fct-tab b { font-size: 1rem; }
+.atp-student .fct-tab small { grid-column: 2; color: var(--mu); font-size: .75rem; }
+.atp-student .fct-dot { grid-row: 1 / 3; width: 12px; height: 12px; border-radius: 50%; background: var(--pc); box-shadow: 0 0 0 4px color-mix(in srgb, var(--pc) 22%, transparent); }
+.atp-student .fct-tab:hover { border-color: var(--bd2); }
+.atp-student .fct-tab.on { border-color: var(--pc); background: color-mix(in srgb, var(--pc) 12%, var(--s1)); }
+.atp-student .fct-tab:focus-visible, .atp-student .fcl-row:focus-visible { outline: 2px solid var(--pc, var(--cr)); outline-offset: 2px; }
 
-.atp-student .fc-open { margin-top: 26px; padding: 20px; border-radius: 24px; background: var(--s1); border: 1px solid color-mix(in srgb, var(--pc) 45%, var(--bd)); animation: fc-open 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; }
-.atp-student .fc-open-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
-.atp-student .fc-open-head h3 { margin: 0; font-size: 1.1rem; font-family: var(--font-body); display: flex; gap: 10px; align-items: baseline; color: var(--pc); }
-.atp-student .fc-open-head h3 small { color: var(--mu); font-weight: 500; font-size: 0.78rem; }
-.atp-student .fc-chapters { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 24px 18px; padding: 8px 8px 4px; }
-.atp-student .deck.sm { min-height: 110px; animation: fc-deal 0.5s var(--d, 0s) cubic-bezier(0.22, 1, 0.36, 1) both; }
-.atp-student .deck.sm .deck-pile i { border-radius: 16px; transform: translate(calc(var(--i) * 4px), calc(var(--i) * -5px)) rotate(calc(var(--i) * 0.7deg)); }
-.atp-student .deck.sm:hover .deck-pile i, .atp-student .deck.sm:focus-visible .deck-pile i { transform: translate(calc((var(--i) - (var(--n) - 1) / 2) * 11px), calc(var(--i) * -7px)) rotate(calc((var(--i) - (var(--n) - 1) / 2) * 4deg)); }
-.atp-student .deck.sm .deck-face { min-height: 110px; padding: 14px 16px 14px; border-radius: 16px; align-content: space-between; gap: 6px; }
-.atp-student .deck.sm .deck-face::before { display: none; }
-.atp-student .deck-no { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; border: 2px solid var(--pc); color: var(--pc); font-family: var(--font-numeric); font-size: 1rem; font-weight: 700; }
-.atp-student .deck-no .i { width: 16px; height: 16px; }
-.atp-student .deck.sm b { font-size: 0.95rem; line-height: 1.25; color: var(--white); }
-.atp-student .deck.sm em { margin-top: 0; }
-@keyframes fc-open { from { opacity: 0; transform: translateY(-12px); } }
-@keyframes fc-deal { from { opacity: 0; transform: translateY(18px) rotate(-3deg) scale(0.94); } }
+.atp-student .fcp { margin-top: 6px; padding: 18px; border-radius: 22px; background: var(--s1); border: 1px solid var(--bd); animation: fc-open .35s cubic-bezier(.22, 1, .36, 1) both; }
+.atp-student .fcp-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+.atp-student .fcp-head h3 { margin: 0 0 2px; font-size: 1.15rem; }
+.atp-student .fcp-head .sub { margin: 0; font-size: .82rem; }
+.atp-student .fcl { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.atp-student .fcl-row { width: 100%; display: flex; align-items: center; gap: 14px; padding: 12px 14px; border-radius: 14px; background: var(--s2); border: 1px solid transparent; color: var(--tx); text-align: start; transition: border-color .2s, background .2s; }
+.atp-student .fcl-row:hover { border-color: var(--pc); }
+.atp-student .fcl-row > .i { color: var(--mu); flex: none; }
+.atp-student .fcl-no { flex: none; width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center; background: color-mix(in srgb, var(--pc) 18%, transparent); color: var(--pc); font-family: var(--font-numeric); font-weight: 700; }
+.atp-student .fcl-no .i { width: 18px; height: 18px; }
+.atp-student .fcl-name { flex: 1; min-width: 0; display: grid; gap: 1px; }
+.atp-student .fcl-name b { font-size: .98rem; line-height: 1.3; }
+.atp-student .fcl-name small { color: var(--mu); font-size: .76rem; }
+@keyframes fc-open { from { opacity: 0; transform: translateY(8px); } }
 
-/* Study dialog: a pile of cards, the top one slides in */
+/* Study dialog */
 .atp-student .fc-prog, .atp .fc-prog { height: 5px; border-radius: 99px; background: var(--s3); overflow: hidden; margin-top: 14px; }
-.atp .fc-prog i { display: block; height: 100%; border-radius: inherit; background: var(--cr); transition: width 0.4s cubic-bezier(0.22, 1, 0.36, 1); }
-.atp .fc-pile { position: relative; isolation: isolate; padding-bottom: 14px; }
-.atp .fc-pile::before, .atp .fc-pile::after { content: ""; position: absolute; left: 0; right: 0; top: 22px; height: 230px; border-radius: 22px; background: var(--s3); border: 1px solid var(--bd); z-index: -1; transition: opacity 0.3s; }
-.atp .fc-pile::before { transform: translateY(9px) scale(0.955) rotate(-1.2deg); }
-.atp .fc-pile::after { transform: translateY(18px) scale(0.91) rotate(1.4deg); background: var(--s2); }
-.atp .fc-pile.mid::after, .atp .fc-pile.last::before, .atp .fc-pile.last::after { opacity: 0; }
-.atp .fcard.slide-next { animation: fc-next 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; }
-.atp .fcard.slide-prev { animation: fc-prev 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; }
-@keyframes fc-next { from { opacity: 0; transform: translateX(70px) rotate(5deg); } }
-@keyframes fc-prev { from { opacity: 0; transform: translateX(-70px) rotate(-5deg); } }
-.atp .fc-from { display: block; font-style: normal; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.55; margin-bottom: 10px; font-weight: 600; }
+.atp .fc-prog i { display: block; height: 100%; border-radius: inherit; background: var(--cr); transition: width .4s cubic-bezier(.22, 1, .36, 1); }
+.atp .fc-by { margin: 2px 0 0; }
+.atp .fc-stage { margin: 20px 0 18px; }
+/* The slide-in lives on .fcard, the flip on .fcard-in, so the two never fight over transform */
+.atp .fcard { margin: 0; perspective: 1400px; }
+.atp .fcard.slide-next { animation: fc-next .45s cubic-bezier(.22, 1, .36, 1) both; }
+.atp .fcard.slide-prev { animation: fc-prev .45s cubic-bezier(.22, 1, .36, 1) both; }
+@keyframes fc-next { from { opacity: 0; transform: translateX(40px); } }
+@keyframes fc-prev { from { opacity: 0; transform: translateX(-40px); } }
+.atp .fcard .fcard-in { display: grid; height: auto; min-height: 250px; transform-style: preserve-3d; transform: rotateY(0); will-change: transform; transition: transform .75s cubic-bezier(.45, .05, .2, 1); cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.atp .fcard.fl .fcard-in { transform: rotateY(180deg); }
+.atp .fcard .f { position: relative; grid-area: 1 / 1; inset: auto; border-radius: 22px; padding: 28px 24px; backface-visibility: hidden; -webkit-backface-visibility: hidden; box-shadow: 0 18px 40px -22px rgb(0 0 0 / .7); font-size: 1.2rem; line-height: 1.5; overflow-wrap: anywhere; }
+.atp .fcard .fr { background: var(--s2); color: var(--tx); border: 1px solid var(--bd2); transform: translateZ(1px); }
+.atp .fcard .bk { background: linear-gradient(160deg, var(--cr), color-mix(in srgb, var(--cr) 70%, #000)); color: #fff; transform: rotateY(180deg) translateZ(1px); }
+.atp .fcard .f small { margin-top: 14px; }
+.atp .fc-from { display: block; font-style: normal; font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; opacity: .55; margin-bottom: 10px; font-weight: 600; }
+.atp .fcard .fcard-in:focus-visible { outline: 2px solid var(--cr); outline-offset: 4px; border-radius: 22px; }
 @media (prefers-reduced-motion: reduce) {
-  .atp-student .deck, .atp-student .deck-pile i, .atp-student .deck-face, .atp-student .fc-open, .atp-student .deck.sm, .atp .fcard.slide-next, .atp .fcard.slide-prev { animation: none; transition: none; }
+  .atp-student .fcp, .atp .fcard.slide-next, .atp .fcard.slide-prev { animation: none; }
+  .atp .fcard .fcard-in, .atp-student .fcl-row { transition: none; }
 }
 @media (max-width: 560px) {
-  .atp-student .fc-decks { grid-template-columns: 1fr 1fr; gap: 26px 22px; padding: 18px 14px 6px; }
-  .atp-student .fc-decks .deck, .atp-student .fc-decks .deck-face { min-height: 128px; }
-  .atp-student .fc-decks .deck-face { padding: 14px 14px 12px; }
-  .atp-student .fc-decks .deck-face::before { width: 24px; height: 24px; top: 12px; inset-inline-end: 12px; }
-  .atp-student .fc-decks .deck-title { font-size: 1.15rem; }
-  .atp-student .fc-decks .deck-face small { display: none; }
-  .atp-student .fc-decks .deck:hover .deck-pile i, .atp-student .fc-decks .deck.open .deck-pile i { transform: translate(calc((var(--i) - (var(--n) - 1) / 2) * 7px), calc(var(--i) * -6px)) rotate(calc((var(--i) - (var(--n) - 1) / 2) * 3deg)); }
+  .atp-student .fct-tab { min-width: 118px; padding: 10px 12px; }
+  .atp-student .fcp { padding: 12px; border-radius: 18px; }
+  .atp .fcard .fcard-in { min-height: 220px; }
+  .atp .fcard .f { padding: 22px 18px; font-size: 1.08rem; }
+  .atp .fc-nav .btn { min-height: 44px; }
 }
 
 /* Football-style standings (student Home leaderboard) */

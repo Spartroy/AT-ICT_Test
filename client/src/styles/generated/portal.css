@@ -286,8 +286,6 @@
 .atp .dlg .x{position:absolute;top:18px;right:18px}
 
 .atp .fcard{perspective:1000px;margin:22px 0}
-.atp .fcard>div{position:relative;height:230px;transform-style:preserve-3d;transition:transform .6s cubic-bezier(.23,1,.32,1);cursor:pointer}
-.atp .fcard.fl>div{transform:rotateY(180deg)}
 
 .atp .fcard .f{position:absolute;inset:0;border-radius:22px;display:grid;place-items:center;text-align:center;padding:24px;backface-visibility:hidden;font-size:1.25rem;font-weight:600}
 .atp .fcard .f small{display:block;font-size:.76rem;color:inherit;opacity:.6;font-weight:400;margin-top:10px}
