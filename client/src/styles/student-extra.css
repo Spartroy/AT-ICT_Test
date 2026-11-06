@@ -384,3 +384,41 @@
 .atp-student .pc-lvl { margin: 0; font-size: 0.84rem; color: var(--mu); }
 @keyframes pc-pop { from { transform: scale(0.3); opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .atp-student .pc-badge, .atp-student .pc-big span { animation: none; } }
+
+/* Chapter list: each chapter is a small pile of cards, with two sheets peeking out underneath */
+.atp-student .fcl { gap: 20px; padding: 4px 4px 12px; }
+.atp-student .fcl-row {
+  position: relative; background: var(--s2); border: 1px solid var(--bd); border-radius: 16px; padding: 14px 16px;
+  box-shadow: 0 6px 0 -3px var(--s2), 0 6px 0 -2px var(--bd), 0 12px 0 -6px var(--s2), 0 12px 0 -5px var(--bd);
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.25s, border-color 0.2s;
+}
+.atp-student .fcl-row:hover, .atp-student .fcl-row:focus-visible {
+  transform: translateY(-2px); border-color: var(--pc);
+  box-shadow: 0 8px 0 -3px var(--s2), 0 8px 0 -2px var(--bd), 0 16px 0 -6px var(--s2), 0 16px 0 -5px var(--bd);
+}
+.atp-student .fcl-row:active { transform: translateY(1px); }
+
+/* Study dialog: shuffle */
+.atp .fc-mid { display: inline-flex; align-items: center; gap: 10px; }
+.atp .fc-shuf-btn { width: 40px; height: 40px; }
+.atp .fc-shuf-btn:not(:disabled):hover { color: var(--cr); border-color: var(--cr); }
+.atp .fc-stage { position: relative; }
+.atp .fcard.is-hidden { visibility: hidden; animation: none; }
+.atp .fc-shuffle { position: absolute; inset: 0; pointer-events: none; }
+.atp .fc-shuffle i { position: absolute; inset: 0; border-radius: 22px; background: var(--s2); border: 1px solid var(--bd2); box-shadow: 0 10px 24px -14px rgb(0 0 0 / 0.8); z-index: var(--n); animation: fc-riffle-l 0.85s cubic-bezier(0.45, 0.05, 0.25, 1) both; animation-delay: calc(var(--n) * 30ms); }
+.atp .fc-shuffle i:nth-child(even) { animation-name: fc-riffle-r; }
+@keyframes fc-riffle-l {
+  0% { transform: none; }
+  35% { transform: translateX(-24%) rotate(-6deg); }
+  60% { transform: translateX(-24%) translateY(calc(var(--n) * -4px)) rotate(-6deg); }
+  85% { transform: translateX(0) translateY(calc(var(--n) * -2px)); }
+  100% { transform: none; opacity: 0; }
+}
+@keyframes fc-riffle-r {
+  0% { transform: none; }
+  35% { transform: translateX(24%) rotate(6deg); }
+  60% { transform: translateX(24%) translateY(calc(var(--n) * -4px)) rotate(6deg); }
+  85% { transform: translateX(0) translateY(calc(var(--n) * -2px)); }
+  100% { transform: none; opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) { .atp .fc-shuffle i { animation: none; opacity: 0; } .atp-student .fcl-row { transition: none; } }

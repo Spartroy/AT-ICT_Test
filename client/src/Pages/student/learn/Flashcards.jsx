@@ -8,8 +8,6 @@ import { combinedStack, countCards, groupStacks } from './flashcardLogic';
 import { StackFormDialog, StudyDialog } from '../../../components/portal/Flashcards';
 import { useFocusTarget, useLearnPreview } from '../../../lib/learnPreview';
 
-const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
-
 /**
  * Flashcards: pick a phase (tabs), then a chapter (list). Study one chapter or the whole phase. Students can also create their own stacks.
  */
@@ -67,7 +65,7 @@ export default function Flashcards({ onBack }) {
               >
                 <span className="fct-dot" aria-hidden="true" />
                 <b>{g.label}</b>
-                <small>{plural(countCards(g.stacks), 'card')}</small>
+                {g.sub && <small>{g.sub}</small>}
               </button>
             ))}
           </div>
@@ -77,7 +75,7 @@ export default function Flashcards({ onBack }) {
               <header className="fcp-head">
                 <div>
                   <h3>{current.label}</h3>
-                  <p className="sub">{[current.sub, `${plural(current.stacks.length, 'stack')} · ${plural(countCards(current.stacks), 'card')}`].filter(Boolean).join(' · ')}</p>
+                  {current.sub && <p className="sub">{current.sub}</p>}
                 </div>
                 {countCards(current.stacks) > 0 && (
                   <button type="button" className="btn p sm" onClick={() => setStudying(combinedStack(current))}>
@@ -92,10 +90,10 @@ export default function Flashcards({ onBack }) {
                       type="button"
                       className="fcl-row"
                       onClick={() => setStudying(stack)}
-                      aria-label={`${number ? `Chapter ${number}, ` : ''}${name}, ${plural(stack.cards?.length || 0, 'card')}`}
+                      aria-label={`${number ? `Chapter ${number}, ` : ''}${name}`}
                     >
                       <span className="fcl-no">{number ?? <Ic as={LayoutGrid} />}</span>
-                      <span className="fcl-name"><b>{name}</b><small>{plural(stack.cards?.length || 0, 'card')}</small></span>
+                      <span className="fcl-name"><b>{name}</b></span>
                       <Ic as={ChevronRight} />
                     </button>
                   </li>

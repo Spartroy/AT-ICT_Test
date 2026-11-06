@@ -5,7 +5,6 @@ import Button from '../ui/Button';
 import SignInForm from './SignInForm';
 import RegisterForm from './RegisterForm';
 import { fireConfetti } from './confetti';
-import ThemeToggle from '../ThemeToggle';
 import './auth.css';
 
 const TABS = [
@@ -28,10 +27,10 @@ export default function AuthModal({ open, tab = 'in', onTabChange, onClose, sign
 
   // Reset the success state whenever the modal closes.
   useEffect(() => {
-    if (!open) {
-      setRegistered(null);
-      setPopup(false);
-    }
+    if (open) return undefined;
+    // wait for the fade-out so the form does not flash back while the card disappears
+    const t = setTimeout(() => { setRegistered(null); setPopup(false); }, 300);
+    return () => clearTimeout(t);
   }, [open]);
 
   useEffect(() => {
@@ -61,12 +60,12 @@ export default function AuthModal({ open, tab = 'in', onTabChange, onClose, sign
     <Modal
       open={open}
       onClose={onClose}
+      fadeOut
       labelledBy={registered ? 'reg-done-title' : `auth-tab-${active}`}
       panelClassName="auth-card-wrap"
       initialFocusSelector=".auth-pane input, .auth-pane select"
     >
       <div ref={cardRef} className="auth-card">
-        <ThemeToggle className="auth-close auth-theme" />
         <button type="button" className="auth-close" onClick={onClose} aria-label="Close" inert={popup ? '' : undefined}>
           <X size={18} aria-hidden="true" />
         </button>

@@ -64,6 +64,20 @@
   outline: none;
   animation: ui-pop 0.4s var(--ease-out);
 }
+.ui-modal.is-closing { animation: ui-fade-out 0.24s ease forwards; pointer-events: none; }
+.ui-modal.is-closing .ui-modal__panel { animation: ui-pop-out 0.24s ease forwards; }
+@keyframes ui-fade-out { to { opacity: 0; } }
+@keyframes ui-pop-out { to { opacity: 0; transform: scale(0.96) translateY(12px); } }
+.is-shaking { animation: ui-shake 0.45s cubic-bezier(0.36, 0.07, 0.19, 0.97) both; }
+@keyframes ui-shake {
+  10%, 90% { transform: translateX(-2px); }
+  20%, 80% { transform: translateX(4px); }
+  30%, 50%, 70% { transform: translateX(-8px); }
+  40%, 60% { transform: translateX(8px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ui-modal.is-closing, .ui-modal.is-closing .ui-modal__panel, .is-shaking { animation: none; }
+}
 @keyframes ui-pop { from { opacity: 0; transform: scale(0.94) translateY(20px); } }
 
 /* ---- Fields (dark tone) ------------------------------------------------- */

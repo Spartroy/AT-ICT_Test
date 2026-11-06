@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ArrowRight, Check } from 'lucide-react';
 import Button from '../ui/Button';
+import { shakeInvalid } from '../ui/shake';
 import { TextField, PhoneField, PasswordField, SelectField, TextAreaField, CheckboxField, ChoiceGroup } from '../ui/Field';
 import { fetchRegistrationOptions, submitRegistration } from '../../utils/authApi';
 import {
@@ -70,6 +71,7 @@ export default function RegisterForm({ onSuccess }) {
     setErrors(errs);
     if (s !== step) setStep(s);
     setFocusTarget(Object.keys(errs)[0]);
+    shakeInvalid(formRef.current);
   };
 
   const handleSubmit = async (e) => {

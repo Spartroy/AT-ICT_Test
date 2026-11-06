@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { LayoutGrid, Plus, Trash2, ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { LayoutGrid, Plus, Shuffle, Trash2, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { Dialog, DialogHeader, useToast } from './PortalUI';
 import { Ic } from './kit';
 import { api } from '../../lib/api';
@@ -97,8 +97,12 @@ export function StudyDialog({ stack, onClose }) {
   const [i, setI] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [dir, setDir] = useState(1);
+  const [order, setOrder] = useState(null); // shuffled card order, or null for the original
+  const [shuffling, setShuffling] = useState(false);
   useEffect(() => {
     if (!stack) return;
+    setOrder(null);
+    setShuffling(false);
     setI(0);
     setFlipped(false);
     setDir(1);
@@ -106,8 +110,22 @@ export function StudyDialog({ stack, onClose }) {
   }, [stack, preview]);
 
   const count = stack?.cards?.length || 0;
+  const shuffle = () => {
+    if (shuffling || count < 2) return;
+    setFlipped(false);
+    setShuffling(true);
+    // the cards riffle for a moment, then the pile comes back in a new order, back on card 1
+    setTimeout(() => {
+      const next = Array.from({ length: count }, (_, k) => k);
+      for (let k = next.length - 1; k > 0; k--) { const j = Math.floor(Math.random() * (k + 1)); [next[k], next[j]] = [next[j], next[k]]; }
+      setOrder(next);
+      setI(0);
+      setDir(1);
+      setShuffling(false);
+    }, 850);
+  };
   const go = (d) => {
-    if (i + d < 0 || i + d >= count) return;
+    if (shuffling || i + d < 0 || i + d >= count) return;
     setDir(d);
     setI(x => x + d);
     setFlipped(false);
@@ -123,19 +141,24 @@ export function StudyDialog({ stack, onClose }) {
     return () => document.removeEventListener('keydown', onKey);
   });
   if (!stack) return null;
-  const cards = stack.cards || [];
+  const cards = order ? order.map(k => stack.cards[k]) : (stack.cards || []);
   const card = cards[i];
 
   return (
     <Dialog open onClose={onClose} labelledBy="study-title">
       <button type="button" className="ib x" aria-label="Close" onClick={onClose}><Ic as={X} /></button>
       <h3 id="study-title" className="node-title" style={{ marginTop: 0 }}>{stack.title}</h3>
- <p className="sub fc-by">{cards.length} card{cards.length === 1 ? '' : 's'} · By {stack.creatorName || 'AT-ICT'}</p>
+ <p className="sub fc-by">By {stack.creatorName || 'AT-ICT'}</p>
       {card ? (
         <>
           <div className="fc-prog" role="progressbar" aria-valuemin={1} aria-valuemax={cards.length} aria-valuenow={i + 1} aria-label="Cards studied"><i style={{ width: `${((i + 1) / cards.length) * 100}%` }} /></div>
           <div className="fc-stage">
-            <div className={`fcard ${flipped ? 'fl' : ''} slide-${dir > 0 ? 'next' : 'prev'}`} key={i}>
+            {shuffling && (
+              <div className="fc-shuffle" aria-hidden="true">
+                {[0, 1, 2, 3, 4].map(n => <i key={n} style={{ '--n': n }} />)}
+              </div>
+            )}
+            <div className={`fcard ${shuffling ? 'is-hidden' : ''} ${flipped ? 'fl' : ''} slide-${dir > 0 ? 'next' : 'prev'}`} key={i}>
               <div className="fcard-in" role="button" tabIndex={0} aria-label={flipped ? 'Answer. Press to show the question' : 'Question. Press to show the answer'}
                 onClick={() => setFlipped(f => !f)} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setFlipped(f => !f); } }}>
                 <div className="f fr" aria-hidden={flipped}><span>{card.from && <em className="fc-from">{card.from}</em>}{card.front}<small>Tap to flip</small></span></div>
@@ -145,7 +168,7 @@ export function StudyDialog({ stack, onClose }) {
           </div>
           <div className="fc-nav">
             <button type="button" className="btn o sm" onClick={() => go(-1)} disabled={i === 0}><Ic as={ChevronLeft} />Previous</button>
-            <span className="sub" aria-live="polite">{i + 1} of {cards.length}</span>
+            <span className="fc-mid"><button type="button" className="ib sm fc-shuf-btn" onClick={shuffle} disabled={shuffling || cards.length < 2} aria-label="Shuffle the cards" title="Shuffle"><Ic as={Shuffle} /></button><span className="sub" aria-live="polite">{i + 1} of {cards.length}</span></span>
             <button type="button" className="btn o sm" onClick={() => go(1)} disabled={i >= cards.length - 1}>Next<Ic as={ChevronRight} /></button>
           </div>
         </>

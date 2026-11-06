@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useRef } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import './ui.css';
 
@@ -45,9 +45,20 @@ export function useFocusTrap(ref, active, initialFocusRef, initialFocusSelector)
 export default function Modal({
   open, onClose, labelledBy, label, className = '', panelClassName = '', initialFocusRef, initialFocusSelector, children,
   // Portals pass their own overlay/panel classes (e.g. 'mod on' / 'dlg wide') and a container inside their scoped root.
-  overlayClassName = 'ui-modal', basePanelClassName = 'ui-modal__panel', container, role = 'dialog'
+  fadeOut = false, overlayClassName = 'ui-modal', basePanelClassName = 'ui-modal__panel', container, role = 'dialog'
 }) {
   const panelRef = useRef(null);
+  // With fadeOut the modal stays mounted for the length of the closing animation.
+  const [closing, setClosing] = useState(false);
+  const wasOpen = useRef(open);
+  useEffect(() => {
+    if (open) { wasOpen.current = true; setClosing(false); return undefined; }
+    if (!wasOpen.current || !fadeOut) return undefined;
+    wasOpen.current = false;
+    setClosing(true);
+    const t = setTimeout(() => setClosing(false), 240);
+    return () => clearTimeout(t);
+  }, [open, fadeOut]);
   const openerRef = useRef(null);
   // Callers often pass an inline onClose; keep the latest one without re-running the open/close effect.
   const onCloseRef = useRef(onClose);
@@ -78,11 +89,11 @@ export default function Modal({
     };
   }, [open]);
 
-  if (!open) return null;
+  if (!open && !closing) return null;
 
   return createPortal(
     <div
-      className={`${overlayClassName} ${className}`}
+      className={`${overlayClassName} ${className} ${!open ? 'is-closing' : ''}`}
       onMouseDown={(e) => {
         if (e.target === e.currentTarget) onCloseRef.current?.();
       }}
