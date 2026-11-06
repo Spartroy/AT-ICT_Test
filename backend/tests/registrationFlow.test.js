@@ -66,7 +66,7 @@ describe('User model: centre-only student fields', () => {
     email: 'joud@example.com',
     password: 'secret123',
     role: 'student',
-    contactNumber: '01012345678'
+    contactNumber: '+20 101 234 5678'
   };
   const info = { techKnowledge: 5, englishLevel: 5, parentContactNumber: '01012345678' };
   const errorsOf = async (doc) => {
@@ -106,7 +106,7 @@ describe('submitRegistration', () => {
   };
   const common = {
     firstName: 'Joud', lastName: 'Daher', email: 'joud@example.com', password: 'secret123',
-    contactNumber: '01012345678', parentNumber: '01112345678', techKnowledge: 4, englishLevel: 8
+    contactNumber: '+20 101 234 5678', parentNumber: '+20 111 234 5678', techKnowledge: 4, englishLevel: 8
   };
 
   it('stores a Royal College student as pending with a class and null centre fields', async () => {
@@ -116,7 +116,7 @@ describe('submitRegistration', () => {
     expect(saved.studentInfo).toMatchObject({
       schoolType: 'royal', royalClass: '9J', school: 'The Royal College School',
       year: null, session: null, nationality: null, isRetaker: false, otherSubjects: null,
-      parentContactNumber: '01112345678', techKnowledge: 4, englishLevel: 8
+      parentContactNumber: '+20 111 234 5678', techKnowledge: 4, englishLevel: 8
     });
     expect(saved.address).toEqual({ city: null, country: null });
   });

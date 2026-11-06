@@ -140,13 +140,13 @@ const requirementFor = (method, url) => {
 /** Keys (lower-cased) that never leave the server for an assistant, at any depth. */
 const HIDDEN_KEYS = new Set([
   'email', 'contactnumber', 'alternativenumber', 'phone', 'phonenumber', 'whatsapp', 'address',
-  'parentcontactnumber', 'parentnumber', 'parentphone', 'parentemail', 'parentinfo', 'emergencycontact',
+  'parentcontactnumber', 'parentnumber', 'parentnumberintl', 'parentphone', 'parentemail', 'parentinfo', 'emergencycontact',
   'payments', 'payment', 'paymentproof', 'paymentproofs', 'paymentstatus', 'fees', 'fee', 'balance', 'income', 'ledger',
   'password', 'resetpasswordtoken', 'resetpasswordexpire', 'emailverificationtoken', 'emailverificationexpire', 'token'
 ]);
 
 /** Keys an assistant may see once the teacher grants the 'parentNumbers' feature. Nothing else is unlocked. */
-const PARENT_NUMBER_KEYS = ['parentcontactnumber', 'parentnumber'];
+const PARENT_NUMBER_KEYS = ['parentcontactnumber', 'parentnumber', 'parentnumberintl'];
 
 /**
  * Deep copy of `value` without the hidden keys. Safe on mongoose documents (goes through toJSON).

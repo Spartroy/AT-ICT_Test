@@ -1,7 +1,7 @@
 import { initialValues, validateStep, firstInvalidStep, buildPayload, mapServerErrors, passwordStrength, schoolSummary } from './registration';
 
 const personal = { firstName: 'Joud', lastName: 'El Daher', email: 'joud@example.com', password: 'Secret123', confirmPassword: 'Secret123' };
-const contact = { contactNumber: '01012345678', parentNumber: '+20 111 234 5678' };
+const contact = { contactNumber: '+20 101 234 5678', parentNumber: '+20 111 234 5678' };
 const royal = { ...initialValues, ...personal, ...contact, schoolType: 'royal', royalClass: '9H', terms: true };
 const center = {
   ...initialValues, ...personal, ...contact,
@@ -30,7 +30,7 @@ describe('validateStep', () => {
   it('step 3 needs a location from centre students only', () => {
     expect(validateStep(2, { ...royal, city: '', country: '' })).toEqual({});
     expect(Object.keys(validateStep(2, { ...center, city: '', country: '' }))).toEqual(['city', 'country']);
-    expect(validateStep(2, { ...royal, contactNumber: '12' })).toEqual({ contactNumber: 'Enter a valid phone number' });
+    expect(validateStep(2, { ...royal, contactNumber: '12' })).toEqual({ contactNumber: 'Choose a country code and enter your number' });
   });
 
   it('step 4 requires accepting the terms', () => {
@@ -48,7 +48,7 @@ describe('buildPayload', () => {
     expect(buildPayload({ ...royal, year: '11', city: 'Cairo' })).toEqual({
       firstName: 'Joud', lastName: 'El Daher', email: 'joud@example.com', password: 'Secret123',
       schoolType: 'royal', school: 'The Royal College School', royalClass: '9H',
-      contactNumber: '01012345678', parentNumber: '+20 111 234 5678', techKnowledge: 5, englishLevel: 5
+      contactNumber: '+20 101 234 5678', parentNumber: '+20 111 234 5678', techKnowledge: 5, englishLevel: 5
     });
   });
 

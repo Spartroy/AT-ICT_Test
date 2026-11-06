@@ -15,7 +15,10 @@ const phone = (field, label) => body(field)
   .trim()
   .custom((value) => {
     const cleaned = String(value || '').replace(/[^\d+]/g, '');
-    if (!/^\+?[0-9]{7,15}$/.test(cleaned)) {
+    if (!cleaned.startsWith('+')) {
+      throw new Error(`Please include the country code in the ${label} (e.g. +962…)`);
+    }
+    if (!/^\+[0-9]{7,15}$/.test(cleaned)) {
       throw new Error(`Please provide a valid ${label} (7-15 digits)`);
     }
     return true;

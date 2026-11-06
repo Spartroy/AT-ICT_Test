@@ -31,3 +31,17 @@ describe('escapeRegex', () => {
     expect(rx.test('aXb(c)')).toBe(false);
   });
 });
+
+describe('toInternational', () => {
+  const { toInternational } = require('../utils/phone');
+  it('swaps a leading 0 for the student country code, defaulting to Jordan', () => {
+    expect(toInternational('0790702617')).toBe('+962 790702617');
+    expect(toInternational('01069365065', { country: 'Egypt' })).toBe('+20 1069365065');
+    expect(toInternational('0555176955', { nationality: 'Saudi' })).toBe('+966 555176955');
+  });
+  it('keeps numbers that already carry a code and ignores placeholders', () => {
+    expect(toInternational('+962 7 9752 7295')).toBe('+962 797527295');
+    expect(toInternational('0020 127 458 4000')).toBe('+20 1274584000');
+    expect(toInternational('N/A')).toBe('');
+  });
+});

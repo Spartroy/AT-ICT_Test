@@ -83,6 +83,8 @@
 }
 .ui-input::placeholder { color: var(--dark-text-faint); }
 .ui-input:focus { border-color: var(--crimson-500); box-shadow: 0 0 0 3px rgb(var(--crimson-rgb) / 0.25); }
+.ui-phone { display: grid; grid-template-columns: minmax(92px, 36%) 1fr; gap: 8px; }
+.ui-phone__code { padding-inline: 10px; text-overflow: ellipsis; }
 .ui-input--area { resize: vertical; min-height: 72px; }
 select.ui-input option { background: var(--dark-input); }
 .ui-field.is-invalid .ui-input { border-color: var(--dark-error); }

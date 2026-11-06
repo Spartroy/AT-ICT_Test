@@ -10,7 +10,7 @@ const crypto = require('crypto');
 const DeviceSession = require('../models/DeviceSession');
 const { freeParentEmail } = require('../utils/parentAccount');
 const { archiveStudent } = require('../services/deletedStudents');
-const { normalizePhone, isUsablePhone, escapeRegex } = require('../utils/phone');
+const { normalizePhone, isUsablePhone, escapeRegex, toInternational } = require('../utils/phone');
 const groupsSvc = require('../services/groups');
 const { calculateAssignmentPoints, calculateQuizPoints, awardPoints } = require('../utils/pointsHelper');
 
@@ -164,7 +164,7 @@ const getStudents = async (req, res) => {
     }
 
     const students = await User.find(query)
-      .select('firstName lastName email contactNumber studentInfo registrationStatus lastLogin createdAt avatar isActive')
+      .select('firstName lastName email contactNumber studentInfo registrationStatus lastLogin createdAt avatar isActive address')
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);
@@ -224,6 +224,7 @@ const getStudents = async (req, res) => {
       parentChildren: childCount.get(studentIdToParent.get(String(student._id))) || 0,
       // Hidden from assistants unless the teacher grants 'parentNumbers'
       parentNumber: student.studentInfo?.parentContactNumber || '',
+      parentNumberIntl: toInternational(student.studentInfo?.parentContactNumber, { country: student.address?.country, nationality: student.studentInfo?.nationality }),
       siblings: (byNumber.get(normalizePhone(student.studentInfo?.parentContactNumber)) || []).filter(n => n !== `${student.firstName} ${student.lastName}`)
     }));
 

@@ -446,4 +446,28 @@
 .pn-table tbody th { font-weight: 600; }
 .pn-sib { font-weight: 400; opacity: .7; }
 .pn-act { white-space: nowrap; text-align: right; }
-.pn-act .ib { display: inline-flex; margin-left: 4px; }
+.pn-card { padding: 8px; overflow-x: auto; }
+.pn-lvl-m { display: none; }
+.pn-act .ib { display: inline-grid; place-items: center; margin-left: 6px; vertical-align: middle; padding: 0; }
+.pn-act .ib svg { display: block; margin: 0; }
+.atp .pn-act .pn-copy { color: var(--cr); }
+.atp .pn-act .pn-copy:hover { color: var(--cr); border-color: var(--cr); background: rgba(202, 19, 62, .1); }
+.atp .pn-act .pn-wa { color: #00B84A; }
+.atp .pn-act .pn-wa:hover { color: #00B84A; border-color: #00B84A; background: rgba(0, 184, 74, .1); }
+.atp .pn-act .pn-call:hover { color: var(--white); }
+/* Phones: each student becomes a card instead of a sideways-scrolling table */
+@media (max-width: 640px) {
+  .pn-card { padding: 0; background: transparent; border: 0; box-shadow: none; overflow: visible; }
+  .pn-table, .pn-table tbody { display: block; min-width: 0; }
+  .pn-table thead { display: none; }
+  .pn-table tr { display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; align-items: center; padding: 14px; margin-bottom: 10px; border: 1px solid var(--bd, rgba(128, 128, 128, .25)); border-radius: 16px; background: var(--s1, transparent); }
+  .pn-table th, .pn-table td { border: 0; padding: 0; }
+  .pn-table tbody th { grid-column: 1 / -1; font-size: 1rem; margin-bottom: 2px; }
+  .pn-id, .pn-lvl { display: inline; font-size: .82rem; opacity: .7; grid-row: 2; }
+  .pn-id { grid-column: 1; }
+  .pn-lvl { display: none; }
+  .pn-lvl-m { display: inline; }
+  .pn-num { grid-column: 1; grid-row: 3; font-size: .95rem; margin-top: 6px; }
+  .pn-act { grid-column: 2; grid-row: 2 / 4; display: flex; gap: 8px; align-self: end; }
+  .pn-act .ib { width: 44px; height: 44px; margin: 0; }
+}

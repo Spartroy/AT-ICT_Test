@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ArrowRight, Check } from 'lucide-react';
 import Button from '../ui/Button';
-import { TextField, PasswordField, SelectField, TextAreaField, CheckboxField, ChoiceGroup } from '../ui/Field';
+import { TextField, PhoneField, PasswordField, SelectField, TextAreaField, CheckboxField, ChoiceGroup } from '../ui/Field';
 import { fetchRegistrationOptions, submitRegistration } from '../../utils/authApi';
 import {
   STEPS, SCHOOL_TYPES, YEARS, NATIONALITIES, initialValues,
@@ -235,10 +235,10 @@ export default function RegisterForm({ onSuccess }) {
         {step === 2 && (
           <>
             <div className="auth-row2">
-              <TextField label="Your contact number *" name="contactNumber" type="tel" placeholder="01012345678" autoComplete="tel" value={values.contactNumber} onChange={onInput('contactNumber')} error={errors.contactNumber} inputRef={reg('contactNumber')} />
-              <TextField label="Parent / guardian contact *" name="parentNumber" type="tel" placeholder="01012345678" value={values.parentNumber} onChange={onInput('parentNumber')} error={errors.parentNumber} inputRef={reg('parentNumber')} />
+              <PhoneField label="Your contact number *" name="contactNumber" placeholder="790 123 456" autoComplete="tel" value={values.contactNumber} onChange={onInput('contactNumber')} error={errors.contactNumber} inputRef={reg('contactNumber')} />
+              <PhoneField label="Parent / guardian contact *" name="parentNumber" placeholder="790 123 456" value={values.parentNumber} onChange={onInput('parentNumber')} error={errors.parentNumber} inputRef={reg('parentNumber')} />
             </div>
-            <p className="auth-note auth-note--tight">Used only for class updates and WhatsApp support.</p>
+            <p className="auth-note auth-note--tight">Pick the country code for each number. Used only for class updates and WhatsApp support.</p>
             {isCenter && (
               <div className="auth-reveal">
                 <div className="auth-where">Where are you located?</div>

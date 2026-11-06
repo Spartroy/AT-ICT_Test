@@ -56,7 +56,7 @@ export const FIELD_STEP = {
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const NAME = /^[a-zA-Z\s]+$/;
-const PHONE = /^\+?[\d\s-]{8,15}$/;
+const PHONE = /^\+\d{1,3}[\d\s-]{6,14}$/; // the country code is required
 const blank = v => !String(v ?? '').trim();
 
 const isCenter = v => v.schoolType === 'center';
@@ -86,8 +86,8 @@ export function validateStep(step, v) {
     }
   }
   if (step === 2) {
-    check('contactNumber', !PHONE.test(v.contactNumber.trim()), 'Enter a valid phone number');
-    check('parentNumber', !PHONE.test(v.parentNumber.trim()), 'Enter a valid parent phone number');
+    check('contactNumber', !PHONE.test(v.contactNumber.trim()), 'Choose a country code and enter your number');
+    check('parentNumber', !PHONE.test(v.parentNumber.trim()), 'Choose a country code and enter the parent number');
     if (isCenter(v)) {
       check('city', blank(v.city), 'Enter your city');
       check('country', blank(v.country), 'Enter your country');

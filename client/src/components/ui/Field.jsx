@@ -1,5 +1,6 @@
 import React, { useId, useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
+import { DIAL_CODES, splitPhone, joinPhone } from '../../lib/countries';
 import './ui.css';
 
 /** Wraps a control with its label, hint and inline error. */
@@ -23,6 +24,28 @@ export function TextField({ label, error, hint, className, inputRef, ...inputPro
   return (
     <Field label={label} error={error} errorId={`${id}-err`} hint={hint} className={className} htmlFor={id}>
       <input id={id} ref={inputRef} className="ui-input" aria-invalid={!!error} aria-describedby={describedBy(id, error)} {...inputProps} />
+    </Field>
+  );
+}
+
+/** Country-code picker + number. The value stays one string ("+962 790702617"), so forms treat it like any text field. */
+export function PhoneField({ label, error, hint, className, inputRef, value, onChange, name, placeholder, autoComplete }) {
+  const id = useId();
+  const parsed = splitPhone(value);
+  const [code, setCode] = useState(parsed.code);
+  const local = parsed.code === code ? parsed.local : String(value || '').replace(/^\+/, '');
+  const emit = (c, l) => onChange({ target: { name, value: joinPhone(c, l), type: 'tel' } });
+  return (
+    <Field label={label} error={error} errorId={`${id}-err`} hint={hint} className={className} htmlFor={id}>
+      <div className="ui-phone">
+        <select className="ui-input ui-phone__code" aria-label="Country code" value={code} aria-invalid={!!error}
+          onChange={e => { setCode(e.target.value); emit(e.target.value, local); }}>
+          <option value="">Code</option>
+          {DIAL_CODES.map(c => <option key={c.code} value={c.code}>{`+${c.code} ${c.label}`}</option>)}
+        </select>
+        <input id={id} ref={inputRef} name={name} className="ui-input" type="tel" inputMode="tel" autoComplete={autoComplete} placeholder={placeholder}
+          aria-invalid={!!error} aria-describedby={describedBy(id, error)} value={local} onChange={e => emit(code, e.target.value)} />
+      </div>
     </Field>
   );
 }

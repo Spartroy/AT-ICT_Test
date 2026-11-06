@@ -52,8 +52,11 @@ async function fillPersonal(user) {
 }
 
 async function fillPhones(user) {
-  await user.type(screen.getByLabelText('Your contact number *'), '01012345678');
-  await user.type(screen.getByLabelText('Parent / guardian contact *'), '01112345678');
+  const [mine, parent] = screen.getAllByLabelText('Country code');
+  await user.selectOptions(mine, '20');
+  await user.selectOptions(parent, '20');
+  await user.type(screen.getByLabelText('Your contact number *'), '1012345678');
+  await user.type(screen.getByLabelText('Parent / guardian contact *'), '1112345678');
 }
 
 afterEach(() => {
@@ -80,7 +83,7 @@ describe('registration: Royal College path', () => {
     await stepHeading('Skills assessment');
     const review = screen.getByLabelText('Review');
     expect(within(review).getByText('The Royal College School · Class 9J')).toBeInTheDocument();
-    expect(within(review).getByText('01012345678')).toBeInTheDocument();
+    expect(within(review).getByText('+20 1012345678')).toBeInTheDocument();
     await user.click(screen.getByRole('checkbox', { name: /I agree to the Terms/ }));
     await user.click(screen.getByRole('button', { name: /create account/i }));
 
@@ -90,7 +93,7 @@ describe('registration: Royal College path', () => {
     expect(body).toEqual({
       firstName: 'Joud', lastName: 'El Daher', email: 'joud@example.com', password: 'Secret123!',
       schoolType: 'royal', school: 'The Royal College School', royalClass: '9J',
-      contactNumber: '01012345678', parentNumber: '01112345678', techKnowledge: 5, englishLevel: 5
+      contactNumber: '+20 1012345678', parentNumber: '+20 1112345678', techKnowledge: 5, englishLevel: 5
     });
 
     const popup = await screen.findByRole('alertdialog', {}, { timeout: 3000 });

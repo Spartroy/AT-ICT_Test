@@ -30,7 +30,7 @@ export default function ParentNumbersPanel() {
   const rows = useMemo(() => {
     const q = search.trim().toLowerCase();
     return (list.data || [])
-      .filter(s => !q || [s.fullName, s.studentId, s.parentNumber].some(v => String(v || '').toLowerCase().includes(q)))
+      .filter(s => !q || [s.fullName, s.studentId, s.parentNumber, s.parentNumberIntl].some(v => String(v || '').toLowerCase().includes(q)))
       .sort((a, b) => a.fullName.localeCompare(b.fullName));
   }, [list.data, search]);
 
@@ -48,7 +48,7 @@ export default function ParentNumbersPanel() {
         </select>
         {!assistant && <button type="button" className="btn o sm" onClick={() => setManaging(true)}><Ic as={FileText} />Templates</button>}
       </div>
-      <div className="card" style={{ padding: 8, overflowX: 'auto' }}>
+      <div className="card pn-card">
         {list.loading && !list.data && <Loading label="Loading parent numbers…" />}
         {list.error && <ErrorNote error={list.error} onRetry={list.reload} />}
         {list.data && !rows.length && <Empty icon={Users}>No students match.</Empty>}
@@ -58,24 +58,25 @@ export default function ParentNumbersPanel() {
             <thead><tr><th scope="col">Student</th><th scope="col">ID</th><th scope="col">Level</th><th scope="col">Parent number</th><th scope="col"><span className="sr-only">Contact</span></th></tr></thead>
             <tbody>
               {rows.map(s => {
-                const has = known(s.parentNumber);
-                const wa = has ? whatsappLink(s.parentNumber, message(s)) : '';
-                const tel = has ? telHref(s.parentNumber) : '';
+                const number = s.parentNumberIntl || s.parentNumber;
+                const has = known(number);
+                const wa = has ? whatsappLink(number, message(s)) : '';
+                const tel = has ? telHref(number) : '';
                 return (
                   <tr key={s._id}>
                     <th scope="row">
                       {s.fullName}
                       {s.siblings?.length > 0 && <small className="pn-sib" title={`Same parent number as ${s.siblings.join(', ')}`}> · siblings: {s.siblings.join(', ')}</small>}
                     </th>
-                    <td>{known(s.studentId) && s.studentId !== 'Not assigned' ? s.studentId : '—'}</td>
-                    <td>{level(s)}</td>
-                    <td className="mono">{has ? s.parentNumber : <span className="sub">Not provided</span>}</td>
+                    <td className="pn-id">{known(s.studentId) && s.studentId !== 'Not assigned' ? s.studentId : '—'}<span className="pn-lvl-m"> · {level(s)}</span></td>
+                    <td className="pn-lvl">{level(s)}</td>
+                    <td className="mono pn-num">{has ? number : <span className="sub">Not provided</span>}</td>
                     <td className="pn-act">
                       {has && (
                         <>
-                          <button type="button" className="ib sm" aria-label={`Copy ${s.fullName}'s parent number`} onClick={() => copy(s.parentNumber)}><Ic as={Copy} /></button>
-                          {tel && <a className="ib sm" href={tel} aria-label={`Call ${s.fullName}'s parent`}><Ic as={Phone} /></a>}
-                          {wa && <a className="ib sm" href={wa} target="_blank" rel="noopener noreferrer" aria-label={`WhatsApp ${s.fullName}'s parent with “${template?.title}”`}><Ic as={MessageCircle} /></a>}
+                          <button type="button" className="ib sm pn-copy" aria-label={`Copy ${s.fullName}'s parent number`} onClick={() => copy(number)}><Ic as={Copy} /></button>
+                          {tel && <a className="ib sm pn-call" href={tel} aria-label={`Call ${s.fullName}'s parent`}><Ic as={Phone} /></a>}
+                          {wa && <a className="ib sm pn-wa" href={wa} target="_blank" rel="noopener noreferrer" aria-label={`WhatsApp ${s.fullName}'s parent with “${template?.title}”`}><Ic as={MessageCircle} /></a>}
                         </>
                       )}
                     </td>

@@ -15,7 +15,7 @@ const common = {
   lastName: 'El Daher',
   email: 'joud@example.com',
   password: 'secret123',
-  contactNumber: '01012345678',
+  contactNumber: '+20 101 234 5678',
   parentNumber: '+20 101 234 5678',
   techKnowledge: 5,
   englishLevel: 7
