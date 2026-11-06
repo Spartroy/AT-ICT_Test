@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Check, Plus, RotateCcw, Trash2, X } from 'lucide-react';
+import { Check, Play, Plus, RotateCcw, Trash2, X } from 'lucide-react';
 import { useConfirm } from '../../components/portal/PortalUI';
 import { BlockView, AddItem, Grip, ItemBar, T, useGuide } from './GuideBlocks';
 import { sortAttrs } from './sortable';
-import { cleanHtml, newQuestion, plainText, scoreQuiz, sectionNum, verdict } from './guideLogic';
+import { chapterActivities, cleanHtml, newQuestion, plainText, scoreQuiz, sectionActivities, sectionNum, verdict } from './guideLogic';
+import { useTried } from './triedStore';
 
 const Icon = ({ as: I }) => <I className="sg-i" aria-hidden="true" />;
 const LETTERS = 'ABCDEFGH';
@@ -33,6 +34,7 @@ function SectionView({ sec, path, index }) {
           </span>
         )}
       </header>
+      {!ctx.editing && <ActivityPill acts={sectionActivities(sec)} />}
       <div className="sg-blocks">
         {ctx.editing && <InsertPoint list={blocksPath} at={0} />}
         {sec.blocks.map((b, bi) => (
@@ -44,6 +46,42 @@ function SectionView({ sec, path, index }) {
         {!sec.blocks.length && ctx.editing && <p className="sg-muted">This section is empty. Add a block above.</p>}
       </div>
     </section>
+  );
+}
+
+const jumpTo = (id) => document.getElementById(`act-${id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+/** "This section has an activity" nudge under a section heading (students only). */
+function ActivityPill({ acts }) {
+  const tried = useTried();
+  if (!acts.length) return null;
+  const next = acts.find(a => !tried.has(a.id)) || acts[0];
+  const left = acts.filter(a => !tried.has(a.id)).length;
+  return (
+    <button type="button" className={`sg-pill ${left ? '' : 'done'}`} onClick={() => jumpTo(next.id)}>
+      <span className="sg-pill-ic"><Icon as={left ? Play : Check} /></span>
+      <span>{left ? `${acts.length === 1 ? '1 hands-on activity' : `${acts.length} hands-on activities`} in this section` : 'Activities tried'}</span>
+      <b>{left ? 'Jump to it' : 'Try again'}</b>
+    </button>
+  );
+}
+
+/** Chapter header line: how many activities the chapter has and how many were tried. */
+function ChapterActivities({ ch }) {
+  const tried = useTried();
+  const acts = chapterActivities(ch);
+  if (!acts.length) return null;
+  const n = acts.filter(a => tried.has(a.id)).length;
+  return (
+    <div className="sg-acts" role="group" aria-label="Activities in this chapter">
+      <span className="sg-acts-ic"><Icon as={Play} /></span>
+      <div className="sg-acts-t">
+        <b>{acts.length === 1 ? 'This chapter has 1 hands-on activity' : `This chapter has ${acts.length} hands-on activities`}</b>
+        <span>{n === acts.length ? 'You have tried them all. Nice work!' : `${n} of ${acts.length} tried`}</span>
+        <i className="sg-acts-bar" aria-hidden="true"><em style={{ width: `${(n / acts.length) * 100}%` }} /></i>
+      </div>
+      <button type="button" className="sg-acts-go" onClick={() => jumpTo((acts.find(a => !tried.has(a.id)) || acts[0]).id)}>{n === 0 ? 'Find the first' : n === acts.length ? 'Review' : 'Next one'}</button>
+    </div>
   );
 }
 
@@ -187,6 +225,7 @@ export default function ChapterView({ ch, ci }) {
         <span className="sg-kicker">Chapter {ctx.editing ? <T v={ch.n} path={[...path, 'n']} ph="1" /> : ch.n}</span>
         <h1><T v={ch.title} path={[...path, 'title']} ph="Chapter title" /> <em><T v={ch.hl} path={[...path, 'hl']} ph="Highlight" /></em></h1>
         <T as="p" className="sg-lede" v={ch.blurb} path={[...path, 'blurb']} ph="One sentence on what this chapter covers" />
+        {!ctx.editing && <ChapterActivities ch={ch} />}
       </header>
       {ch.secs.map((s, si) => <SectionView key={s.id} sec={s} path={[...secsPath, si]} index={si} />)}
       {ctx.editing && (

@@ -1,9 +1,10 @@
 import React, { createContext, forwardRef, useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { AlertTriangle, ChevronDown, GripVertical, Lightbulb, Pencil, Play, Plus, RotateCcw, Trash2, X } from 'lucide-react';
+import { AlertTriangle, ArrowLeftRight, BookOpen, Calculator, Check, ChevronDown, CircuitBoard, Cpu, Database, Disc, Globe, GripVertical, HardDrive, Keyboard, Lightbulb, Link as LinkIcon, Link2, Lock, Network, Pencil, Play, Plus, Printer, RotateCcw, Router, Trash2, UploadCloud, Volume2, Wifi, X } from 'lucide-react';
 import { Dialog, DialogHeader } from '../../components/portal/PortalUI';
 import { ACTIVITY_TAGS, cleanHtml, isActivity, kindOf } from './guideLogic';
 import { applyOverrides, collectTexts, loadDemos, watchOverrides } from './activityText';
 import { beginDrag, sortAttrs } from './sortable';
+import { markTried, useTried } from './triedStore';
 import '../../styles/guide.css';
 
 /**
@@ -427,25 +428,41 @@ const DemoHost = forwardRef(function DemoHost({ tag, map }, hostRef) {
   return React.createElement(tag, { ref: (el) => { elRef.current = el; if (hostRef) hostRef.current = el; } });
 });
 
-/** A practical activity in its own labelled panel: instruction first, the demo opens on demand. */
+const ACTIVITY_ICON = {
+  ipo: Calculator, compiler: Cpu, linker: Link2, keyboard: Keyboard, printer3d: Printer, speaker: Volume2, actuator: CircuitBoard,
+  access: Database, hdd: HardDrive, cd: Disc, wifi: Wifi, hubswitch: Network, router: Router, protocol: ArrowLeftRight,
+  http: Lock, ftp: UploadCloud, urlgame: LinkIcon, webterms: BookOpen, browser: Globe
+};
+
+/** A practical activity as a bold card that stands out from the notes: icon, what to do, a Start button. The demo opens below it. */
 function TryIt({ b, path }) {
   const { editing, set } = useGuide();
   const [open, setOpen] = useState(editing);
   const [mounted, setMounted] = useState(editing);
   const [wording, setWording] = useState(false);
   const hostRef = useRef(null);
-  const toggle = () => { setMounted(true); setOpen(o => !o); };
+  const done = useTried().has(b.id);
+  const toggle = () => {
+    setMounted(true);
+    setOpen(o => !o);
+    if (!editing && !open) markTried(b.id);
+  };
+  const Glyph = ACTIVITY_ICON[b.t] || Play;
 
   return (
-    <div className={`sg-try ${open ? 'open' : ''}`}>
+    <div className={`sg-try ${open ? 'open' : ''} ${done && !editing ? 'done' : ''}`} id={`act-${b.id}`}>
       <div className="sg-try-head">
-        <span className="sg-try-badge"><Icon as={Play} />Try it</span>
+        <span className="sg-try-ic" aria-hidden="true"><Glyph className="sg-i" /></span>
         <div className="sg-try-text">
+          <span className="sg-try-tag">
+            <Icon as={Play} />Hands-on activity
+            {done && !editing && <span className="sg-try-done"><Icon as={Check} />Tried</span>}
+          </span>
           <T as="h3" v={b.title} path={[...path, 'title']} ph="Activity title" />
           <T as="p" v={b.ins} path={[...path, 'ins']} ph="What should students do?" />
         </div>
         <button type="button" className="sg-try-go" onClick={toggle} aria-expanded={open}>
-          {open ? 'Close' : 'Open activity'}<Icon as={ChevronDown} />
+          {open ? 'Close' : done && !editing ? 'Try again' : 'Start'}<Icon as={open ? ChevronDown : Play} />
         </button>
       </div>
       {mounted && (

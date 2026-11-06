@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { ChevronDown, ListTree } from 'lucide-react';
-import { chapterTag, groupChapters, plainText, sectionNum } from './guideLogic';
+import { Check, ChevronDown, ListTree, Play } from 'lucide-react';
+import { chapterActivities, chapterTag, groupChapters, plainText, sectionActivities, sectionNum } from './guideLogic';
+import { useTried } from './triedStore';
 
 const Icon = ({ as: I }) => <I className="sg-i" aria-hidden="true" />;
 
@@ -27,12 +28,23 @@ function useActiveSection(ids) {
   return active;
 }
 
+/** Small play marker for entries that hold activities; a tick once they are all tried. */
+function ActMark({ acts, tried, count = false }) {
+  const done = acts.every(a => tried.has(a.id));
+  return (
+    <em className={`sg-nav-act ${done ? 'done' : ''}`} title={done ? 'All activities tried' : `${acts.length} hands-on ${acts.length === 1 ? 'activity' : 'activities'}`}>
+      <Icon as={done ? Check : Play} />{count && !done ? acts.length : ''}
+    </em>
+  );
+}
+
 /**
  * Contents: the three phases, their chapters, and the sections of the chapter being read.
  * On a phone it folds into a single "Contents" bar so the page keeps its width.
  */
 export default function GuideNav({ chapters, current, onSelect, onSection }) {
   const [open, setOpen] = useState(false);
+  const tried = useTried();
   const groups = groupChapters(chapters);
   const ch = chapters[current];
   const ids = ch ? ch.secs.map(s => s.id) : [];
@@ -56,6 +68,7 @@ export default function GuideNav({ chapters, current, onSelect, onSection }) {
                 <button type="button" className={`sg-nav-ch ${index === current ? 'on' : ''}`} onClick={() => go(() => onSelect(index))} aria-current={index === current ? 'page' : undefined}>
                   <i>{String(c.n).replace(' · PART ', ' P')}</i>
                   <span>{plainText(c.title)} {plainText(c.hl)}</span>
+                  {chapterActivities(c).length > 0 && <ActMark acts={chapterActivities(c)} tried={tried} count />}
                 </button>
                 {index === current && (
                   <ul className="sg-nav-secs">
@@ -63,6 +76,7 @@ export default function GuideNav({ chapters, current, onSelect, onSection }) {
                       <li key={s.id}>
                         <button type="button" className={active === s.id ? 'on' : ''} onClick={() => go(() => onSection(s.id))}>
                           <i>{sectionNum(s)}</i><span>{plainText(s.title)}</span>
+                          {sectionActivities(s).length > 0 && <ActMark acts={sectionActivities(s)} tried={tried} />}
                         </button>
                       </li>
                     ))}

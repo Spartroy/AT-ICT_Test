@@ -157,6 +157,10 @@ export const ACTIVITY_TAGS = {
 };
 export const isActivity = (type) => type in ACTIVITY_TAGS;
 
+/** The practical-activity blocks of a section, and of a whole chapter. */
+export const sectionActivities = (sec) => (sec.blocks || []).filter(b => isActivity(b.t));
+export const chapterActivities = (ch) => ch.secs.flatMap(sectionActivities);
+
 const ACTIVITY_LABELS = {
   ipo: 'Calculator: input, process, output', compiler: 'Compiler', linker: 'Linker', keyboard: 'How a keyboard works', printer3d: '3D printer',
   speaker: 'Inside a speaker', actuator: 'Build an actuator circuit', access: 'Serial vs direct access', hdd: 'Inside a hard disk drive',
