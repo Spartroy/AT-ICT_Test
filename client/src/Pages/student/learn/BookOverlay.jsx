@@ -73,11 +73,13 @@ export default function BookOverlay({ m, spine, style, catLabel, onClosed }) {
     return () => cancelAnimationFrame(raf);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Scale that makes the open book (both pages on wide screens, the one page on narrow ones) cover the whole window.
+  // Scale that grows the open book (both pages on wide screens, the one page on narrow ones) until it fits the window
+  // with a margin around it, never cropped and never huge on big monitors. The reader then fades in over it.
   const expandTransform = () => {
     const r = flyRef.current.getBoundingClientRect();
     const spreadWidth = window.matchMedia('(max-width: 700px)').matches ? r.width : r.width * 2;
-    return `scale(${Math.max(window.innerWidth / spreadWidth, window.innerHeight / r.height) * 1.03})`;
+    const fit = Math.min((window.innerWidth * 0.92) / spreadWidth, (window.innerHeight * 0.88) / r.height);
+    return `scale(${Math.max(1, Math.min(fit, 2.2))})`;
   };
 
   // PDFs and links: once the book has finished opening it grows until it fills the screen, and the reader fades in over it.

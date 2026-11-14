@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Award, CheckCircle2, Clock, FileText, GraduationCap, Hourglass, ListChecks, Play, RefreshCw, RotateCcw, Timer } from 'lucide-react';
 import useApi from '../../hooks/useApi';
 import { API_ENDPOINTS } from '../../config/api';

@@ -1,0 +1,92 @@
+/* Practical skill tree (Learn > Skill tree) */
+.atp-student .sk { display: grid; gap: 16px; --app: #d3173f; }
+.sk-hero { display: flex; gap: 18px; align-items: center; padding: 18px 20px; background: linear-gradient(120deg, rgb(var(--crimson-rgb) / 0.18), transparent 60%), var(--s1, var(--s2)); }
+.sk-lv { width: 84px; height: 84px; flex: none; border-radius: 22px; display: grid; place-items: center; align-content: center; background: linear-gradient(145deg, var(--crimson-500), var(--crimson-900)); color: #fff; box-shadow: 0 12px 30px -10px rgb(var(--crimson-rgb) / 0.8); }
+.sk-lv b { font-size: 1.9rem; line-height: 1; }
+.sk-lv small { font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.85; }
+.sk-herom { flex: 1; min-width: 0; display: grid; gap: 6px; }
+.sk-herom h2 { margin: 0; }
+.sk-herom p { margin: 0; color: var(--mu); }
+.sk-herom small { color: var(--mu); }
+.sk-xp, .sk-bar { height: 10px; border-radius: 99px; background: var(--s3, rgb(255 255 255 / 0.1)); overflow: hidden; }
+.sk-xp i, .sk-bar i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--app, var(--crimson-500)), var(--crimson-glow)); transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1); }
+.sk-xp i { background: linear-gradient(90deg, var(--crimson-500), #ffb02e); }
+
+.sk-apps { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 4px; }
+.sk-apps button { display: flex; align-items: center; gap: 10px; padding: 8px 16px 8px 8px; border-radius: 16px; border: 1.5px solid var(--bd); background: var(--s2); color: inherit; cursor: pointer; flex: none; transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s; }
+.sk-apps button:hover { transform: translateY(-2px); }
+.sk-apps button.on { border-color: var(--app); box-shadow: 0 8px 24px -10px var(--app); background: color-mix(in srgb, var(--app) 14%, var(--s2)); }
+.sk-apps strong { display: block; }
+.sk-apps small { color: var(--mu); font-size: 0.74rem; }
+.sk-ring { width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; background: conic-gradient(var(--app) calc(var(--p) * 1%), rgb(255 255 255 / 0.1) 0); position: relative; }
+.sk-ring::before { content: ''; position: absolute; inset: 5px; border-radius: 50%; background: var(--s2); }
+.sk-ring b { position: relative; font-size: 0.7rem; }
+
+.sk-banner { display: grid; gap: 10px; padding: 16px 18px; border-left: 4px solid var(--app); }
+.sk-banner h3 { margin: 0; }
+.sk-banner p { margin: 0; color: var(--mu); }
+.sk-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.sk-chips span { display: inline-flex; gap: 6px; align-items: center; padding: 4px 12px; border-radius: 999px; background: var(--s3, rgb(255 255 255 / 0.08)); font-size: 0.8rem; font-weight: 600; }
+.sk-chips svg { color: var(--app); }
+
+.sk-grid { display: grid; grid-template-columns: 260px minmax(0, 1fr); gap: 16px; align-items: start; }
+.sk-quests { position: sticky; top: 8px; padding: 16px; max-height: calc(100vh - 40px); overflow: auto; }
+.sk-quests h4, .sk-branch h4 { margin: 0 0 12px; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--mu); display: flex; justify-content: space-between; gap: 8px; }
+.sk-branch h4 small { color: var(--app); font-size: 0.8rem; }
+.sk-quests ol { list-style: none; margin: 0; padding: 0; position: relative; }
+.sk-quests ol::before { content: ''; position: absolute; left: 19px; top: 20px; bottom: 20px; width: 3px; border-radius: 3px; background: var(--bd2); }
+.sk-q { position: relative; }
+.sk-q button { width: 100%; display: flex; align-items: center; gap: 12px; padding: 6px 8px 6px 0; background: none; border: 0; color: inherit; text-align: left; cursor: pointer; border-radius: 12px; }
+.sk-node { position: relative; z-index: 1; width: 40px; height: 40px; flex: none; display: grid; place-items: center; border-radius: 13px; background: var(--s2); border: 2px solid var(--bd2); font-weight: 800; transition: transform 0.15s, background 0.2s, border-color 0.2s; }
+.sk-q button:hover .sk-node { transform: scale(1.08); }
+.sk-q.done .sk-node { background: var(--app); border-color: var(--app); color: #fff; box-shadow: 0 6px 16px -6px var(--app); }
+.sk-q.sel .sk-node, .sk-q.hl .sk-node { border-color: var(--app); box-shadow: 0 0 0 4px color-mix(in srgb, var(--app) 30%, transparent); }
+.sk-qt { display: grid; min-width: 0; }
+.sk-qt small { color: var(--mu); }
+.sk-q.dim { opacity: 0.35; }
+
+.sk-branches { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); align-items: start; }
+.sk-branch { padding: 16px; position: relative; overflow: hidden; }
+.sk-branch::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--app); opacity: 0.8; }
+.sk-leaves { display: flex; flex-wrap: wrap; gap: 8px; }
+.sk-s { display: inline-flex; align-items: center; gap: 7px; padding: 6px 12px 6px 8px; border-radius: 999px; border: 1.5px solid var(--bd2); background: var(--s2); color: inherit; font-size: 0.82rem; font-weight: 600; cursor: pointer; text-align: left; transition: transform 0.15s, opacity 0.2s, background 0.2s, border-color 0.2s; }
+.sk-s i { width: 18px; height: 18px; flex: none; border-radius: 50%; display: grid; place-items: center; border: 2px solid currentColor; color: var(--app); }
+.sk-s:hover { transform: translateY(-1px); border-color: var(--app); }
+.sk-s.locked { color: var(--mu); border-style: dashed; background: transparent; }
+.sk-s.locked i { color: var(--mu); border-width: 1.5px; }
+.sk-s.open { border-color: color-mix(in srgb, var(--app) 60%, transparent); }
+.sk-s.open.bonus { border-style: dotted; }
+.sk-s.mastered { background: var(--app); border-color: var(--app); color: #fff; box-shadow: 0 6px 18px -8px var(--app); }
+.sk-s.mastered i { background: #fff; color: var(--app); border-color: #fff; }
+.sk-s.dim { opacity: 0.28; }
+.sk-s.hl, .sk-s.sel { box-shadow: 0 0 0 3px color-mix(in srgb, var(--app) 40%, transparent); transform: scale(1.04); }
+.sk-s.fresh { animation: sk-unlock 1.1s cubic-bezier(0.2, 1.4, 0.4, 1) 3; }
+@keyframes sk-unlock { 0% { transform: scale(0.8); box-shadow: 0 0 0 0 var(--app); } 50% { transform: scale(1.14); } 100% { transform: scale(1); box-shadow: 0 0 0 14px transparent; } }
+
+.sk-detail { background: var(--s2, #17171b); position: sticky; bottom: 10px; z-index: 5; display: flex; gap: 16px; align-items: flex-start; justify-content: space-between; padding: 16px 18px; border: 1.5px solid var(--app); box-shadow: 0 18px 40px -16px rgb(0 0 0 / 0.7); backdrop-filter: blur(8px); animation: sk-rise 0.25s ease both; }
+.sk-detail.empty { justify-content: center; align-items: center; gap: 10px; color: var(--mu); border-color: var(--bd); box-shadow: none; position: static; }
+@keyframes sk-rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.sk-detail h4 { margin: 0 0 4px; display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+.sk-detail h4 small { color: var(--app); font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; }
+.sk-detail p { margin: 6px 0; }
+.sk-brief { color: var(--mu); }
+.sk-meta { display: flex; gap: 14px; flex-wrap: wrap; color: var(--mu); font-size: 0.82rem; }
+.sk-meta span { display: inline-flex; gap: 5px; align-items: center; }
+.sk-tags, .sk-cov { display: flex; flex-wrap: wrap; gap: 6px; }
+.sk-tags span { padding: 2px 10px; border-radius: 999px; background: var(--s3, rgb(255 255 255 / 0.08)); font-size: 0.75rem; }
+.sk-cov button { padding: 3px 10px; border-radius: 999px; border: 1px solid var(--bd2); background: var(--s2); color: inherit; font-size: 0.76rem; cursor: pointer; }
+.sk-cov button:hover { border-color: var(--app); }
+.sk-cov button.done { border-color: var(--app); color: var(--app); }
+.sk-acts { display: grid; gap: 8px; justify-items: stretch; flex: none; }
+
+@media (max-width: 860px) {
+  .sk-grid { grid-template-columns: 1fr; }
+  .sk-quests { position: static; max-height: none; }
+  .sk-quests ol { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 6px; }
+  .sk-quests ol::before { display: none; }
+  .sk-q button { flex-direction: column; width: 92px; text-align: center; padding: 6px; }
+  .sk-detail { flex-direction: column; }
+  .sk-acts { width: 100%; }
+  .sk-hero { flex-direction: column; align-items: flex-start; }
+}
+@media (prefers-reduced-motion: reduce) { .sk-s.fresh, .sk-detail { animation: none; } .sk-xp i, .sk-bar i { transition: none; } }

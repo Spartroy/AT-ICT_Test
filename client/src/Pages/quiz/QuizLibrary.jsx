@@ -79,6 +79,7 @@ export default function QuizLibrary({ canEdit = true }) {
       {builder && <QuizBuilder open onClose={() => { setBuilder(null); list.reload(); }} quizId={builder.id || null} />}
       {results && <QuizResults quizId={results} onClose={() => { setResults(null); list.reload(); }} onEdit={(id) => { setResults(null); setBuilder({ id }); }} />}
       {bank && <BankEditor onClose={() => setBank(false)} />}
+      {radar && <IntegrityRadar onClose={() => setRadar(false)} />}
     </div>
   );
 }
