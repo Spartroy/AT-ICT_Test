@@ -4,14 +4,31 @@
 // `similarity` compares two attempts of the same quiz.
 const { tokens, norm } = require('./classify');
 
-const EVENT_TYPES = new Set(['hidden', 'visible', 'blur', 'focus', 'fs_exit', 'fs_enter', 'paste', 'copy', 'cut', 'contextmenu', 'print', 'offline', 'online', 'resume', 'devtools']);
+const EVENT_TYPES = new Set(['hidden', 'visible', 'blur', 'focus', 'fs_exit', 'fs_enter', 'paste', 'copy', 'cut', 'contextmenu', 'print', 'offline', 'online', 'resume', 'devtools', 'violation', 'card']);
 
 /** Keeps only well-formed events and caps the list so a hostile client cannot bloat the document. */
 function cleanEvents(events) {
   if (!Array.isArray(events)) return [];
   return events.slice(0, 500)
     .filter(e => e && EVENT_TYPES.has(e.type) && Number.isFinite(Number(e.t)))
-    .map(e => ({ t: Math.max(0, Math.round(Number(e.t))), type: e.type, len: Number.isFinite(Number(e.len)) ? Math.round(Number(e.len)) : undefined, q: typeof e.q === 'string' ? e.q.slice(0, 40) : undefined }));
+    .map(e => ({ t: Math.max(0, Math.round(Number(e.t))), type: e.type, len: Number.isFinite(Number(e.len)) ? Math.round(Number(e.len)) : undefined, q: typeof e.q === 'string' ? e.q.slice(0, 40) : undefined, n: Number.isFinite(Number(e.n)) ? Math.max(0, Math.min(99, Math.round(Number(e.n)))) : undefined }));
+}
+
+/**
+ * The in-quiz discipline ladder, rebuilt from the events the page recorded:
+ * 1st illegal action = reminder, 2nd = yellow card + 30s pause, 3rd = second yellow + 2 marks off, 4th = red card (sent off).
+ */
+const PENALTY_MARKS = 2;
+function discipline(events) {
+  const ev = cleanEvents(events);
+  const cards = ev.filter(e => e.type === 'card').map(e => e.q);
+  const red = cards.includes('red');
+  return {
+    violations: ev.filter(e => e.type === 'violation').length,
+    yellows: cards.filter(c => c === 'yellow1' || c === 'yellow2').length,
+    sentOff: red,
+    penalty: red || cards.includes('yellow2') ? PENALTY_MARKS : 0
+  };
 }
 
 function summarise(events, { durationMs = 0, spentMs = 0, suggestedMs = 0, scoreRatio = null } = {}) {
@@ -40,6 +57,9 @@ function summarise(events, { durationMs = 0, spentMs = 0, suggestedMs = 0, score
   else if (pastes.length) flag('paste', 'low', `Pasted ${pastes.length} time${pastes.length === 1 ? '' : 's'}`);
   if (count('fs_exit') >= 2) flag('fullscreen', 'medium', `Left fullscreen ${count('fs_exit')} times`);
   if (count('print') || count('devtools')) flag('tools', 'medium', 'Tried to print or open developer tools');
+  const d = discipline(ev);
+  if (d.sentOff) flag('red', 'high', 'Sent off with a red card. The quiz ended with the answers given so far');
+  else if (d.yellows) flag('yellow', 'medium', `${d.yellows} yellow card${d.yellows === 1 ? '' : 's'}${d.penalty ? `, ${d.penalty} marks deducted` : ''}`);
   if (count('offline') >= 2) flag('offline', 'low', `Connection dropped ${count('offline')} times`);
   if (suggestedMs && spentMs && spentMs < suggestedMs * 0.2 && scoreRatio !== null && scoreRatio >= 0.8) flag('fast', 'medium', 'Finished in under 20% of the expected time with a high score');
   const rank = { low: 1, medium: 2, high: 3 };
@@ -82,4 +102,4 @@ function similarity(a, b) {
   return { score, reasons };
 }
 
-module.exports = { cleanEvents, summarise, similarity, EVENT_TYPES };
+module.exports = { discipline, PENALTY_MARKS, cleanEvents, summarise, similarity, EVENT_TYPES };

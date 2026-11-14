@@ -20,6 +20,8 @@ const schema = new mongoose.Schema({
   grades: { type: [Mixed], default: [] }, // one per quiz item: { uid, max, final, kind, rows | parts }
   score: { type: Number, default: 0 },
   maxScore: { type: Number, default: 0 },
+  penalty: { type: Number, default: 0 }, // marks taken off for yellow cards
+  sentOff: { type: Boolean, default: false },
   aiMarked: { type: Boolean, default: false },
   reviewedAt: Date,
   reviewedBy: { type: mongoose.Schema.ObjectId, ref: 'User' },

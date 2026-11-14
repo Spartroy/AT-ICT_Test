@@ -60,7 +60,10 @@ async function finalizeAttempt(quiz, attempt, { auto = false } = {}) {
   const grades = gradeAttempt(quiz.items, attempt.answers);
   let aiCount = 0;
   try { aiCount = await ai.applySuggestions(quiz.items, grades); } catch (err) { console.error('AI marking failed:', err.message); }
-  const t = totals(grades);
+  const d = cheat.discipline(attempt.events);
+  attempt.penalty = d.penalty;
+  attempt.sentOff = d.sentOff;
+  const t = totals(grades, d.penalty);
   const now = new Date();
   const spentMs = Math.max(0, Math.min(now, attempt.endsAt || now) - attempt.startedAt);
   attempt.grades = grades;
@@ -100,12 +103,14 @@ function resultForStudent(quiz, attempt) {
     }
     return out;
   });
-  const t = totals(attempt.grades.map((g, i) => (g.final || reviewed ? g : { ...g, final: false, parts: undefined, awarded: 0, max: g.max ?? quiz.items[i].marks })));
+  const t = totals(attempt.grades.map((g, i) => (g.final || reviewed ? g : { ...g, final: false, parts: undefined, awarded: 0, max: g.max ?? quiz.items[i].marks })), attempt.penalty);
   return {
     status: attempt.status,
     reviewed,
     submittedAt: attempt.submittedAt,
     autoSubmitted: attempt.autoSubmitted,
+    penalty: attempt.penalty || 0,
+    sentOff: !!attempt.sentOff,
     score: reviewed ? t.score : t.objectiveScore,
     max: reviewed ? t.max : t.max,
     scoredOutOf: reviewed ? t.max : t.objectiveMax,

@@ -1,14 +1,18 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { AlertTriangle, Check, Clock, Maximize, Send, ShieldCheck, X } from 'lucide-react';
+import { AlertTriangle, Award, Check, Clock, ListChecks, Maximize, Send, ShieldCheck, Timer, X } from 'lucide-react';
 import { api } from '../../lib/api';
 import { API_ENDPOINTS } from '../../config/api';
 import { Ic } from '../../components/portal/kit';
-import { Dialog, DialogHeader, useConfirm, useToast } from '../../components/portal/PortalUI';
+import { useConfirm, useToast } from '../../components/portal/PortalUI';
 import QuestionInput from './QuestionInputs';
+import DisciplineOverlay, { PENALTY, levelFor } from './Discipline';
+import { PledgeScroll, StartCountdown } from './QuizCeremony';
+import { unlockAudio } from './quizSound';
 import { formatClock, isAnswered } from './quizLogic';
 import '../../styles/quizgen.css';
 
 const S = API_ENDPOINTS.THEORY_QUIZ.STUDENT;
+const studentName = () => { try { const u = JSON.parse(localStorage.getItem('user')) || {}; return [u.firstName, u.lastName].filter(Boolean).join(' '); } catch { return ''; } };
 
 /**
  * The full-screen exam. Answers autosave to the server; the clock comes from the server; what the student does
@@ -18,13 +22,13 @@ const S = API_ENDPOINTS.THEORY_QUIZ.STUDENT;
 export default function QuizPlayer({ quiz, onFinish, onExit }) {
   const toast = useToast();
   const confirm = useConfirm();
-  const [phase, setPhase] = useState('intro'); // intro | running
+  const [phase, setPhase] = useState('intro'); // intro | pledge | countdown | running
   const [session, setSession] = useState(null);
   const [answers, setAnswers] = useState({});
-  const [pledge, setPledge] = useState(false);
   const [busy, setBusy] = useState(false);
   const [left, setLeft] = useState(0);
-  const [warn, setWarn] = useState(0); // number of leaves shown in the "you left" notice
+  const [ruling, setRuling] = useState(null); // the reminder / card currently on screen
+  const [yellows, setYellows] = useState(0);
   const [fsLost, setFsLost] = useState(false);
   const [saved, setSaved] = useState('');
   const integrity = quiz.integrity || {};
@@ -35,7 +39,11 @@ export default function QuizPlayer({ quiz, onFinish, onExit }) {
   const offset = useRef(0);
   const startedAt = useRef(0);
   const finishing = useRef(false);
-  const leaves = useRef(0);
+  const violations = useRef(0);
+  const lastViolation = useRef(0);
+  const ruled = useRef(false);
+  const pledged = useRef(false);
+  const submitting = useRef(null);
   const sessionRef = useRef(null);
   sessionRef.current = session;
   const finishRef = useRef(onFinish);
@@ -52,21 +60,31 @@ export default function QuizPlayer({ quiz, onFinish, onExit }) {
     startedAt.current = new Date(data.startedAt).getTime();
     answersRef.current = data.answers || {};
     setAnswers(answersRef.current);
+    violations.current = data.discipline?.violations || 0;
+    setYellows(data.discipline?.yellows || 0);
     setSession(data);
     setLeft(new Date(data.endsAt).getTime() - now());
     setPhase('running');
   };
 
-  const start = async () => {
+  // Starting: a tap (so sound and full screen are allowed), then pledge, then the 3-2-1, then the server clock starts
+  const press = async () => {
+    unlockAudio();
+    if (integrity.fullscreen && document.documentElement.requestFullscreen) {
+      try { await document.documentElement.requestFullscreen(); } catch { /* fullscreen is a request, not a requirement */ }
+    }
+    if (quiz.state === 'in_progress') { goLive(); return; }
+    setPhase(integrity.pledge ? 'pledge' : 'countdown');
+  };
+
+  const goLive = async () => {
     setBusy(true);
     try {
-      if (integrity.fullscreen && document.documentElement.requestFullscreen) {
-        try { await document.documentElement.requestFullscreen(); } catch { /* fullscreen is a request, not a requirement */ }
-      }
-      const r = await api.post(`${S}/quizzes/${quiz._id}/start`, { pledge });
+      const r = await api.post(`${S}/quizzes/${quiz._id}/start`, { pledge: pledged.current || !integrity.pledge });
       begin(r.data);
     } catch (err) {
       if (err.status === 409 && err.body?.data?.attemptId) { finishRef.current(err.body.data.attemptId); return; }
+      setPhase('intro');
       toast(err.message || "Couldn't start the quiz");
     } finally {
       setBusy(false);
@@ -106,6 +124,35 @@ export default function QuizPlayer({ quiz, onFinish, onExit }) {
     }
   }, [toast]);
 
+  // An illegal action: reminder, then yellow card + pause, then yellow card + marks off, then red card
+  const raise = useCallback((reason) => {
+    if (finishing.current || ruled.current) return;
+    const t = Date.now();
+    if (t - lastViolation.current < 1500) return;
+    lastViolation.current = t;
+    violations.current += 1;
+    const n = violations.current;
+    const level = levelFor(n);
+    log('violation', { q: reason, n });
+    if (level !== 'reminder') log('card', { q: level });
+    if (level === 'yellow1' || level === 'yellow2') setYellows(y => y + 1);
+    ruled.current = true;
+    setRuling({ n, level, reason });
+    if (level === 'red') {
+      finishing.current = true;
+      const cur = sessionRef.current;
+      if (document.fullscreenElement) document.exitFullscreen?.().catch(() => {});
+      submitting.current = api.post(`${S}/attempts/${cur.attemptId}/submit`, { answers: answersRef.current, events: events.current.splice(0), auto: true });
+    } else flush();
+  }, [log, flush]);
+
+  const closeRuling = () => { ruled.current = false; setRuling(null); };
+  const sentOff = async () => {
+    const cur = sessionRef.current;
+    try { await submitting.current; } catch { /* the server also ends it when you come back */ }
+    finishRef.current(cur.attemptId);
+  };
+
   const change = (uid, v) => {
     answersRef.current = { ...answersRef.current, [uid]: v };
     dirty.current = true;
@@ -128,22 +175,29 @@ export default function QuizPlayer({ quiz, onFinish, onExit }) {
   useEffect(() => {
     if (phase !== 'running') return undefined;
     const onVis = () => {
-      if (document.hidden) { log('hidden'); leaves.current += 1; flush(); } else { log('visible'); if (integrity.warnOnLeave) setWarn(leaves.current); }
+      if (document.hidden) { log('hidden'); flush(); } else { log('visible'); if (integrity.warnOnLeave) raise('leave'); }
     };
     const onBlur = () => { if (!document.hidden) log('blur'); };
     const onFocus = () => { if (!document.hidden) log('focus'); };
-    const onFs = () => { if (!document.fullscreenElement && integrity.fullscreen && !finishing.current) { log('fs_exit'); setFsLost(true); } else if (document.fullscreenElement) { log('fs_enter'); setFsLost(false); } };
+    const onFs = () => { if (!document.fullscreenElement && integrity.fullscreen && !finishing.current) { log('fs_exit'); setFsLost(true); raise('fullscreen'); } else if (document.fullscreenElement) { log('fs_enter'); setFsLost(false); } };
     const onPaste = (e) => {
       const len = (e.clipboardData?.getData('text') || '').length;
       log('paste', { len });
-      if (integrity.blockPaste) { e.preventDefault(); toast('Pasting is turned off for this quiz. Type your answer.'); }
+      if (integrity.blockPaste) { e.preventDefault(); raise('paste'); }
     };
-    const onCopy = (e) => log(e.type);
+    const onCopy = (e) => {
+      log(e.type);
+      const tag = document.activeElement?.tagName;
+      if (integrity.warnOnLeave && tag !== 'INPUT' && tag !== 'TEXTAREA') { e.preventDefault(); raise('copy'); }
+    };
     const onMenu = () => log('contextmenu');
-    const onPrint = () => log('print');
+    const onPrint = () => { log('print'); if (integrity.warnOnLeave) raise('print'); };
     const onOff = () => log('offline');
     const onOn = () => log('online');
-    const onKey = (e) => { if ((e.ctrlKey || e.metaKey) && (e.key === 'p' || e.key === 'P')) log('print'); if (e.key === 'F12') log('devtools'); };
+    const onKey = (e) => {
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'p' || e.key === 'P')) { log('print'); if (integrity.warnOnLeave) raise('print'); }
+      if (e.key === 'F12') { log('devtools'); if (integrity.warnOnLeave) { e.preventDefault(); raise('devtools'); } }
+    };
     const onUnload = (e) => { if (!finishing.current) { e.preventDefault(); e.returnValue = ''; } };
     document.addEventListener('visibilitychange', onVis);
     window.addEventListener('blur', onBlur);
@@ -173,7 +227,7 @@ export default function QuizPlayer({ quiz, onFinish, onExit }) {
       window.removeEventListener('keydown', onKey);
       window.removeEventListener('beforeunload', onUnload);
     };
-  }, [phase, integrity.warnOnLeave, integrity.blockPaste, integrity.fullscreen, log, flush, toast]);
+  }, [phase, integrity.warnOnLeave, integrity.blockPaste, integrity.fullscreen, log, flush, raise]);
 
   const items = useMemo(() => session?.items || [], [session]);
   const done = useMemo(() => items.filter(it => isAnswered(it, answers[it.uid])).length, [items, answers]);
@@ -187,11 +241,11 @@ export default function QuizPlayer({ quiz, onFinish, onExit }) {
 
   const askExit = () => { if (phase === 'intro') onExit(); };
 
-  if (phase === 'intro') {
+  if (phase !== 'running') {
     return (
       <div className="sg-screen qz-screen qz-player" role="dialog" aria-modal="true" aria-label={quiz.title}>
         <div className="sg-screen-top">
-          <button type="button" className="btn o sm" onClick={askExit}><Ic as={X} />Back</button>
+          <button type="button" className="btn o sm" onClick={askExit} disabled={phase !== 'intro'}><Ic as={X} />Back</button>
           <h2 className="sg-screen-title">{quiz.title}</h2>
           <div className="sg-screen-acts" />
         </div>
@@ -201,25 +255,25 @@ export default function QuizPlayer({ quiz, onFinish, onExit }) {
               <h2>{quiz.title}</h2>
               {quiz.description && <p className="qz-desc">{quiz.description}</p>}
               <div className="qz-facts">
-                <div><b>{quiz.questions}</b><small>questions</small></div>
-                <div><b>{quiz.totalMarks}</b><small>marks</small></div>
-                <div><b>{quiz.durationMin}</b><small>minutes</small></div>
+                <div><span className="qz-fi"><ListChecks size={22} /></span><b>{quiz.questions}</b><small>questions</small></div>
+                <div><span className="qz-fi"><Award size={22} /></span><b>{quiz.totalMarks}</b><small>marks</small></div>
+                <div><span className="qz-fi"><Timer size={22} /></span><b>{quiz.durationMin}</b><small>minutes</small></div>
               </div>
               <ul className="qz-rules">
-                <li><Clock size={16} /> The clock starts when you press Start and keeps running if you close the page.</li>
+                <li><Clock size={16} /> The clock starts after the countdown and keeps running if you close the page.</li>
                 <li><Check size={16} /> You get one attempt. Your answers save as you go.</li>
                 {quiz.state === 'in_progress' && <li><AlertTriangle size={16} /> You already started this quiz, so you’ll carry on where you left off.</li>}
-                {integrity.warnOnLeave && <li><ShieldCheck size={16} /> Leaving this tab or window is recorded and your teacher can see it.</li>}
-                {integrity.blockPaste && <li><ShieldCheck size={16} /> Pasting into answers is turned off. Type in your own words.</li>}
-                {integrity.fullscreen && <li><Maximize size={16} /> The quiz will ask to go full screen.</li>}
+                {integrity.warnOnLeave && <li><ShieldCheck size={16} /> Leaving the page, copying or printing is an illegal action. The first is a warning, the second a yellow card and a 30 second pause, the third a second yellow card and {PENALTY} marks off, the fourth a red card and you are sent off.</li>}
+                {integrity.blockPaste && <li><ShieldCheck size={16} /> Pasting into answers is not allowed. Type in your own words.</li>}
+                {integrity.fullscreen && <li><Maximize size={16} /> The quiz will ask to go full screen. Leaving it counts as an illegal action.</li>}
+                {integrity.pledge && quiz.state !== 'in_progress' && <li><ShieldCheck size={16} /> You will sign a short honesty pledge first.</li>}
               </ul>
-              {integrity.pledge && quiz.state !== 'in_progress' && (
-                <label className="qz-pledge"><input type="checkbox" checked={pledge} onChange={e => setPledge(e.target.checked)} /><span>I promise to do this quiz on my own, without notes, other people or other websites, unless my teacher says otherwise.</span></label>
-              )}
-              <button type="button" className="btn p qz-go" disabled={busy || (integrity.pledge && quiz.state !== 'in_progress' && !pledge)} onClick={start}>{busy ? 'Starting…' : quiz.state === 'in_progress' ? 'Continue the quiz' : 'Start the quiz'}</button>
+              <button type="button" className="btn p qz-go" disabled={busy || phase !== 'intro'} onClick={press}>{busy ? 'Starting…' : quiz.state === 'in_progress' ? 'Continue the quiz' : 'Start the quiz'}</button>
             </div>
           </div>
         </div>
+        {phase === 'pledge' && <PledgeScroll name={studentName()} onCancel={() => setPhase('intro')} onSigned={() => { pledged.current = true; setPhase('countdown'); }} />}
+        {phase === 'countdown' && <StartCountdown onGo={goLive} />}
       </div>
     );
   }
@@ -231,6 +285,7 @@ export default function QuizPlayer({ quiz, onFinish, onExit }) {
         <div className={`qz-clock ${low ? 'low' : ''}`} role="timer" aria-label="Time left"><Ic as={Clock} />{formatClock(left)}</div>
         <h2 className="sg-screen-title">{quiz.title}</h2>
         <div className="sg-screen-acts">
+          {yellows > 0 && <span className="qz-cards-chip" title={`${yellows} yellow card${yellows === 1 ? '' : 's'}`}>{Array.from({ length: yellows }, (_, i) => <i key={i} />)}{yellows > 1 && <b>−{PENALTY}</b>}</span>}
           <span className="sg-updated hide-sm">{saved ? `Saved ${saved}` : 'Autosaves'}</span>
           <button type="button" className="btn p sm" disabled={busy} onClick={askSubmit}><Ic as={Send} />Hand in</button>
         </div>
@@ -254,15 +309,7 @@ export default function QuizPlayer({ quiz, onFinish, onExit }) {
         </div>
       </div>
 
-      {warn > 0 && (
-        <Dialog open onClose={() => setWarn(0)} size="sm" labelledBy="qz-warn-t">
-          <DialogHeader id="qz-warn-t" icon={AlertTriangle} title="You left the quiz" sub="This was recorded" onClose={() => setWarn(0)} />
-          <div className="mbody">
-            <p>Your teacher can see that you left this page {warn} time{warn === 1 ? '' : 's'}. Please stay on the quiz until you hand in.</p>
-            <div className="mfoot"><button type="button" className="btn p" onClick={() => setWarn(0)}>Back to the quiz</button></div>
-          </div>
-        </Dialog>
-      )}
+      {ruling && <DisciplineOverlay key={ruling.n} event={ruling} onClose={closeRuling} onSentOff={sentOff} />}
       {fsLost && (
         <div className="qz-fsbar" role="alert">
           You left full screen. <button type="button" className="btn p sm" onClick={() => document.documentElement.requestFullscreen?.().catch(() => setFsLost(false))}><Ic as={Maximize} />Return to full screen</button>

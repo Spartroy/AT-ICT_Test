@@ -150,11 +150,12 @@ function gradeAttempt(items, answers) {
 }
 
 /** Score + whether anything still waits for the teacher. */
-function totals(grades) {
-  const score = roundHalf(grades.reduce((n, g) => n + itemScore(g), 0));
+function totals(grades, penalty = 0) {
+  const off = Math.max(0, Number(penalty) || 0);
+  const score = Math.max(0, roundHalf(grades.reduce((n, g) => n + itemScore(g), 0) - off));
   const max = grades.reduce((n, g) => n + g.max, 0);
   const pending = grades.some(g => !g.final);
-  const objectiveScore = roundHalf(grades.filter(g => g.final).reduce((n, g) => n + itemScore(g), 0));
+  const objectiveScore = Math.max(0, roundHalf(grades.filter(g => g.final).reduce((n, g) => n + itemScore(g), 0) - off));
   const objectiveMax = grades.filter(g => g.final).reduce((n, g) => n + g.max, 0);
   return { score, max, pending, objectiveScore, objectiveMax };
 }

@@ -416,7 +416,7 @@ const reviewAttempt = async (req, res) => {
       attempt.reviewedAt = new Date();
       attempt.reviewedBy = req.user.id;
     }
-    const t = totals(attempt.grades);
+    const t = totals(attempt.grades, attempt.penalty);
     attempt.score = t.score;
     attempt.maxScore = t.max;
     attempt.markModified('grades');
@@ -435,7 +435,7 @@ const remarkWithAi = async (req, res) => {
     const attempt = await TheoryAttempt.findOne({ _id: req.params.aid, quiz: quiz._id });
     if (!attempt || attempt.status === 'in_progress') return bad(res, 'Unknown attempt', 404);
     const n = await ai.applySuggestions(quiz.items, attempt.grades);
-    const t = totals(attempt.grades);
+    const t = totals(attempt.grades, attempt.penalty);
     attempt.score = t.score;
     attempt.aiMarked = attempt.aiMarked || n > 0;
     attempt.markModified('grades');

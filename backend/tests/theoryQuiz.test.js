@@ -219,3 +219,38 @@ describe('teacher-written questions', () => {
     expect(r.doc.marks).toBe(5);
   });
 });
+
+describe('cards and penalties', () => {
+  const card = (q, t = 1000) => ({ t, type: 'card', q });
+  const viol = (n, t = 500) => ({ t, type: 'violation', q: 'leave', n });
+
+  test('a reminder alone costs nothing', () => {
+    expect(cheat.discipline([viol(1)])).toEqual({ violations: 1, yellows: 0, sentOff: false, penalty: 0 });
+  });
+
+  test('the second yellow card takes 2 marks off, the red card sends the student off', () => {
+    expect(cheat.discipline([viol(1), viol(2), card('yellow1')]).penalty).toBe(0);
+    expect(cheat.discipline([viol(1), viol(2), card('yellow1'), viol(3), card('yellow2')])).toMatchObject({ yellows: 2, penalty: 2, sentOff: false });
+    expect(cheat.discipline([card('yellow1'), card('yellow2'), card('red')])).toMatchObject({ sentOff: true, penalty: 2 });
+  });
+
+  test('cards show up in the teacher flags', () => {
+    expect(cheat.summarise([card('yellow1')]).flags.some(f => f.id === 'yellow')).toBe(true);
+    const red = cheat.summarise([card('red')]);
+    expect(red.flags.find(f => f.id === 'red').severity).toBe('high');
+    expect(red.risk).toBe('high');
+  });
+
+  test('marks come off the total but never below zero', () => {
+    const grades = [{ max: 2, final: true, awarded: 1 }, { max: 2, final: true, awarded: 2 }];
+    expect(totals(grades, 2).score).toBe(1);
+    expect(totals([{ max: 2, final: true, awarded: 1 }], 2).score).toBe(0);
+    expect(totals(grades).score).toBe(3);
+  });
+
+  test('word bank is only offered for one gap per sentence', () => {
+    const q = { type: 'fill', items: [{ text: 'A ……… and ………', answers: ['x'] }, { text: 'B ………', answers: ['y'] }] };
+    expect(isWordBankEligible(q)).toBe(false);
+    expect(isWordBankEligible({ type: 'fill', items: [{ text: 'A ………', answers: ['x'] }, { text: 'B ………', answers: ['y'] }] })).toBe(true);
+  });
+});

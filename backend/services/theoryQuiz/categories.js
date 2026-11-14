@@ -24,6 +24,7 @@ const IDS = CATEGORIES.map(c => c.id);
 const isWordBankEligible = (q) => q.type === 'fill'
   && !q.needsContext
   && (q.items || []).length >= 2
+  && q.items.every(i => ((i.text || '').match(/…+|\.{3,}|_{3,}/g) || []).length <= 1)
   && q.items.every(i => (i.answers || []).length && i.answers[0].split(/\s+/).length <= 3 && !/[\/;]/.test(i.answers[0]));
 
 /** The category a bank question counts under in the blueprint. (Word bank is chosen at generation time.) */

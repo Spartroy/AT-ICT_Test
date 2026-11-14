@@ -31,6 +31,7 @@ const payload = (quiz, attempt) => ({
   serverNow: new Date(),
   settings: antiCheat(quiz),
   answers: attempt.answers || {},
+  discipline: cheat.discipline(attempt.events),
   items: orderFor(quiz, attempt).map(i => forStudent(quiz.items[i], attempt.seed))
 });
 
@@ -92,7 +93,7 @@ const listQuizzes = async (req, res) => {
         awaitingReview: !!a && a.status === 'submitted'
       };
     });
-    res.json({ status: 'success', data: { quizzes: out } });
+    res.json({ status: 'success', data: { quizzes: out, serverNow: new Date() } });
   } catch (err) { fail(res, err, 'loading your quizzes'); }
 };
 
@@ -107,6 +108,10 @@ const startQuiz = async (req, res) => {
         if (new Date() > new Date(existing.endsAt.getTime() + svc.GRACE_MS)) {
           await svc.finalizeAttempt(quiz, existing, { auto: true });
           return res.status(409).json({ status: 'error', message: 'Your time ran out. The quiz was submitted for you.', data: { attemptId: existing._id, finished: true } });
+        }
+        if (cheat.discipline(existing.events).sentOff) {
+          await svc.finalizeAttempt(quiz, existing, { auto: true });
+          return res.status(409).json({ status: 'error', message: 'You were sent off. The quiz was submitted with your answers so far.', data: { attemptId: existing._id, finished: true } });
         }
         existing.events.push(...cheat.cleanEvents([{ t: Math.max(0, Date.now() - existing.startedAt), type: 'resume' }]));
         await existing.save();

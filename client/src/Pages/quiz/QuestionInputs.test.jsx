@@ -93,3 +93,38 @@ describe('answering a quiz in the portal', () => {
     expect(read()).toEqual(['', 'firewall, passwords']);
   });
 });
+
+describe('several boxes for one answer', () => {
+  test('a sentence with two gaps gets two separate boxes joined by its own wording', () => {
+    const item = { uid: 'm', type: 'fill', marks: 2, items: [{ text: 'The CPU consists of ……… and ………' }] };
+    render(<Harness item={item} />);
+    fireEvent.change(screen.getByLabelText('Answer 1, gap 1'), { target: { value: 'ALU' } });
+    expect(screen.getByLabelText('Answer 1, gap 2')).toHaveValue('');
+    fireEvent.change(screen.getByLabelText('Answer 1, gap 2'), { target: { value: 'CU' } });
+    expect(screen.getByLabelText('Answer 1, gap 1')).toHaveValue('ALU');
+    expect(read()).toEqual(['ALU and CU']);
+  });
+
+  test('explain with an example: one box for each', () => {
+    const item = { uid: 'n', type: 'written', category: 'explain', marks: 4, lead: 'Explain, using an example, what cookies are.' };
+    render(<Harness item={item} />);
+    fireEvent.change(screen.getByLabelText('Question 1 Your answer'), { target: { value: 'Small files' } });
+    fireEvent.change(screen.getByLabelText('Question 1 Your example'), { target: { value: 'a basket' } });
+    expect(read()).toBe('Small files\n\nExample: a basket');
+  });
+
+  test('(a) (b) (c) written into the question each get their own box', () => {
+    const item = { uid: 'o', type: 'written', category: 'define', marks: 4, lead: 'State what is meant by: (a) an email group (b) carbon copy (cc).' };
+    render(<Harness item={item} />);
+    fireEvent.change(screen.getByLabelText('Question 1 (b)'), { target: { value: 'visible copy' } });
+    fireEvent.change(screen.getByLabelText('Question 1 (a)'), { target: { value: 'a list' } });
+    expect(read()).toBe('(a) a list\n(b) visible copy');
+  });
+
+  test('describe three features gives three boxes', () => {
+    const item = { uid: 'p', type: 'written', category: 'describe', marks: 3, lead: 'Describe three features of a GUI.' };
+    render(<Harness item={item} />);
+    fireEvent.change(screen.getByLabelText('Question 1 feature 2'), { target: { value: 'menus' } });
+    expect(read()).toBe('1. \n2. menus\n3. ');
+  });
+});

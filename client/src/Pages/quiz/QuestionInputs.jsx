@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { Check } from 'lucide-react';
-import { splitBlanks } from './quizLogic';
+import { answerLayout, blankCount, composeGaps, composeLayout, gapJoins, splitBlanks, splitGaps, splitLayout } from './quizLogic';
 
 // The answer widgets students use inside the portal. Every one is controlled: it gets `value` and calls `onChange`.
 // Value shapes match what the server marks: tf [true|false|null...], tick [column...], fill [text...],
@@ -61,22 +61,31 @@ function Pick({ item, value = [], onChange }) {
   );
 }
 
-/** Sentences with a text box where each gap goes. */
+/** One sentence. Every gap gets its own box; several boxes are joined back into the one answer the server marks. */
+function FillRow({ text, index, value, onChange }) {
+  const parts = useMemo(() => splitBlanks(text), [text]);
+  const joins = useMemo(() => gapJoins(text), [text]);
+  const n = Math.max(1, blankCount(text));
+  const [boxes, setBoxes] = useState(() => (n === 1 ? [value || ''] : splitGaps(value || '', joins, n)));
+  const set = (k, v) => {
+    const next = [...boxes];
+    next[k] = v;
+    setBoxes(next);
+    onChange(n === 1 ? v : composeGaps(next, joins));
+  };
+  const box = (k) => <input className="qz-gap" value={boxes[k] || ''} onChange={e => set(k, e.target.value)} aria-label={n === 1 ? `Answer ${index + 1}` : `Answer ${index + 1}, gap ${k + 1}`} autoComplete="off" autoCapitalize="off" spellCheck={false} maxLength={200} />;
+  let seen = -1;
+  return (
+    <li>
+      {parts.map((p, k) => (p.blank !== undefined ? <React.Fragment key={k}>{box(++seen)}</React.Fragment> : <span key={k}>{p.text}</span>))}
+      {!parts.some(p => p.blank !== undefined) && <>{' '}{box(0)}</>}
+    </li>
+  );
+}
+
 function FillText({ item, value = [], onChange }) {
   const set = (i, v) => onChange(item.items.map((_, k) => (k === i ? v : (value[k] || ''))));
-  return (
-    <ol className="qz-fill qz-take">{item.items.map((r, i) => {
-      const parts = splitBlanks(r.text);
-      const has = parts.some(p => p.blank !== undefined);
-      const box = <input className="qz-gap" value={value[i] || ''} onChange={e => set(i, e.target.value)} aria-label={`Answer ${i + 1}`} autoComplete="off" autoCapitalize="off" spellCheck={false} maxLength={200} />;
-      return (
-        <li key={i}>
-          {parts.map((p, k) => (p.blank !== undefined ? <React.Fragment key={k}>{box}</React.Fragment> : <span key={k}>{p.text}</span>))}
-          {!has && <>{' '}{box}</>}
-        </li>
-      );
-    })}</ol>
-  );
+  return <ol className="qz-fill qz-take">{item.items.map((r, i) => <FillRow key={i} text={r.text} index={i} value={value[i]} onChange={v => set(i, v)} />)}</ol>;
 }
 
 /**
@@ -160,9 +169,10 @@ function WordBankFill({ item, value, onChange }) {
     <DropBank
       labels={item.items.map(r => r.text)} words={item.wordbank || []} value={value} onChange={onChange}
       render={(text, slot) => {
+        // One word per sentence: a second gap in the same sentence would show the same word twice
         const parts = splitBlanks(text);
         const has = parts.some(p => p.blank !== undefined);
-        return <>{parts.map((p, k) => (p.blank !== undefined ? <React.Fragment key={k}>{slot}</React.Fragment> : <span key={k}>{p.text}</span>))}{!has && <> {slot}</>}</>;
+        return <>{parts.map((p, k) => (p.blank === undefined ? <span key={k}>{p.text}</span> : p.blank === 0 ? <React.Fragment key={k}>{slot}</React.Fragment> : null))}{!has && <> {slot}</>}</>;
       }}
     />
   );
@@ -172,14 +182,40 @@ function Match({ item, value, onChange }) {
   return <DropBank labels={item.items.map(r => r.text)} words={item.terms} value={value} onChange={onChange} render={(text, slot) => <><span>{text}</span> {slot}</>} />;
 }
 
-function Written({ marks, value = '', onChange, label }) {
+function Written({ marks, value = '', onChange, label, rows, placeholder, caption }) {
   const words = value.trim() ? value.trim().split(/\s+/).length : 0;
   return (
     <div className="qz-writ">
-      <textarea className="inp qz-area" rows={Math.max(3, Math.min(10, Math.round(marks * 1.4)))} value={value} onChange={e => onChange(e.target.value)} placeholder="Write your answer here…" aria-label={label} maxLength={6000} spellCheck />
-      <small>{words} word{words === 1 ? '' : 's'} · {marks} mark{marks === 1 ? '' : 's'}</small>
+      <textarea className="inp qz-area" rows={rows || Math.max(3, Math.min(10, Math.round(marks * 1.4)))} value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder || 'Write your answer here…'} aria-label={label} maxLength={6000} spellCheck />
+      <small>{caption || `${words} word${words === 1 ? '' : 's'} · ${marks} mark${marks === 1 ? '' : 's'}`}</small>
     </div>
   );
+}
+
+/** A written answer split into labelled boxes: (a)(b)(c) in one sentence, explanation + example, or "three features". */
+function WrittenBoxes({ layout, marks, value, onChange, label }) {
+  const n = layout.kind === 'example' ? 2 : layout.kind === 'parts' ? layout.parts.length : layout.n;
+  const [boxes, setBoxes] = useState(() => splitLayout(layout, typeof value === 'string' ? value : ''));
+  const set = (i, v) => { const next = [...boxes]; next[i] = v; setBoxes(next); onChange(composeLayout(layout, next)); };
+  const each = Math.round((marks / n) * 2) / 2;
+  const names = layout.kind === 'example' ? ['Your answer', 'Your example'] : layout.kind === 'parts' ? layout.parts.map(p => `(${p.label})`) : Array.from({ length: n }, (_, i) => `${layout.noun.replace(/s$/, '')} ${i + 1}`);
+  return (
+    <div className="qz-boxes">
+      {layout.kind === 'parts' && layout.intro && <p className="qz-lead">{layout.intro}</p>}
+      {names.map((nm, i) => (
+        <div className="qz-part" key={i}>
+          <p>{layout.kind === 'parts' ? <><b>{nm}</b> {layout.parts[i].text}</> : <b>{nm}</b>}</p>
+          <Written marks={each} rows={layout.kind === 'example' ? (i ? 2 : 4) : 2} value={boxes[i] || ''} label={`${label} ${nm}`} onChange={v => set(i, v)} caption={layout.kind === 'parts' ? undefined : ' '} placeholder={layout.kind === 'example' && i ? 'Give an example…' : undefined} />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function WrittenAnswer({ text, category, marks, value, onChange, label }) {
+  const layout = useMemo(() => answerLayout(text, category), [text, category]);
+  if (!layout) return <Written marks={marks} value={typeof value === 'string' ? value : ''} label={label} onChange={onChange} />;
+  return <WrittenBoxes layout={layout} marks={marks} value={value} onChange={onChange} label={label} />;
 }
 
 /** Renders the right widget for a question the server sent (no answers inside). */
@@ -200,12 +236,15 @@ export default function QuestionInput({ item, value, onChange, index }) {
           {item.parts.map((p, i) => (
             <div className="qz-part" key={i}>
               <p><b>({p.label})</b> {p.text}</p>
-              <Written marks={p.marks} value={vals[i] || ''} label={`Question ${index + 1} part ${p.label}`} onChange={v => onChange(item.parts.map((_, k) => (k === i ? v : (vals[k] || ''))))} />
+              <WrittenAnswer text={p.text} category="" marks={p.marks} value={vals[i] || ''} label={`Question ${index + 1} part ${p.label}`} onChange={v => onChange(item.parts.map((_, k) => (k === i ? v : (vals[k] || ''))))} />
             </div>
           ))}
         </>
       );
     }
-    default: return <>{lead}{ctx}{img}<Written marks={item.marks} value={typeof value === 'string' ? value : ''} label={`Question ${index + 1}`} onChange={onChange} /></>;
+    default: {
+      const own = answerLayout(item.lead, item.category);
+      return <>{own?.kind === 'parts' ? null : lead}{ctx}{img}<WrittenAnswer text={item.lead} category={item.category} marks={item.marks} value={value} label={`Question ${index + 1}`} onChange={onChange} /></>;
+    }
   }
 }
