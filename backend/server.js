@@ -46,6 +46,7 @@ const { startNotificationScheduler } = require('./services/notificationScheduler
 const registrationRoutes = require('./routes/registrationRoutes');
 const assignmentRoutes = require('./routes/assignmentRoutes');
 const quizRoutes = require('./routes/quizRoutes');
+const theoryQuizRoutes = require('./routes/theoryQuizRoutes');
 const flashcardRoutes = require('./routes/flashcardRoutes');
 const studyGuideRoutes = require('./routes/studyGuideRoutes');
 const activityRoutes = require('./routes/activityRoutes');
@@ -364,6 +365,7 @@ app.use('/api/assignments', assignmentRoutes);
  * Quiz creation, taking, and scoring
  */
 app.use('/api/quizzes', quizRoutes);
+app.use('/api/theory-quiz', theoryQuizRoutes);
 
 /**
  * Flashcard Routes

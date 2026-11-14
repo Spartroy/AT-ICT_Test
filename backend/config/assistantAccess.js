@@ -91,6 +91,7 @@ const RULES = [
   { re: /^\/teacher\/(assignments|quizzes)\/[^/]+\/students\/[^/]+$/, methods: WRITE, area: 'submissions', level: 'edit' },
   { re: /^\/(teacher\/)?assignments(\/|$)/, area: 'homework', level: 'auto' },
   { re: /^\/(teacher\/)?quizzes(\/|$)/, area: 'quizzes', level: 'auto' },
+  { re: /^\/theory-quiz\/teacher(\/|$)/, area: 'quizzes', level: 'auto' },
 
   // Library
   { re: /^\/teacher\/videos(\/|$)/, area: 'videos', level: 'auto' },
