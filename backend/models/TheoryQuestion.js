@@ -37,6 +37,7 @@ const schema = new mongoose.Schema({
   dupOf: { type: String, default: null },
   hidden: { type: Boolean, default: false },
   edited: { type: Boolean, default: false },
+  rev: { type: Number, default: 1 }, // bumped when the seed's structure for this question was improved
   createdBy: { type: mongoose.Schema.ObjectId, ref: 'User' }
 }, { timestamps: true, minimize: false });
 

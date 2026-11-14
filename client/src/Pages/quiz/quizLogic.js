@@ -33,7 +33,13 @@ export function suggestedMinutes(items) {
   return Math.max(5, Math.round(mins / 5) * 5);
 }
 
-export const questionTitle = (item) => item.lead || item.context || item.parts?.[0]?.text || (item.items?.[0]?.text) || 'Question';
+/** A structured question is shown as one group: its shared stem, then every part under it. */
+export function groupedTitle(item) {
+  const parts = (item.parts || []).map(p => `(${p.label}) ${p.text || p.subs?.[0]?.text || ''}`.trim());
+  return [item.context || item.lead, parts.join('   ')].filter(Boolean).join(' ');
+}
+
+export const questionTitle = (item) => (item.type === 'multi' && item.parts?.length ? groupedTitle(item) : (item.lead || item.context || item.parts?.[0]?.text || (item.items?.[0]?.text) || 'Question'));
 
 /** Lines of answer space for the printed paper: roughly one per mark, at least 2. */
 export const answerLines = (marks) => Math.max(2, Math.min(14, Math.round(marks * 1.5)));
@@ -114,6 +120,11 @@ export function answerLayout(text = '', category = '') {
   if (marks.length >= 2 && marks[0][1] === 'a' && marks[1][1] === 'b') {
     const parts = marks.map((m, i) => ({ label: m[1], text: t.slice(m.index + m[0].length, i + 1 < marks.length ? marks[i + 1].index : undefined).trim() }));
     return { kind: 'parts', intro: t.slice(0, marks[0].index).trim(), parts };
+  }
+  const romans = [...t.matchAll(/\(\s*(iv|v?i{1,3}|ix)\s*\)\s*/gi)];
+  if (romans.length >= 2 && romans[0][1].toLowerCase() === 'i' && romans[1][1].toLowerCase() === 'ii') {
+    const parts = romans.map((m, i) => ({ label: m[1].toLowerCase(), text: t.slice(m.index + m[0].length, i + 1 < romans.length ? romans[i + 1].index : undefined).replace(/\s*\[\d+\]/g, '').trim() }));
+    return { kind: 'parts', intro: t.slice(0, romans[0].index).trim(), parts };
   }
   if (EXAMPLE_RE.test(t) && !/\beach\b/i.test(t)) return { kind: 'example' };
   const counts = [...t.matchAll(COUNT_RE)];

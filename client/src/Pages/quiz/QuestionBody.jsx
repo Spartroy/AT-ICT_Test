@@ -76,6 +76,7 @@ export default function QuestionBody({ item, showAnswer = false }) {
           {item.parts.map((p, i) => (
             <div className="qz-part" key={i}>
               <p><b>({p.label})</b> {p.text} <em>[{Math.round(p.marks * (item.marks / item.baseMarks) * 2) / 2}]</em></p>
+              {p.subs?.length > 0 && <ol className="qz-subs">{p.subs.map(x => <li key={x.label}><b>({x.label})</b> {x.text} <em>[{x.marks}]</em></li>)}</ol>}
               {showAnswer ? <Answer text={p.model} points={p.points} /> : <div className="qz-lines" />}
             </div>
           ))}

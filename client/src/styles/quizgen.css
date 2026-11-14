@@ -498,3 +498,9 @@ body.sg-sorting { cursor: grabbing; user-select: none; -webkit-user-select: none
   .qz-parchment { transition: none; }
 }
 
+
+/* Structured questions: parts grouped under the main question */
+.qz-grp { display: grid; gap: 3px; margin: 4px 0 2px; padding-left: 10px; border-left: 2px solid rgb(var(--crimson-rgb) / 0.45); font-size: 0.86rem; color: var(--mu); }
+.qz-grp i { font-style: normal; font-weight: 700; color: var(--crimson-glow); }
+.qz-grp em { font-style: normal; opacity: 0.8; }
+.qz-subs { margin: 4px 0 8px; padding-left: 8px; list-style: none; display: grid; gap: 4px; }

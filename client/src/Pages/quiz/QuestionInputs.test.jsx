@@ -128,3 +128,13 @@ describe('several boxes for one answer', () => {
     expect(read()).toBe('1. \n2. menus\n3. ');
   });
 });
+
+describe('structured questions with sub-parts', () => {
+  test('(b)(i) and (ii) get their own boxes under part (b)', () => {
+    const item = { uid: 'q', type: 'multi', marks: 6, parts: [{ label: 'a', text: 'Explain software', marks: 2 }, { label: 'b', text: 'Give two examples of each:', marks: 4, subs: [{ label: 'i', text: 'Applications', marks: 2 }, { label: 'ii', text: 'System', marks: 2 }] }] };
+    render(<Harness item={item} />);
+    fireEvent.change(screen.getByLabelText('Question 1 part b (ii)'), { target: { value: 'OS' } });
+    fireEvent.change(screen.getByLabelText('Question 1 part b (i)'), { target: { value: 'word processor' } });
+    expect(read()).toEqual(['', '(i) word processor\n(ii) OS']);
+  });
+});

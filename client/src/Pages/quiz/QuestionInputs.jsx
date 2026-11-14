@@ -235,8 +235,15 @@ export default function QuestionInput({ item, value, onChange, index }) {
         <>{ctx}{img}
           {item.parts.map((p, i) => (
             <div className="qz-part" key={i}>
-              <p><b>({p.label})</b> {p.text}</p>
-              <WrittenAnswer text={p.text} category="" marks={p.marks} value={vals[i] || ''} label={`Question ${index + 1} part ${p.label}`} onChange={v => onChange(item.parts.map((_, k) => (k === i ? v : (vals[k] || ''))))} />
+              {p.subs?.length
+                ? (
+                  <>
+                    <p><b>({p.label})</b> {p.text}</p>
+                    <WrittenBoxes layout={{ kind: 'parts', intro: '', parts: p.subs.map(x => ({ label: x.label, text: x.text })) }} marks={p.marks} value={vals[i] || ''} label={`Question ${index + 1} part ${p.label}`} onChange={v => onChange(item.parts.map((_, k) => (k === i ? v : (vals[k] || ''))))} />
+                  </>
+                )
+                : <p><b>({p.label})</b> {p.text}</p>}
+              {!p.subs?.length && <WrittenAnswer text={p.text} category="" marks={p.marks} value={vals[i] || ''} label={`Question ${index + 1} part ${p.label}`} onChange={v => onChange(item.parts.map((_, k) => (k === i ? v : (vals[k] || ''))))} />}
             </div>
           ))}
         </>

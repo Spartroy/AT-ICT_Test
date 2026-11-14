@@ -1,6 +1,6 @@
 {
  "version": 1,
- "builtAt": "2026-11-14T11:35:50.189Z",
+ "builtAt": "2026-11-14T13:25:58.404Z",
  "chapters": [
   {
    "key": "1",
@@ -469,18 +469,63 @@
    "chapter": 1,
    "qNo": "Q8",
    "marks": 6,
-   "lead": "(a) Explain what is meant by software. [2]",
+   "lead": "",
    "points": [
     "(a) programs/instructions (1) that control the hardware (1).",
     "(i) system software. (ii) valid example.",
     "(iii) applications software. (iv) valid example."
    ],
    "tip": "High-tariff question (6 marks). Spread your answer across the sub-parts and use precise ICT keywords — vague answers lose easy marks here.",
-   "type": "written",
+   "type": "multi",
+   "context": "",
+   "parts": [
+    {
+     "label": "a",
+     "text": "Explain what is meant by software.",
+     "marks": 2,
+     "model": "The set of programs/instructions that tell the computer hardware what to do.",
+     "points": [
+      "programs/instructions (1) that control the hardware (1)."
+     ],
+     "command": "define"
+    },
+    {
+     "label": "b",
+     "text": "Name the type of software and give an example:",
+     "marks": 4,
+     "subs": [
+      {
+       "label": "i",
+       "text": "lets you manage the hardware and software resources",
+       "marks": 1
+      },
+      {
+       "label": "ii",
+       "text": "example",
+       "marks": 1
+      },
+      {
+       "label": "iii",
+       "text": "lets you carry out tasks such as creating a document or image",
+       "marks": 1
+      },
+      {
+       "label": "iv",
+       "text": "example",
+       "marks": 1
+      }
+     ],
+     "model": "(operating) system software (ii) operating system / device driver / utility\napplications software (iv) word processor / spreadsheet / image editor",
+     "points": [
+      "(iii) applications software. (iv) valid example."
+     ],
+     "command": "state"
+    }
+   ],
    "model": "(a) The set of programs/instructions that tell the computer hardware what to do.\n(b)(i) (operating) system software (ii) operating system / device driver / utility\n(iii) applications software (iv) word processor / spreadsheet / image editor",
    "srcId": "c01-q8",
    "chapterTitle": "Computer Structure",
-   "command": "explain",
+   "command": "multi",
    "difficulty": "hard",
    "needsContext": false,
    "dupOf": null,
@@ -802,7 +847,7 @@
    "chapter": 1,
    "qNo": "Q19",
    "marks": 6,
-   "lead": "(a) Explain what applications software and system software provide. [2]",
+   "lead": "",
    "points": [
     "(a) applications = specific tasks (1); system = controls/runs hardware (1).",
     "(b)(i) two valid applications. (b)(ii) two valid system examples."
@@ -823,8 +868,20 @@
     },
     {
      "label": "b",
-     "text": "Give two examples of each: (i) Applications (ii) System",
+     "text": "Give two examples of each:",
      "marks": 4,
+     "subs": [
+      {
+       "label": "i",
+       "text": "Applications",
+       "marks": 2
+      },
+      {
+       "label": "ii",
+       "text": "System",
+       "marks": 2
+      }
+     ],
      "model": "word processor; spreadsheet.\noperating system; device driver (or utility/compiler).",
      "points": [
       "two valid applications. (b)(ii) two valid system examples."
@@ -1572,8 +1629,25 @@
     },
     {
      "label": "b",
-     "text": "Using a smartphone: (i) two input devices (ii) two output devices (iii) two storage devices",
+     "text": "Using a smartphone:",
      "marks": 6,
+     "subs": [
+      {
+       "label": "i",
+       "text": "two input devices",
+       "marks": 2
+      },
+      {
+       "label": "ii",
+       "text": "two output devices",
+       "marks": 2
+      },
+      {
+       "label": "iii",
+       "text": "two storage devices",
+       "marks": 2
+      }
+     ],
      "model": "touch screen; microphone.\nscreen/display; speaker.\ninternal flash/solid-state memory; (micro)SD card (or cloud storage).",
      "points": [
       "two valid inputs. (ii) two valid outputs. (iii) two valid storage devices."
@@ -2143,7 +2217,7 @@
    "chapter": 2,
    "qNo": "Q12",
    "marks": 8,
-   "lead": "(a) Compare Optical Mark Readers (OMRs) with Optical Character Readers (OCRs); include similarities and differences. [6]",
+   "lead": "",
    "points": [
     "(a) ✓ both optical/direct-data-entry that scan to digital (similarity).",
     "✓ OMR reads marks not characters; can't read printed/handwritten characters.",
@@ -2214,7 +2288,7 @@
    "chapter": 2,
    "qNo": "Q14",
    "marks": 8,
-   "lead": "(a) Compare bar code readers and RFID readers; include similarities and differences. [6]",
+   "lead": "",
    "points": [
     "(a) ✓ bar code one at a time vs RFID multiple tags at once.",
     "✓ bar code needs line-of-sight/close/correct position vs RFID near-field, no line-of-sight.",
@@ -2541,7 +2615,7 @@
    "chapter": 3,
    "qNo": "Q5",
    "marks": 4,
-   "lead": "(a) Printer best suited to harsh conditions.",
+   "lead": "",
    "points": [
     "(a) dot matrix printer.",
     "(b) LED/anti-glare monitor.",
@@ -2549,11 +2623,54 @@
     "(d) touch screen."
    ],
    "tip": "",
-   "type": "written",
+   "type": "multi",
+   "context": "",
+   "parts": [
+    {
+     "label": "a",
+     "text": "Printer best suited to harsh conditions.",
+     "marks": 1,
+     "model": "dot matrix printer",
+     "points": [
+      "dot matrix printer."
+     ],
+     "command": "state"
+    },
+    {
+     "label": "b",
+     "text": "Monitor that can reduce eye strain.",
+     "marks": 1,
+     "model": "LED (anti-glare/low-blue-light) monitor",
+     "points": [
+      "LED/anti-glare monitor."
+     ],
+     "command": "state"
+    },
+    {
+     "label": "c",
+     "text": "Printer that produces a solid object.",
+     "marks": 1,
+     "model": "3D printer",
+     "points": [
+      "3D printer."
+     ],
+     "command": "state"
+    },
+    {
+     "label": "d",
+     "text": "Monitor that is an input device, shows output, and is found in a public information system.",
+     "marks": 1,
+     "model": "touch screen",
+     "points": [
+      "touch screen."
+     ],
+     "command": "state"
+    }
+   ],
    "model": "(a) dot matrix printer\n(b) LED (anti-glare/low-blue-light) monitor\n(c) 3D printer\n(d) touch screen",
    "srcId": "c03-q5",
    "chapterTitle": "Output Devices",
-   "command": "describe",
+   "command": "multi",
    "difficulty": "medium",
    "needsContext": false,
    "dupOf": null,
@@ -2564,7 +2681,7 @@
    "chapter": 3,
    "qNo": "Q6",
    "marks": 4,
-   "lead": "(a) Identify two input devices used at a supermarket checkout. [2]",
+   "lead": "",
    "points": [
     "(a) two valid checkout inputs (bar code reader; scales; PIN pad).",
     "(b) two valid checkout outputs (screen; receipt printer; speaker)."
@@ -3094,7 +3211,7 @@
    "chapter": 3,
    "qNo": "Q23",
    "marks": 3,
-   "lead": "(a) Explain what is meant by: (i) analogue data [1] (ii) digital data [1]",
+   "lead": "",
    "points": [
     "(i) continuously varying/real-world data.",
     "(ii) discrete/binary data.",
@@ -3106,8 +3223,20 @@
    "parts": [
     {
      "label": "a",
-     "text": "Explain what is meant by: (i) analogue data (ii) digital data",
+     "text": "Explain what is meant by:",
      "marks": 2,
+     "subs": [
+      {
+       "label": "i",
+       "text": "analogue data",
+       "marks": 1
+      },
+      {
+       "label": "ii",
+       "text": "digital data",
+       "marks": 1
+      }
+     ],
      "model": "Analogue data is continuously varying (real-world) data that changes smoothly.\nDigital data is discrete data represented in binary (0s and 1s).",
      "points": [
       "(ii) discrete/binary data."
@@ -3801,7 +3930,7 @@
    "chapter": 4,
    "qNo": "Q22",
    "marks": 8,
-   "lead": "(a) Describe why Blu-ray discs are preferred to an internal hard disk for storing movies. [4]",
+   "lead": "",
    "points": [
     "(a) up to 4: portable; large capacity for HD; cheap to mass-produce; read-only/safe; saves internal space.",
     "(b)(i) two characteristics (non-volatile; long-term/large capacity).",
@@ -3888,7 +4017,7 @@
    "chapter": 4,
    "qNo": "Q25",
    "marks": 6,
-   "lead": "(a) Describe the differences between backing storage and internal memory. [4]",
+   "lead": "",
    "points": [
     "(a) non-volatile vs volatile; larger vs smaller; slower vs faster; CPU uses internal memory directly.",
     "(b)(i) RAM/ROM. (ii) any valid backing-storage example."
@@ -3976,7 +4105,7 @@
    "chapter": 4,
    "qNo": "Q28",
    "marks": 6,
-   "lead": "(a) State three other ways the student can transfer files (besides the cloud). [3]",
+   "lead": "",
    "points": [
     "(a) three valid transfer methods.",
     "(b) Point 1 — upload at college; Point 2 — log in to the same account at home; Point 3 — download the files."
@@ -4397,7 +4526,7 @@
    "chapter": 6,
    "qNo": "Q11",
    "marks": 8,
-   "lead": "(a) Describe the function of a router. [2]",
+   "lead": "",
    "points": [
     "(a) connects networks/LAN to internet (1); routes/forwards packets to destination (1).",
     "(b) two valid advantages for each of WiFi, Satellite and 3G/4G."
@@ -4566,7 +4695,7 @@
    "chapter": 6,
    "qNo": "Q18",
    "marks": 8,
-   "lead": "(a) Explain the purpose of a network switch. [3]",
+   "lead": "",
    "points": [
     "(a) connects LAN devices (1); sends packets to the intended device using MAC address (1); reduces traffic/secure (1).",
     "(b) settings → select SSID → enter password → connects.",
@@ -4772,7 +4901,7 @@
    "chapter": 6,
    "qNo": "Q25",
    "marks": 4,
-   "lead": "(a) Explain what is meant by VOIP. [2]",
+   "lead": "",
    "points": [
     "(a) makes voice calls over the internet (1); voice converted to digital data/packets (1).",
     "(b) two valid hardware items (microphone; speakers/headphones)."
@@ -4816,7 +4945,7 @@
    "chapter": 6,
    "qNo": "Q26",
    "marks": 7,
-   "lead": "(a) Describe web-conferencing and how it could be used by company directors. [4]",
+   "lead": "",
    "points": [
     "(a) real-time meeting over the internet (1); shares audio/video (1); shares documents/screen (1); applied to the directors (1).",
     "(b) three valid items (webcam; microphone; speakers)."
@@ -4924,7 +5053,7 @@
    "chapter": 6,
    "qNo": "Q30",
    "marks": 6,
-   "lead": "(a) Give three advantages of a video-conference rather than a face-to-face meeting. [3]",
+   "lead": "",
    "points": [
     "(a) three valid advantages (no travel/cost; different locations; short notice).",
     "(b) three valid disadvantages (needs internet/lag; time zones; less personal/body language)."
@@ -4968,7 +5097,7 @@
    "chapter": 6,
    "qNo": "Q31",
    "marks": 4,
-   "lead": "(a) Explain what is meant by HTTP. [2]",
+   "lead": "",
    "points": [
     "(a) protocol/rules for transferring web pages (2).",
     "(b) HTTPS encrypted/secure vs HTTP plain text/not secure (2)."
@@ -5048,7 +5177,7 @@
    "chapter": 6,
    "qNo": "Q33",
    "marks": 4,
-   "lead": "(a) Describe the purpose of a web browser. [2]",
+   "lead": "",
    "points": [
     "(a) software to access/display web pages (2).",
     "(b) intranet internal-only vs extranet gives external users controlled access (2)."
@@ -5243,7 +5372,7 @@
    "chapter": 6,
    "qNo": "Q40",
    "marks": 10,
-   "lead": "(a) Explain what is meant by audio-conferencing. [3]",
+   "lead": "",
    "points": [
     "(a) real-time voice-only meeting over a network/phone (3).",
     "(b) three valid advantages (less bandwidth; cheaper/less equipment; no camera needed).",
@@ -5368,7 +5497,7 @@
    "chapter": 6,
    "qNo": "Q43",
    "marks": 5,
-   "lead": "(a) State three other features of emails (besides cc and bcc). [3]",
+   "lead": "",
    "points": [
     "(a) three valid email features.",
     "(b) sends a copy (1) to recipients whose addresses are hidden from others (1)."
@@ -5456,7 +5585,7 @@
    "chapter": 6,
    "qNo": "Q46",
    "marks": 4,
-   "lead": "(a) Circle two web development layers: Behaviour, Body, CSS, Display, Head, HTML, Presentation, Surface. [2]",
+   "lead": "",
    "points": [
     "(a) HTML; CSS (Behaviour/Presentation also describe layers).",
     "(b) arrange elements in rows/columns (1) so they are aligned/positioned neatly (1)."
@@ -5500,7 +5629,7 @@
    "chapter": 6,
    "qNo": "Q47",
    "marks": 4,
-   "lead": "(a) Explain what is meant by SSL. [3]",
+   "lead": "",
    "points": [
     "(a) encrypts data between browser and server (1); secure connection (1); authenticates the website (1).",
     "(b) padlock shown / https in the address."
@@ -5544,7 +5673,7 @@
    "chapter": 7,
    "qNo": "Q1",
    "marks": 8,
-   "lead": "(a) Describe the effects a virus could have on a computer's hard disk. [3]",
+   "lead": "",
    "points": [
     "(a) deletes/corrupts data; fills disk; slows/crashes (3).",
     "(b) any one other route (attachment; removable media; download).",
@@ -5599,7 +5728,7 @@
    "chapter": 7,
    "qNo": "Q2",
    "marks": 9,
-   "lead": "(a) Explain what is meant by a computer virus and how it can affect a computer. [4]",
+   "lead": "",
    "points": [
     "(a) self-replicating malicious program (1–2); effects: deletes/corrupts/slows (1–2).",
     "(b) three valid protections.",
@@ -5654,7 +5783,7 @@
    "chapter": 7,
    "qNo": "Q3",
    "marks": 6,
-   "lead": "(a) Explain, using examples, the term hacking. [3]",
+   "lead": "",
    "points": [
     "(a) unauthorised access (1) + example (1) + intent to view/steal/change (1).",
     "(b) three valid measures (strong passwords; firewall; encryption; access levels)."
@@ -5741,7 +5870,7 @@
    "chapter": 7,
    "qNo": "Q5",
    "marks": 9,
-   "lead": "(a) Explain, with examples, why biometric methods are more secure than ID and passwords. [6]",
+   "lead": "",
    "points": [
     "(a) unique to the person; can't be guessed/shared/forgotten; can't easily be copied; must be present; examples (fingerprint/iris/face).",
     "(b) three valid disadvantages (cost; speed/intrusive; false rejection/privacy)."
@@ -6044,7 +6173,7 @@
    "chapter": 7,
    "qNo": "Q15",
    "marks": 4,
-   "lead": "(a) Give two reasons why using your name as a password is not a good idea. [2]",
+   "lead": "",
    "points": [
     "(a) two reasons (easy to guess; too simple/weak).",
     "(b) two valid pieces of advice."
@@ -6088,7 +6217,7 @@
    "chapter": 7,
    "qNo": "Q16",
    "marks": 6,
-   "lead": "(a) Explain what is meant by encryption of data. [3]",
+   "lead": "",
    "points": [
     "(a) scrambles data using a key (1–2); only the key holder can decrypt (1).",
     "(b) three valid components (owner details; public key; serial number; expiry; CA)."
@@ -6132,7 +6261,7 @@
    "chapter": 7,
    "qNo": "Q17",
    "marks": 7,
-   "lead": "(a) Give three rules to help choose a password. [3]",
+   "lead": "",
    "points": [
     "(a) three valid rules.",
     "(b) mixes character types (1); not a word/personal (1); therefore strong/hard to crack (1).",
@@ -6187,7 +6316,7 @@
    "chapter": 7,
    "qNo": "Q18",
    "marks": 8,
-   "lead": "(a) Discuss the benefits and drawbacks of the password Px2zY!Cg3?bd. [6]",
+   "lead": "",
    "points": [
     "(a) benefits (long; mixed characters; no word; hard to crack) and drawbacks (hard to remember/may write down; awkward to type).",
     "(b) two valid biometric methods."
@@ -6251,7 +6380,7 @@
    "chapter": 7,
    "qNo": "Q20",
    "marks": 6,
-   "lead": "(a) Besides 'where the user is' (GPS), state two other forms of identification with an example of each. [4]",
+   "lead": "",
    "points": [
     "(a) two forms + example each (knows: password/PIN; has: token/phone code).",
     "(b) needs two factors (1); so a stolen single factor is not enough (1)."
@@ -6405,7 +6534,7 @@
    "chapter": 7,
    "qNo": "Q25",
    "marks": 5,
-   "lead": "(a) Explain what is meant by zero login. [2]",
+   "lead": "",
    "points": [
     "(a) authenticates automatically (1) using biometrics/behaviour, no password typed (1).",
     "(b) three valid biometric methods."
@@ -6449,7 +6578,7 @@
    "chapter": 7,
    "qNo": "Q26",
    "marks": 5,
-   "lead": "(a) Explain what is meant by zero login. [2]",
+   "lead": "",
    "points": [
     "As Q25: (a) automatic biometric/behaviour authentication; (b) three biometric methods."
    ],
@@ -6492,7 +6621,7 @@
    "chapter": 7,
    "qNo": "Q27",
    "marks": 4,
-   "lead": "(a) Select the most appropriate password (Roger2008, R08123, RogerZpa55w0rd, 6lRrg08&, Password) and give reasons. [3]",
+   "lead": "",
    "points": [
     "(a) 6lRrg08& (1) + two reasons (mixed characters; no word/name; hard to guess).",
     "(b) one valid method (encryption/HTTPS; 2FA; on-screen keyboard)."
@@ -6536,7 +6665,7 @@
    "chapter": 7,
    "qNo": "Q28",
    "marks": 5,
-   "lead": "(a) Explain what is meant by credit card cloning. [3]",
+   "lead": "",
    "points": [
     "(a) copying card data (1) onto a fake card (1) for fraudulent use (1).",
     "(b) two valid improvements (chip and PIN; 2FA/OTP; transaction monitoring)."
@@ -6580,7 +6709,7 @@
    "chapter": 7,
    "qNo": "Q29",
    "marks": 4,
-   "lead": "(a) Explain what is meant by key logging. [2]",
+   "lead": "",
    "points": [
     "(a) records keystrokes (1) to capture data/passwords (1).",
     "(b) two valid improvements (2FA; on-screen keyboard; anti-spyware)."
@@ -6624,7 +6753,7 @@
    "chapter": 7,
    "qNo": "Q30",
    "marks": 6,
-   "lead": "(i) Describe the features of anti-virus software. [3]",
+   "lead": "",
    "points": [
     "(i) scans for virus signatures; quarantines/deletes; updates definitions.",
     "(ii) detects/removes a wider range of malware; real-time protection; updates."
@@ -6723,7 +6852,7 @@
    "chapter": 7,
    "qNo": "Q34",
    "marks": 4,
-   "lead": "(a) Explain what is meant by shoulder surfing. [2]",
+   "lead": "",
    "points": [
     "(a) someone watches you enter your password/PIN (1) to steal it (1).",
     "(b) two valid improvements (shield entry; privacy screen; biometrics)."
@@ -6827,7 +6956,7 @@
    "chapter": 7,
    "qNo": "Q38",
    "marks": 10,
-   "lead": "(a) Explain how a user ID and a password increase the security of data. [6]",
+   "lead": "",
    "points": [
     "(a) user ID identifies; password authenticates; only correct pair gains access; limits to authorised users; strong/encrypted; lockout after failed attempts.",
     "(b) uses unique physical/behavioural features (2) + two examples (2)."
@@ -6871,7 +7000,7 @@
    "chapter": 7,
    "qNo": "Q39",
    "marks": 10,
-   "lead": "(a) Compare and contrast phishing and pharming. [6]",
+   "lead": "",
    "points": [
     "(a) similarity: both steal data via fake sites; differences: email+click vs auto-redirect by malicious code; user tricked vs no click needed.",
     "(b)(i) two anti-phishing precautions. (ii) two anti-pharming precautions."
@@ -6915,7 +7044,7 @@
    "chapter": 8,
    "qNo": "Q1",
    "marks": 7,
-   "lead": "(a) List three other methods of researching the current system (besides interviewing). [3]",
+   "lead": "",
    "points": [
     "(a) three valid methods (questionnaires; observation; document inspection).",
     "(b) two drawbacks, each explained (time-consuming/few people; biased/dishonest answers)."
@@ -6979,7 +7108,7 @@
    "chapter": 8,
    "qNo": "Q3",
    "marks": 8,
-   "lead": "(a) Describe the steps carried out in the analysis of the current system. [6]",
+   "lead": "",
    "points": [
     "(a) collect data; identify inputs/processes/outputs; identify problems/requirements; identify hardware/software; record data structures.",
     "(b) two valid personal-data examples."
@@ -7268,7 +7397,7 @@
    "chapter": 8,
    "qNo": "Q14",
    "marks": 5,
-   "lead": "(a) Explain what other testing should have been carried out before implementation. [2]",
+   "lead": "",
    "points": [
     "(a) test with live/normal/extreme/abnormal data to check outputs are correct (not just validation).",
     "(b) cheaper / faster / no double data entry."
@@ -7396,7 +7525,7 @@
    "chapter": 8,
    "qNo": "Q18",
    "marks": 8,
-   "lead": "(a) Explain why user documentation is needed. [2]",
+   "lead": "",
    "points": [
     "(a) helps users operate the system.",
     "(b) helps maintain/update the system.",
@@ -7511,7 +7640,7 @@
    "chapter": 8,
    "qNo": "Q22",
    "marks": 9,
-   "lead": "(a) State three other items of information the systems analyst will need to identify. [3]",
+   "lead": "",
    "points": [
     "(a) three items (inputs; outputs; processing/data structures).",
     "(c) Parallel: ✓ double entry/double-booking risk; ✓ gradual training takes longer; ✓ more expensive; ✓ old system available if new fails.",
@@ -7557,7 +7686,7 @@
    "chapter": 8,
    "qNo": "Q23",
    "marks": 6,
-   "lead": "(a) State four characteristics of a good form design. [4]",
+   "lead": "",
    "points": [
     "(a) four valid form characteristics.",
     "(b) two accessibility features (large font; high contrast/zoom/text-to-speech)."
@@ -7601,7 +7730,7 @@
    "chapter": 8,
    "qNo": "Q24",
    "marks": 6,
-   "lead": "(a) Identify the research method: (i) talking to the network manager and exams officer; (ii) watching the current system operating; (iii) asking users to complete an online form. [3]",
+   "lead": "",
    "points": [
     "(a) interview; observation; questionnaire.",
     "(b) three valid design items."
@@ -7612,8 +7741,25 @@
    "parts": [
     {
      "label": "a",
-     "text": "Identify the research method: (i) talking to the network manager and exams officer; (ii) watching the current system operating; (iii) asking users to complete an online form.",
+     "text": "Identify the research method:",
      "marks": 3,
+     "subs": [
+      {
+       "label": "i",
+       "text": "talking to the network manager and exams officer;",
+       "marks": 1
+      },
+      {
+       "label": "ii",
+       "text": "watching the current system operating;",
+       "marks": 1
+      },
+      {
+       "label": "iii",
+       "text": "asking users to complete an online form.",
+       "marks": 3
+      }
+     ],
      "model": "Interviews (ii) Observation (iii) Questionnaires.",
      "points": [
       "interview; observation; questionnaire."
@@ -7665,7 +7811,7 @@
    "chapter": 8,
    "qNo": "Q26",
    "marks": 8,
-   "lead": "(a) Compare parallel running and direct changeover (similarities and differences). [4]",
+   "lead": "",
    "points": [
     "(a) similarity (both changeover methods) + differences (run together/safer/costlier vs immediate/cheaper/riskier).",
     "(b) four from: meets requirements; ease of use; reliability/efficiency; compatibility; cost; feedback."
@@ -7709,7 +7855,7 @@
    "chapter": 8,
    "qNo": "Q27",
    "marks": 8,
-   "lead": "(a) Contrast pilot changeover and parallel running. [5]",
+   "lead": "",
    "points": [
     "(a) pilot = whole system in one branch vs parallel = both systems together everywhere; risk/cost contrast.",
     "(b) three valid technical-documentation components."
@@ -7795,7 +7941,7 @@
    "chapter": 8,
    "qNo": "Q29",
    "marks": 8,
-   "lead": "(a) Describe the characteristics of: (i) Observation [2] (ii) Interviews [2]",
+   "lead": "",
    "points": [
     "(a)(i) watches the system; first-hand but behaviour may change.",
     "(a)(ii) asks questions; detailed but slow/biased.",
@@ -7807,8 +7953,20 @@
    "parts": [
     {
      "label": "a",
-     "text": "Describe the characteristics of: (i) Observation (ii) Interviews",
+     "text": "Describe the characteristics of:",
      "marks": 4,
+     "subs": [
+      {
+       "label": "i",
+       "text": "Observation",
+       "marks": 2
+      },
+      {
+       "label": "ii",
+       "text": "Interviews",
+       "marks": 2
+      }
+     ],
      "model": "The analyst watches the current system in operation; this gives a true first-hand picture, but people may behave differently when they know they are being watched.\nThe analyst asks staff questions directly; follow-up questions and detailed answers are possible, but it is time-consuming and answers may be biased.",
      "points": [
       "watches the system; first-hand but behaviour may change.",
@@ -7841,7 +7999,7 @@
    "chapter": 8,
    "qNo": "Q30",
    "marks": 8,
-   "lead": "(a) Describe the characteristics of: (i) Observation [2] (ii) Interviews [2]",
+   "lead": "",
    "points": [
     "As Q29."
    ],
@@ -7851,8 +8009,20 @@
    "parts": [
     {
      "label": "a",
-     "text": "Describe the characteristics of: (i) Observation (ii) Interviews",
+     "text": "Describe the characteristics of:",
      "marks": 4,
+     "subs": [
+      {
+       "label": "i",
+       "text": "Observation",
+       "marks": 2
+      },
+      {
+       "label": "ii",
+       "text": "Interviews",
+       "marks": 2
+      }
+     ],
      "model": "As Q29 — (a)(i) the analyst watches the system, first-hand but behaviour may change; (a)(ii) the analyst asks questions, detailed but slow/biased; (b) input forms, output layouts, file/data structures, validation routines.",
      "points": [
       "As Q29."
@@ -7878,7 +8048,7 @@
    "needsContext": false,
    "dupOf": "c08-q29",
    "chapterKey": "8",
-   "topic": "Research Methods"
+   "topic": "Design"
   },
   {
    "chapter": 8,
@@ -7980,7 +8150,7 @@
    "chapter": 8,
    "qNo": "Q35",
    "marks": 4,
-   "lead": "(a) Explain why user documentation is needed. [1]",
+   "lead": "",
    "points": [
     "(a) helps users operate the system.",
     "(b) three valid user-documentation components."
@@ -8024,7 +8194,7 @@
    "chapter": 8,
    "qNo": "Q36",
    "marks": 6,
-   "lead": "(a) Explain what is meant by the system specification. [3]",
+   "lead": "",
    "points": [
     "(a) document of system requirements / hardware and software needed.",
     "(b) three valid data-structure elements (field name; data type; field length; key field; validation)."
@@ -8163,7 +8333,7 @@
    "chapter": 9,
    "qNo": "Q1",
    "marks": 8,
-   "lead": "(a) Explain why the data from the sensor has to be changed before the microprocessor can read it. [3]",
+   "lead": "",
    "points": [
     "(a) sensor gives analogue (1); microprocessor needs digital (1); ADC converts it (1).",
     "(b) five advantages (automatic/continuous; accurate; safer; faster response; data logged)."
@@ -8207,7 +8377,7 @@
    "chapter": 9,
    "qNo": "Q2",
    "marks": 8,
-   "lead": "(a) Name and describe the use of two input devices in the system. [4]",
+   "lead": "",
    "points": [
     "(a) two input devices named + used (temperature sensor; keypad).",
     "(b) sensor reads; compares with 19°C; heater on if below/off if at-or-above; repeats."
@@ -8251,7 +8421,7 @@
    "chapter": 9,
    "qNo": "Q3",
    "marks": 10,
-   "lead": "(a) Name three sensors the scientists would place in the river. [3]",
+   "lead": "",
    "points": [
     "(a) three valid sensors.",
     "(b) representative/accurate readings at the right place (2).",
@@ -8306,7 +8476,7 @@
    "chapter": 9,
    "qNo": "Q4",
    "marks": 8,
-   "lead": "(a) Tick three sensors used in the system. [3]",
+   "lead": "",
    "points": [
     "(a) Pressure; Infra-red; Sound.",
     "(b) sensors send readings; compared with preset; intruder changes reading; alarm triggered; repeats."
@@ -8350,7 +8520,7 @@
    "chapter": 9,
    "qNo": "Q5",
    "marks": 8,
-   "lead": "(a) Tick three sensors used in the system. [3]",
+   "lead": "",
    "points": [
     "(a) Pressure; Temperature; Moisture.",
     "(b) temperature → heater; water level → valve/pump; moisture detected; controls motor/timing; compares to preset."
@@ -8394,7 +8564,7 @@
    "chapter": 9,
    "qNo": "Q6",
    "marks": 6,
-   "lead": "(a) Tick three components of an expert system. [3]",
+   "lead": "",
    "points": [
     "(a) Rules base; Inference engine; Knowledge base.",
     "(b) ✓ three valid examples from the official list (strategy games; financial advice; tax; careers; route scheduling; identification; prospecting)."
@@ -8540,7 +8710,7 @@
    "chapter": 9,
    "qNo": "Q11",
    "marks": 5,
-   "lead": "(a) Tick two components of an expert system. [2]",
+   "lead": "",
    "points": [
     "(a) Inference engine; Rules base.",
     "(b) three benefits (faster; expert knowledge; fewer errors/consistent; suggests treatment; available without a specialist)."
@@ -8584,7 +8754,7 @@
    "chapter": 9,
    "qNo": "Q12",
    "marks": 8,
-   "lead": "(a) Complete the table (Sound/Light/Pressure/Infra-red etc.):",
+   "lead": "",
    "points": [
     "(a) Sound sensor; Pressure sensor; Light sensor.",
     "(b) FALSE; TRUE; FALSE; FALSE; FALSE."
@@ -8677,7 +8847,7 @@
    "chapter": 9,
    "qNo": "Q14",
    "marks": 6,
-   "lead": "(a) Describe the advantages of major roads being controlled by smart road signs. [3]",
+   "lead": "",
    "points": [
     "(a) three advantages (remote/real-time updates; hazard/congestion warnings; variable limits/flow/safety).",
     "(b) three risks (failure/hacking shows wrong info; over-reliance; technical fault misleads drivers)."
@@ -8777,7 +8947,7 @@
    "chapter": 9,
    "qNo": "Q17",
    "marks": 8,
-   "lead": "(a) Explain why computer modelling is used to forecast the weather. [4]",
+   "lead": "",
    "points": [
     "(a) too complex/large to do manually; processes huge data quickly; predicts future/what-if; faster/cheaper/safer.",
     "(b) two valid weather sensors.",
@@ -8911,7 +9081,7 @@
    "chapter": 9,
    "qNo": "Q21",
    "marks": 10,
-   "lead": "(a) Describe the benefits and drawbacks of using a computer model of the junction. [6]",
+   "lead": "",
    "points": [
     "(a) benefits (cheaper/safer; try scenarios; easy to change; no disruption) and drawbacks (may not match reality; only as good as data; costly).",
     "(b) enter traffic data; set variables/rules; simulate and predict; change values and re-run."
@@ -9081,7 +9251,7 @@
    "chapter": 10,
    "qNo": "Q6",
    "marks": 7,
-   "lead": "(a) Explain, using examples, why biometric systems are more effective than other security methods. [3]",
+   "lead": "",
    "points": [
     "(a) unique/can't be guessed-shared-stolen; must be present; example (fingerprint/face/iris).",
     "(b) card read; details sent to bank; funds checked; amount transferred to retailer; confirmation."
@@ -9394,7 +9564,7 @@
    "chapter": 11,
    "qNo": "Q4",
    "marks": 5,
-   "lead": "(a) Describe how a key-logger monitors computer usage. [2]",
+   "lead": "",
    "points": [
     "(a) records keystrokes (1); log stored/sent for review (1).",
     "(b) three valid monitoring methods (web history; emails; application use; CCTV)."
@@ -9481,7 +9651,7 @@
    "chapter": 11,
    "qNo": "Q7",
    "marks": 6,
-   "lead": "(a) Explain why the sensor data cannot be read directly by the microprocessor, and name the device needed to convert it. [3]",
+   "lead": "",
    "points": [
     "(a) sensor gives analogue (1); microprocessor needs digital (1); ADC converts it (1).",
     "(b) three advantages (cheaper/no development; faster to deploy; already tested/trained)."
@@ -9670,7 +9840,7 @@
    "chapter": 11,
    "qNo": "Q15",
    "marks": 6,
-   "lead": "(a) Describe four disadvantages to the company of using robots to build cars. [4]",
+   "lead": "",
    "points": [
     "(a) four disadvantages (high cost; maintenance; lack of flexibility; breakdown stops production; need skilled programmers).",
     "(b) two environmental changes (job losses/retraining; supervisory/technical roles; safer/cleaner)."
@@ -9777,7 +9947,7 @@
    "chapter": 12,
    "qNo": "Q2",
    "marks": 4,
-   "lead": "(a) Explain what is meant by virtual reality. [2]",
+   "lead": "",
    "points": [
     "(a) computer-generated 3D environment (1) the user interacts with as if real (1).",
     "(b) two valid VR hardware items."
@@ -9841,7 +10011,7 @@
    "chapter": 12,
    "qNo": "Q4",
    "marks": 5,
-   "lead": "(a) Describe the computer processing when a book is borrowed. [3]",
+   "lead": "",
    "points": [
     "(a) thumbprint matched to membership number; accession number read; loan/due date recorded.",
     "(b) accession number read; loan record updated/book marked returned."
@@ -9885,7 +10055,7 @@
    "chapter": 12,
    "qNo": "Q5",
    "marks": 5,
-   "lead": "(a) Give three reasons why the school introduced this system. [3]",
+   "lead": "",
    "points": [
     "(a) three valid reasons.",
     "(b) user ID identifies the user (1); password verifies/authenticates them (1)."
@@ -9969,7 +10139,7 @@
    "chapter": 12,
    "qNo": "Q8",
    "marks": 9,
-   "lead": "(a) Describe the processing and outputs of the flight booking system. [6]",
+   "lead": "",
    "points": [
     "(a) validate airport names; search database for flights; check seat availability; output flights/prices; reduce seats and confirm booking.",
     "(b) three valid organisations."
@@ -10075,7 +10245,7 @@
    "chapter": 12,
    "qNo": "Q11",
    "marks": 6,
-   "lead": "(a) Explain what is meant by media streaming. [2]",
+   "lead": "",
    "points": [
     "(a) media played over the internet in real time without downloading the whole file.",
     "(b) benefits (instant; no storage used; large libraries/any device) and drawbacks (needs good internet; data use; buffering; no permanent copy)."
@@ -10163,7 +10333,7 @@
    "chapter": 12,
    "qNo": "Q14",
    "marks": 4,
-   "lead": "(a) Describe two disadvantages of saving the list of players as a PDF file. [2]",
+   "lead": "",
    "points": [
     "(a) two disadvantages (hard to edit; needs reader software; large/fixed).",
     "(b) two valid digital-only features (video/animation; sound; hyperlinks)."
@@ -10227,7 +10397,7 @@
    "chapter": 12,
    "qNo": "Q16",
    "marks": 8,
-   "lead": "(a) Explain the differences between virtual reality (VR) and augmented reality (AR). [2]",
+   "lead": "",
    "points": [
     "(a) VR = fully computer-generated/replaces real world; AR = overlays virtual content onto the real world.",
     "(b) positive impacts (navigation; gaming; retail; education; medicine) and negative impacts (device cost; distraction/safety; privacy) with a balanced conclusion."
@@ -10333,7 +10503,7 @@
    "chapter": 13,
    "qNo": "Q4",
    "marks": 4,
-   "lead": "(a) Identify two types of job where employment has decreased. [2]",
+   "lead": "",
    "points": [
     "(a) two jobs reduced by automation.",
     "(b) two ICT-related jobs created."
@@ -10458,7 +10628,7 @@
    "chapter": 13,
    "qNo": "Q9",
    "marks": 7,
-   "lead": "(a) Name three other authentication techniques. [3]",
+   "lead": "",
    "points": [
     "(a) three valid authentication methods.",
     "(b) four valid data-protection principles."
@@ -10893,7 +11063,7 @@
    "chapter": 13,
    "qNo": "Q25",
    "marks": 6,
-   "lead": "(a) State three health problems caused by entering data for a long period. [3]",
+   "lead": "",
    "points": [
     "(a) three health problems (RSI; back pain; eye strain).",
     "(b) three physical safety issues (tripping; electric shock; fire)."
@@ -11006,7 +11176,7 @@
    "chapter": 13,
    "qNo": "Q28",
    "marks": 4,
-   "lead": "(a) State two health issues associated with multimedia projectors. [2]",
+   "lead": "",
    "points": [
     "(a) two health issues (eye damage; headaches).",
     "(b) two safety issues (overheating/fire; trailing cables/burns)."
@@ -11070,7 +11240,7 @@
    "chapter": 13,
    "qNo": "Q30",
    "marks": 8,
-   "lead": "(a) State two causes of RSI and two strategies (other than taking breaks) for preventing it. [4]",
+   "lead": "",
    "points": [
     "(a) two RSI causes + two prevention strategies (wrist rest; ergonomic keyboard).",
     "(b) two eye-strain causes + two strategies (anti-glare; adjust brightness/look away)."
@@ -11114,7 +11284,7 @@
    "chapter": 13,
    "qNo": "Q31",
    "marks": 8,
-   "lead": "(a) State what the teacher must do to avoid breaking copyright when publishing the website. [2]",
+   "lead": "",
    "points": [
     "(a) get permission/licence; acknowledge sources.",
     "(b) creator owns it; needs permission/licence; no illegal copying/distribution.",

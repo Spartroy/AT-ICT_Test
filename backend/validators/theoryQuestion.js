@@ -61,8 +61,10 @@ function sanitizeQuestion(body, chapters, existing = null) {
     doc.terms = items.map(i => i.answer);
   } else if (type === 'multi') {
     const parts = (Array.isArray(b.parts) ? b.parts : []).filter(p => p && str(p.text)).slice(0, 8).map((p, i) => ({
-      label: str(p.label, 4) || String.fromCharCode(97 + i), text: str(p.text, 1500), marks: Math.max(1, Math.round(Number(p.marks) || 1)), model: str(p.model, 3000), points: list(p.points, 12)
+      label: str(p.label, 4) || String.fromCharCode(97 + i), text: str(p.text, 1500), marks: Math.max(1, Math.round(Number(p.marks) || 1)), model: str(p.model, 3000), points: list(p.points, 12),
+      subs: Array.isArray(p.subs) && p.subs.length >= 2 ? p.subs.slice(0, 8).filter(x => x && str(x.text)).map((x, k) => ({ label: str(x.label, 4) || ['i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii', 'viii'][k], text: str(x.text, 800), marks: Math.max(1, Math.round(Number(x.marks) || 1)) })) : undefined
     }));
+    parts.forEach(p => { if (p.subs && p.subs.length >= 2) p.marks = p.subs.reduce((n, x) => n + x.marks, 0); else delete p.subs; });
     if (parts.length < 2) return { error: 'A structured question needs at least two parts' };
     parts.forEach(p => { p.command = commandOf(p.text, p.marks); });
     doc.parts = parts;

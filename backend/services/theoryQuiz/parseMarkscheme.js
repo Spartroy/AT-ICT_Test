@@ -139,35 +139,69 @@ function parseOne(raw, chapter) {
   }
   // 7. Multi-part question
   const parts = splitParts(qLines, ansLines, ms, totalMarks);
-  if (parts) return { ...base, type: 'multi', context: parts.context, parts: parts.list, model };
+  if (parts) return { ...base, lead: parts.context, type: 'multi', context: parts.context, parts: parts.list, model };
 
   // 8. Single written answer
   return { ...base, type: 'written', model };
 }
 
 /** (a)(b)(c) parts with [n] marks. Returns null when the marks cannot be reconciled. */
+const ROMAN_RE = /\(\s*(iv|v?i{1,3}|ix)\s*\)/gi;
+const ROMAN_ORDER = ['i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii', 'viii', 'ix'];
+
+/** "Name the type: (i) manage hardware [1] (ii) example [1]" -> intro + sub-parts. Needs (i), (ii) in order. */
+function splitSubs(text) {
+  const marks = [...text.matchAll(ROMAN_RE)];
+  if (marks.length < 2 || marks[0][1].toLowerCase() !== 'i' || marks[1][1].toLowerCase() !== 'ii') return null;
+  const subs = marks.map((m, i) => {
+    const raw = text.slice(m.index + m[0].length, i + 1 < marks.length ? marks[i + 1].index : undefined);
+    const mk = [...raw.matchAll(/\[(\d+)\]/g)].reduce((n, x) => n + Number(x[1]), 0);
+    return { label: m[1].toLowerCase(), text: raw.replace(/\s*\[\d+\]/g, '').trim(), marks: mk || undefined };
+  });
+  if (!subs.every((x, i) => x.label === ROMAN_ORDER[i])) return null;
+  return { intro: text.slice(0, marks[0].index).replace(/\s*\[\d+\]/g, '').trim(), subs };
+}
+
+const half = (n) => Math.round(n * 2) / 2;
+
 function splitParts(qLines, ansLines, ms, total) {
   const first = qLines.findIndex(l => /^\(\s*[a-z]\s*\)/i.test(l));
   if (first < 0) return null;
   const context = qLines.slice(0, first).join(' ');
   const groups = [];
   qLines.slice(first).forEach(l => {
-    if (/^\(\s*[a-z]\s*\)/i.test(l) || !groups.length) groups.push({ label: labelOf(l), lines: [l] });
-    else groups[groups.length - 1].lines.push(l);
+    const roman = /^\(\s*(iv|v?i{1,3}|ix)\s*\)/i.test(l) && groups.length;
+    if (roman || (groups.length && !/^\(\s*[a-z]\s*\)/i.test(l))) groups[groups.length - 1].lines.push(l);
+    else groups.push({ label: labelOf(l), lines: [l] });
   });
   const list = groups.map(g => {
-    const t = g.lines.join(' ');
+    const t = stripLabel(g.lines.join(' '));
+    const grouped = g.lines.join(' ').match(/\[(\d+)\s+total for ([a-z])\s*\+\s*([a-z])\]/i);
     const marks = [...t.matchAll(/\[(\d+)\]/g)].reduce((n, m) => n + Number(m[1]), 0);
-    return { label: g.label, text: stripLabel(t).replace(/\s*\[\d+\]/g, '').trim(), marks };
+    const sub = splitSubs(t);
+    const part = { label: g.label, text: (sub ? sub.intro : t).replace(/\s*\[[^\]]*\]/g, '').trim(), marks };
+    if (sub) part.subs = sub.subs;
+    if (grouped) part.groupTotal = { n: Number(grouped[1]), with: [grouped[2].toLowerCase(), grouped[3].toLowerCase()] };
+    return part;
   });
+  // Marks given for several parts together ("[4 total for a+b]") are shared between them
+  list.forEach(p => {
+    if (!p.groupTotal) return;
+    const owners = list.filter(x => p.groupTotal.with.includes(x.label) && !x.marks);
+    owners.forEach((x, i) => { x.marks = i === owners.length - 1 ? p.groupTotal.n - half(p.groupTotal.n / owners.length) * (owners.length - 1) : half(p.groupTotal.n / owners.length); });
+  });
+  list.forEach(p => delete p.groupTotal);
   const known = list.filter(p => p.marks);
   const missing = list.filter(p => !p.marks);
   const sum = known.reduce((n, p) => n + p.marks, 0);
-  if (missing.length === 1 && sum < total) missing[0].marks = total - sum;
-  else if (missing.length || sum !== total) {
-    if (/total/i.test(qLines.join(' '))) return null;
-    return null;
-  }
+  if (missing.length) {
+    const left = total - sum;
+    if (left <= 0) return null;
+    // Whatever the paper did not give a part a mark for is shared out evenly
+    missing.forEach((p, i) => { p.marks = i === missing.length - 1 ? left - half(left / missing.length) * (missing.length - 1) : half(left / missing.length); });
+  } else if (sum !== total) return null;
+  list.forEach(p => { if (p.subs && p.subs.every(x => x.marks)) p.marks = p.subs.reduce((n, x) => n + x.marks, 0); else if (p.subs) { const each = half(p.marks / p.subs.length); p.subs.forEach(x => { x.marks = x.marks || each; }); } });
+  if (list.reduce((n, p) => n + p.marks, 0) !== total) return null;
   // Model answers by part label; otherwise everything is shared
   const byLabel = {};
   let cur = null;
@@ -181,7 +215,7 @@ function splitParts(qLines, ansLines, ms, total) {
     p.model = (mine || ansLines).map(stripLabel).join('\n');
     p.points = ms.filter(m => labelOf(m) === p.label).map(stripLabel);
     if (!p.points.length) p.points = ms.filter(m => !labelOf(m));
-    p.command = commandOf(p.text, p.marks);
+    p.command = commandOf(p.text || (p.subs ? p.subs[0].text : ''), p.marks);
   });
   return { context, list };
 }

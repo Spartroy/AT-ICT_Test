@@ -76,7 +76,9 @@ export default function BankEditor({ onClose }) {
                   return (
                     <div className="trow qz-brow" role="listitem" key={q._id}>
                       <button type="button" className="trow-open" onClick={() => setEdit(q)}>
-                        <span className="lmain"><b>{questionTitle(q).slice(0, 170)}</b><small>Ch {q.chapter} · {q.topic} · {q.source === 'teacher' ? 'Added by you' : q.qNo}{q.edited && q.source !== 'teacher' ? ' · edited' : ''}</small></span>
+                        <span className="lmain">{q.type === 'multi' && q.parts?.length
+                          ? <><b>{q.context || `${q.qNo || 'Structured question'} · ${q.topic}`}</b><span className="qz-grp">{q.parts.map(p => <span key={p.label}><i>({p.label})</i> {(p.text || p.subs?.[0]?.text || '').slice(0, 90)} <em>[{p.marks}]</em></span>)}</span></>
+                          : <b>{questionTitle(q).slice(0, 170)}</b>}<small>Ch {q.chapter} · {q.topic} · {q.source === 'teacher' ? 'Added by you' : q.qNo}{q.edited && q.source !== 'teacher' ? ' · edited' : ''}</small></span>
                         <span className="tchips">
                           <span className="chip c-gy">{q.category}</span>
                           <span className={`chip ${DIFFICULTY[q.difficulty]?.cls}`}>{DIFFICULTY[q.difficulty]?.label}</span>
@@ -130,7 +132,7 @@ function fromForm(d) {
   if (d.type === 'pick') { base.options = lines(d.options); base.answers = d.pickAnswers; }
   if (d.type === 'match') base.items = d.items.map(i => ({ text: i.text, answer: i.answer }));
   if (d.type === 'written') base.command = d.command;
-  if (d.type === 'multi') base.parts = d.parts.map(p => ({ label: p.label, text: p.text, marks: Number(p.marks), model: p.model, points: lines(p.points) }));
+  if (d.type === 'multi') base.parts = d.parts.map(p => ({ label: p.label, text: p.text, marks: Number(p.marks), model: p.model, points: lines(p.points), subs: p.subs }));
   return base;
 }
 
@@ -236,7 +238,11 @@ function QuestionEditor({ question, meta, onClose, onSaved }) {
               <div key={i} className="qz-partcard">
                 <div className="qz-ed-row"><Fld label="Part"><input className="inp" value={p.label} maxLength={4} onChange={e => partSet(i, { label: e.target.value })} /></Fld><Fld label="Marks"><input className="inp" type="number" min="1" max="20" value={p.marks} onChange={e => partSet(i, { marks: e.target.value })} /></Fld>
                   <button type="button" className="ib sm dng" aria-label="Remove part" disabled={d.parts.length <= 2} onClick={() => set({ parts: d.parts.filter((_, k) => k !== i) })}><Ic as={Trash2} /></button></div>
-                <Fld label="Question"><textarea className="inp" rows={2} value={p.text} onChange={e => partSet(i, { text: e.target.value })} /></Fld>
+                <Fld label={p.subs?.length ? 'Part wording' : 'Question'}><textarea className="inp" rows={2} value={p.text} onChange={e => partSet(i, { text: e.target.value })} /></Fld>
+                {p.subs?.map((x, k) => (
+                  <div key={x.label} className="qz-ed-row"><Fld label={`(${x.label})`}><input className="inp" value={x.text} onChange={e => partSet(i, { subs: p.subs.map((y, j) => (j === k ? { ...y, text: e.target.value } : y)) })} /></Fld>
+                    <Fld label="Marks"><input className="inp" type="number" min="1" max="10" value={x.marks} onChange={e => { const subs = p.subs.map((y, j) => (j === k ? { ...y, marks: Number(e.target.value) || 1 } : y)); partSet(i, { subs, marks: subs.reduce((n, y) => n + y.marks, 0) }); }} /></Fld></div>
+                ))}
                 <Fld label="Model answer"><textarea className="inp" rows={3} value={p.model} onChange={e => partSet(i, { model: e.target.value })} /></Fld>
               </div>
             ))}

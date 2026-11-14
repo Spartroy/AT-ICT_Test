@@ -170,7 +170,7 @@ function forStudent(item, seed) {
     case 'fill': return { ...base, items: item.items.map(i => ({ text: i.text })), wordbank: item.presentation === 'wordbank' ? shuffle(item.wordbank, rand) : undefined };
     case 'pick': return { ...base, n: item.n, options: shuffle(item.options, rand) };
     case 'match': return { ...base, items: item.items.map(i => ({ text: i.text })), terms: shuffle(item.terms, rand) };
-    case 'multi': return { ...base, parts: item.parts.map(p => ({ label: p.label, text: p.text, marks: Math.round(p.marks * (item.marks / item.baseMarks) * 2) / 2 })) };
+    case 'multi': return { ...base, parts: item.parts.map(p => ({ label: p.label, text: p.text, marks: Math.round(p.marks * (item.marks / item.baseMarks) * 2) / 2, subs: p.subs ? p.subs.map(x => ({ label: x.label, text: x.text, marks: x.marks })) : undefined })) };
     default: return base;
   }
 }
