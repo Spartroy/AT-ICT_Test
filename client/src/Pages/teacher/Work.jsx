@@ -1,16 +1,17 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
-import { Download, ClipboardCheck, GraduationCap, FileBarChart, Plus, ChevronRight, Trash2, X, Paperclip, CheckCircle2 } from 'lucide-react';
+import { Download, ClipboardCheck, GraduationCap, FileBarChart, Plus, ChevronRight, Trash2 } from 'lucide-react';
 import useApi from '../../hooks/useApi';
-import { api, downloadFile } from '../../lib/api';
+import { api } from '../../lib/api';
 import { API_ENDPOINTS } from '../../config/api';
-import { Empty, ErrorNote, Ic, Loading, PageHead, Seg, fmtDate, fmtDateTime, initials } from '../../components/portal/kit';
-import { Dialog, DialogHeader, useConfirm, useToast } from '../../components/portal/PortalUI';
+import { Empty, ErrorNote, Ic, Loading, PageHead, Seg, fmtDate } from '../../components/portal/kit';
+import { useConfirm, useToast } from '../../components/portal/PortalUI';
 import { useTeacher } from './TeacherPortal';
 import { useTeacherChange, apiError } from './modals/form';
 import { lessonLabel } from './curriculum';
 import Submissions from './work/Submissions';
 import Reports from './work/Reports';
+import QuizLibrary from '../quiz/QuizLibrary';
 import '../../components/reports/reports.css';
 
 const TABS = ['submissions', 'assignments', 'quizzes', 'reports'];
@@ -48,7 +49,7 @@ export default function Work() {
       />
       {tab === 'submissions' && <Submissions />}
       {tab === 'assignments' && <AssignmentTable />}
-      {tab === 'quizzes' && <QuizTable />}
+      {tab === 'quizzes' && <QuizLibrary canEdit={can('quizzes', 'edit')} />}
       {tab === 'reports' && <Reports />}
     </>
   );
@@ -103,89 +104,5 @@ function AssignmentTable() {
         })}
       </div>
     </div>
-  );
-}
-
-function QuizTable() {
-  const list = useApi(`${API_ENDPOINTS.QUIZZES}?limit=200`, b => b.data?.quizzes || []);
-  const [open, setOpen] = useState(null);
-  useTeacherChange('quiz', list.reload);
-  if (list.loading && !list.data) return <Loading label="Loading quizzes…" />;
-  if (list.error) return <ErrorNote error={list.error} onRetry={list.reload} />;
-  const items = list.data || [];
-  return (
-    <div className="card">
-      <h3><Ic as={GraduationCap} />Quizzes<small className="sub tcount-h">{items.length} total</small></h3>
-      {!items.length && <Empty icon={GraduationCap}>No quizzes yet. Use “Create quiz”.</Empty>}
-      <div className="tbl" role="list">
-        {items.map(q => {
-          const done = (q.assignedTo || []).filter(e => ['submitted', 'graded'].includes(e.status)).length;
-          return (
-            <div className="trow" role="listitem" key={q._id}>
-              <button type="button" className="trow-open" onClick={() => setOpen(q)}>
-                <span className="lic"><Ic as={GraduationCap} /></span>
-                <span className="lmain"><b>{q.title}</b><small>{q.duration} min · max {q.maxScore} · {fmtDate(q.startDate)} {q.startTime}</small></span>
-                <span className="tchips">
-                  <span className="chip c-th">{q.type}</span>
-                  <span className="tcount"><b>{done}</b> / {(q.assignedTo || []).length} completed</span>
-                </span>
-                <Ic as={ChevronRight} />
-              </button>
-            </div>
-          );
-        })}
-      </div>
-      <QuizSubmissionsDialog quiz={open} onClose={() => { setOpen(null); list.reload(); }} />
-    </div>
-  );
-}
-
-/** Quiz submissions with download and inline grading (PUT /api/teacher/quizzes/:id/students/:sid). */
-function QuizSubmissionsDialog({ quiz, onClose }) {
-  const toast = useToast();
-  const subs = useApi(quiz ? `${API_ENDPOINTS.QUIZZES}/${quiz._id}/submissions` : null, b => b.data?.submissions || b.data?.quiz?.assignedTo || []);
-  const [scores, setScores] = useState({});
-  if (!quiz) return null;
-  const rows = (subs.data || []).filter(s => ['submitted', 'graded'].includes(s.status));
-
-  const grade = async (s) => {
-    const sid = String(s.student?._id || s.student);
-    const value = Number(scores[sid] ?? s.score);
-    if (Number.isNaN(value) || value < 0 || value > quiz.maxScore) return toast(`Enter a score between 0 and ${quiz.maxScore}`);
-    try {
-      await api.put(`/api/teacher/quizzes/${quiz._id}/students/${sid}`, { score: value });
-      toast('Quiz graded');
-      subs.reload();
-    } catch (err) {
-      toast(apiError(err));
-    }
-  };
-
-  return (
-    <Dialog open onClose={onClose} size="wide" labelledBy="qs-title">
-      <DialogHeader id="qs-title" icon={GraduationCap} title={quiz.title} sub={`${rows.length} submission${rows.length === 1 ? '' : 's'} · max ${quiz.maxScore}`} onClose={onClose} />
-      <div className="mbody">
-        {subs.loading && !subs.data && <Loading />}
-        {subs.data && !rows.length && <Empty icon={GraduationCap}>No one has submitted yet.</Empty>}
-        {rows.map(s => {
-          const sid = String(s.student?._id || s.student);
-          const name = s.student?.firstName ? `${s.student.firstName} ${s.student.lastName}` : 'Student';
-          return (
-            <div className="trow qs-row" key={sid}>
-              <span className="av" aria-hidden="true">{initials(name)}</span>
-              <div className="lmain"><b>{name}</b><small>Submitted {fmtDateTime(s.submissionDate)}</small></div>
-              {(s.submission?.attachments || []).map(f => (
-                <button key={f.filename} type="button" className="btn o sm" onClick={() => downloadFile(`${API_ENDPOINTS.QUIZZES}/${quiz._id}/submissions/${sid}/download/${encodeURIComponent(f.filename)}`, f.originalName).catch(() => toast("Couldn't download"))}>
-                  <Ic as={Paperclip} />{f.originalName}
-                </button>
-              ))}
-              <input className="inp qs-score" type="number" min="0" max={quiz.maxScore} aria-label={`Score for ${name}`} value={scores[sid] ?? s.score ?? ''} onChange={e => setScores(x => ({ ...x, [sid]: e.target.value }))} />
-              <button type="button" className="btn p sm" onClick={() => grade(s)}><Ic as={s.status === 'graded' ? CheckCircle2 : Download} />{s.status === 'graded' ? 'Update' : 'Grade'}</button>
-            </div>
-          );
-        })}
-        <div className="mfoot"><button type="button" className="btn o" onClick={onClose}><Ic as={X} />Close</button></div>
-      </div>
-    </Dialog>
   );
 }

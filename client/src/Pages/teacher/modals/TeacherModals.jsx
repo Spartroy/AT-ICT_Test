@@ -1,6 +1,7 @@
 import React from 'react';
 import HomeworkModal from './HomeworkModal';
-import { QuizModal, AnnouncementModal, VideoModal, NoteModal } from './ContentModals';
+import { AnnouncementModal, VideoModal, NoteModal } from './ContentModals';
+import QuizBuilder from '../../quiz/QuizBuilder';
 import { MaterialModal } from './MaterialWizard';
 import { ScheduleModal, AssignStudentsModal } from './ScheduleModals';
 import { LiveSessionModal, AttendanceModal } from './LiveModals';
@@ -32,7 +33,7 @@ export default function TeacherModals({ modal, onClose }) {
     <>
       <ViewOnlyDialog open={type === 'denied'} onClose={onClose} area={modal?.area} />
       <HomeworkModal open={type === 'hw'} onClose={onClose} />
-      <QuizModal open={type === 'quiz'} onClose={onClose} />
+      <QuizBuilder open={type === 'quiz'} onClose={onClose} />
       <AnnouncementModal open={type === 'announcement'} onClose={onClose} announcement={modal?.announcement} />
       <VideoModal open={type === 'video'} onClose={onClose} video={modal?.video} />
       <NoteModal open={type === 'note'} onClose={onClose} note={modal?.note} />

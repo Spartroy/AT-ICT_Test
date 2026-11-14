@@ -60,10 +60,10 @@ function distractors(item, others, count) {
     if (o.srcId === item.srcId) return;
     (o.items || []).forEach(i => {
       const a = (i.answers || [])[0];
-      if (a && a.split(/\s+/).length <= 3 && !/[\/;]/.test(a) && !own.has(a.toLowerCase())) pool.push({ a, same: o.chapter === item.chapter });
+      if (a && a.split(/\s+/).length <= 3 && !/[\/;]/.test(a) && !own.has(a.toLowerCase())) pool.push({ a, near: (o.topic === item.topic ? 2 : 0) + (o.chapter === item.chapter ? 1 : 0) });
     });
   });
-  pool.sort((x, y) => (y.same - x.same) || (Math.random() - 0.5));
+  pool.sort((x, y) => (y.near - x.near) || (Math.random() - 0.5));
   const seen = new Set();
   const out = [];
   for (const p of pool) {

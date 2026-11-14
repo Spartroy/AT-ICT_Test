@@ -85,7 +85,7 @@ const listQuizzes = async (req, res) => {
       return {
         _id: q._id, title: q.title, description: q.description, mode: q.mode, state: stateOf(q, a),
         questions: q.items.length, totalMarks: q.totalMarks, durationMin: q.settings.durationMin,
-        opensAt: q.settings.opensAt, closesAt: q.settings.closesAt, passMark: q.settings.passMark,
+        opensAt: q.settings.opensAt, closesAt: q.settings.closesAt, passMark: q.settings.passMark, integrity: antiCheat(q),
         attemptId: a?._id || null,
         submittedAt: a?.submittedAt || null,
         score: released ? a.score : null, max: released ? a.maxScore : null,

@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { GraduationCap, Megaphone, Play, Library } from 'lucide-react';
+import { Megaphone, Play, Library } from 'lucide-react';
 import { api } from '../../../lib/api';
 import { API_ENDPOINTS } from '../../../config/api';
 import { useToast } from '../../../components/portal/PortalUI';
 import { PHASES, PROGRAMS } from '../curriculum';
 import { FormDialog, Fld, apiError, announceChange, toLocalInput } from './form';
-import AudiencePicker, { GroupChoice, audienceBody, audienceError, emptyAudience } from './AudiencePicker';
+import { GroupChoice } from './AudiencePicker';
 import useGroups from '../../../hooks/useGroups';
 
 // Shared form state helper: values + per-field errors + reset when opened.
@@ -33,49 +33,6 @@ async function save(f, request, { toast, okMsg, kind, onClose, onSaved }) {
   } finally {
     f.setBusy(false);
   }
-}
-
-/** Create quiz: timed quiz for students. */
-export function QuizModal({ open, onClose }) {
-  const toast = useToast();
-  const f = useForm(open, { title: '', duration: 10, maxScore: 30, section: 'theory', date: '', time: '', difficulty: 'medium', instructions: '', audience: emptyAudience() });
-  const { v, set } = f;
-  const submit = () => {
-    const e = {};
-    if (v.title.trim().length < 3) e.title = 'Title must be at least 3 characters';
-    if (!v.date) e.date = 'Choose a date';
-    if (!v.time) e.time = 'Choose a start time';
-    if (!(Number(v.duration) >= 1)) e.duration = 'At least 1 minute';
-    if (!(Number(v.maxScore) >= 1)) e.maxScore = 'At least 1';
-    const audienceProblem = audienceError(v.audience);
-    if (audienceProblem) e.students = audienceProblem;
-    f.setErrors(e);
-    if (Object.keys(e).length) return;
-    save(f, () => api.post(API_ENDPOINTS.QUIZZES, {
-      title: v.title.trim(), type: v.section, section: v.section, startDate: v.date, startTime: v.time,
-      duration: Number(v.duration), maxScore: Number(v.maxScore), difficulty: v.difficulty, instructions: v.instructions.trim() || undefined,
-      ...audienceBody(v.audience)
-    }), { toast, okMsg: 'Quiz created', kind: 'quiz', onClose });
-  };
-  return (
-    <FormDialog open={open} onClose={onClose} icon={GraduationCap} title="Create quiz" sub="Timed quiz for your students" submitLabel="Create quiz" busy={f.busy} error={f.errors.form} onSubmit={submit}>
-      <Fld label="Title *" error={f.errors.title}><input className="inp" value={v.title} onChange={set('title')} placeholder="e.g. Networks quiz" /></Fld>
-      <div className="r2">
-        <Fld label="Duration (min)" error={f.errors.duration}><input className="inp" type="number" min="1" value={v.duration} onChange={set('duration')} /></Fld>
-        <Fld label="Max score" error={f.errors.maxScore}><input className="inp" type="number" min="1" value={v.maxScore} onChange={set('maxScore')} /></Fld>
-      </div>
-      <div className="r2">
-        <Fld label="Date *" error={f.errors.date}><input className="inp" type="date" value={v.date} onChange={set('date')} /></Fld>
-        <Fld label="Opens at *" error={f.errors.time}><input className="inp" type="time" value={v.time} onChange={set('time')} /></Fld>
-      </div>
-      <div className="r2">
-        <Fld label="Type"><select className="inp" value={v.section} onChange={set('section')}><option value="theory">Theory</option><option value="practical">Practical</option></select></Fld>
-        <Fld label="Difficulty"><select className="inp" value={v.difficulty} onChange={set('difficulty')}><option value="easy">Easy</option><option value="medium">Medium</option><option value="hard">Hard</option></select></Fld>
-      </div>
-      <AudiencePicker value={v.audience} onChange={audience => f.setV(x => ({ ...x, audience }))} error={f.errors.students} />
-      <Fld label="Instructions (optional)"><textarea className="inp" rows={3} value={v.instructions} onChange={set('instructions')} /></Fld>
-    </FormDialog>
-  );
 }
 
 export const ANN_TYPES = ['general', 'assignment', 'exam', 'holiday', 'deadline', 'meeting', 'important'];
