@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { AlertTriangle, BarChart3, Bot, Check, CheckCircle2, ClipboardCheck, Download, Printer, ShieldAlert, Users, X } from 'lucide-react';
+import { AlertTriangle, BarChart3, Bot, Check, CheckCircle2, ClipboardCheck, Download, Printer, Send, ShieldAlert, Users, X } from 'lucide-react';
 import { api } from '../../lib/api';
 import { API_ENDPOINTS } from '../../config/api';
 import useApi from '../../hooks/useApi';
@@ -8,6 +8,7 @@ import { Dialog, DialogHeader, useToast } from '../../components/portal/PortalUI
 import { announceChange, apiError } from '../teacher/modals/form';
 import { openPaper } from './paperPrint';
 import { RISK, formatClock, pctClass, questionTitle } from './quizLogic';
+import MarkChips from './MarkChips';
 import '../../styles/quizgen.css';
 
 const T = API_ENDPOINTS.THEORY_QUIZ.TEACHER;
@@ -31,9 +32,23 @@ export default function QuizResults({ quizId, onClose, onEdit }) {
   const rows = list.data || [];
   const isPaper = q?.mode === 'paper';
   const toReview = rows.filter(r => r.status === 'submitted').length;
+  const toSend = rows.filter(r => r.status === 'graded' && !r.parentSent).length;
   const reload = () => { quiz.reload(); list.reload(); };
 
   useEffect(() => { if (isPaper) setTab(t => (t === 'students' ? 'paper' : t)); }, [isPaper]);
+
+  const sendParents = async (attemptIds) => {
+    setBusy(true);
+    try {
+      const r = await api.post(`${T}/quizzes/${quizId}/send-parents`, attemptIds ? { attemptIds } : {});
+      toast(`${r.data.sent} report${r.data.sent === 1 ? '' : 's'} sent to parents${r.data.noParent ? `. ${r.data.noParent} student${r.data.noParent === 1 ? ' has' : 's have'} no parent account linked.` : ''}`);
+      reload();
+    } catch (err) {
+      toast(apiError(err));
+    } finally {
+      setBusy(false);
+    }
+  };
 
   const confirmAll = async () => {
     setBusy(true);
@@ -102,6 +117,7 @@ export default function QuizResults({ quizId, onClose, onEdit }) {
                   <span className="qz-meta">{q.questions} questions · {q.totalMarks} marks{q.mode === 'online' ? ` · ${q.settings.durationMin} min` : ''}{q.stats.average !== null ? ` · class average ${q.stats.average}%` : ''}</span>
                 </div>
                 <div className="qz-resh-acts">
+                  {toSend > 0 && <button type="button" className="btn o sm" disabled={busy} onClick={() => sendParents()}><Ic as={Send} />Send reports to parents ({toSend})</button>}
                   {toReview > 0 && <button type="button" className="btn p sm" disabled={busy} onClick={confirmAll}><Ic as={CheckCircle2} />Accept all suggested marks ({toReview})</button>}
                   <button type="button" className="btn o sm" onClick={() => printKey(false)}><Ic as={Printer} />Paper</button>
                   <button type="button" className="btn o sm" onClick={() => printKey(true)}><Ic as={ClipboardCheck} />Mark scheme</button>
@@ -119,7 +135,7 @@ export default function QuizResults({ quizId, onClose, onEdit }) {
                   { id: 'report', label: 'Report', icon: BarChart3 }
                 ]}
               />
-              {tab === 'students' && <StudentsTab rows={rows} loading={list.loading && !list.data} error={list.error} onOpen={setOpen} paper={isPaper} />}
+              {tab === 'students' && <StudentsTab rows={rows} loading={list.loading && !list.data} error={list.error} onOpen={setOpen} paper={isPaper} onSend={(id) => sendParents([id])} busy={busy} />}
               {tab === 'report' && <ReportTab quizId={quizId} onOpen={(id) => setOpen(id)} />}
               {tab === 'paper' && <PaperTab quiz={q} rows={rows} reload={reload} />}
             </>
@@ -131,7 +147,7 @@ export default function QuizResults({ quizId, onClose, onEdit }) {
   );
 }
 
-function StudentsTab({ rows, loading, error, onOpen, paper }) {
+function StudentsTab({ rows, loading, error, onOpen, paper, onSend, busy }) {
   if (loading) return <Loading label="Loading students…" />;
   if (error) return <ErrorNote error={error} />;
   if (!rows.length) return <Empty icon={Users}>No students are assigned to this quiz.</Empty>;
@@ -153,6 +169,7 @@ function StudentsTab({ rows, loading, error, onOpen, paper }) {
                   {r.risk && r.risk !== 'none' && <span className={`chip ${RISK[r.risk].cls}`} title={`${r.flags} integrity flag${r.flags === 1 ? '' : 's'}`}><ShieldAlert size={11} /> {RISK[r.risk].label}</span>}
                 </span>
               </button>
+              {r.status === 'graded' && r.attemptId && <button type="button" className="btn o sm qz-sendp" disabled={busy} onClick={() => onSend(r.attemptId)} title={r.parentSent ? 'Already sent. Send again' : 'Send a short report to the parents'}><Ic as={Send} />{r.parentSent ? 'Sent' : 'To parent'}</button>}
             </div>
           );
         })}
@@ -260,11 +277,10 @@ function PaperTab({ quiz, rows, reload }) {
             {full.loading && !items.length && <Loading />}
             <div className="qz-marks-grid">
               {items.map((it, i) => (
-                <label key={it.uid}>
-                  <span><b>Q{i + 1}</b> {questionTitle(it).slice(0, 70)}<small>{it.category}</small></span>
-                  <input className="inp" type="number" min="0" max={it.marks} step="0.5" value={marks[it.uid] ?? ''} placeholder="0" onChange={e => setMarks(m => ({ ...m, [it.uid]: e.target.value }))} aria-label={`Marks for question ${i + 1}`} />
-                  <em>/ {it.marks}</em>
-                </label>
+                <div key={it.uid} className="qz-mrow">
+                  <span><b>Q{i + 1}</b> {questionTitle(it).slice(0, 70)}<small>{it.category} · out of {it.marks}</small></span>
+                  <MarkChips value={marks[it.uid] ?? ''} max={it.marks} onChange={v => setMarks(m => ({ ...m, [it.uid]: v }))} label={`Marks for question ${i + 1}`} />
+                </div>
               ))}
             </div>
             <div className="mfoot"><button type="button" className="btn p" disabled={busy} onClick={save}><Ic as={Check} />{busy ? 'Saving…' : 'Save and next student'}</button></div>
@@ -401,8 +417,8 @@ function ReviewItem({ index, item, grade, answer, marks, setMarks, notes, setNot
               <div className="qz-pts">{p.matched.map(m => <span key={m} className="hit"><Check size={11} />{m}</span>)}{p.missed.map(m => <span key={m} className="miss">{m}</span>)}</div>
             )}
             <div className="qz-mk">
-              <input className="inp" type="number" min="0" max={p.max} step="0.5" value={marks[key] ?? ''} onChange={e => setMarks(m => ({ ...m, [key]: e.target.value }))} aria-label={`Marks for question ${index + 1}${p.label ? ` part ${p.label}` : ''}`} />
-              <span>/ {p.max}</span>
+              <MarkChips value={marks[key] ?? ''} max={p.max} onChange={v => setMarks(m => ({ ...m, [key]: v }))} label={`Marks for question ${index + 1}${p.label ? ` part ${p.label}` : ''}`} />
+              <span>out of {p.max}</span>
               <span className={`chip ${p.source === 'ai' ? 'c-th' : p.source === 'teacher' ? 'c-pr' : 'c-gy'}`}>{p.source === 'ai' ? 'AI suggested' : p.source === 'teacher' ? 'You' : 'Keyword match'}</span>
               <input className="inp qz-fb" value={notes[key] ?? ''} onChange={e => setNotes(n => ({ ...n, [key]: e.target.value }))} placeholder="Comment for the student (optional)" maxLength={400} />
             </div>

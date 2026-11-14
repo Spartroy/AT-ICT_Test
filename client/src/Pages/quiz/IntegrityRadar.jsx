@@ -1,14 +1,17 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Radar, RefreshCw, ShieldAlert, Users, Eye, X, Flag } from 'lucide-react';
+import { Radar, RefreshCw, ShieldAlert, Users, Eye, X, Flag, Volume2, VolumeX } from 'lucide-react';
 import useApi from '../../hooks/useApi';
 import { API_ENDPOINTS } from '../../config/api';
 import { Ic } from '../../components/portal/kit';
+import { sfx, unlockAudio } from './quizSound';
 import '../../styles/quizgen.css';
 
 const T = API_ENDPOINTS.THEORY_QUIZ.TEACHER;
 const SWEEP_SECONDS = 60;
 const RING = { none: [0.8, 0.94], low: [0.6, 0.76], medium: [0.38, 0.56], high: [0.14, 0.34] };
 const RISK_LABEL = { none: 'Clear', low: 'Low', medium: 'Watch', high: 'Alert' };
+// The same ladder the student sees: reminder, yellow card (pause), second yellow (marks off), red card (sent off)
+const LEVEL = { clear: { label: '', n: 0 }, reminder: { label: 'Reminder', n: 1 }, yellow1: { label: 'Yellow card', n: 2 }, yellow2: { label: '2nd yellow', n: 3 }, red: { label: 'Red card', n: 4 } };
 
 const hash = (s) => { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0) / 4294967295; };
 
@@ -32,9 +35,13 @@ export default function IntegrityRadar({ onClose }) {
   const [picked, setPicked] = useState(null);
   const [fresh, setFresh] = useState(() => new Set());
   const [filter, setFilter] = useState('all'); // all | live | flagged
+  const [muted, setMuted] = useState(false);
+  const mutedRef = useRef(false);
+  mutedRef.current = muted;
   const seen = useRef(null);
   const reload = scan.reload;
 
+  useEffect(() => { unlockAudio(); }, []);
   useEffect(() => {
     const t = setInterval(() => setSecs(s => (s <= 1 ? SWEEP_SECONDS : s - 1)), 1000);
     return () => clearInterval(t);
@@ -48,7 +55,11 @@ export default function IntegrityRadar({ onClose }) {
     const ids = new Set(feed.map(f => f.id));
     if (seen.current) {
       const added = new Set([...ids].filter(id => !seen.current.has(id)));
-      if (added.size) { setFresh(added); const t = setTimeout(() => setFresh(new Set()), 8000); seen.current = ids; return () => clearTimeout(t); }
+      if (added.size) {
+        // Alarm for new rule-breaking: the worst new incident decides how loud it is
+        const worst = feed.filter(f => added.has(f.id) && (f.kind === 'card' || f.kind === 'violation')).reduce((m, f) => (f.severity === 'high' ? 'red' : f.severity === 'medium' ? (m === 'red' ? m : 'yellow1') : m === 'red' || m === 'yellow1' ? m : 'reminder'), '');
+        if (worst && !mutedRef.current) sfx.alarm(worst);
+        setFresh(added); const t = setTimeout(() => setFresh(new Set()), 8000); seen.current = ids; return () => clearTimeout(t); }
     }
     seen.current = ids;
     return undefined;
@@ -71,7 +82,8 @@ export default function IntegrityRadar({ onClose }) {
         <h2 className="sg-screen-title"><Ic as={Radar} /> Integrity radar</h2>
         <div className="sg-screen-acts">
           <span className="qz-next hide-sm">Next sweep in <b>{secs}s</b></span>
-          <button type="button" className="btn p sm" onClick={() => { reload(); setSecs(SWEEP_SECONDS); }} disabled={scan.loading}><Ic as={RefreshCw} className={scan.loading ? 'i qz-spin' : 'i'} />Scan now</button>
+          <button type="button" className="btn o sm" onClick={() => { setMuted(m => !m); unlockAudio(); }} aria-pressed={muted} aria-label={muted ? 'Unmute alarm' : 'Mute alarm'}><Ic as={muted ? VolumeX : Volume2} />{muted ? 'Muted' : 'Alarm on'}</button>
+          <button type="button" className="btn p sm" onClick={() => { unlockAudio(); reload(); setSecs(SWEEP_SECONDS); }} disabled={scan.loading}><Ic as={RefreshCw} className={scan.loading ? 'i qz-spin' : 'i'} />Scan now</button>
         </div>
       </div>
       <div className="sg-screen-body">
@@ -85,9 +97,9 @@ export default function IntegrityRadar({ onClose }) {
               {(data?.rows || []).map(r => {
                 const pos = blipPosition(r.attemptId, r.risk);
                 return (
-                  <button key={r.attemptId} type="button" className={`qz-blip ${r.risk} ${r.status} ${picked === r.attemptId ? 'sel' : ''}`} style={{ left: `${pos.x}%`, top: `${pos.y}%` }}
-                    onClick={() => setPicked(p => (p === r.attemptId ? null : r.attemptId))} aria-label={`${r.student}, ${RISK_LABEL[r.risk]}${r.status === 'live' ? ', sitting now' : ''}`}>
-                    <i /><span>{r.student.split(' ')[0]}</span>
+                  <button key={r.attemptId} type="button" className={`qz-blip ${r.risk} ${r.status} lv-${r.level} ${picked === r.attemptId ? 'sel' : ''}`} style={{ left: `${pos.x}%`, top: `${pos.y}%` }}
+                    onClick={() => setPicked(p => (p === r.attemptId ? null : r.attemptId))} aria-label={`${r.student}, ${LEVEL[r.level]?.label || RISK_LABEL[r.risk]}${r.status === 'live' ? ', sitting now' : ''}`}>
+                    <i /><span>{r.student.split(' ')[0]}{LEVEL[r.level]?.n ? ` · ${LEVEL[r.level].label}` : ''}</span>
                   </button>
                 );
               })}
@@ -99,7 +111,7 @@ export default function IntegrityRadar({ onClose }) {
           <section className="qz-rd-side">
             <div className="qz-stats">
               <div><Users size={16} /><b>{t.live}</b><small>sitting now</small></div>
-              <div className={t.flagged ? 'warn' : ''}><ShieldAlert size={16} /><b>{t.flagged}</b><small>flagged</small></div>
+              <div className={t.alarms ? 'alarm' : t.flagged ? 'warn' : ''}><ShieldAlert size={16} /><b>{t.alarms || t.flagged}</b><small>{t.alarms ? 'rule breakers' : 'flagged'}</small></div>
               <div className={t.cards ? 'warn' : ''}><Flag size={16} /><b>{t.cards}</b><small>cards given</small></div>
               <div className={t.away ? 'warn' : ''}><Eye size={16} /><b>{t.away}</b><small>away now</small></div>
             </div>
@@ -109,13 +121,13 @@ export default function IntegrityRadar({ onClose }) {
             </div>
             <ul className="qz-rd-list">
               {rows.map(r => (
-                <li key={r.attemptId} className={picked === r.attemptId ? 'sel' : ''}>
+                <li key={r.attemptId} className={`${picked === r.attemptId ? 'sel' : ''} lv-${r.level}`}>
                   <button type="button" onClick={() => setPicked(p => (p === r.attemptId ? null : r.attemptId))}>
                     <span className={`qz-dot ${r.risk}`} />
                     <span className="n"><b>{r.student}</b><small>{r.quiz}{r.group ? ` · ${r.group}` : ''}</small></span>
                     <span className="m">
                       {r.status === 'live' && <em className="live">{r.away ? 'away' : 'live'}</em>}
-                      {r.sentOff ? <em className="red">sent off</em> : r.yellows > 0 && <em className="yel">{r.yellows} yellow</em>}
+                      {LEVEL[r.level]?.n > 0 && <em className={`lvl ${r.level}`}>{LEVEL[r.level].label}</em>}
                       {r.tabLeaves > 0 && <em>{r.tabLeaves} tab</em>}
                       {r.pastes > 0 && <em>{r.pastes} paste</em>}
                     </span>

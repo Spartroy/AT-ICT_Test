@@ -34,6 +34,7 @@ teacher.post('/quizzes/:id/attempts/:aid/ai', t.remarkWithAi);
 teacher.post('/quizzes/:id/confirm-all', t.confirmAll);
 teacher.put('/quizzes/:id/paper', t.savePaperMarks);
 teacher.get('/quizzes/:id/report', t.quizReport);
+teacher.post('/quizzes/:id/send-parents', t.sendToParents);
 router.use('/teacher', teacher);
 
 // Students

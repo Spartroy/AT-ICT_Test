@@ -29,3 +29,21 @@ describe('integrity radar', () => {
     expect(describeEvent({ type: 'violation', q: 'paste', n: 2 }).text).toBe('Illegal action 2: tried to paste');
   });
 });
+
+describe('radar levels follow the card rules', () => {
+  const started = new Date('2026-11-14T10:00:00Z');
+  const run = (events) => buildRadar([{ _id: 'a', quiz: 'q', student: { firstName: 'S', lastName: 'T' }, status: 'in_progress', startedAt: started, endsAt: new Date('2026-11-14T11:00:00Z'), events }], new Map(), new Date('2026-11-14T10:10:00Z'));
+  const v = (n) => ({ t: n * 1000, type: 'violation', q: 'leave', n });
+  const c = (q, t = 9000) => ({ t, type: 'card', q });
+  test.each([
+    [[], 'clear'],
+    [[v(1)], 'reminder'],
+    [[v(1), v(2), c('yellow1')], 'yellow1'],
+    [[v(1), v(2), c('yellow1'), v(3), c('yellow2')], 'yellow2'],
+    [[v(4), c('red')], 'red']
+  ])('%j gives %s', (events, level) => {
+    const r = run(events);
+    expect(r.rows[0].level).toBe(level);
+    expect(r.totals.alarms).toBe(level === 'clear' ? 0 : 1);
+  });
+});

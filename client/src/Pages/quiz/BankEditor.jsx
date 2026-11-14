@@ -109,7 +109,7 @@ export default function BankEditor({ onClose }) {
   );
 }
 
-const blank = () => ({ type: 'written', chapterKey: '', topic: '', difficulty: '', marks: 2, lead: '', context: '', contextNote: '', imageUrl: '', tip: '', hidden: false, command: 'state', model: '', points: '', items: [{ text: '', answer: true, answers: '' }], columns: '', options: '', pickAnswers: [], wordbank: '', parts: [{ label: 'a', text: '', marks: 2, model: '', points: '' }, { label: 'b', text: '', marks: 2, model: '', points: '' }] });
+const blank = () => ({ type: 'written', chapterKey: '', topic: '', difficulty: '', marks: 2, lead: '', context: '', contextNote: '', imageUrl: '', tip: '', hidden: false, command: 'state', model: '', points: '', items: [{ text: '', answer: true, answers: '' }], columns: '', options: '', pickAnswers: [], extras: [], parts: [{ label: 'a', text: '', marks: 2, model: '', points: '' }, { label: 'b', text: '', marks: 2, model: '', points: '' }] });
 
 function toForm(q) {
   const d = { ...blank(), ...q, tip: q.tip || '', context: q.context || '', contextNote: q.contextNote || '', imageUrl: q.imageUrl || '', difficulty: q.difficulty };
@@ -117,7 +117,8 @@ function toForm(q) {
   d.columns = (q.columns || []).join(', ');
   d.options = (q.options || []).join('\n');
   d.pickAnswers = q.answers || [];
-  d.wordbank = (q.wordbank || []).join(', ');
+  const given = new Set((q.items || []).map(i => String((i.answers || [])[0] || '').toLowerCase()));
+  d.extras = (q.wordbank || []).filter(w => !given.has(String(w).toLowerCase())); // the words that are not answers
   d.items = (q.items || []).map(i => ({ text: i.text, answer: i.answer, answers: (i.answers || []).join(', ') }));
   if (!d.items.length) d.items = [{ text: '', answer: true, answers: '' }];
   d.parts = (q.parts || blank().parts).map(p => ({ ...p, points: (p.points || []).join('\n') }));
@@ -128,7 +129,7 @@ function fromForm(d) {
   const base = { type: d.type, chapterKey: d.chapterKey, topic: d.topic, difficulty: d.difficulty || undefined, marks: Number(d.marks), lead: d.lead, context: d.context, contextNote: d.contextNote, imageUrl: d.imageUrl, tip: d.tip, hidden: d.hidden, model: d.model, points: lines(d.points) };
   if (d.type === 'tf') base.items = d.items.map(i => ({ text: i.text, answer: !!i.answer }));
   if (d.type === 'tick') { base.columns = commas(d.columns); base.items = d.items.map(i => ({ text: i.text, answer: i.answer })); }
-  if (d.type === 'fill') { base.items = d.items.map(i => ({ text: i.text, answers: commas(i.answers) })); base.wordbank = commas(d.wordbank); }
+  if (d.type === 'fill') { base.items = d.items.map(i => ({ text: i.text, answers: commas(i.answers) })); const firsts = d.items.map(i => commas(i.answers)[0]).filter(Boolean); base.wordbank = d.extras?.length ? [...firsts, ...d.extras] : []; }
   if (d.type === 'pick') { base.options = lines(d.options); base.answers = d.pickAnswers; }
   if (d.type === 'match') base.items = d.items.map(i => ({ text: i.text, answer: i.answer }));
   if (d.type === 'written') base.command = d.command;
@@ -209,7 +210,7 @@ function QuestionEditor({ question, meta, onClose, onSaved }) {
                 <input className="inp qz-narrow" value={r.answers} onChange={e => rowSet(i, { answers: e.target.value })} placeholder="answer, other wording" aria-label="Accepted answers" />
               </>
             )} />
-            <Fld label="Word bank (optional, comma separated)"><input className="inp" value={d.wordbank} onChange={e => set({ wordbank: e.target.value })} placeholder="Leave empty to let the generator build one" /></Fld>
+            <WordBankEditor answers={d.items.map(i => commas(i.answers)[0]).filter(Boolean)} extras={d.extras || []} onChange={extras => set({ extras })} />
           </>
         )}
         {d.type === 'pick' && (
@@ -259,6 +260,34 @@ function QuestionEditor({ question, meta, onClose, onSaved }) {
         <label className="qz-switch"><input type="checkbox" checked={d.hidden} onChange={e => set({ hidden: e.target.checked })} /><i /><span>Hide from new quizzes</span></label>
       </div>
     </FormDialog>
+  );
+}
+
+/** The word bank as chips: the answers come from the rows above, the teacher only adds the extra (wrong) words. */
+function WordBankEditor({ answers, extras, onChange }) {
+  const [text, setText] = useState('');
+  const add = () => {
+    const words = text.split(/[,\n]/).map(w => w.trim()).filter(Boolean);
+    const have = new Set([...answers, ...extras].map(w => w.toLowerCase()));
+    const fresh = words.filter((w, i) => !have.has(w.toLowerCase()) && words.findIndex(x => x.toLowerCase() === w.toLowerCase()) === i);
+    if (fresh.length) onChange([...extras, ...fresh].slice(0, 20));
+    setText('');
+  };
+  return (
+    <div className="qz-wb">
+      <small>Word bank</small>
+      <p className="qz-hint">Students drag these words into the gaps. The answers are added for you; add a few extra words that look right but are wrong. Leave extras empty and the generator picks believable ones itself.</p>
+      <div className="qz-wb-chips" aria-label="Words in the bank">
+        {answers.map((w, i) => <span key={`${w}-${i}`} className="qz-wchip ans" title="Taken from the answers above">{w}</span>)}
+        {extras.map(w => <span key={w} className="qz-wchip extra">{w}<button type="button" aria-label={`Remove ${w}`} onClick={() => onChange(extras.filter(x => x !== w))}>×</button></span>)}
+        {!answers.length && !extras.length && <em>Add answers to the items above first.</em>}
+      </div>
+      <div className="qz-wb-add">
+        <input className="inp" value={text} onChange={e => setText(e.target.value)} onKeyDown={e => { if (e.key === 'Enter' || e.key === ',') { e.preventDefault(); add(); } }} placeholder="Type an extra word and press Enter" aria-label="Extra word" maxLength={60} />
+        <button type="button" className="btn o sm" onClick={add} disabled={!text.trim()}><Ic as={Plus} />Add</button>
+      </div>
+      <p className="qz-hint"><span className="qz-wchip ans mini" />answers (locked) <span className="qz-wchip extra mini" />extra words</p>
+    </div>
   );
 }
 

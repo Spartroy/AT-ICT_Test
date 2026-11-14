@@ -56,7 +56,9 @@ function buildRadar(attempts, titles, now = new Date()) {
       feed.push({ id: `${a._id}:${i}`, at, attemptId: String(a._id), quizId: String(a.quiz), student: name, quiz, ...line });
       last = at;
     });
+    const level = d.sentOff ? 'red' : d.yellows >= 2 ? 'yellow2' : d.yellows === 1 ? 'yellow1' : d.violations >= 1 ? 'reminder' : 'clear';
     rows.push({
+      level,
       attemptId: String(a._id), quizId: String(a.quiz), quiz, student: name, group: a.student?.studentInfo?.group || null,
       status: live ? 'live' : a.status === 'in_progress' ? 'ended' : a.status, startedAt: a.startedAt,
       risk: sum.risk, flags: sum.flags, violations: d.violations, yellows: d.yellows, sentOff: d.sentOff, penalty: d.penalty,
@@ -71,6 +73,7 @@ function buildRadar(attempts, titles, now = new Date()) {
     totals: {
       live: rows.filter(r => r.status === 'live').length,
       flagged: rows.filter(r => r.risk === 'medium' || r.risk === 'high').length,
+      alarms: rows.filter(r => r.level !== 'clear').length,
       cards: rows.reduce((n, r) => n + r.yellows + (r.sentOff ? 1 : 0), 0),
       away: rows.filter(r => r.away).length
     },

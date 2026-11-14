@@ -1,9 +1,10 @@
 const { buildRadar } = require('../services/theoryQuiz/radar');
+const { buildParentReport, notificationLine } = require('../services/theoryQuiz/parentReport');
+const User = require('../models/User');
 const mongoose = require('mongoose');
 const TheoryQuestion = require('../models/TheoryQuestion');
 const TheoryQuiz = require('../models/TheoryQuiz');
 const TheoryAttempt = require('../models/TheoryAttempt');
-const User = require('../models/User');
 const groups = require('../services/groups');
 const { notify } = require('../services/notifications');
 const bank = require('../services/theoryQuiz/bank');
@@ -357,6 +358,33 @@ const radar = async (req, res) => {
   } catch (err) { fail(res, err, 'scanning the quizzes'); }
 };
 
+// @route POST /api/theory-quiz/teacher/quizzes/:id/send-parents   { attemptIds?: [] }  (default: every marked attempt not yet sent)
+const sendToParents = async (req, res) => {
+  try {
+    const quiz = await findOwn(req, res);
+    if (!quiz) return;
+    const only = Array.isArray(req.body.attemptIds) ? req.body.attemptIds.filter(isId) : null;
+    const filter = { quiz: quiz._id, status: 'graded' };
+    if (only) filter._id = { $in: only };
+    else filter['parentReport.sentAt'] = { $exists: false };
+    const attempts = await TheoryAttempt.find(filter).populate('student', 'firstName lastName');
+    let sent = 0;
+    let noParent = 0;
+    for (const a of attempts) {
+      if (!a.student) continue;
+      const parents = await User.find({ role: 'parent', 'parentInfo.children.studentId': a.student._id }).select('_id').lean();
+      if (!parents.length) { noParent += 1; continue; }
+      const report = buildParentReport(quiz, a, `${a.student.firstName || ''} ${a.student.lastName || ''}`.trim());
+      a.parentReport = { ...report, sentAt: new Date(), sentBy: req.user.id };
+      a.markModified('parentReport');
+      await a.save();
+      notify(parents.map(p => p._id), { type: 'hw_graded', title: `Quiz result: ${quiz.title}`, body: notificationLine(report), url: '/parent-dashboard/reports', dedupeKey: `tqp:${a._id}:${Date.now()}` });
+      sent += 1;
+    }
+    res.json({ status: 'success', data: { sent, noParent } });
+  } catch (err) { fail(res, err, 'sending the reports'); }
+};
+
 // ---- attempts, review, paper marks -------------------------------------------------------------------------------
 
 const personOf = (u) => (u ? { _id: u._id, name: `${u.firstName || ''} ${u.lastName || ''}`.trim(), group: u.studentInfo?.group || null, studentId: u.studentInfo?.studentId || '' } : null);
@@ -383,7 +411,8 @@ const listAttempts = async (req, res) => {
         autoSubmitted: !!a?.autoSubmitted,
         aiMarked: !!a?.aiMarked,
         risk: a?.integrity?.risk || null,
-        flags: a?.integrity?.flags?.length || 0
+        flags: a?.integrity?.flags?.length || 0,
+        parentSent: !!a?.parentReport?.sentAt
       };
     });
     // Anyone who attempted but is no longer in the audience still shows
@@ -549,7 +578,7 @@ const quizReport = async (req, res) => {
 };
 
 module.exports = {
-  radar,
+  radar, sendToParents,
   getMeta, listBank, createQuestion, updateQuestion, deleteQuestion,
   scopeAvailability, generateItems, swapItem, itemFromBank,
   createQuiz, listQuizzes, getQuiz, updateQuiz, publishQuiz, deleteQuiz,

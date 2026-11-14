@@ -12,6 +12,7 @@ import { useLang } from '../../i18n/context';
 import { effectiveStatus } from '../../lib/payments';
 import '../../styles/i18n.css';
 import Payments from './Payments';
+import ParentQuizReports from './ParentQuizReports';
 import ReportsView from '../../components/reports/ReportsView';
 import ar from './ar';
 
@@ -114,6 +115,7 @@ function ParentReports({ child, childName }) {
     <>
       <PageHead title={t('Weekly reports')} />
       <ReportsView state={state} name={childName} t={t} locale={lang === 'ar' ? 'ar-EG' : 'en-GB'} />
+      <ParentQuizReports child={child} />
     </>
   );
 }

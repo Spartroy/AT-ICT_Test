@@ -26,6 +26,9 @@ router.get('/child/:childId/reports', getChildReports);
 // Published weekly performance reports
 router.get('/child/:childId/weekly-reports', require('../controllers/reportController').forChild);
 
+// Simple quiz reports the teacher sent
+router.get('/child/:childId/quiz-reports', require('../controllers/theoryQuizParentController').forChild);
+
 // Placeholder routes for parent portal
 router.get('/children', (req, res) => {
   res.json({

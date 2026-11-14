@@ -68,6 +68,14 @@ export const sfx = {
   /** The "wrong password" buzz. */
   buzz: () => { tone({ freq: 160, dur: 0.16, type: 'square', gain: 0.13 }); tone({ freq: 140, dur: 0.22, type: 'square', gain: 0.13, when: 0.2 }); },
   whistle,
+  /** Two-tone siren for the teacher's radar; longer and louder the worse the incident. */
+  alarm: (level = 'reminder') => {
+    const cycles = level === 'red' ? 5 : level === 'yellow2' ? 4 : level === 'yellow1' ? 3 : 2;
+    for (let i = 0; i < cycles; i++) {
+      tone({ freq: 880, dur: 0.18, type: 'square', gain: level === 'red' ? 0.2 : 0.12, when: i * 0.4 });
+      tone({ freq: 620, dur: 0.18, type: 'square', gain: level === 'red' ? 0.2 : 0.12, when: i * 0.4 + 0.2 });
+    }
+  },
   whistleLong: () => { whistle(0.55); setTimeout(() => whistle(1.1), 700); }
 };
 

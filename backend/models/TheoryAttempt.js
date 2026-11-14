@@ -26,6 +26,7 @@ const schema = new mongoose.Schema({
   reviewedAt: Date,
   reviewedBy: { type: mongoose.Schema.ObjectId, ref: 'User' },
   integrity: { type: Mixed, default: null },
+  parentReport: { type: Mixed, default: undefined }, // { sentAt, sentBy, ...simple report } once sent to the parents
   pledgeAt: Date
 }, { timestamps: true, minimize: false });
 
