@@ -70,3 +70,58 @@ export function overall(doneGuides, mastered) {
 export function newlyUnlocked(guideId, doneGuides) {
   return SKILLS.filter(s => s.guides.includes(guideId) && !s.guides.some(g => g !== guideId && doneGuides.has(g))).length;
 }
+
+// ---- the tree drawing ---------------------------------------------------------------------------------------------
+export const TREE = { width: 360, tier: 112, top: 46, radius: 25 };
+
+/**
+ * Lays one branch's skills out as a tree, root at the top and 1, 2, 3, 3, 3 ... skills per tier, like the ability
+ * trees in Assassin's Creed. Each skill hangs from the nearest skill(s) of the tier above.
+ * Returns { nodes: [{ i, x, y, tier }], edges: [[parent, child]], height }.
+ */
+export function layoutTree(count) {
+  const caps = [1, 2, 3];
+  const sizes = [];
+  for (let left = count, t = 0; left > 0; t++) {
+    const s = Math.min(left, caps[Math.min(t, 2)]);
+    sizes.push(s);
+    left -= s;
+  }
+  const nodes = [];
+  const tiers = [];
+  let i = 0;
+  sizes.forEach((s, t) => {
+    const row = [];
+    for (let j = 0; j < s; j++) {
+      const node = { i: i++, x: Math.round((TREE.width * (j + 1)) / (s + 1)), y: TREE.top + t * TREE.tier, tier: t };
+      nodes.push(node);
+      row.push(node);
+    }
+    tiers.push(row);
+  });
+  const edges = [];
+  tiers.forEach((row, t) => {
+    if (!t) return;
+    const above = tiers[t - 1];
+    row.forEach(n => {
+      const byDistance = [...above].sort((a, b) => Math.abs(a.x - n.x) - Math.abs(b.x - n.x));
+      edges.push([byDistance[0].i, n.i]);
+      // A second link where the tiers are as wide as each other, so the tree looks woven rather than a plain comb
+      if (byDistance[1] && row.length >= above.length && Math.abs(byDistance[1].x - n.x) < TREE.width / 3) edges.push([byDistance[1].i, n.i]);
+    });
+  });
+  return { nodes, edges, height: count ? TREE.top + (sizes.length - 1) * TREE.tier + 84 : 0 };
+}
+
+/** A skill name split over up to three short lines to sit under its node. */
+export function labelLines(name, perLine = 15) {
+  const words = String(name).split(' ');
+  const lines = [];
+  let cur = '';
+  words.forEach(w => {
+    if (cur && `${cur} ${w}`.length > perLine) { lines.push(cur); cur = w; } else cur = cur ? `${cur} ${w}` : w;
+  });
+  if (cur) lines.push(cur);
+  if (lines.length > 3) { lines.length = 3; lines[2] = `${lines[2].slice(0, perLine - 1)}…`; }
+  return lines;
+}

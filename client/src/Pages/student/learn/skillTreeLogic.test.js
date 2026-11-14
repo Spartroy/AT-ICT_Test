@@ -63,3 +63,31 @@ describe('growing the tree', () => {
     expect(newlyUnlocked('word-cg1', new Set(['word-cg2']))).toBeLessThan(cg1.length);
   });
 });
+
+describe('drawing a branch as a tree', () => {
+  const { layoutTree, labelLines } = require('./skillTreeLogic');
+  test('puts 1, 2, 3, 3 ... skills on each tier and gives every skill but the root a parent', () => {
+    const t = layoutTree(11);
+    expect(t.nodes).toHaveLength(11);
+    expect([0, 1, 2, 3, 4].map(k => t.nodes.filter(n => n.tier === k).length)).toEqual([1, 2, 3, 3, 2]);
+    const children = new Set(t.edges.map(e => e[1]));
+    t.nodes.slice(1).forEach(n => expect(children.has(n.i)).toBe(true));
+    t.edges.forEach(([p, c]) => expect(t.nodes[p].tier).toBe(t.nodes[c].tier - 1));
+  });
+
+  test('copes with tiny and empty branches', () => {
+    expect(layoutTree(1).nodes).toHaveLength(1);
+    expect(layoutTree(2).edges).toHaveLength(1);
+    expect(layoutTree(0)).toMatchObject({ nodes: [], edges: [], height: 0 });
+  });
+
+  test('every real branch lays out inside the frame', () => {
+    APPS.forEach(a => a.categories.forEach(c => layoutTree(c.skills.length).nodes.forEach(n => { expect(n.x).toBeGreaterThan(0); expect(n.x).toBeLessThan(360); })));
+  });
+
+  test('names wrap to short lines', () => {
+    expect(labelLines('Header & Footer — Include Path')).toEqual(['Header & Footer', '— Include Path']);
+    expect(labelLines('Bold')).toEqual(['Bold']);
+    expect(labelLines('A very long skill name that keeps going on and on and on forever', 12)).toHaveLength(3);
+  });
+});

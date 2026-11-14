@@ -5,7 +5,7 @@ import { useToast } from '../../../components/portal/PortalUI';
 import { PREVIEW, PREVIEW_NOTE } from '../../../lib/learnPreview';
 import { APPS } from './practicalSkills';
 import usePracticalProgress from './usePracticalProgress';
-import { GUIDE_BY_ID, SKILL_BY_ID, XP_GUIDE, XP_SKILL, appStats, guidesOfApp, isBonus, newlyUnlocked, overall, skillState, skillsOfGuide } from './skillTreeLogic';
+import { GUIDE_BY_ID, SKILL_BY_ID, TREE, XP_GUIDE, XP_SKILL, appStats, guidesOfApp, isBonus, labelLines, layoutTree, newlyUnlocked, overall, skillState, skillsOfGuide } from './skillTreeLogic';
 import '../../../styles/skilltree.css';
 
 /**
@@ -120,30 +120,55 @@ export default function SkillTree() {
         </aside>
 
         <div className="sk-branches">
-          {app.categories.map(c => {
-            const got = c.skills.filter(s => prog.skills.has(s.id)).length;
-            return (
-              <section className="card sk-branch" key={c.id} aria-label={c.name}>
-                <h4>{c.name}<small>{got}/{c.skills.length}</small></h4>
-                <div className="sk-leaves">
-                  {c.skills.map(s => {
-                    const st = skillState(s, prog.guides, prog.skills);
-                    const cls = ['sk-s', st, isBonus(s) ? 'bonus' : '', fresh.has(s.id) ? 'fresh' : '', sel?.kind === 'skill' && sel.id === s.id ? 'sel' : '', lit && !lit.skills.has(s.id) ? 'dim' : '', lit && lit.skills.has(s.id) && sel?.kind === 'guide' ? 'hl' : ''].filter(Boolean).join(' ');
-                    return (
-                      <button key={s.id} type="button" className={cls} onClick={() => pick('skill', s.id)} aria-pressed={sel?.kind === 'skill' && sel.id === s.id} aria-label={`${s.name}, ${st}`}>
-                        <i>{st === 'mastered' ? <Check size={12} strokeWidth={3} /> : st === 'locked' ? <Lock size={11} /> : null}</i>{s.name}
-                      </button>
-                    );
-                  })}
-                </div>
-              </section>
-            );
-          })}
+          {app.categories.map(c => <Branch key={c.id} cat={c} prog={prog} sel={sel} lit={lit} fresh={fresh} onPick={pick} />)}
         </div>
       </div>
 
       <Detail sel={sel} prog={prog} onGuide={finish} onSkill={master} onPick={pick} onClose={() => setSel(null)} />
     </div>
+  );
+}
+
+const hex = (r) => [0, 1, 2, 3, 4, 5].map(k => { const a = ((-90 + 60 * k) * Math.PI) / 180; return `${(r * Math.cos(a)).toFixed(1)},${(r * Math.sin(a)).toFixed(1)}`; }).join(' ');
+const HEX = { outer: hex(TREE.radius + 8), mid: hex(TREE.radius), inner: hex(TREE.radius - 5) };
+
+/** One branch of the tree: its skills as hexagon nodes joined by lines, root at the top. */
+function Branch({ cat, prog, sel, lit, fresh, onPick }) {
+  const layout = useMemo(() => layoutTree(cat.skills.length), [cat.skills.length]);
+  const states = cat.skills.map(s => skillState(s, prog.guides, prog.skills));
+  const got = states.filter(x => x === 'mastered').length;
+  return (
+    <section className="sk-branch" aria-label={cat.name}>
+      <header><span className="sk-emblem" aria-hidden="true"><b>{got}</b></span><h4>{cat.name}</h4><small>{got}/{cat.skills.length}</small></header>
+      <svg className="sk-svg" viewBox={`0 0 ${TREE.width} ${layout.height}`} role="group" aria-label={`${cat.name} skills`}>
+        {layout.edges.map(([p, c]) => {
+          const a = layout.nodes[p];
+          const b = layout.nodes[c];
+          const cls = states[c] === 'mastered' ? 'bright' : states[c] !== 'locked' && states[p] !== 'locked' ? 'lit' : '';
+          const dim = lit && !(lit.skills.has(cat.skills[p].id) && lit.skills.has(cat.skills[c].id)) ? 'dim' : '';
+          return <line key={`${p}-${c}`} className={`sk-edge ${cls} ${dim}`} x1={a.x} y1={a.y} x2={b.x} y2={b.y} />;
+        })}
+        {cat.skills.map((s, i) => {
+          const n = layout.nodes[i];
+          const st = states[i];
+          const picked = sel?.kind === 'skill' && sel.id === s.id;
+          const cls = ['skn', st, isBonus(s) ? 'bonus' : '', fresh.has(s.id) ? 'fresh' : '', picked ? 'sel' : '', lit && !lit.skills.has(s.id) ? 'dim' : '', lit && lit.skills.has(s.id) && sel?.kind === 'guide' ? 'hl' : ''].filter(Boolean).join(' ');
+          const lines = labelLines(s.name);
+          return (
+            <g key={s.id} className={cls} transform={`translate(${n.x},${n.y})`} role="button" tabIndex={0} aria-label={`${s.name}, ${st}`} aria-pressed={picked}
+              onClick={() => onPick('skill', s.id)} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onPick('skill', s.id); } }}>
+              <polygon className="skn-halo" points={HEX.outer} />
+              <polygon className="skn-hex" points={HEX.mid} />
+              <polygon className="skn-in" points={HEX.inner} />
+              {st === 'mastered' && <path className="skn-ico" d="M-8 0 L-2 7 L9 -7" />}
+              {st === 'locked' && <g className="skn-ico lock"><rect x="-6" y="-2" width="12" height="9" rx="2" /><path d="M-4 -2 V-5 a4 4 0 0 1 8 0 V-2" /></g>}
+              {st === 'open' && <path className="skn-ico diamond" d="M0 -8 L7 0 L0 8 L-7 0 Z" />}
+              <text className="skn-label" y={TREE.radius + 18}>{lines.map((l, k) => <tspan key={k} x="0" dy={k ? 12 : 0}>{l}</tspan>)}</text>
+            </g>
+          );
+        })}
+      </svg>
+    </section>
   );
 }
 
