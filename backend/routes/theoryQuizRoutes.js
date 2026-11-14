@@ -20,6 +20,7 @@ teacher.post('/scope', t.scopeAvailability);
 teacher.post('/generate', t.generateItems);
 teacher.post('/swap', t.swapItem);
 teacher.post('/item', t.itemFromBank);
+teacher.get('/radar', t.radar);
 teacher.get('/quizzes', t.listQuizzes);
 teacher.post('/quizzes', t.createQuiz);
 teacher.get('/quizzes/:id', t.getQuiz);

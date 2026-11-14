@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronRight, GraduationCap, Library, Pencil, Plus, ShieldAlert, Trash2 } from 'lucide-react';
+import { ChevronRight, GraduationCap, Library, Pencil, Plus, Radar, ShieldAlert, Trash2 } from 'lucide-react';
 import { api } from '../../lib/api';
 import { API_ENDPOINTS } from '../../config/api';
 import useApi from '../../hooks/useApi';
@@ -9,6 +9,7 @@ import { announceChange, apiError, useTeacherChange } from '../teacher/modals/fo
 import QuizBuilder from './QuizBuilder';
 import QuizResults from './QuizResults';
 import BankEditor from './BankEditor';
+import IntegrityRadar from './IntegrityRadar';
 import '../../styles/quizgen.css';
 
 const T = API_ENDPOINTS.THEORY_QUIZ.TEACHER;
@@ -22,6 +23,7 @@ export default function QuizLibrary({ canEdit = true }) {
   const [builder, setBuilder] = useState(null); // { id? }
   const [results, setResults] = useState(null);
   const [bank, setBank] = useState(false);
+  const [radar, setRadar] = useState(false);
   useTeacherChange('quiz', list.reload);
 
   if (list.loading && !list.data) return <Loading label="Loading quizzes…" />;
@@ -44,6 +46,7 @@ export default function QuizLibrary({ canEdit = true }) {
       <h3>
         <Ic as={GraduationCap} />Quiz library<small className="sub tcount-h">{items.length} total</small>
         <span className="qz-lib-acts">
+          <button type="button" className="btn o sm" onClick={() => setRadar(true)}><Ic as={Radar} />Integrity radar</button>
           <button type="button" className="btn o sm" onClick={() => setBank(true)}><Ic as={Library} />Question bank</button>
           {canEdit && <button type="button" className="btn p sm" onClick={() => setBuilder({})}><Ic as={Plus} />New quiz</button>}
         </span>

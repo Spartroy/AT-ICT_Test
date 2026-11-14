@@ -31,7 +31,7 @@ export default function StudentQuizzes({ onChange }) {
   const [checked, setChecked] = useState(() => new Date());
 
   const items = useMemo(() => list.data?.quizzes || [], [list.data]);
-  const offset = list.data?.serverNow ? new Date(list.data.serverNow).getTime() - Date.now() : 0;
+  const offset = useMemo(() => (list.data?.serverNow ? new Date(list.data.serverNow).getTime() - Date.now() : 0), [list.data]);
   const waiting = items.some(q => q.state === 'upcoming' || q.state === 'submitted');
   const now = useNow(offset, waiting);
 

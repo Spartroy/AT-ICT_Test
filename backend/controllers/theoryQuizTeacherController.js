@@ -1,3 +1,4 @@
+const { buildRadar } = require('../services/theoryQuiz/radar');
 const mongoose = require('mongoose');
 const TheoryQuestion = require('../models/TheoryQuestion');
 const TheoryQuiz = require('../models/TheoryQuiz');
@@ -344,6 +345,18 @@ const deleteQuiz = async (req, res) => {
   } catch (err) { fail(res, err, 'deleting the quiz'); }
 };
 
+// @route GET /api/theory-quiz/teacher/radar  (live anti-cheat view: students currently sitting quizzes and recent anomalies)
+const radar = async (req, res) => {
+  try {
+    const since = new Date(Date.now() - 48 * 3600 * 1000);
+    const attempts = await TheoryAttempt.find({ mode: 'online', $or: [{ status: 'in_progress' }, { startedAt: { $gte: since } }] })
+      .populate('student', 'firstName lastName studentInfo.group').sort({ startedAt: -1 }).limit(300).lean();
+    const quizzes = await TheoryQuiz.find({ _id: { $in: [...new Set(attempts.map(a => String(a.quiz)))] } }).select('title').lean();
+    const titles = new Map(quizzes.map(q => [String(q._id), q.title]));
+    res.json({ status: 'success', data: buildRadar(attempts, titles) });
+  } catch (err) { fail(res, err, 'scanning the quizzes'); }
+};
+
 // ---- attempts, review, paper marks -------------------------------------------------------------------------------
 
 const personOf = (u) => (u ? { _id: u._id, name: `${u.firstName || ''} ${u.lastName || ''}`.trim(), group: u.studentInfo?.group || null, studentId: u.studentInfo?.studentId || '' } : null);
@@ -536,6 +549,7 @@ const quizReport = async (req, res) => {
 };
 
 module.exports = {
+  radar,
   getMeta, listBank, createQuestion, updateQuestion, deleteQuestion,
   scopeAvailability, generateItems, swapItem, itemFromBank,
   createQuiz, listQuizzes, getQuiz, updateQuiz, publishQuiz, deleteQuiz,
