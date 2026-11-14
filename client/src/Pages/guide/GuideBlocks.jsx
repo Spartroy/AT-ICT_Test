@@ -456,7 +456,6 @@ function TryIt({ b, path }) {
         <div className="sg-try-text">
           <span className="sg-try-tag">
             <Icon as={Play} />Hands-on activity
-            {done && !editing && <span className="sg-try-done"><Icon as={Check} />Tried</span>}
           </span>
           <T as="h3" v={b.title} path={[...path, 'title']} ph="Activity title" />
           <T as="p" v={b.ins} path={[...path, 'ins']} ph="What should students do?" />

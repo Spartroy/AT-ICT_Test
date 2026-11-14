@@ -34,7 +34,6 @@ function SectionView({ sec, path, index }) {
           </span>
         )}
       </header>
-      {!ctx.editing && <ActivityPill acts={sectionActivities(sec)} />}
       <div className="sg-blocks">
         {ctx.editing && <InsertPoint list={blocksPath} at={0} />}
         {sec.blocks.map((b, bi) => (
@@ -50,21 +49,6 @@ function SectionView({ sec, path, index }) {
 }
 
 const jumpTo = (id) => document.getElementById(`act-${id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-/** "This section has an activity" nudge under a section heading (students only). */
-function ActivityPill({ acts }) {
-  const tried = useTried();
-  if (!acts.length) return null;
-  const next = acts.find(a => !tried.has(a.id)) || acts[0];
-  const left = acts.filter(a => !tried.has(a.id)).length;
-  return (
-    <button type="button" className={`sg-pill ${left ? '' : 'done'}`} onClick={() => jumpTo(next.id)}>
-      <span className="sg-pill-ic"><Icon as={left ? Play : Check} /></span>
-      <span>{left ? `${acts.length === 1 ? '1 hands-on activity' : `${acts.length} hands-on activities`} in this section` : 'Activities tried'}</span>
-      <b>{left ? 'Jump to it' : 'Try again'}</b>
-    </button>
-  );
-}
 
 /** Chapter header line: how many activities the chapter has and how many were tried. */
 function ChapterActivities({ ch }) {
