@@ -1,5 +1,5 @@
 import { APPS, GUIDES } from './practicalSkills';
-import { GUIDE_BY_ID, SKILL_BY_ID, XP_GUIDE, XP_SKILL, appStats, levelOf, newlyUnlocked, overall, rankFor, skillState, skillsOfGuide } from './skillTreeLogic';
+import { GUIDE_BY_ID, SKILL_BY_ID, XP_GUIDE, XP_SKILL, appStats, guideState, levelOf, newlyUnlocked, overall, rankFor, skillState, skillsOfGuide } from './skillTreeLogic';
 
 describe('the practical skill catalogue', () => {
   test('has the five applications, 33 guides and every skill of the checker', () => {
@@ -41,8 +41,13 @@ describe('growing the tree', () => {
     expect(none).toMatchObject({ mastered: 0, xp: 0, percent: 0 });
     expect(none.locked).toBeGreaterThan(0);
     const some = appStats(word, new Set(['word-cg1']), new Set([bold.id]));
-    expect(some.xp).toBe(XP_GUIDE + XP_SKILL);
+    expect(some.xp).toBe(XP_SKILL); // the 50 XP bonus only comes once every skill of the guide is ticked
     expect(some.guidesDone).toBe(1);
+    expect(some.guidesComplete).toBe(0);
+    const every = new Set(skillsOfGuide('word-cg1'));
+    const full = appStats(word, new Set(['word-cg1']), every);
+    expect(full.guidesComplete).toBe(1);
+    expect(full.xp).toBe(every.size * XP_SKILL + XP_GUIDE);
     expect(rankFor(0).name).toBe('Rookie');
     expect(rankFor(80).name).toBe('Expert');
     expect(rankFor(100).name).toBe('Grandmaster');
@@ -53,10 +58,17 @@ describe('growing the tree', () => {
     expect(levelOf(100)).toMatchObject({ level: 2, need: 200, into: 0 });
     expect(levelOf(250)).toMatchObject({ level: 2, into: 150 });
     expect(levelOf(350)).toMatchObject({ level: 3, into: 50 });
-    expect(overall(new Set(['word-cg1', 'excel-cg1']), new Set()).xp).toBe(2 * XP_GUIDE);
+    expect(overall(new Set(['word-cg1', 'excel-cg1']), new Set()).xp).toBe(0);
   });
 
-  test('finishing a guide unlocks only the skills no other finished guide already opened', () => {
+  test('a guide goes from todo to submitted to complete', () => {
+    const every = new Set(skillsOfGuide('word-cg1'));
+    expect(guideState('word-cg1', new Set(), every)).toBe('todo');
+    expect(guideState('word-cg1', new Set(['word-cg1']), new Set())).toBe('submitted');
+    expect(guideState('word-cg1', new Set(['word-cg1']), every)).toBe('complete');
+  });
+
+  test('submitting a guide unlocks only the skills no other finished guide already opened', () => {
     const cg1 = skillsOfGuide('word-cg1');
     expect(cg1.length).toBeGreaterThan(0);
     expect(newlyUnlocked('word-cg1', new Set())).toBe(cg1.length);
@@ -66,13 +78,20 @@ describe('growing the tree', () => {
 
 describe('drawing a branch as a tree', () => {
   const { layoutTree, labelLines } = require('./skillTreeLogic');
-  test('puts 1, 2, 3, 3 ... skills on each tier and gives every skill but the root a parent', () => {
+  test('puts 1, 2, 3, 4, 3 ... skills on each tier and gives every skill but the root a parent', () => {
     const t = layoutTree(11);
     expect(t.nodes).toHaveLength(11);
-    expect([0, 1, 2, 3, 4].map(k => t.nodes.filter(n => n.tier === k).length)).toEqual([1, 2, 3, 3, 2]);
+    expect([0, 1, 2, 3, 4].map(k => t.nodes.filter(n => n.tier === k).length)).toEqual([1, 2, 3, 4, 1]);
     const children = new Set(t.edges.map(e => e[1]));
     t.nodes.slice(1).forEach(n => expect(children.has(n.i)).toBe(true));
     t.edges.forEach(([p, c]) => expect(t.nodes[p].tier).toBe(t.nodes[c].tier - 1));
+  });
+
+  test('forms a hexagon lattice: neighbouring rows are half a step apart and most skills hang from two above', () => {
+    const t = layoutTree(16);
+    const parents = (i) => t.edges.filter(e => e[1] === i).length;
+    expect(parents(4)).toBe(2); // middle of the row of three, between the two above
+    t.edges.forEach(([p, c]) => expect(Math.abs(t.nodes[p].x - t.nodes[c].x)).toBeLessThanOrEqual(40));
   });
 
   test('copes with tiny and empty branches', () => {
@@ -86,7 +105,7 @@ describe('drawing a branch as a tree', () => {
   });
 
   test('names wrap to short lines', () => {
-    expect(labelLines('Header & Footer — Include Path')).toEqual(['Header & Footer', '— Include Path']);
+    expect(labelLines('Header & Footer — Include Path')).toEqual(['Header &', 'Footer —', 'Include Path']);
     expect(labelLines('Bold')).toEqual(['Bold']);
     expect(labelLines('A very long skill name that keeps going on and on and on forever', 12)).toHaveLength(3);
   });

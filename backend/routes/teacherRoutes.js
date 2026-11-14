@@ -104,6 +104,9 @@ router.put('/assignments/:id/students/:studentId', gradeAssignment);
 router.get('/submissions', listSubmissions);
 router.get('/submissions/zip', zipSubmissions);
 
+// Evidence students handed in for the practical guides (skill tree)
+router.get('/practical-submissions', require('../controllers/practicalProgressController').listPracticalSubmissions);
+
 // Quiz grading route
 router.put('/quizzes/:id/students/:studentId', gradeQuiz);
 

@@ -629,3 +629,10 @@ body.sg-sorting { cursor: grabbing; user-select: none; -webkit-user-select: none
 .qz-pr-weak li small { grid-column: 1 / -1; color: var(--mu); }
 .qz-pr-conduct { font-size: 0.85rem; color: var(--mu); }
 .qz-pr-next { font-weight: 600; }
+
+/* Practical submissions (teacher) */
+.qz-prow { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 10px 4px; }
+.qz-prow .lmain { flex: 1; min-width: 200px; display: grid; }
+.qz-pnote { font-style: italic; color: var(--mu); }
+.qz-pfiles { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.qz-pfiles a.chip { text-decoration: none; }

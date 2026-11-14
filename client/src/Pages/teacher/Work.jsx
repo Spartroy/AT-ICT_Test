@@ -1,6 +1,6 @@
 import React from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
-import { Download, ClipboardCheck, GraduationCap, FileBarChart, Plus, ChevronRight, Trash2 } from 'lucide-react';
+import { Download, ClipboardCheck, GraduationCap, FileBarChart, Plus, ChevronRight, Trash2, Trophy } from 'lucide-react';
 import useApi from '../../hooks/useApi';
 import { api } from '../../lib/api';
 import { API_ENDPOINTS } from '../../config/api';
@@ -11,11 +11,12 @@ import { useTeacherChange, apiError } from './modals/form';
 import { lessonLabel } from './curriculum';
 import Submissions from './work/Submissions';
 import Reports from './work/Reports';
+import PracticalSubmissions from './work/PracticalSubmissions';
 import QuizLibrary from '../quiz/QuizLibrary';
 import '../../components/reports/reports.css';
 
-const TABS = ['submissions', 'assignments', 'quizzes', 'reports'];
-const TAB_FEATURE = { submissions: 'submissions', assignments: 'homework', quizzes: 'quizzes', reports: 'submissions' };
+const TABS = ['submissions', 'assignments', 'quizzes', 'practicals', 'reports'];
+const TAB_FEATURE = { submissions: 'submissions', assignments: 'homework', quizzes: 'quizzes', practicals: 'submissions', reports: 'submissions' };
 
 export default function Work() {
   const { tab } = useParams();
@@ -41,6 +42,7 @@ export default function Work() {
           { id: 'submissions', label: 'Submissions', icon: Download, count: counts.needsGrading || '' },
           { id: 'assignments', label: 'Assignments', icon: ClipboardCheck },
           { id: 'quizzes', label: 'Quizzes', icon: GraduationCap },
+          { id: 'practicals', label: 'Practicals', icon: Trophy },
           { id: 'reports', label: 'Weekly reports', icon: FileBarChart }
         ].filter(t => allowed.includes(t.id))}
         value={tab}
@@ -48,6 +50,7 @@ export default function Work() {
         label="Work sections"
       />
       {tab === 'submissions' && <Submissions />}
+      {tab === 'practicals' && <PracticalSubmissions />}
       {tab === 'assignments' && <AssignmentTable />}
       {tab === 'quizzes' && <QuizLibrary canEdit={can('quizzes', 'edit')} />}
       {tab === 'reports' && <Reports />}

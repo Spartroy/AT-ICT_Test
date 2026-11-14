@@ -4,7 +4,8 @@ import { APPS, GUIDES } from './practicalSkills';
 //   locked    a guide teaches it and none of them is finished yet
 //   open      unlocked (a guide covering it is finished, or no guide covers it: a bonus skill)
 //   mastered  the student ticked it off, like a circle in the Practical Skills Checker
-// Finishing a guide is worth 50 XP, mastering a skill 10 XP.
+// A guide counts as done once the student has submitted their evidence for it. Ticking a skill is worth 10 XP, and a
+// guide whose skills are all ticked pays a 50 XP bonus.
 
 export const XP_GUIDE = 50;
 export const XP_SKILL = 10;
@@ -34,6 +35,13 @@ export function skillState(skill, doneGuides, mastered) {
   return 'locked';
 }
 
+/** todo (nothing handed in), submitted (evidence in), complete (submitted and every skill of it ticked). */
+export function guideState(guideId, submitted, mastered) {
+  if (!submitted.has(guideId)) return 'todo';
+  const skills = skillsOfGuide(guideId);
+  return skills.length && skills.every(id => mastered.has(id)) ? 'complete' : 'submitted';
+}
+
 /** Numbers for one app: mastery, unlocked skills, guides done, XP and rank. */
 export function appStats(app, doneGuides, mastered) {
   const skills = app.categories.flatMap(c => c.skills);
@@ -41,11 +49,12 @@ export function appStats(app, doneGuides, mastered) {
   const masteredN = skills.filter(s => mastered.has(s.id)).length;
   const unlocked = skills.filter(s => skillState(s, doneGuides, mastered) !== 'locked').length;
   const guidesDone = gs.filter(g => doneGuides.has(g.id)).length;
+  const guidesComplete = gs.filter(g => guideState(g.id, doneGuides, mastered) === 'complete').length;
   const percent = skills.length ? Math.round((masteredN / skills.length) * 100) : 0;
   return {
     total: skills.length, mastered: masteredN, unlocked, locked: skills.length - unlocked,
-    guidesDone, guidesTotal: gs.length, percent,
-    xp: guidesDone * XP_GUIDE + masteredN * XP_SKILL, rank: rankFor(percent)
+    guidesDone, guidesComplete, guidesTotal: gs.length, percent,
+    xp: guidesComplete * XP_GUIDE + masteredN * XP_SKILL, rank: rankFor(percent)
   };
 }
 
@@ -75,46 +84,49 @@ export function newlyUnlocked(guideId, doneGuides) {
 export const TREE = { width: 360, tier: 112, top: 46, radius: 25 };
 
 /**
- * Lays one branch's skills out as a tree, root at the top and 1, 2, 3, 3, 3 ... skills per tier, like the ability
- * trees in Assassin's Creed. Each skill hangs from the nearest skill(s) of the tier above.
+ * Lays one branch's skills out as a mesh, root at the top, on a staggered hexagon lattice like the ability trees in
+ * Assassin's Creed: rows of 1, 2, 3, 4, 3, 4, 3 ... skills, each joined to the neighbours diagonally above it.
  * Returns { nodes: [{ i, x, y, tier }], edges: [[parent, child]], height }.
  */
 export function layoutTree(count) {
-  const caps = [1, 2, 3];
-  const sizes = [];
-  for (let left = count, t = 0; left > 0; t++) {
-    const s = Math.min(left, caps[Math.min(t, 2)]);
-    sizes.push(s);
-    left -= s;
-  }
-  const nodes = [];
+  // One spacing for every row, so neighbouring rows sit half a step apart: a true hexagon lattice
+  const STEP = 72;
+  const slots = (n) => Array.from({ length: n }, (_, j) => Math.round(TREE.width / 2 + (j - (n - 1) / 2) * STEP));
+  const pattern = [1, 2, 3, 4];
+  const rowWidth = (t) => (t < pattern.length ? pattern[t] : (t % 2 ? 3 : 4));
   const tiers = [];
-  let i = 0;
-  sizes.forEach((s, t) => {
-    const row = [];
-    for (let j = 0; j < s; j++) {
-      const node = { i: i++, x: Math.round((TREE.width * (j + 1)) / (s + 1)), y: TREE.top + t * TREE.tier, tier: t };
+  const nodes = [];
+  const next = (() => { let n = 0; return () => n++; })();
+  for (let left = count, t = 0; left > 0; t++) {
+    const full = rowWidth(t);
+    const take = Math.min(left, full);
+    const xs = slots(full);
+    // A short last row sits in the middle of the lattice row
+    const from = Math.floor((full - take) / 2);
+    const row = xs.slice(from, from + take).map(x => {
+      const node = { i: next(), x, y: TREE.top + t * TREE.tier, tier: t };
       nodes.push(node);
-      row.push(node);
-    }
+      return node;
+    });
     tiers.push(row);
-  });
+    left -= take;
+  }
   const edges = [];
   tiers.forEach((row, t) => {
     if (!t) return;
     const above = tiers[t - 1];
+    const near = STEP / 2 + 4;
     row.forEach(n => {
-      const byDistance = [...above].sort((a, b) => Math.abs(a.x - n.x) - Math.abs(b.x - n.x));
-      edges.push([byDistance[0].i, n.i]);
-      // A second link where the tiers are as wide as each other, so the tree looks woven rather than a plain comb
-      if (byDistance[1] && row.length >= above.length && Math.abs(byDistance[1].x - n.x) < TREE.width / 3) edges.push([byDistance[1].i, n.i]);
+      const links = above.filter(p => Math.abs(p.x - n.x) <= near);
+      const chosen = links.length ? links : [[...above].sort((a, b) => Math.abs(a.x - n.x) - Math.abs(b.x - n.x))[0]];
+      chosen.forEach(p => edges.push([p.i, n.i]));
     });
   });
-  return { nodes, edges, height: count ? TREE.top + (sizes.length - 1) * TREE.tier + 84 : 0 };
+  return { nodes, edges, height: count ? TREE.top + (tiers.length - 1) * TREE.tier + 84 : 0 };
 }
 
 /** A skill name split over up to three short lines to sit under its node. */
-export function labelLines(name, perLine = 15) {
+export function labelLines(name, perLine = 12) {
   const words = String(name).split(' ');
   const lines = [];
   let cur = '';

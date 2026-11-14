@@ -205,5 +205,6 @@ router.get('/pastpaper-progress', protect, studentOnly, getPastPaperProgress);
 router.put('/pastpaper-progress/:key', protect, studentOnly, setPastPaperProgress);
 router.get('/practical-progress', protect, studentOnly, require('../controllers/practicalProgressController').getPracticalProgress);
 router.put('/practical-progress/:kind/:id', protect, studentOnly, require('../controllers/practicalProgressController').setPracticalProgress);
+router.post('/practical-progress/submit/:guide', protect, studentOnly, upload.array('homework', 5), handleMulterError, require('../controllers/practicalProgressController').submitGuide);
 
 module.exports = router; 
