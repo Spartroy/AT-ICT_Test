@@ -493,10 +493,7 @@ body.sg-sorting { cursor: grabbing; user-select: none; -webkit-user-select: none
 .qz-boxes { display: grid; gap: 14px; }
 .qz-fill li { line-height: 2.5; }
 
-@media (prefers-reduced-motion: reduce) {
-  .qz-pop, .qz-viol.shake, .qz-whistle, .qz-waves path, .qz-card-pop, .qz-bignum, .qz-tickhint, .qz-spin { animation: none; }
-  .qz-parchment { transition: none; }
-}
+/* The quiz ceremony, radar and cards are the point of those screens, so they keep their animation even when the system asks to reduce motion */
 
 
 /* Structured questions: parts grouped under the main question */
@@ -572,7 +569,6 @@ body.sg-sorting { cursor: grabbing; user-select: none; -webkit-user-select: none
 @keyframes qz-newrow { 0%, 100% { box-shadow: none; } 40% { box-shadow: 0 0 0 2px var(--rd), 0 0 18px rgb(52 224 138 / 0.5); } }
 .qz-rd-list .empty, .qz-log .empty { color: var(--mu); padding: 10px; font-family: inherit; background: none; border: 0; }
 @media (max-width: 900px) { .qz-rd-grid { grid-template-columns: 1fr; } .qz-rd-scope { position: static; } .qz-stats { grid-template-columns: repeat(2, 1fr); } }
-@media (prefers-reduced-motion: reduce) { .qz-sweep, .qz-blip.live i, .qz-log li.new { animation: none; } }
 
 
 /* Radar: rule breakers glow red, stronger for each step of the ladder */
@@ -592,7 +588,6 @@ body.sg-sorting { cursor: grabbing; user-select: none; -webkit-user-select: none
 .qz-rd-list em.lvl.red { background: #ff2d4f; color: #fff; }
 .qz-stats .alarm { border-color: #ff4b66; box-shadow: 0 0 20px rgb(255 45 79 / 0.45); } .qz-stats .alarm svg, .qz-stats .alarm b { color: #ff6b82; }
 .qz-log li.high { box-shadow: 0 0 14px rgb(255 45 79 / 0.3); }
-@media (prefers-reduced-motion: reduce) { .qz-blip.lv-red i, .qz-rd-list li.lv-red button { animation: none; } }
 
 /* Quick-pick mark chips */
 .qz-chips { display: flex; flex-wrap: wrap; gap: 6px; }
