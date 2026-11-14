@@ -63,7 +63,7 @@ export default function SkillTree() {
   const pick = (kind, id) => setSel(s => (s && s.kind === kind && s.id === id ? null : { kind, id }));
 
   return (
-    <div className="sk" style={{ '--app': app.color }}>
+    <div className="sk">
       <header className="card sk-hero">
         <div className="sk-lv" aria-label={`Level ${all.level}`}><Trophy size={20} /><b>{all.level}</b><small>level</small></div>
         <div className="sk-herom">
@@ -87,7 +87,7 @@ export default function SkillTree() {
         {APPS.map(a => {
           const st = appStats(a, prog.guides, prog.skills);
           return (
-            <button key={a.id} type="button" role="tab" aria-selected={a.id === appId} className={a.id === appId ? 'on' : ''} style={{ '--app': a.color }} onClick={() => { setAppId(a.id); setSel(null); }}>
+            <button key={a.id} type="button" role="tab" aria-selected={a.id === appId} className={a.id === appId ? 'on' : ''} onClick={() => { setAppId(a.id); setSel(null); }}>
               <span className="sk-ring" style={{ '--p': st.percent }}><b>{st.percent}%</b></span>
               <span><strong>{a.name}</strong><small>{st.rank.name}</small></span>
             </button>
@@ -139,8 +139,7 @@ export default function SkillTree() {
   );
 }
 
-const hex = (r) => [0, 1, 2, 3, 4, 5].map(k => { const a = ((-90 + 60 * k) * Math.PI) / 180; return `${(r * Math.cos(a)).toFixed(1)},${(r * Math.sin(a)).toFixed(1)}`; }).join(' ');
-const HEX = { outer: hex(TREE.radius + 8), mid: hex(TREE.radius), inner: hex(TREE.radius - 5) };
+const BOX = { r: TREE.radius, halo: TREE.radius + 7 };
 
 /** One branch of the tree: its skills as hexagon nodes joined by lines, root at the top. */
 function Branch({ cat, prog, sel, lit, fresh, onPick }) {
@@ -149,7 +148,7 @@ function Branch({ cat, prog, sel, lit, fresh, onPick }) {
   const got = states.filter(x => x === 'mastered').length;
   return (
     <section className="sk-branch" aria-label={cat.name}>
-      <header><span className="sk-emblem" aria-hidden="true"><b>{got}</b></span><h4>{cat.name}</h4><small>{got}/{cat.skills.length}</small></header>
+      <header><h4>{cat.name}</h4><small>{got}/{cat.skills.length}</small></header>
       <svg className="sk-svg" viewBox={`0 0 ${TREE.width} ${layout.height}`} role="group" aria-label={`${cat.name} skills`}>
         {layout.edges.map(([p, c]) => {
           const a = layout.nodes[p];
@@ -167,9 +166,8 @@ function Branch({ cat, prog, sel, lit, fresh, onPick }) {
           return (
             <g key={s.id} className={cls} transform={`translate(${n.x},${n.y})`} role="button" tabIndex={0} aria-label={`${s.name}, ${st}`} aria-pressed={picked}
               onClick={() => onPick('skill', s.id)} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onPick('skill', s.id); } }}>
-              <polygon className="skn-halo" points={HEX.outer} />
-              <polygon className="skn-hex" points={HEX.mid} />
-              <polygon className="skn-in" points={HEX.inner} />
+              <rect className="skn-halo" x={-BOX.halo} y={-BOX.halo} width={BOX.halo * 2} height={BOX.halo * 2} rx="20" />
+              <rect className="skn-hex" x={-BOX.r} y={-BOX.r} width={BOX.r * 2} height={BOX.r * 2} rx="15" />
               {st === 'mastered' && <path className="skn-ico" d="M-8 0 L-2 7 L9 -7" />}
               {st === 'locked' && <g className="skn-ico lock"><rect x="-6" y="-2" width="12" height="9" rx="2" /><path d="M-4 -2 V-5 a4 4 0 0 1 8 0 V-2" /></g>}
               {st === 'open' && <path className="skn-ico diamond" d="M0 -8 L7 0 L0 8 L-7 0 Z" />}
@@ -252,7 +250,7 @@ function GuideSubmissions({ prog, focus, onFocused, toast, onTree, flash }) {
         <small>{done} of {GUIDES.length} guides handed in. Your teacher can see what you submit.</small>
       </div>
       {APPS.map(a => (
-        <div className="card sk-sapp" key={a.id} style={{ '--app': a.color }}>
+        <div className="card sk-sapp" key={a.id}>
           <h4>{a.name}<small>{GUIDES.filter(g => g.app === a.id && prog.submissions.has(g.id)).length}/{GUIDES.filter(g => g.app === a.id).length}</small></h4>
           {GUIDES.filter(g => g.app === a.id).map(g => (
             <GuideRow key={g.id} g={g} prog={prog} open={open === g.id} onToggle={() => setOpen(o => (o === g.id ? null : g.id))} toast={toast} onTree={onTree} flash={flash} />
