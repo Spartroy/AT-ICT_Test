@@ -1,5 +1,5 @@
 import React, { createContext, forwardRef, useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { AlertTriangle, ArrowLeftRight, BookOpen, Calculator, Check, ChevronDown, CircuitBoard, Cpu, Database, Disc, Globe, GripVertical, HardDrive, Keyboard, Lightbulb, Link as LinkIcon, Link2, Lock, Network, Pencil, Play, Plus, Printer, RotateCcw, Router, Trash2, UploadCloud, Volume2, Wifi, X } from 'lucide-react';
+import { AlertTriangle, ArrowLeftRight, Bug, Phone, ShieldCheck, Video, BookOpen, Calculator, Check, ChevronDown, CircuitBoard, Cpu, Database, Disc, Globe, GripVertical, HardDrive, Keyboard, Lightbulb, Link as LinkIcon, Link2, Lock, Network, Pencil, Play, Plus, Printer, RotateCcw, Router, Trash2, UploadCloud, Volume2, Wifi, X } from 'lucide-react';
 import { Dialog, DialogHeader } from '../../components/portal/PortalUI';
 import { ACTIVITY_TAGS, cleanHtml, isActivity, kindOf } from './guideLogic';
 import { applyOverrides, collectTexts, loadDemos, watchOverrides } from './activityText';
@@ -431,7 +431,8 @@ const DemoHost = forwardRef(function DemoHost({ tag, map }, hostRef) {
 const ACTIVITY_ICON = {
   ipo: Calculator, compiler: Cpu, linker: Link2, keyboard: Keyboard, printer3d: Printer, speaker: Volume2, actuator: CircuitBoard,
   access: Database, hdd: HardDrive, cd: Disc, wifi: Wifi, hubswitch: Network, router: Router, protocol: ArrowLeftRight,
-  http: Lock, ftp: UploadCloud, urlgame: LinkIcon, webterms: BookOpen, browser: Globe
+  http: Lock, ftp: UploadCloud, urlgame: LinkIcon, webterms: BookOpen, browser: Globe,
+  audioconf: Phone, videoconf: Video, virus: Bug, virussigns: AlertTriangle, antivirus: ShieldCheck
 };
 
 /** A practical activity as a bold card that stands out from the notes: icon, what to do, a Start button. The demo opens below it. */

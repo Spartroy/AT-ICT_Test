@@ -41,7 +41,12 @@ const ACTIVITY_HELP = {
   ftp: 'Step through uploading a website to a server with FTP.',
   urlgame: 'Drag the pieces into the right order to build a full URL, then press Check.',
   webterms: 'Tap each term to see how the website, webpage, server and browser fit together.',
-  browser: 'Step through what a browser does from typing an address to showing the page.'
+  browser: 'Step through what a browser does from typing an address to showing the page.',
+  audioconf: 'Pick a method and watch how the organiser connects every participant to the audio conference.',
+  videoconf: 'Connect the camera, monitor, microphone, speakers and router, then say hello to the host.',
+  virus: 'Open the infected file and watch the virus wake up, copy itself and damage the computer.',
+  virussigns: 'Step through the six warning signs that a virus is on a computer.',
+  antivirus: 'Open a file and see how the antivirus checks it, compares it with its database and deals with a virus.'
 };
 const ACTIVITIES = new Set(Object.keys(ACTIVITY_HELP));
 const TRAILING = ['hint', 'mis', 'qc'];

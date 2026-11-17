@@ -153,7 +153,8 @@ export const ACTIVITY_TAGS = {
   ipo: 'ipo-calc', compiler: 'compiler-demo', linker: 'linker-demo', keyboard: 'keyboard-demo', printer3d: 'printer3d-demo',
   speaker: 'speaker-demo', actuator: 'actuator-lab', access: 'access-demo', hdd: 'hdd-demo', cd: 'cd-demo', wifi: 'wifi-demo',
   hubswitch: 'hubswitch-demo', router: 'router-demo', protocol: 'protocol-demo', http: 'http-demo', ftp: 'ftp-demo',
-  urlgame: 'url-game', webterms: 'webterms-demo', browser: 'browser-demo'
+  urlgame: 'url-game', webterms: 'webterms-demo', browser: 'browser-demo',
+  audioconf: 'audioconf-demo', videoconf: 'videoconf-demo', virus: 'virus-demo', virussigns: 'virussigns-demo', antivirus: 'antivirus-demo'
 };
 export const isActivity = (type) => type in ACTIVITY_TAGS;
 
@@ -165,7 +166,8 @@ const ACTIVITY_LABELS = {
   ipo: 'Calculator: input, process, output', compiler: 'Compiler', linker: 'Linker', keyboard: 'How a keyboard works', printer3d: '3D printer',
   speaker: 'Inside a speaker', actuator: 'Build an actuator circuit', access: 'Serial vs direct access', hdd: 'Inside a hard disk drive',
   cd: 'How a CD is read', wifi: 'How Wi-Fi works', hubswitch: 'Hub vs switch', router: 'How a router works', protocol: 'How a protocol works',
-  http: 'HTTP, SSL and HTTPS', ftp: 'Publishing with FTP', urlgame: 'Build a URL', webterms: 'Web terms', browser: 'How a web browser works'
+  http: 'HTTP, SSL and HTTPS', ftp: 'Publishing with FTP', urlgame: 'Build a URL', webterms: 'Web terms', browser: 'How a web browser works',
+  audioconf: 'Audio conference', videoconf: 'Set up a video conference', virus: 'How a virus works', virussigns: 'Signs of a virus', antivirus: 'How an antivirus works'
 };
 
 /** What the teacher can add. `make` returns a fresh, filled-in block so nothing starts empty. */

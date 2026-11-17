@@ -66,16 +66,17 @@ export function watchOverrides(root, getMap) {
 let loading = null;
 /** Loads /guide/demos.js once; resolves when the activities are registered. */
 export function loadDemos() {
-  if (typeof customElements !== 'undefined' && customElements.get('compiler-demo')) return Promise.resolve();
+  if (typeof customElements !== 'undefined' && customElements.get('compiler-demo') && customElements.get('antivirus-demo')) return Promise.resolve();
   if (!loading) {
-    loading = new Promise((resolve, reject) => {
+    const load = (src) => new Promise((resolve, reject) => {
       const script = document.createElement('script');
-      script.src = '/guide/demos.js';
+      script.src = src;
       script.async = true;
       script.onload = () => resolve();
-      script.onerror = () => { loading = null; reject(new Error('The practical activities could not be loaded')); };
+      script.onerror = () => reject(new Error('The practical activities could not be loaded'));
       document.head.appendChild(script);
     });
+    loading = Promise.all(['/guide/demos.js', '/guide/demos-extra.js'].map(load)).catch((e) => { loading = null; throw e; });
   }
   return loading;
 }

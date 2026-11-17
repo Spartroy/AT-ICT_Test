@@ -5,7 +5,8 @@
 const BLOCK_TYPES = [
   'def', 'flow', 'tree', 'cards', 'parts', 'chips', 'meter', 'table', 'tabs', 'hint', 'mis', 'qc',
   'ipo', 'compiler', 'linker', 'keyboard', 'printer3d', 'speaker', 'actuator', 'access', 'hdd', 'cd',
-  'wifi', 'hubswitch', 'router', 'protocol', 'http', 'ftp', 'urlgame', 'webterms', 'browser'
+  'wifi', 'hubswitch', 'router', 'protocol', 'http', 'ftp', 'urlgame', 'webterms', 'browser',
+  'audioconf', 'videoconf', 'virus', 'virussigns', 'antivirus'
 ];
 
 const MAX_BYTES = 3 * 1024 * 1024;
