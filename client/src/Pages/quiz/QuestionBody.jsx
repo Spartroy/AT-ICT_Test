@@ -9,7 +9,7 @@ import { splitBlanks } from './quizLogic';
 export default function QuestionBody({ item, showAnswer = false }) {
   const lead = item.lead && <p className="qz-lead">{item.lead}</p>;
   const ctx = (item.context || item.contextNote) && <p className="qz-ctx">{item.context || item.contextNote}</p>;
-  const img = item.imageUrl && <img className="qz-img" src={item.imageUrl} alt="" />;
+  const img = item.imageUrl && <img className="qz-img" src={item.imageUrl} alt="" loading="lazy" decoding="async" />;
 
   switch (item.type) {
     case 'tf':

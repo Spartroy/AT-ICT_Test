@@ -571,6 +571,7 @@ body.sg-sorting * { cursor: grabbing !important; }
   .sg-try-text { grid-column: auto; grid-row: auto; }
   .sg-try-go { grid-column: 1 / -1; justify-content: center; padding: 14px; }
   .sg-acts-go { width: 100%; padding: 12px; }
+  .sg-try-body { padding: 8px; }
 }
 @media (prefers-reduced-motion: reduce) { .sg-try:not(.open):not(.done) .sg-try-go { animation: none; } }
 @media print { .sg-pill, .sg-acts, .sg-nav-act { display: none !important; } }

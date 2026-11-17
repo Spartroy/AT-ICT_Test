@@ -61,7 +61,7 @@
 
 /* ---- audience picker used in the create dialogs ---- */
 .atp-teacher .aud-groups { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 12px; }
-.atp-teacher .aud-g { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 99px; border: 1px solid var(--bd2); background: var(--s2); color: var(--white); font: inherit; font-size: 0.88rem; cursor: pointer; transition: all 0.2s; }
+.atp-teacher .aud-g { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 99px; border: 1px solid var(--bd2); background: var(--s2); color: var(--white); font: inherit; font-size: 0.88rem; cursor: pointer; transition: color 0.2s, background-color 0.2s, border-color 0.2s, box-shadow 0.2s, opacity 0.2s, transform 0.2s, width 0.2s, height 0.2s, max-height 0.2s, filter 0.2s; }
 .atp-teacher .aud-g i { width: 9px; height: 9px; border-radius: 50%; background: var(--gc); }
 .atp-teacher .aud-g small { color: var(--mu); }
 .atp-teacher .aud-g.on { border-color: var(--gc); background: color-mix(in srgb, var(--gc) 16%, var(--s2)); box-shadow: 0 0 0 2px color-mix(in srgb, var(--gc) 25%, transparent); }

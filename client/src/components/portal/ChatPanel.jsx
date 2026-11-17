@@ -56,7 +56,7 @@ function Attachment({ messageId, a, onError }) {
 
   if (kind === 'image') {
     return href
-      ? <a className="bub-img" href={href} target="_blank" rel="noreferrer" aria-label={`Open ${name}`}><img src={href} alt={name} /></a>
+      ? <a className="bub-img" href={href} target="_blank" rel="noreferrer" aria-label={`Open ${name}`}><img src={href} alt={name} loading="lazy" decoding="async" /></a>
       : <span className="bub-img bub-img--wait" aria-hidden="true" />;
   }
   if (kind === 'audio') {

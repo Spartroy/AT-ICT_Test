@@ -19,7 +19,7 @@
   white-space: nowrap;
   cursor: pointer;
   text-decoration: none;
-  transition: all 0.3s var(--ease-out);
+  transition: color 0.3s var(--ease-out), background-color 0.3s var(--ease-out), border-color 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out), opacity 0.3s var(--ease-out), transform 0.3s var(--ease-out), width 0.3s var(--ease-out), height 0.3s var(--ease-out), max-height 0.3s var(--ease-out), filter 0.3s var(--ease-out);
 }
 .ui-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 .ui-btn--sm { padding: 10px 20px; min-height: 42px; border-radius: 11px; }
@@ -146,7 +146,7 @@ select.ui-input option { background: var(--dark-input); }
   font-weight: 500;
   font-size: 0.9rem;
   line-height: 1.7;
-  transition: all 0.2s;
+  transition: color 0.2s, background-color 0.2s, border-color 0.2s, box-shadow 0.2s, opacity 0.2s, transform 0.2s, width 0.2s, height 0.2s, max-height 0.2s, filter 0.2s;
 }
 .ui-chip span:hover { border-color: var(--dark-border-hover); }
 .ui-chip input:checked + span { border-color: var(--crimson-500); background: rgb(var(--crimson-rgb) / 0.2); color: var(--dark-text); }
@@ -164,7 +164,7 @@ select.ui-input option { background: var(--dark-input); }
   border-radius: 16px;
   border: 1.5px solid var(--dark-border-soft);
   background: var(--dark-card);
-  transition: all 0.2s;
+  transition: color 0.2s, background-color 0.2s, border-color 0.2s, box-shadow 0.2s, opacity 0.2s, transform 0.2s, width 0.2s, height 0.2s, max-height 0.2s, filter 0.2s;
 }
 .ui-choice-card > span::before {
   content: "";

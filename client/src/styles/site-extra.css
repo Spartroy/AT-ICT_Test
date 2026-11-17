@@ -33,7 +33,7 @@ html.site-html { scroll-behavior: smooth; scroll-padding-top: 90px; }
 .site .photo img { width: 100%; height: 100%; object-fit: cover; }
 
 /* Carousel dots are buttons here */
-.site .cdots button { width: 9px; height: 9px; padding: 0; border: 0; border-radius: 50%; background: rgb(255 255 255 / 0.25); cursor: pointer; transition: all 0.3s; }
+.site .cdots button { width: 9px; height: 9px; padding: 0; border: 0; border-radius: 50%; background: rgb(255 255 255 / 0.25); cursor: pointer; transition: color 0.3s, background-color 0.3s, border-color 0.3s, box-shadow 0.3s, opacity 0.3s, transform 0.3s, width 0.3s, height 0.3s, max-height 0.3s, filter 0.3s; }
 .site .cdots button.on { background: var(--crimson-500); width: 26px; border-radius: 9px; }
 .site .cdots { min-height: 24px; align-items: center; }
 

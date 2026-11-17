@@ -120,7 +120,7 @@
   color: var(--dark-text-muted);
   font-style: normal;
   font-weight: 700;
-  transition: all 0.3s;
+  transition: color 0.3s, background-color 0.3s, border-color 0.3s, box-shadow 0.3s, opacity 0.3s, transform 0.3s, width 0.3s, height 0.3s, max-height 0.3s, filter 0.3s;
 }
 .auth-steps li.is-current > i { border-color: var(--crimson-500); color: var(--white); background: rgb(var(--crimson-rgb) / 0.25); }
 .auth-steps li.is-done > i { border-color: var(--crimson-500); color: var(--white); background: var(--crimson-500); }

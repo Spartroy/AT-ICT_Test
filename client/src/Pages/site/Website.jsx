@@ -124,7 +124,7 @@ function Hero() {
               />
             ) : (
               <>
-                <img className="vid-thumb" src={videoThumbnail} alt="" aria-hidden="true" />
+                <img className="vid-thumb" src={videoThumbnail} width="467" height="854" loading="lazy" decoding="async" alt="" aria-hidden="true" />
                 <button type="button" className="play" aria-label="Play intro video" onClick={() => setPlaying(true)}>
                   <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 4 13 8-13 8z" /></svg>
                 </button>
@@ -150,7 +150,7 @@ function Tutor() {
   return (
     <section id="about" className="sec tint" aria-labelledby="tutor-title">
       <div className="wrap tutor-g">
-        <div className="photo rv"><img src={tutorPhoto} alt="Eng. Ahmad Tamer Ali, your ICT tutor" /></div>
+        <div className="photo rv"><img src={tutorPhoto} width="960" height="960" loading="lazy" decoding="async" alt="Eng. Ahmad Tamer Ali, your ICT tutor" /></div>
         <div className="rv" style={{ '--d': '.12s' }}>
           <span className="eyebrow">My journey</span>
           <h2 className="h2" id="tutor-title">From a struggler to an <em>A* champion.</em></h2>

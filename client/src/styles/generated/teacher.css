@@ -24,7 +24,7 @@
 
 .atp-teacher .att{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
 
-.atp-teacher .attc{display:flex;align-items:center;gap:14px;padding:18px 20px;border-radius:20px;background:var(--s1);border:1px solid var(--bd);text-align:left;transition:all .25s}
+.atp-teacher .attc{display:flex;align-items:center;gap:14px;padding:18px 20px;border-radius:20px;background:var(--s1);border:1px solid var(--bd);text-align:left;transition: color .25s, background-color .25s, border-color .25s, box-shadow .25s, opacity .25s, transform .25s, width .25s, height .25s, max-height .25s, filter .25s}
 .atp-teacher .attc:hover{border-color:var(--cr);transform:translateY(-2px)}
 .atp-teacher .attc>svg:last-child{margin-left:auto;color:var(--fa)}
 
@@ -37,7 +37,7 @@
 
 .atp-teacher .qa-g{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
 
-.atp-teacher .qa-t{display:flex;flex-direction:column;align-items:flex-start;gap:12px;padding:16px;border-radius:16px;background:var(--s2);border:1px solid var(--bd);font-weight:600;font-size:.9rem;text-align:left;transition:all .25s;min-height:96px}
+.atp-teacher .qa-t{display:flex;flex-direction:column;align-items:flex-start;gap:12px;padding:16px;border-radius:16px;background:var(--s2);border:1px solid var(--bd);font-weight:600;font-size:.9rem;text-align:left;transition: color .25s, background-color .25s, border-color .25s, box-shadow .25s, opacity .25s, transform .25s, width .25s, height .25s, max-height .25s, filter .25s;min-height:96px}
 .atp-teacher .qa-t:hover{border-color:var(--cr);background:rgba(202,19,62,.1)}
 
 .atp-teacher .qa-i{width:40px;height:40px;border-radius:12px;background:rgba(202,19,62,.16);color:var(--dark-accent-text);display:grid;place-items:center}
@@ -310,7 +310,7 @@
 .atp-teacher .hwq .chips{margin:0}
 
 .atp-teacher .seg2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.atp-teacher .seg2 button{display:flex;gap:10px;align-items:center;justify-content:center;padding:14px;border-radius:14px;border:1.5px solid var(--bd2);color:var(--mu);font-weight:700;min-height:52px;transition:all .2s}
+.atp-teacher .seg2 button{display:flex;gap:10px;align-items:center;justify-content:center;padding:14px;border-radius:14px;border:1.5px solid var(--bd2);color:var(--mu);font-weight:700;min-height:52px;transition: color .2s, background-color .2s, border-color .2s, box-shadow .2s, opacity .2s, transform .2s, width .2s, height .2s, max-height .2s, filter .2s}
 .atp-teacher .seg2 button.on{background:rgba(202,19,62,.16);border-color:var(--cr);color:var(--white)}
 .atp-teacher .seg2 button:hover{border-color:var(--cr)}
 
@@ -328,7 +328,7 @@
 
 .atp-teacher .qfab.open .qf-i{opacity:1;pointer-events:auto;transform:translate(var(--dx),var(--dy)) scale(1)}
 
-.atp-teacher .qf-c{width:50px;height:50px;border-radius:50%;background:var(--s2);border:1px solid var(--bd2);color:var(--white);display:grid;place-items:center;transition:all .2s;box-shadow:0 8px 20px rgba(0,0,0,.4)}
+.atp-teacher .qf-c{width:50px;height:50px;border-radius:50%;background:var(--s2);border:1px solid var(--bd2);color:var(--white);display:grid;place-items:center;transition: color .2s, background-color .2s, border-color .2s, box-shadow .2s, opacity .2s, transform .2s, width .2s, height .2s, max-height .2s, filter .2s;box-shadow:0 8px 20px rgba(0,0,0,.4)}
 .atp-teacher .qf-i:hover .qf-c, .atp-teacher .qf-i:focus-visible .qf-c{background:var(--cr);border-color:var(--cr)}
 
 .atp-teacher .qf-l{position:absolute;right:60px;top:50%;transform:translateY(-50%);white-space:nowrap;background:var(--s1);border:1px solid var(--bd2);padding:7px 14px;border-radius:99px;font-size:.82rem;font-weight:600;color:var(--white);box-shadow:0 8px 20px rgba(0,0,0,.4)}

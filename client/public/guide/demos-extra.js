@@ -23,6 +23,10 @@ ol.steps li::before{counter-increment:s;content:counter(s);flex:0 0 24px;height:
 ol.steps li.on{border-color:#CA133E;background:#FDE8EC}ol.steps li.on::before{background:#CA133E;color:#fff}
 ol.steps li.done{border-color:#BFE6D5}ol.steps li.done::before{content:'✓';background:#059669;color:#fff}
 ol.steps li b{color:#CA133E}ol.steps li>span{flex:1;min-width:0}
+@container (max-width:520px){
+.wrap{padding:12px 8px 12px;border-radius:16px}.def{font-size:14px;margin:0 2px 10px}
+.seg button{font-size:12.5px;padding:7px 12px}.ctl{gap:6px}.ctl button{font-size:13px;padding:8px 12px}.ctl button.pri{font-size:14px;padding:9px 18px}
+ol.steps li{padding:8px;gap:8px;font-size:13px}.stage{border-radius:12px}}
 @media print{.ctl,.seg{display:none}}
 `;
 const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
@@ -76,7 +80,7 @@ const PH=(id,x,y,name)=>`<g transform="translate(${x} ${y})"><g id="${id}" class
 <rect x="-47" y="-29" width="17" height="24" rx="8" fill="url(#gDark)" stroke="#000" stroke-width="1.5"/><rect x="30" y="-29" width="17" height="24" rx="8" fill="url(#gDark)" stroke="#000" stroke-width="1.5"/>
 ${[-14,0,14].map(kx=>[7,19].map(ky=>`<circle cx="${kx}" cy="${ky}" r="3.3" fill="#55555d"/><circle cx="${kx-1}" cy="${ky-1}" r="1" fill="#aaa"/>`).join('')).join('')}
 <circle class="led" cx="28" cy="7" r="3.4"/></g>
-<g class="eq"><rect x="-13" y="-52" width="5" height="16" rx="2"/><rect x="-3" y="-52" width="5" height="16" rx="2"/><rect x="7" y="-52" width="5" height="16" rx="2"/></g>
+<g class="eq"><rect x="-78" y="-12" width="6" height="18" rx="2"/><rect x="-68" y="-12" width="6" height="18" rx="2"/><rect x="-58" y="-12" width="6" height="18" rx="2"/></g>
 <text class="nm" y="50" text-anchor="middle">${name}</text><text class="st" id="${id}t" y="65" text-anchor="middle"></text></g></g>`;
 const STK=(id,x,y,lbl,pin)=>`<g transform="translate(${x} ${y})"><g class="sk" id="${id}"> <rect width="${lbl?82:58}" height="${lbl?38:32}" rx="3" fill="#FFE680" stroke="#D4B106"/><text x="${lbl?41:29}" y="${lbl?13:12}" class="skl" text-anchor="middle">${lbl||'PIN'}</text><text x="${lbl?41:29}" y="${lbl?31:27}" class="skp" text-anchor="middle">${pin}</text></g></g>`;
 const AY=[50,165,280];
@@ -96,7 +100,8 @@ class AudioConf extends Steps{
 .ph.ring .wob,.ph.dial .wob{animation:wb .3s ease-in-out infinite alternate}@keyframes wb{from{transform:rotate(-4deg)}to{transform:rotate(4deg)}}
 .eq{opacity:0;transition:opacity .3s}.ph.talk .eq{opacity:1}.eq rect{fill:#CA133E;transform-box:fill-box;transform-origin:bottom;animation:eq .6s ease-in-out infinite alternate}
 .eq rect:nth-child(2){animation-delay:.2s}.eq rect:nth-child(3){animation-delay:.4s}@keyframes eq{from{transform:scaleY(.25)}to{transform:scaleY(1)}}
-.nm{font-size:13px;font-weight:700;fill:#1A1A1A}.st{font-size:12px;font-weight:600;fill:#6B6B73}
+.nm{font-size:14px;font-weight:700;fill:#1A1A1A}.st{font-size:13px;font-weight:600;fill:#6B6B73}
+@container (max-width:520px){.nm{font-size:19px}.st{font-size:17px}.skl{font-size:10px}.skp{font-size:18px}.mt{font-size:13px}.ml{font-size:11px}}
 .ph.on .st{fill:#059669}.ph.hold .st,.ph.ring .st,.ph.dial .st{fill:#B45309}
 .sk{opacity:0;transform-box:fill-box;transform-origin:center;transform:scale(.5) rotate(-8deg);transition:all .45s cubic-bezier(.3,1.6,.5,1)}.sk.on{opacity:1;transform:scale(1) rotate(-3deg)}
 .skl{font-size:8.5px;font-weight:700;fill:#7a6200}.skp{font-size:15px;font-weight:700;fill:#1A1A1A;font-family:ui-monospace,Menlo,Consolas,monospace}
@@ -107,9 +112,9 @@ class AudioConf extends Steps{
   html(){return`<div class="wrap">
 <p class="def"><b>Audio conference:</b> an audio call between people in different places, using a phone.</p>
 <div class="seg" id="seg"><button type="button" id="b1">Method 1 · PIN dial-in</button><button type="button" id="b2">Method 2 · Organiser rings</button></div>
-<div class="stage"><svg class="s m1" id="svg" viewBox="0 0 560 350" role="img" aria-label="An organiser and three participants joining an audio conference by phone">${DEFS}
-<rect width="560" height="350" fill="#fff"/>
-<path id="L0" class="ln" d="M114 165 H215"/>
+<div class="stage"><svg class="s m1" id="svg" viewBox="0 0 560 370" role="img" aria-label="An organiser and three participants joining an audio conference by phone">${DEFS}
+<rect width="560" height="370" fill="#fff"/>
+<path id="L0" class="ln" d="M130 165 H215"/>
 ${AY.map((y,i)=>`<path id="L${i+1}" class="ln" d="M325 165 C368 165 362 ${y} 396 ${y}"/>`).join('')}
 <g class="mid mid1"><rect x="215" y="117" width="110" height="96" rx="10" fill="url(#gDark)" stroke="#000" stroke-width="2" filter="url(#fDrop)"/>
 <text class="mt" x="270" y="133" text-anchor="middle">Audio conferencing</text><text class="mt" x="270" y="146" text-anchor="middle">provider</text>
@@ -118,7 +123,7 @@ ${AY.map((y,i)=>`<path id="L${i+1}" class="ln" d="M325 165 C368 165 362 ${y} 396
 <text class="mt" x="270" y="137" text-anchor="middle">Telephone</text><text class="mt" x="270" y="150" text-anchor="middle">network</text>
 <rect x="223" y="157" width="94" height="48" rx="5" fill="#10281d" stroke="#3d6"/><text class="ml" id="br2" x="270" y="186" text-anchor="middle"></text></g>
 <g class="cal" id="cal"><rect x="212" y="8" width="136" height="30" rx="8" fill="#FDE8EC" stroke="#CA133E" stroke-width="2"/><text x="280" y="28" text-anchor="middle" font-size="14" font-weight="700" fill="#CA133E">📅 Friday · 10:00</text></g>
-${PH('po',70,165,'Organiser')}${AY.map((y,i)=>PH('p'+(i+1),440,y,'Participant '+(i+1))).join('')}
+${PH('po',84,165,'Organiser')}${AY.map((y,i)=>PH('p'+(i+1),440,y,'Participant '+(i+1))).join('')}
 ${STK('sko1',0,62,"ORGANISER PIN",'2650')}${STK('sko2',88,62,"PARTICIPANT PIN",'4405')}
 ${AY.map((y,i)=>STK('skp'+(i+1),492,y-16,'','4405')).join('')}
 </svg></div>
@@ -135,13 +140,13 @@ ${AY.map((y,i)=>STK('skp'+(i+1),492,y-16,'','4405')).join('')}
       {c:'Each participant then <b>dials the number</b> and enters the <b>participant\'s PIN</b>.',p:{P:P(['dial','Dialling… PIN 4405'],['idle','Has PIN 4405'],['idle','Has PIN 4405'])},seq:[
         [1100,{P:P(['on','Joined ✓'],['idle','Has PIN 4405'],['idle','Has PIN 4405']),br:'1 on the call'}],[1300,{P:P(['on','Joined ✓'],['dial','Dialling… PIN 4405'],['idle','Has PIN 4405'])}],
         [2400,{P:P(['on','Joined ✓'],['on','Joined ✓'],['idle','Has PIN 4405']),br:'2 on the call'}],[2600,{P:P(['on','Joined ✓'],['on','Joined ✓'],['dial','Dialling… PIN 4405'])}],
-        [3700,{P:P(['on','Joined ✓'],['on','Joined ✓'],['on','Joined ✓']),br:'3 on the call',talk:1,o:['on','Everyone is talking']}]]}];
+        [3700,{P:P(['on','Joined ✓'],['on','Joined ✓'],['on','Joined ✓']),br:'3 on the call',talk:1,o:['on','On the call ✓']}]]}];
     return[
       {c:'Participants set a <b>date and time</b> for the conference.',p:{cal:1,pins:0,o:['idle','Free at 10:00'],P:P(['idle','Free at 10:00'],['idle','Free at 10:00'],['idle','Free at 10:00']),br:'',talk:0}},
       {c:'The organiser <b>phones the first participant</b>.',p:{cal:0,o:['dial','Calling P1…'],P:P(['ring','Ringing…'],I,I),br:'Ringing P1'},seq:[[1700,{o:['on','Talking to P1'],P:P(['on','Answered ✓'],I,I)}]]},
       {c:'The organiser then <b>phones each participant</b> and <b>puts them on hold</b>.',p:{o:['dial','Calling P2…'],P:P(['hold','On hold ⏸'],['ring','Ringing…'],I),br:'P1 on hold'},seq:[[1500,{o:['on','Talking to P2'],P:P(['hold','On hold ⏸'],['on','Answered ✓'],I)}],
         [2800,{o:['dial','Calling P3…'],P:P(['hold','On hold ⏸'],['hold','On hold ⏸'],['ring','Ringing…']),br:'P1, P2 on hold'}],[4200,{o:['on','Talking to P3'],P:P(['hold','On hold ⏸'],['hold','On hold ⏸'],['on','Answered ✓'])}]]},
-      {c:'The organiser <b>joins the participants together</b>.',p:{o:['on','Joining the calls…'],P:P(['hold','On hold ⏸'],['hold','On hold ⏸'],['on','Answered ✓']),br:'Joining…'},seq:[[1400,{o:['on','Everyone is talking'],P:P(['on','Joined ✓'],['on','Joined ✓'],['on','Joined ✓']),br:'Calls joined ✓',talk:1}]]}];}
+      {c:'The organiser <b>joins the participants together</b>.',p:{o:['on','Joining the calls…'],P:P(['hold','On hold ⏸'],['hold','On hold ⏸'],['on','Answered ✓']),br:'Joining…'},seq:[[1400,{o:['on','On the call ✓'],P:P(['on','Joined ✓'],['on','Joined ✓'],['on','Joined ✓']),br:'Calls joined ✓',talk:1}]]}];}
   list(){return this.steps().map(s=>s.c);}
   ms(k){return this.m===1?[2800,3600,2800,3600,5600][k]:[2800,3600,7000,4200][k];}
   show(k){const S=this.steps();let st={cal:0,pins:0,talk:0,br:'',o:['idle',''],P:[['idle',''],['idle',''],['idle','']]};
@@ -232,7 +237,8 @@ class VideoConf extends Act{
 .dv:hover{transform:translateY(-2px)}.dv:active{transform:translateY(1px);box-shadow:none}
 .dv.on{border-color:#059669;background:#ECFDF5;box-shadow:0 3px 0 #BFE6D5}.dv.on small{color:#047857;font-weight:600}
 .dv.bad{border-color:#B3122F;background:#FFF1F3}
-.tf{display:flex;gap:6px;justify-content:center;margin-top:8px}.tf input{font-family:inherit;font-size:14px;padding:7px 12px;border:2px solid #CA133E;border-radius:999px;min-width:0;flex:0 1 220px}
+.tf{display:flex;gap:6px;justify-content:center;margin-top:8px}
+@container (max-width:520px){.tray{grid-template-columns:repeat(2,1fr)}.dv svg{height:40px}.msg{font-size:13px;margin:10px 0 0}.banner{font-size:11.5px;padding:6px 10px}}.tf input{font-family:inherit;font-size:14px;padding:7px 12px;border:2px solid #CA133E;border-radius:999px;min-width:0;flex:0 1 220px}
 `;}
   html(){const dev=id=>{const d=DEVS[id];return d.sc.map(([x,y],i)=>`<g transform="translate(${x} ${y})"><g class="dev" data-d="${id}">${d.art()}</g><rect class="slot" data-s="${id}" width="${d.w}" height="${d.h}" rx="8"/></g>`).join('');};
     const icon=id=>{const d=DEVS[id];const parts=d.ic2||[[0,0]];const W=d.ic2?d.w*2+16:d.w;return`<svg viewBox="0 0 ${W} ${d.h}" aria-hidden="true">${parts.map(([x,y])=>`<g transform="translate(${x} ${y})">${d.art()}</g>`).join('')}</svg>`;};
@@ -362,6 +368,8 @@ class VirusDemo extends Steps{
 .zz{position:absolute;top:-2px;left:2px;font-size:14px;font-weight:700;color:#7C3AED;opacity:0}.t.sleep .zz{opacity:1;animation:zf 1.8s ease-in-out infinite}@keyframes zf{0%{transform:translate(0,6px);opacity:0}50%{opacity:1}100%{transform:translate(8px,-8px);opacity:0}}
 .cur{position:absolute;font-size:26px;z-index:5;pointer-events:none;transition:all .9s ease;opacity:0;filter:drop-shadow(0 2px 2px rgba(0,0,0,.4))}.cur.on{opacity:1}.cur.clk{animation:ck .35s ease-in-out 2}@keyframes ck{50%{transform:scale(.7)}}
 .clone{position:absolute;font-size:20px;z-index:4;pointer-events:none}
+.win{margin:8px}@container (max-width:420px){.grid{grid-template-columns:repeat(2,1fr)}.t{aspect-ratio:auto;flex-direction:row;justify-content:flex-start;gap:8px;padding:8px 10px;text-align:left;min-height:46px}.t .nm{word-break:normal;overflow-wrap:anywhere}.t .bg{position:static;order:3;font-size:14px;margin-left:auto}.t .zz{left:auto;right:4px}.t .nm{min-width:0;flex:1}.t.bad::after{content:'✕';position:static;font-size:14px}.t.gone::after{content:'—';position:static;font-size:14px}.tb{font-size:11.5px;flex-wrap:wrap}.tb .cnt{margin-left:0;width:100%}.vdef{font-size:14px}}
+@container (max-width:520px){.grid{gap:6px;padding:8px}.t{font-size:10.5px}.win{margin:8px 4px}.note{margin:0 8px 8px;font-size:12.5px}}
 .note{margin:0 12px 12px;padding:9px 12px;border-radius:12px;background:#FFF8E5;border:2px solid #F2D58A;font-size:13.5px;text-align:center;min-height:42px;display:flex;align-items:center;justify-content:center}.note b{color:#CA133E}
 `;}
   html(){return`<div class="wrap"><p class="vdef" id="vd"><span data-h="0">Program</span> which <span data-h="2">replicates itself by attaching to files</span>, which causes the computer to be <span data-h="3">infected and damage it</span>. <span data-h="1">Requires human interaction to start action.</span></p>
@@ -519,6 +527,7 @@ class Antivirus extends Act{
 .ghostb{font-family:inherit;font-weight:700;font-size:12.5px;border-radius:99px;border:2px solid #7C3AED;background:#fff;color:#7C3AED;padding:4px 12px;cursor:pointer;margin-top:4px}
 .badge{display:inline-flex;gap:4px;align-items:center;font-size:12px;font-weight:700;padding:3px 10px;border-radius:99px;background:#fff;border:2px solid #DADAE2;color:#6B6B73}.badge.on{border-color:#059669;color:#059669;background:#ECFDF5}
 .tries{display:flex;gap:6px;justify-content:center;margin-top:8px;flex-wrap:wrap}
+@container (max-width:520px){.sc{padding:10px 8px}.arena{padding:10px 8px;min-height:260px}.fs{margin:8px 0 10px;height:200px}.fc{padding:10px 8px 0}.fcap{margin:0 8px 10px}.cmp{grid-template-columns:1fr}.fgrid{grid-template-columns:repeat(2,1fr)}}
 `;}
   html(){return`<div class="wrap"><p class="def"><b>Antivirus:</b> a program which <b>detects the presence of a virus</b> on the computer.</p>
 <div class="seg"><button type="button" data-t="0">① What it is</button><button type="button" data-t="1">② What it does</button><button type="button" data-t="2">③ How it works</button></div>
